@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "personal finance dashboard"
+version = "0.1.0"
+description = ""
+authors = ["Phil Patterson <philip.james.patterson@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "<3.13,>=3.8"
+quiffen = "^2.0.9"
+pandas = "<2.1"
+dagster = "^1.7.4"
+dbt-postgres = "^1.7.14"
+dbt-core = "^1.7.14"
+dagster-dbt = "^0.23.4"
+dagster-webserver = "^1.7.4"
+
+[build-system]
+requires = ["poetry-core", "setuptools"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.dagster]
+module_name = "dagster_finance"

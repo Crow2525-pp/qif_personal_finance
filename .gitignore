@@ -1,0 +1,29 @@
+dagster_project/dbt project/database/
+*.qif
+/dagster_project/dbt project/dagster_dbt_project/dagster_dbt_project/assets/__pycache__
+/dagster_project/dbt project/dagster_dbt_project/tmp*
+/dagster_project/dbt project/dagster_dbt_project/tmp5buk9thn/history/*.db
+/dagster_project/dagster_dbt_project/dagster_dbt_project/__pycache__
+__pycache__
+runs.db
+index.db
+schedules.db
+*.db-shm
+*.db-wal
+*.wal
+dbt_finace/target/
+dbt_finace/dbt_packages/
+dbt_finace/logs/
+*.duckdb
+*.db
+*.complete
+*.err
+*.out
+/tmp_*
+dbt_finance/target/
+qif_files
+/tmp*
+*.log
+*.csv
+*.ods
+*.env

@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  dagster_dbt:
+    container_name: dagster_dbt
+    build: 
+      context: .
+      dockerfile: dagster_finance/dockerfile
+    environment:
+      - DAGSTER_HOME=/opt/personal_finance_dashboard/dagster_finance
+      - DBT_PROJECT_DIR=/opt/personal_finance_dashboard/dbt_finance
+      - DAGSTER_DBT_PARSE_PROJECT_ON_LOAD=1
+    volumes:
+      - .:/opt/personal_finance_dashboard # I want everything except for these below files setup.
+    working_dir: /opt/personal_finance_dashboard
+    ports:
+      - "3000:3000"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  postgres:
+    image: postgres:16
+    shm_size: 128mb
+    restart: always
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=personal_finance
+      - PUID=${USER_ID}
+      - PGID=${GRP_ID}
+      - TZ=${TIMEZONE}
+    ports:
+      - 5000:5432
+    volumes:
+      - /docker/appdata/postgres:/var/lib/postgresql/data
+    depends_on:
+      - dagster_dbt

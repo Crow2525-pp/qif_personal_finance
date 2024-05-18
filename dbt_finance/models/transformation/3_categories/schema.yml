@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: personalfinance_dagster
+    database: personalfinance
+    schema: main
+    tables:
+      - name: banking_categories

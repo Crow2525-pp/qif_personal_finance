@@ -1,0 +1,31 @@
+# Use an official Python runtime as a parent image
+FROM python:3.11
+
+# Environment variables
+ENV PERSONAL_FINANCE_DASHBOARD=/opt/personal_finance_dashboard
+
+RUN mkdir -p $PERSONAL_FINANCE_DASHBOARD
+
+# Set the working directory in the container
+WORKDIR $PERSONAL_FINANCE_DASHBOARD
+
+# Copy the current directory contents into the container at the working directory
+COPY . .
+
+# Install Poetry for dependency management
+RUN pip install poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --no-dev
+
+WORKDIR $PERSONAL_FINANCE_DASHBOARD/dbt_finance
+
+RUN dbt deps
+RUN dbt seed
+
+WORKDIR $PERSONAL_FINANCE_DASHBOARD
+
+# Expose the port that Dagster dev server uses
+EXPOSE 3000
+
+# Run command to start up the dagster development environment
+CMD ["dagster-webserver", "-h", "0.0.0.0", "-p", "3000"]

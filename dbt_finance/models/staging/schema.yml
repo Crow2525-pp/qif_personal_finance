@@ -1,0 +1,74 @@
+version: 2
+
+sources:
+  - name: personalfinance_dagster
+    schema: landing
+    database: personalfinance
+    tables:
+      - name: ING_BillsBillsBills_Transactions
+        meta:
+          dagster:
+            asset_key: ["upload_dataframe_to_postgres", "ING_BillsBillsBills_Transactions"]
+        columns:
+          - name: composite_key
+            tests:
+              - unique
+              - not_null
+
+
+      - name: ING_Countdown_Transactions
+        meta:
+          dagster:
+            asset_key: ["upload_dataframe_to_postgres", "ING_Countdown_Transactions"]
+        columns:
+          - name: composite_key
+            tests:
+              - unique
+              - not_null
+
+      - name: Adelaide_Offset_Transactions
+        meta:
+          dagster:
+            asset_key: ["upload_dataframe_to_postgres", "Adelaide_Offset_Transactions"]
+        columns:
+          - name: composite_key
+            tests:
+              - unique
+              - not_null
+            
+      - name: Adelaide_Homeloan_Transactions
+        meta:
+          dagster:
+            asset_key: ["upload_dataframe_to_postgres"]
+        columns:
+          - name: composite_key
+            tests:
+              - unique
+              - not_null      
+
+      - name: Bendigo_Bank_Offset_Transactions
+        meta:
+          dagster:
+            asset_key: ["upload_dataframe_to_postgres"]
+        columns:
+          - name: composite_key
+            tests:
+              - unique
+              - not_null
+      - name: Bendigo_Bank_Homeloan_Transactions
+        meta:
+          dagster:
+            asset_key: ["upload_dataframe_to_postgres", "Bendigo_Bank_Homeloan_Transactions"]
+        columns:
+          - name: composite_key
+            tests:
+              - unique
+              - not_null
+
+models:
+  - name: staging__Adelaide_Homeloan
+  - name: staging__Adelaide_Offset
+  - name: staging__Bendigo_Bank_Homeloan
+  - name: staging__Bendigo_Bank_Offset
+  - name: staging__ING_billsbillsbills
+  - name: staging__ING_countdown

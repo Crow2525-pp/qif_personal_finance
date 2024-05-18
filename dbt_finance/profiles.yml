@@ -1,0 +1,15 @@
+dbt_finance:
+  target: prod
+  outputs:
+    dev:
+      type: duckdb
+      path:  'duckdb_database/personalfinance.duckdb'
+    prod:
+      type: postgres
+      host: 192.168.1.103
+      user: postgres
+      password: test
+      port: 5000
+      dbname: personalfinance
+      schema: landing
+  
