@@ -4,7 +4,6 @@ import os
 from pathlib import Path
 
 import logging
-from dagster import file_relative_path
 from dagster_dbt import DbtCliResource
 
 DBT_PROJECT_DIR = Path(__file__).joinpath("..", "..", "dbt_finance").resolve()

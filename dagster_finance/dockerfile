@@ -9,16 +9,27 @@ RUN mkdir -p $PERSONAL_FINANCE_DASHBOARD
 # Set the working directory in the container
 WORKDIR $PERSONAL_FINANCE_DASHBOARD
 
-# Copy the current directory contents into the container at the working directory
-COPY . .
+# Install Poetry
+RUN pip install poetry
 
-# Install Poetry for dependency management
-RUN pip install poetry && \
-    poetry config virtualenvs.create false && \
-    poetry install --no-dev
+RUN poetry config virtualenvs.create false
+
+# Copy the pyproject.toml and poetry.lock files
+COPY pyproject.toml poetry.lock ./
+
+# Install all dependencies including dbt
+RUN poetry install --no-root
+
+# Verify dbt is installed and accessible
+RUN which dbt
+RUN dbt --version
+
+# Copy the rest of your application code
+COPY . .
 
 WORKDIR $PERSONAL_FINANCE_DASHBOARD/dbt_finance
 
+# Run dbt setup commands
 RUN dbt deps
 RUN dbt seed
 
