@@ -191,7 +191,7 @@ def ingest_dataframe_to_duckdb(QIF_to_DF: Dict[str, Optional[pd.DataFrame]]) -> 
 
 
 
-@asset(compute_kind="python", required_resource_keys={"postgres_db"})
+@asset(compute_kind="python", required_resource_keys={"pgConnection"})
 def upload_dataframe_to_postgres(context, QIF_to_DF: Dict[str, Optional[pd.DataFrame]]) -> None:
     
     schema = 'landing'

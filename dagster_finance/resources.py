@@ -29,6 +29,7 @@ def get_database_connection():
     finally:
         db_connection.engine.dispose()
 
+@resource
 class pgConnection(ConfigurableResource):
 
     _db_connection: DBConnection = PrivateAttr(default=None)
