@@ -1,5 +1,5 @@
 WITH adjusted_balance AS (
-    {{ calculate_adjusted_balance(ref('staging__Bendigo_Bank_Homeloan')) }})
+    {{ calculate_adjusted_balance('staging__Bendigo_Bank_Homeloan') }})
 
 SELECT
     *

@@ -3,7 +3,8 @@ import os
 from dagster import Definitions
 from dagster_dbt import DbtCliResource
 
-from dagster_finance.resources import postgres_db_resource
+from dagster_finance.resources import pgConnection
+from dagster_duckdb_pandas import duckdb_pandas_io_manager
 
 from .assets import (
     QIF_to_DF,
@@ -13,8 +14,6 @@ from .assets import (
 )
 from .constants import DBT_PROJECT_DIR
 
-from dagster_duckdb_pandas import duckdb_pandas_io_manager
-from config import DUCKDB_FILEPATH
 
 defs = Definitions(
     assets=[
@@ -23,10 +22,8 @@ defs = Definitions(
         upload_dataframe_to_postgres,
     ],  # ingest_dataframe_to_duckdb,
     resources={
-        "postgres_db": postgres_db_resource,
+        "postgres_db": pgConnection(),
         "dbt": DbtCliResource(project_dir=os.fspath(DBT_PROJECT_DIR)),
-        # "io_manager": duckdb_pandas_io_manager.configured(
-        # {"database": DUCKDB_FILEPATH}
-        # ),
-    },
-)
+        "io_manager": duckdb_pandas_io_manager(database="duckdb/finance.duckdb", schema="finance"),
+        }
+    )

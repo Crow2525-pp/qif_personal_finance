@@ -1,5 +1,5 @@
 WITH adjusted_balance AS (
-    {{ calculate_adjusted_balance(ref('staging__ING_billsbillsbills')) }})
+    {{ calculate_adjusted_balance('staging__ING_billsbillsbills') }})
 
 SELECT
     *

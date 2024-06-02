@@ -14,7 +14,6 @@ from dagster import (
     AssetExecutionContext,
 )
 from dagster_dbt import DbtCliResource, dbt_assets
-from config import DUCKDB_FILEPATH, QIF_FOLDERPATH
 from sqlalchemy import create_engine
 from sqlalchemy.dialects.postgresql import JSONB
 
