@@ -3,25 +3,72 @@
 version: 2
 
 seeds:
-  dbt_finance:
-    known_values:
-      description: "Contains known account balances and dates for balance adjustments."
-      # docs:
-      #   show: true
-      #   node_color: "#34d399" # A shade of green
-      config:
-        materialized: 'seed'  # Not 'Table' or 'View'
-      columns:
-        - name: account_name
-          description: "The name of the account."
-          tests:
-            - unique
-            - not_null
-        - name: specific_date
-          description: "The specific date for the known balance."
-          tests:
-            - not_null
-        - name: known_balance
-          description: "The known balance of the account on the specific date."
-          tests:
-            - not_null
+  - name: "known_values"
+    description: "Contains known account balances and dates for balance adjustments."
+    docs:
+      show: true
+      node_color: "#34d399" # A shade of green
+    config:
+      deliminter: ","
+    +quote_columns: false
+    +column_types:
+      account_name: varchar(50)
+      specific_date: date
+      known_balance: float
+    columns:
+    - name: account_name
+      description: "The name of the account."
+      tests:
+        - unique
+        - not_null
+    - name: specific_date
+      description: "The specific date for the known balance."
+      tests:
+        - not_null
+    - name: known_balance
+      description: "The known balance of the account on the specific date."
+      tests:
+        - not_null
+  - name: "banking_categories"
+    description: "list of transaction descriptions and their categories"
+    docs:
+      show: true
+      node_color: "#34d399" # A shade of green
+    config:
+      deliminter: ","
+    +quote_columns: false
+    +column_types:
+      transaction_description: varchar(200)
+      transaction_type: varchar(50)
+      from: varchar(100)
+      to: varchar(100)
+      account: varchar(50)
+      category: varchar(200)
+      subcategory: varchar(200)
+    columns:
+      - name: transaction_description
+        description: "Describes the nature of the transaction."
+        tests:
+          - unique
+          - not_null
+      - name: transaction_type
+        description: "Categorizes the transaction by type, such as 'credit', 'debit', etc."
+        tests:
+          - not_null
+      - name: to
+        description: "Indicates the recipient or destination account of the transaction."
+        tests:
+          - not_null
+      - name: account
+        description: "Identifies the account from which the transaction originated."
+        tests:
+          - not_null
+      - name: category
+        description: "General classification of the transaction, such as 'rent', 'salary', 'utilities', etc."
+        tests:
+          - not_null
+      - name: subcategory
+        description: "More specific classification within a broader category, such as 'electricity' within 'utilities'."
+        tests:
+          - not_null
+

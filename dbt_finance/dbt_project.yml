@@ -36,8 +36,6 @@ models:
     staging:
       +schema: staging
       +materialized: table
-      staging__accounts:
-        enabled: true
     transformation:
       enabled: true
       +schema: transformation
@@ -49,6 +47,7 @@ models:
 
 seeds:
   dbt_finance:
-    seeds:
-      known_values:
-      banking_categories:
+    +enabled: true
+    +schema: seed_data
+    known_values:
+    banking_categories:
