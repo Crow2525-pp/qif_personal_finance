@@ -39,7 +39,7 @@ sources:
       - name: Adelaide_Homeloan_Transactions
         meta:
           dagster:
-            asset_key: ["upload_dataframe_to_postgres"]
+            asset_key: ["upload_dataframe_to_postgres", "Adelaide_Homeloan_Transactions"]
         columns:
           - name: composite_key
             tests:
@@ -49,7 +49,7 @@ sources:
       - name: Bendigo_Bank_Offset_Transactions
         meta:
           dagster:
-            asset_key: ["upload_dataframe_to_postgres"]
+            asset_key: ["upload_dataframe_to_postgres", "Bendigo_Bank_Offset_Transactions"]
         columns:
           - name: composite_key
             tests:

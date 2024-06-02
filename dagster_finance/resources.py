@@ -1,5 +1,5 @@
 from dagster import resource
-from typing import Dict
+from typing import Dict, Any
 import os
 from dagster import ConfigurableResource, InitResourceContext
 from sqlalchemy import create_engine
@@ -18,8 +18,7 @@ class DBConnection:
             return result.fetchall()
 
 @contextmanager
-def get_database_connection():
-    connection_url = os.getenv('POSTGRES_CONN_STR')
+def get_database_connection(connection_url):
     if not connection_url:
         raise Exception("POSTGRES_CONN_STR environment variable must be set")
     
@@ -29,8 +28,8 @@ def get_database_connection():
     finally:
         db_connection.engine.dispose()
 
-@resource
 class pgConnection(ConfigurableResource):
+    connection_url: Any # donno what an EnvVar is.
 
     _db_connection: DBConnection = PrivateAttr(default=None)
 
