@@ -1,24 +1,27 @@
+# seeds/seeds.yml
+
 version: 2
 
 seeds:
-  - name: known_values
-    description: "Contains known account balances and dates for balance adjustments."
-    docs:
-      show: true
-      node_color: "#34d399" # A shade of green
-    config:
-      materialized: 'table'
-    columns:
-      - name: account_name
-        description: "The name of the account."
-        tests:
-          - unique
-          - not_null
-      - name: specific_date
-        description: "The specific date for the known balance."
-        tests:
-          - not_null
-      - name: known_balance
-        description: "The known balance of the account on the specific date."
-        tests:
-          - not_null
+  dbt_finance:
+    known_values:
+      description: "Contains known account balances and dates for balance adjustments."
+      # docs:
+      #   show: true
+      #   node_color: "#34d399" # A shade of green
+      config:
+        materialized: 'seed'  # Not 'Table' or 'View'
+      columns:
+        - name: account_name
+          description: "The name of the account."
+          tests:
+            - unique
+            - not_null
+        - name: specific_date
+          description: "The specific date for the known balance."
+          tests:
+            - not_null
+        - name: known_balance
+          description: "The known balance of the account on the specific date."
+          tests:
+            - not_null

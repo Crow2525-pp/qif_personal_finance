@@ -46,3 +46,9 @@ models:
       enabled: true
       +schema: reporting
       +materialized: table
+
+seeds:
+  dbt_finance:
+    seeds:
+      known_values:
+      banking_categories:
