@@ -1,9 +1,9 @@
 dbt_finance:
-  target: prod
+  target: dev
   outputs:
     dev:
       type: duckdb
-      path:  'duckdb_database/personalfinance.duckdb'
+      path:  'C:/Users/Phil/Documents/Projects/personal_finance_dashboard/duckdb/finance.duckdb'
     prod:
       type: postgres
       host: 192.168.1.103
