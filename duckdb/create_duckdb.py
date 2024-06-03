@@ -12,8 +12,8 @@ if os.path.exists(database_path):
 # Connect to the database (it will be created since it doesn't exist)
 conn = duckdb.connect(database_path)
 
-# Create a new schema named 'finance'
-conn.execute('CREATE SCHEMA IF NOT EXISTS finance')
+# Create a new schema named 'raw'
+conn.execute('CREATE SCHEMA IF NOT EXISTS raw')
 
 # Commit the changes to ensure the schema is created
 conn.commit()

@@ -14,7 +14,7 @@ seeds:
     +column_types:
       account_name: varchar(50)
       specific_date: date
-      known_balance: float
+      account_balance: float
     columns:
     - name: account_name
       description: "The name of the account."
@@ -25,12 +25,12 @@ seeds:
       description: "The specific date for the known balance."
       tests:
         - not_null
-    - name: known_balance
+    - name: account_balance
       description: "The known balance of the account on the specific date."
       tests:
         - not_null
   - name: "banking_categories"
-    description: "list of transaction descriptions and their categories"
+    description: "list of transaction descriptions and their categories.  Nulls are wildcards in their searches."
     docs:
       show: true
       node_color: "#34d399" # A shade of green
@@ -47,28 +47,17 @@ seeds:
       subcategory: varchar(200)
     columns:
       - name: transaction_description
-        description: "Describes the nature of the transaction."
-        tests:
-          - unique
-          - not_null
+        description: "Describes the nature of the transaction.  If null then wildcard."
       - name: transaction_type
-        description: "Categorizes the transaction by type, such as 'credit', 'debit', etc."
-        tests:
-          - not_null
+        description: "Categorizes the transaction by type, such as 'credit', 'debit', etc.  If null then wildcard."
       - name: to
-        description: "Indicates the recipient or destination account of the transaction."
-        tests:
-          - not_null
+        description: "Indicates the recipient or destination account of the transaction.  If null then wildcard."
       - name: account
-        description: "Identifies the account from which the transaction originated."
+        description: "Identifies the account from which the transaction originated. "
         tests:
           - not_null
       - name: category
         description: "General classification of the transaction, such as 'rent', 'salary', 'utilities', etc."
-        tests:
-          - not_null
       - name: subcategory
         description: "More specific classification within a broader category, such as 'electricity' within 'utilities'."
-        tests:
-          - not_null
 
