@@ -8,24 +8,24 @@ from dagster_duckdb_pandas import duckdb_pandas_io_manager
 
 from .assets import (
     finance_dbt_assets,
-    upload_ing_countdown,
-    upload_ing_billsbillsbills,
-    upload_bendigo_bank_offset,
-    upload_bendigo_bank_homeloan,
-    upload_adelaide_offset,
-    upload_adelaide_homeloan,
+    ING_BillsBillsBills_Transactions,
+    ING_Countdown_Transactions,
+    Bendigo_Bank_Offset_Transactions,
+    Bendigo_Bank_Homeloan_Transactions,
+    Adelaide_Offset_Transactions,
+    Adelaide_Homeloan_Transactions,
 )
 from .constants import DBT_PROJECT_DIR
 
 
 defs = Definitions(
     assets=[
-        upload_ing_countdown,
-        upload_ing_billsbillsbills,
-        upload_bendigo_bank_offset,
-        upload_bendigo_bank_homeloan,
-        upload_adelaide_offset,
-        upload_adelaide_homeloan,
+        ING_BillsBillsBills_Transactions,
+        ING_Countdown_Transactions,
+        Bendigo_Bank_Offset_Transactions,
+        Bendigo_Bank_Homeloan_Transactions,
+        Adelaide_Offset_Transactions,
+        Adelaide_Homeloan_Transactions,
         finance_dbt_assets,
     ],  # ingest_dataframe_to_duckdb,
     resources={

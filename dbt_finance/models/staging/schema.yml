@@ -2,13 +2,13 @@ version: 2
 
 sources:
   - name: personalfinance_dagster
-    schema: landing
-    database: personalfinance
+    schema: raw
+    database: finance
     tables:
       - name: ING_BillsBillsBills_Transactions
         meta:
           dagster:
-            asset_key: ["upload_ing_billsbillsbills"]
+            asset_key: ["ING_BillsBillsBills_Transactions"]
         columns:
           - name: composite_key
             tests:
@@ -19,7 +19,7 @@ sources:
       - name: ING_Countdown_Transactions
         meta:
           dagster:
-            asset_key: ["upload_ing_countdown"]
+            asset_key: ["ING_Countdown_Transactions"]
         columns:
           - name: composite_key
             tests:
@@ -29,7 +29,7 @@ sources:
       - name: Adelaide_Offset_Transactions
         meta:
           dagster:
-            asset_key: ["upload_adelaide_offset"]
+            asset_key: ["Adelaide_Offset_Transactions"]
         columns:
           - name: composite_key
             tests:
@@ -39,7 +39,7 @@ sources:
       - name: Adelaide_Homeloan_Transactions
         meta:
           dagster:
-            asset_key: ["upload_adelaide_homeloan"]
+            asset_key: ["Adelaide_Homeloan_Transactions"]
         columns:
           - name: composite_key
             tests:
@@ -49,7 +49,7 @@ sources:
       - name: Bendigo_Bank_Offset_Transactions
         meta:
           dagster:
-            asset_key: ["upload_bendigo_bank_homeloan"]
+            asset_key: ["Bendigo_Bank_Offset_Transactions"]
         columns:
           - name: composite_key
             tests:
@@ -58,7 +58,7 @@ sources:
       - name: Bendigo_Bank_Homeloan_Transactions
         meta:
           dagster:
-            asset_key: ["upload_bendigo_bank_offset"]
+            asset_key: ["Bendigo_Bank_Homeloan_Transactions"]
         columns:
           - name: composite_key
             tests:

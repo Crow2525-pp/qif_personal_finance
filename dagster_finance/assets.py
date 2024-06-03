@@ -96,7 +96,7 @@ def convert_qif_to_df(qif_file: Path) -> pd.DataFrame:
 
 
 @asset(compute_kind="python")
-def upload_adelaide_homeloan(context: AssetExecutionContext):
+def Adelaide_Homeloan_Transactions(context: AssetExecutionContext):
     df = convert_qif_to_df(Path('qif_files/Adelaide_Homeloan_Transactions.qif'))
     context.add_output_metadata(
     metadata={
@@ -108,7 +108,7 @@ def upload_adelaide_homeloan(context: AssetExecutionContext):
     return df
     
 @asset(compute_kind="python")
-def upload_adelaide_offset(context: AssetExecutionContext):
+def Adelaide_Offset_Transactions(context: AssetExecutionContext):
     df = convert_qif_to_df(Path('qif_files/Adelaide_Offset_Transactions.qif'))
     context.add_output_metadata(
     metadata={
@@ -120,7 +120,7 @@ def upload_adelaide_offset(context: AssetExecutionContext):
     return df
 
 @asset(compute_kind="python")
-def upload_bendigo_bank_homeloan(context: AssetExecutionContext):
+def Bendigo_Bank_Homeloan_Transactions(context: AssetExecutionContext):
     df = convert_qif_to_df(Path('qif_files/Bendigo_Bank_Homeloan_Transactions.qif'))
     context.add_output_metadata(
     metadata={
@@ -132,7 +132,7 @@ def upload_bendigo_bank_homeloan(context: AssetExecutionContext):
     return df
 
 @asset(compute_kind="python")
-def upload_bendigo_bank_offset(context: AssetExecutionContext):
+def Bendigo_Bank_Offset_Transactions(context: AssetExecutionContext):
     df = convert_qif_to_df(Path('qif_files/Bendigo_Bank_Offset_Transactions.qif'))
     context.add_output_metadata(
     metadata={
@@ -144,7 +144,7 @@ def upload_bendigo_bank_offset(context: AssetExecutionContext):
     return df
 
 @asset(compute_kind="python")
-def upload_ing_billsbillsbills(context: AssetExecutionContext):
+def ING_BillsBillsBills_Transactions(context: AssetExecutionContext):
     df = convert_qif_to_df(Path('qif_files/ING_BillsBillsBills_Transactions.qif'))
     context.add_output_metadata(
     metadata={
@@ -156,7 +156,7 @@ def upload_ing_billsbillsbills(context: AssetExecutionContext):
     return df
 
 @asset(compute_kind="python")
-def upload_ing_countdown(context: AssetExecutionContext):
+def ING_Countdown_Transactions(context: AssetExecutionContext):
     df = convert_qif_to_df(Path('qif_files/ING_Countdown_Transactions.qif'))
     context.add_output_metadata(
     metadata={

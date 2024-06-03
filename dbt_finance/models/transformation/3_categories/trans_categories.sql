@@ -5,7 +5,7 @@ WITH transaction_data AS (
 ),
 
 category_mappings AS (
-    SELECT * FROM {{ source('personalfinance_dagster', 'banking_categories') }}
+    SELECT * FROM {{ ref('banking_categories') }}
 ),
 
 -- Join transactions with mappings and categorize them
