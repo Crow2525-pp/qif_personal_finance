@@ -2,12 +2,12 @@
 # Name your project! Project names should contain only lowercase characters
 # and underscores. A good package name should reflect your organization's
 # name or the intended use of these models
-name: 'dbt_finance'
+name: 'personal_finance'
 version: '1.0.0'
 config-version: 2
 
 # This setting configures which "profile" dbt uses for this project.
-profile: 'dbt_finance'
+profile: 'personal_finance'
 
 # These configurations specify where dbt should look for different types of files.
 # The `model-paths` config, for example, states that models in this project can be
@@ -30,7 +30,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 # directory as views. These settings can be overridden in the individual model
 # files using the `{{ config(...) }}` macro.
 models:
-  dbt_finance:
+  personal_finance:
     # Config indicated by + and applies to all files under models/example/
     staging:
       +schema: staging
@@ -45,7 +45,7 @@ models:
       +materialized: table
 
 seeds:
-  dbt_finance:
+  personal_finance:
     +enabled: true
     +schema: seed_data
     known_values:

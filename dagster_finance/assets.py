@@ -1,44 +1,19 @@
+import hashlib
 from datetime import datetime
-import json
-from typing import Mapping, Optional, Dict
+from pathlib import Path
+from typing import Dict, Optional
+
 import pandas as pd
 import quiffen
-from pathlib import Path
-import duckdb
-import hashlib
-from dagster import (
-    Any,
-    AssetKey,
-    AssetOut,
-    logger,
-    asset,
-    get_dagster_logger,
-    MetadataValue,
-    AssetExecutionContext,
-    multi_asset,
-)
-from dagster_dbt import (
-    DagsterDbtTranslator,
-    DbtCliResource,
-    dbt_assets,
-    DagsterDbtTranslatorSettings,
-)
-from sqlalchemy import create_engine
+from dagster import (AssetExecutionContext, MetadataValue, asset,
+                     get_dagster_logger, logger)
+from dagster_dbt import DbtCliResource, dbt_assets
 from sqlalchemy.dialects.postgresql import JSONB
-from .resources import pgConnection
 
 logger = get_dagster_logger()
 
 from .constants import dbt_manifest_path
-
-
-# class CustomDagsterDbtTranslator(DagsterDbtTranslator):
-#     def get_asset_key(self, dbt_resource_props: Mapping[str, Any]) -> AssetKey:
-#         return super().get_asset_key(dbt_resource_props).with_prefix("qif_files")
-
-# dagster_dbt_translator = DagsterDbtTranslator(
-#     settings=DagsterDbtTranslatorSettings(enable_asset_checks=False)
-# )
+from .resources import pgConnection
 
 
 @dbt_assets(
@@ -48,44 +23,33 @@ def finance_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
     yield from dbt.cli(["build"], context=context).stream()
 
 
-def create_composite_key(row: Dict[str, str]) -> Optional[str]:
-    try:
-        date = row.get("date", "")
-        amount = row.get("amount", "")
-        description = row.get("payee", "") if "payee" in row else row.get("memo", "")
+class PrimaryKeyGenerator:
+    def __init__(self):
+        self.counters = {
+            'ING': 20000,
+            'Bendigo': 40000,
+            'Adelaide': 60000
+        }
 
-        if not date or not amount:
-            print(f"Skipping row due to missing values: {row}")
-            return None
+    def get_next_key(self, bank_name):
+        if bank_name not in self.counters:
+            raise ValueError("Bank name is not recognized.")
+        self.counters[bank_name] += 1
+        return self.counters[bank_name]
 
-        hashed_description = (
-            hashlib.md5(description.encode()).hexdigest() if description else ""
-        )
-        composite_key = f"{date}_{amount}_{hashed_description}"
-        return composite_key
-
-    except Exception as e:
-        print(f"An error occurred while creating composite key: {e}")
-        return None
+# Create an instance of the generator
+key_generator = PrimaryKeyGenerator()
 
 
-# TODO the input should be each file in the QIF and the output should be an individual DF.
-
-
-@asset(compute_kind="python")
-def upload_dataframe_to_duck_db(df: pd.DataFrame) -> pd.DataFrame:
-    """Setup to capture individual df within the io manager"""
-    return df
-
-def convert_qif_to_df(qif_file: Path) -> pd.DataFrame:
+def convert_qif_to_df(qif_file: Path, key_generator: PrimaryKeyGenerator, bank_name: str) -> pd.DataFrame:
     qif_processor = quiffen.Qif.parse(qif_file, day_first=False)
     df = qif_processor.to_dataframe()
 
     if df is not None:
         df.dropna(how="all", axis=1, inplace=True)
 
-        # add a primary key
-        df["composite_key"] = df.apply(lambda row: create_composite_key(row), axis=1)
+        # Generate primary keys
+        df['primary_key'] = [key_generator.get_next_key(bank_name) for _ in range(len(df))]
 
         # add an ingestion timestamp
         df["ingestion_date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -95,9 +59,9 @@ def convert_qif_to_df(qif_file: Path) -> pd.DataFrame:
     return df
 
 
-@asset(compute_kind="python")
+@asset(compute_kind="python", group_name="qif_ingestion")
 def Adelaide_Homeloan_Transactions(context: AssetExecutionContext):
-    df = convert_qif_to_df(Path('qif_files/Adelaide_Homeloan_Transactions.qif'))
+    df = convert_qif_to_df(qif_file=Path('qif_files/Adelaide_Homeloan_Transactions.qif'), key_generator=key_generator, bank_name="Adelaide")
     context.add_output_metadata(
     metadata={
         "num_records": len(df),  # Metadata can be any key-value pair
@@ -107,9 +71,9 @@ def Adelaide_Homeloan_Transactions(context: AssetExecutionContext):
     )   
     return df
     
-@asset(compute_kind="python")
+@asset(compute_kind="python", group_name="qif_ingestion")
 def Adelaide_Offset_Transactions(context: AssetExecutionContext):
-    df = convert_qif_to_df(Path('qif_files/Adelaide_Offset_Transactions.qif'))
+    df = convert_qif_to_df(qif_file=Path('qif_files/Adelaide_Offset_Transactions.qif'), key_generator=key_generator, bank_name="Adelaide")
     context.add_output_metadata(
     metadata={
         "num_records": len(df),  # Metadata can be any key-value pair
@@ -119,9 +83,9 @@ def Adelaide_Offset_Transactions(context: AssetExecutionContext):
     )   
     return df
 
-@asset(compute_kind="python")
+@asset(compute_kind="python", group_name="qif_ingestion")
 def Bendigo_Bank_Homeloan_Transactions(context: AssetExecutionContext):
-    df = convert_qif_to_df(Path('qif_files/Bendigo_Bank_Homeloan_Transactions.qif'))
+    df = convert_qif_to_df(qif_file=Path('qif_files/Bendigo_Bank_Homeloan_Transactions.qif'), key_generator=key_generator, bank_name="Bendigo")
     context.add_output_metadata(
     metadata={
         "num_records": len(df),  # Metadata can be any key-value pair
@@ -131,9 +95,9 @@ def Bendigo_Bank_Homeloan_Transactions(context: AssetExecutionContext):
     )   
     return df
 
-@asset(compute_kind="python")
+@asset(compute_kind="python", group_name="qif_ingestion")
 def Bendigo_Bank_Offset_Transactions(context: AssetExecutionContext):
-    df = convert_qif_to_df(Path('qif_files/Bendigo_Bank_Offset_Transactions.qif'))
+    df = convert_qif_to_df(qif_file=Path('qif_files/Bendigo_Bank_Offset_Transactions.qif'), key_generator=key_generator, bank_name="Bendigo")
     context.add_output_metadata(
     metadata={
         "num_records": len(df),  # Metadata can be any key-value pair
@@ -143,9 +107,9 @@ def Bendigo_Bank_Offset_Transactions(context: AssetExecutionContext):
     )   
     return df
 
-@asset(compute_kind="python")
+@asset(compute_kind="python", group_name="qif_ingestion")
 def ING_BillsBillsBills_Transactions(context: AssetExecutionContext):
-    df = convert_qif_to_df(Path('qif_files/ING_BillsBillsBills_Transactions.qif'))
+    df = convert_qif_to_df(qif_file=Path('qif_files/ING_BillsBillsBills_Transactions.qif'), key_generator=key_generator, bank_name="ING")
     context.add_output_metadata(
     metadata={
         "num_records": len(df),  # Metadata can be any key-value pair
@@ -155,9 +119,9 @@ def ING_BillsBillsBills_Transactions(context: AssetExecutionContext):
     )   
     return df
 
-@asset(compute_kind="python")
+@asset(compute_kind="python", group_name="qif_ingestion")
 def ING_Countdown_Transactions(context: AssetExecutionContext):
-    df = convert_qif_to_df(Path('qif_files/ING_Countdown_Transactions.qif'))
+    df = convert_qif_to_df(qif_file=Path('qif_files/ING_Countdown_Transactions.qif'), key_generator=key_generator, bank_name="ING")
     context.add_output_metadata(
     metadata={
         "num_records": len(df),  # Metadata can be any key-value pair

@@ -15,6 +15,9 @@ dbt-core = "^1.7.14"
 dagster-dbt = "^0.23.4"
 dagster-webserver = "^1.7.4"
 duckdb = "^0.10.3"
+dbt = "^1.0.0.37.15"
+dagster-duckdb-pandas = "^0.23.8"
+dbt-duckdb = "^1.8.1"
 
 [build-system]
 requires = ["poetry-core", "setuptools"]
