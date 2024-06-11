@@ -1,3 +1,4 @@
+import json
 import os
 
 from dagster import Definitions, EnvVar
@@ -17,7 +18,6 @@ from .assets import (
 )
 from .constants import DBT_PROJECT_DIR
 
-
 defs = Definitions(
     assets=[
         ING_BillsBillsBills_Transactions,
@@ -29,7 +29,7 @@ defs = Definitions(
         finance_dbt_assets,
     ],  # ingest_dataframe_to_duckdb,
     resources={
-        #"postgres_db": pgConnection(EnvVar("POSTGRES_CONN_STR")),
+        "postgres_db": pgConnection(os.getenv("POSTGRES_CONN_STR")),#EnvVar("POSTGRES_CONN_STR")),
         "dbt": DbtCliResource(project_dir=os.fspath(DBT_PROJECT_DIR)),
         "io_manager": duckdb_pandas_io_manager.configured({"database":"duckdb/finance.duckdb", "schema":"finance.raw"}),
         }

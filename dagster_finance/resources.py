@@ -1,4 +1,4 @@
-from dagster import resource
+from dagster import EnvVar, resource
 from typing import Dict, Any
 import os
 from dagster import ConfigurableResource, InitResourceContext
@@ -9,7 +9,7 @@ from pydantic import PrivateAttr
 
 
 class DBConnection:
-    def __init__(self, url):
+    def __init__(self, url: str):
         self.engine = create_engine(url)
 
     def query(self, body: str):
@@ -18,9 +18,9 @@ class DBConnection:
             return result.fetchall()
 
 @contextmanager
-def get_database_connection(connection_url):
+def get_database_connection(connection_url: str):
     if not connection_url:
-        raise Exception("POSTGRES_CONN_STR environment variable must be set")
+        raise ValueError("Connection URL must be provided")
     
     db_connection = DBConnection(connection_url)
     try:
@@ -29,13 +29,13 @@ def get_database_connection(connection_url):
         db_connection.engine.dispose()
 
 class pgConnection(ConfigurableResource):
-    connection_url: Any # donno what an EnvVar is.
+    connection_url: Any # donno what type an EnvVar is.
 
     _db_connection: DBConnection = PrivateAttr(default=None)
 
-    def __init__(self, context: InitResourceContext):
+    def __init__(self):#, context: InitResourceContext):
         self._db_connection = None 
-        super().__init__(context) 
+        #super().__init__(context) 
 
     @contextmanager
     def yield_for_execution(self):
@@ -49,3 +49,13 @@ class pgConnection(ConfigurableResource):
         if self._db_connection is None:
             raise Exception("Database connection not established")
         return self._db_connection.query(body)
+
+if __name__ == "__main__":
+    # Example usage of the database connection and query
+    postgres_conn_str = os.getenv("POSTGRES_CONN_STR")
+    print(f"Postgres Connection String: {postgres_conn_str}")
+    pg_conn = pgConnection(postgres_conn_str)  # Assuming no context is needed for demonstration.
+    with pg_conn.yield_for_execution():
+        # Example query - adjust the SQL to fit your actual database schema and purpose
+        results = pg_conn.query("SELECT * FROM pg_catalog.pg_tables WHERE schemaname='public' LIMIT 10;")
+        print(results)
