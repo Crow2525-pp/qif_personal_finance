@@ -28,19 +28,17 @@ def get_database_connection(connection_url: str):
     finally:
         db_connection.engine.dispose()
 
-class pgConnection(ConfigurableResource):
-    connection_url: Any # donno what type an EnvVar is.
-
-    _db_connection: DBConnection = PrivateAttr(default=None)
-
-    def __init__(self):#, context: InitResourceContext):
-        self._db_connection = None 
-        #super().__init__(context) 
-
+class pgConnection: #(ConfigurableResource):
+    def __init__(self, connection_url: str):
+        if not connection_url:
+            raise ValueError("A valid connection URL must be provided")
+        self.connection_url = connection_url
+        self._db_connection = None
+        
     @contextmanager
     def yield_for_execution(self):
         # keep connection open for the duration of the execution
-        with get_database_connection() as conn:
+        with get_database_connection(self.connection_url) as conn:
             self._db_connection = conn
             yield self
             self._db_connection = None 
