@@ -29,7 +29,7 @@ defs = Definitions(
         finance_dbt_assets,
     ],  # ingest_dataframe_to_duckdb,
     resources={
-        "postgres_db": pgConnection(os.getenv("POSTGRES_CONN_STR")),#EnvVar("POSTGRES_CONN_STR")),
+        "postgres_db": pgConnection(connection_url=EnvVar("POSTGRES_CONN_STR")),
         "dbt": DbtCliResource(project_dir=os.fspath(DBT_PROJECT_DIR)),
         "io_manager": duckdb_pandas_io_manager.configured({"database":"duckdb/finance.duckdb", "schema":"finance.raw"}),
         }

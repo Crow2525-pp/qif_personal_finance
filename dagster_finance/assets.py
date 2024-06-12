@@ -70,7 +70,12 @@ def Adelaide_Homeloan_Transactions(context: AssetExecutionContext):
         }
     )   
     return df
+
+if __name__ == '__main__':
+    df = Adelaide_Homeloan_Transactions()
+    print(df.head())
     
+        
 @asset(compute_kind="python", group_name="qif_ingestion")
 def Adelaide_Offset_Transactions(context: AssetExecutionContext):
     df = convert_qif_to_df(qif_file=Path('qif_files/Adelaide_Offset_Transactions.qif'), key_generator=key_generator, bank_name="Adelaide")
