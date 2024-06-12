@@ -33,9 +33,10 @@ class PrimaryKeyGenerator:
 
     def get_next_key(self, bank_name):
         if bank_name not in self.counters:
-            raise ValueError("Bank name is not recognized.")
-        self.counters[bank_name] += 1
-        return self.counters[bank_name]
+            raise ValueError(f"Bank name {bank_name} is not recognized.")
+        next_key = self.counters[bank_name] + 1
+        self.counters[bank_name] = next_key
+        return next_key
 
 # Create an instance of the generator
 key_generator = PrimaryKeyGenerator()

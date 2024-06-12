@@ -3,6 +3,7 @@ import os
 
 from dagster import Definitions, EnvVar
 from dagster_dbt import DbtCliResource
+from dagster_duckdb import DuckDBResource
 
 from dagster_finance.resources import pgConnection
 from dagster_duckdb_pandas import duckdb_pandas_io_manager
@@ -31,6 +32,6 @@ defs = Definitions(
     resources={
         "postgres_db": pgConnection(connection_url=EnvVar("POSTGRES_CONN_STR")),
         "dbt": DbtCliResource(project_dir=os.fspath(DBT_PROJECT_DIR)),
-        "io_manager": duckdb_pandas_io_manager.configured({"database":"duckdb/finance.duckdb", "schema":"finance.raw"}),
-        }
+        "io_manager": duckdb_pandas_io_manager.configured({"database":"duckdb/finance.duckdb", "schema":"finance.raw"})
+    }
     )
