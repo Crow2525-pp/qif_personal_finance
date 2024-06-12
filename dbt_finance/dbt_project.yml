@@ -46,7 +46,11 @@ models:
 
 seeds:
   personal_finance:
+  +enabled: true
+  +schema: seed
+  known_values:
     +enabled: true
-    +schema: seed_data
-    known_values:
-    banking_categories:
+    +quote_columns: true
+  banking_categories:
+    +enabled: true
+    +quote_columns: true

@@ -1,0 +1,11 @@
+{
+    "PowerShell": {
+        "source": "PowerShell",
+        "icon": "terminal-powershell",
+        "args": [
+            "-NoExit",
+            "-Command",
+            "oh-my-posh init pwsh | Invoke-Expression"
+        ]
+        }
+}

@@ -3,32 +3,34 @@
 version: 2
 
 seeds:
-  - name: "known_values"
-    description: "Contains known account balances and dates for balance adjustments."
-    docs:
-      show: true
-      node_color: "#34d399" # A shade of green
-    config:
-      deliminter: ","
-    +quote_columns: false
-    +column_types:
-      account_name: varchar(50)
-      specific_date: date
-      account_balance: float
-    columns:
-    - name: account_name
-      description: "The name of the account."
-      tests:
-        - unique
-        - not_null
-    - name: specific_date
-      description: "The specific date for the known balance."
-      tests:
-        - not_null
-    - name: account_balance
-      description: "The known balance of the account on the specific date."
-      tests:
-        - not_null
+  # - name: known_values
+  #   description: "Contains known account balances and dates for balance adjustments."
+  #   docs:
+  #     show: true
+  #     node_color: "#34d399" # A shade of green
+  #   # config:
+  #   #   deliminter: "," 
+  #   # +quote_columns: false
+  #   # +column_types:
+  #   #   account_name: varchar(50)
+  #   #   specific_date: date
+  #   #   account_balance: float
+
+  #   columns:
+  #   - name: "account_name"
+  #     description: "The name of the account."
+  #     tests:
+  #       - unique
+  #       - not_null
+  #   - name: specific_date
+  #     description: "The specific date for the known balance."
+  #     tests:
+  #       - not_null
+  #   - name: account_balance
+  #     description: "The known balance of the account on the specific date."
+  #     tests:
+  #       - not_null
+
   - name: "banking_categories"
     description: "list of transaction descriptions and their categories.  Nulls are wildcards in their searches."
     docs:

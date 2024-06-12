@@ -60,22 +60,17 @@ def convert_qif_to_df(qif_file: Path, key_generator: PrimaryKeyGenerator, bank_n
 
 
 @asset(compute_kind="python", group_name="qif_ingestion")
-def Adelaide_Homeloan_Transactions():#context: AssetExecutionContext):
+def Adelaide_Homeloan_Transactions(context: AssetExecutionContext):
     df = convert_qif_to_df(qif_file=Path('qif_files/Adelaide_Homeloan_Transactions.qif'), key_generator=key_generator, bank_name="Adelaide")
-    # context.add_output_metadata(
-    # metadata={
-    #     "num_records": len(df),  # Metadata can be any key-value pair
-    #     "preview": MetadataValue.md(df.head().to_markdown()),
-    #     # The `MetadataValue` class has useful static methods to build Metadata
-    #     }
-    # )   
+    context.add_output_metadata(
+    metadata={
+        "num_records": len(df),  # Metadata can be any key-value pair
+        "preview": MetadataValue.md(df.head().to_markdown()),
+        # The `MetadataValue` class has useful static methods to build Metadata
+        }
+    )   
     return df
 
-if __name__ == '__main__':
-    df = Adelaide_Homeloan_Transactions()
-    print(df.head())
-    
-        
 @asset(compute_kind="python", group_name="qif_ingestion")
 def Adelaide_Offset_Transactions(context: AssetExecutionContext):
     df = convert_qif_to_df(qif_file=Path('qif_files/Adelaide_Offset_Transactions.qif'), key_generator=key_generator, bank_name="Adelaide")
