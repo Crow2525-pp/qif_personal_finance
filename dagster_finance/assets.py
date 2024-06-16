@@ -55,14 +55,13 @@ def convert_qif_to_df(qif_file: Path, key_generator: PrimaryKeyGenerator, bank_n
 
         # add an ingestion timestamp
         df["ingestion_date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        upload_dataframe_to_postgres(df=df, table_name=qif_file.stem)
     else:
         raise ValueError(f"Datafrmae is empty for {qif_file}")
 
     return df
 
 
-@asset(compute_kind="duckdb", group_name="qif_ingestion_duckdb")
+@asset(compute_kind="duckdb", group_name="qif_ingestion_duckdb", io_manager_key="duckdb_io_manager")
 def Adelaide_Homeloan_Transactions(context: AssetExecutionContext):
     df = convert_qif_to_df(qif_file=Path('qif_files/Adelaide_Homeloan_Transactions.qif'), key_generator=key_generator, bank_name="Adelaide")
     context.add_output_metadata(

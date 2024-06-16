@@ -1,4 +1,4 @@
-from dagster import EnvVar, resource
+from dagster import EnvVar, build_resources, resource
 from typing import Dict, Any, Union
 import os
 from dagster import ConfigurableResource, InitResourceContext
@@ -46,8 +46,41 @@ if __name__ == "__main__":
     # Example usage of the database connection and query
     postgres_conn_str = os.getenv("POSTGRES_CONN_STR")
     print(f"Postgres Connection String: {postgres_conn_str}")
-    pg_conn = pgConnection(postgres_conn_str)  # Assuming no context is needed for demonstration.
-    with pg_conn.yield_for_execution():
+
+    # Manually create an instance of pgConnection with the connection string
+    pg_conn = pgConnection(connection_string=postgres_conn_str)
+
+    with pg_conn.yield_for_execution(None):
         # Example query - adjust the SQL to fit your actual database schema and purpose
-        results = pg_conn.query('SELECT date, amount, memo, line_number, splits, primary_key, ingestion_date FROM landing."Adelaide_Homeloan_Transactions";')
+        query = """ 
+        SELECT 
+            table_schema, 
+            table_name, 
+            table_type
+        FROM 
+            information_schema.tables
+        WHERE 
+            table_type = 'BASE TABLE'
+            AND table_schema NOT IN ('information_schema', 'pg_catalog')
+        ORDER BY 
+            table_schema, 
+            table_name;
+        """
+        print(query)
+        results = pg_conn.query(query)
+        print(results)
+
+        query2 = """
+        SELECT 
+            date, 
+            amount, 
+            memo,
+            line_number,
+            splits,
+            primary_key,
+            ingestion_date 
+        FROM raw."Adelaide_Homeloan_Transactions;
+        """
+
+        # results = pg_conn.query(query2)
         print(results)
