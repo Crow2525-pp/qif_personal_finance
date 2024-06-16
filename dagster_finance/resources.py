@@ -27,7 +27,7 @@ def get_database_connection(connection_url: str):
         engine.dispose()
 
 class pgConnection(ConfigurableResource):
-    connection_string: str # BUG: Should be able to use EnvVar
+    connection_string: str
 
     _db_connection: DBConnection = PrivateAttr()
    

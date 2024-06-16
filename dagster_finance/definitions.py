@@ -1,40 +1,32 @@
-import json
 import os
 
 from dagster import Definitions, EnvVar
 from dagster_dbt import DbtCliResource
-from dagster_duckdb import DuckDBResource
 
 from dagster_finance.resources import pgConnection
 from dagster_duckdb_pandas import duckdb_pandas_io_manager
+from dagster_duckdb import DuckDBResource
 
-from .assets import (
-    finance_dbt_assets,
-    ING_BillsBillsBills_Transactions,
-    ING_Countdown_Transactions,
-    Bendigo_Bank_Offset_Transactions,
-    Bendigo_Bank_Homeloan_Transactions,
-    Adelaide_Offset_Transactions,
-    Adelaide_Homeloan_Transactions,
-    upload_dataframe_to_postgres
-)
+from .assets import finance_dbt_assets, upload_dataframe_to_database
 from .constants import DBT_PROJECT_DIR
 
-defs = Definitions(
-    assets=[
-        # ING_BillsBillsBills_Transactions,
-        # ING_Countdown_Transactions,
-        # Bendigo_Bank_Offset_Transactions,
-        # Bendigo_Bank_Homeloan_Transactions,
-        # Adelaide_Offset_Transactions,
-        # Adelaide_Homeloan_Transactions,
-        finance_dbt_assets,
-        upload_dataframe_to_postgres
-        
-    ],  # ingest_dataframe_to_duckdb,
-    resources={
-        "postgres_db": pgConnection(connection_string=EnvVar("POSTGRES_CONN_STR")),
+resources = {
+    "local": {
+        "personal_finance_database": pgConnection("duckdb:////duckdb/finance.duckdb/finance.raw"),
+            #DuckDBResource(database="duckdb/finance.duckdb", schema="finance.raw"),
         "dbt": DbtCliResource(project_dir=os.fspath(DBT_PROJECT_DIR)),
-        "duckdb_io_manager": duckdb_pandas_io_manager.configured({"database":"duckdb/finance.duckdb", "schema":"finance.raw"})
-    }
-    )
+    },
+    "production": {
+        "personal_finance_database": pgConnection(
+            connection_string=EnvVar("POSTGRES_CONN_STR")
+        ),
+        "dbt": DbtCliResource(project_dir=os.fspath(DBT_PROJECT_DIR)),
+    },
+}
+
+deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "local")
+
+defs = Definitions(
+    assets=[finance_dbt_assets, upload_dataframe_to_database],
+    resources=resources[deployment_name],
+)
