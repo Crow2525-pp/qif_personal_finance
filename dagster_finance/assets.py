@@ -148,11 +148,19 @@ def upload_dataframe_to_postgres(
     # Ensure the raw schema exists
     create_schema_sql = f"CREATE SCHEMA IF NOT EXISTS {schema};"
     verify_schema_sql = f"SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{schema}';"
+    check_db_sql = "SELECT current_database();"
 
     with postgres_db._db_connection.engine.connect() as conn:
         try:
+            # Check the current database name
+            context.log.info(f"Executing: {check_db_sql}")
+            result = conn.execute(text(check_db_sql)).fetchone()
+            current_db = result[0] if result else "Unknown"
+            context.log.info(f"Connected to database: {current_db}")
+            
             context.log.info(f"Creating schema with: {create_schema_sql}")
             conn.execute(text(create_schema_sql))
+            conn.commit()  # Commit the schema creation
             context.log.info("Schema creation statement executed.")
             
             result = conn.execute(text(verify_schema_sql)).fetchone()
@@ -177,7 +185,7 @@ def upload_dataframe_to_postgres(
             try:
                 df.to_sql(
                     name=table_name,
-                    con=postgres_db._db_connection.engine,  # Use the engine from DBConnection
+                    con=postgres_db._db_connection.engine,
                     schema=schema,
                     if_exists="replace",
                     index=False,
@@ -185,7 +193,8 @@ def upload_dataframe_to_postgres(
                 )
                 context.add_output_metadata(
                     metadata={
-                        "num_records": len(df),  # Metadata can be any key-value pair
+                        "data_types": MetadataValue.md(df.dtypes.to_markdown()),
+                        "num_records": len(df),
                         "preview": MetadataValue.md(df.head().to_markdown()),
                     }
                 )
