@@ -27,7 +27,9 @@ from .resources import dbConnection
     manifest=dbt_manifest_path,
 )
 def finance_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
-    yield from dbt.cli(["build"], context=context).stream()
+    deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "dev")
+    target = "prod" if deployment_name == "prod" else "dev"
+    yield from dbt.cli(["build", f"--target", target], context=context).stream()
 
 
 class PrimaryKeyGenerator:

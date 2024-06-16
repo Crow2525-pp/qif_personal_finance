@@ -11,14 +11,14 @@ from .assets import finance_dbt_assets, upload_dataframe_to_database
 from .constants import DBT_PROJECT_DIR
 
 resources = {
-    "local": {
+    "dev": {
         "personal_finance_database": dbConnection(
             connection_string="duckdb:///duckdb/finance.duckdb"
         ),
         # DuckDBResource(database="duckdb/finance.duckdb", schema="finance.raw"),
         "dbt": DbtCliResource(project_dir=os.fspath(DBT_PROJECT_DIR)),
     },
-    "production": {
+    "prod": {
         "personal_finance_database": dbConnection(
             connection_string=EnvVar("POSTGRES_CONN_STR")
         ),
@@ -26,7 +26,7 @@ resources = {
     },
 }
 
-deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "local")
+deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "dev")
 
 defs = Definitions(
     assets=[finance_dbt_assets, upload_dataframe_to_database],
