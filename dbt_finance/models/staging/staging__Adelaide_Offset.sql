@@ -6,7 +6,7 @@
 
 WITH cleaned_memo_data AS (
     SELECT
-        composite_key,
+        primary_key,
         -- Normalize the delimiters and split the memo field
         string_split_regex(REGEXP_REPLACE(memo, '{{ transaction_types | join('|') }}', ''), ' - ') AS Split_Memo,
         -- Replace the transaction_types with an empty string
@@ -37,12 +37,12 @@ SELECT
     -- Other fields from the original table
     a.amount,
     a.line_number,    
-    a.composite_key,
+    a.primary_key,
     -- Additional fields like current date and time
     current_date,
     current_time,
     'adelaide_offset' as Account
 FROM {{ source('personalfinance_dagster', 'Adelaide_Offset_Transactions') }} as a
 LEFT JOIN cleaned_memo_data as c
-ON a.composite_key = c.composite_key
+ON a.primary_key = c.primary_key
 

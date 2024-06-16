@@ -1,6 +1,6 @@
 WITH cleaned_memo_data AS (
     SELECT
-        composite_key,
+        primary_key,
         payee as memo,
         -- Split the payee string into an array using a comma as the delimiter
         string_split_regex(payee, ' - ') AS Split_Memo,
@@ -58,10 +58,10 @@ SELECT
     trim(c.To) as To,
     a.amount,
     a.line_number,    
-    a.composite_key,
+    a.primary_key,
     current_date,
     current_time,
     'ING_countdown' as Account
 FROM {{ source('personalfinance_dagster', 'ING_Countdown_Transactions') }} as a
 left join cleaned_memo_data as c
-on a.composite_key = c.composite_key
+on a.primary_key = c.primary_key

@@ -1,5 +1,5 @@
 from dagster import EnvVar, resource
-from typing import Dict, Any
+from typing import Dict, Any, Union
 import os
 from dagster import ConfigurableResource, InitResourceContext
 from sqlalchemy import create_engine, text
@@ -27,7 +27,7 @@ def get_database_connection(connection_url: str):
         engine.dispose()
 
 class pgConnection(ConfigurableResource):
-    connection_string= str
+    connection_string: str # BUG: Should be able to use EnvVar
 
     _db_connection: DBConnection = PrivateAttr()
    
@@ -49,5 +49,5 @@ if __name__ == "__main__":
     pg_conn = pgConnection(postgres_conn_str)  # Assuming no context is needed for demonstration.
     with pg_conn.yield_for_execution():
         # Example query - adjust the SQL to fit your actual database schema and purpose
-        results = pg_conn.query('SELECT date, amount, memo, line_number, splits, composite_key, ingestion_date FROM landing."Adelaide_Homeloan_Transactions";')
+        results = pg_conn.query('SELECT date, amount, memo, line_number, splits, primary_key, ingestion_date FROM landing."Adelaide_Homeloan_Transactions";')
         print(results)

@@ -16,6 +16,7 @@ from .assets import (
     Bendigo_Bank_Homeloan_Transactions,
     Adelaide_Offset_Transactions,
     Adelaide_Homeloan_Transactions,
+    upload_dataframe_to_postgres
 )
 from .constants import DBT_PROJECT_DIR
 
@@ -28,9 +29,11 @@ defs = Definitions(
         Adelaide_Offset_Transactions,
         Adelaide_Homeloan_Transactions,
         finance_dbt_assets,
+        upload_dataframe_to_postgres
+        
     ],  # ingest_dataframe_to_duckdb,
     resources={
-        "postgres_db": pgConnection(connection_url=EnvVar("POSTGRES_CONN_STR")),
+        "postgres_db": pgConnection(connection_string=EnvVar("POSTGRES_CONN_STR")),
         "dbt": DbtCliResource(project_dir=os.fspath(DBT_PROJECT_DIR)),
         "io_manager": duckdb_pandas_io_manager.configured({"database":"duckdb/finance.duckdb", "schema":"finance.raw"})
     }

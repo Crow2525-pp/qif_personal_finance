@@ -8,6 +8,7 @@ import quiffen
 from dagster import (AssetExecutionContext, MetadataValue, asset,
                      get_dagster_logger, logger)
 from dagster_dbt import DbtCliResource, dbt_assets
+from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import JSONB
 
 logger = get_dagster_logger()
@@ -54,13 +55,14 @@ def convert_qif_to_df(qif_file: Path, key_generator: PrimaryKeyGenerator, bank_n
 
         # add an ingestion timestamp
         df["ingestion_date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        upload_dataframe_to_postgres(df=df, table_name=qif_file.stem)
     else:
         raise ValueError(f"Datafrmae is empty for {qif_file}")
 
     return df
 
 
-@asset(compute_kind="python", group_name="qif_ingestion")
+@asset(compute_kind="duckdb", group_name="qif_ingestion_duckdb")
 def Adelaide_Homeloan_Transactions(context: AssetExecutionContext):
     df = convert_qif_to_df(qif_file=Path('qif_files/Adelaide_Homeloan_Transactions.qif'), key_generator=key_generator, bank_name="Adelaide")
     context.add_output_metadata(
@@ -72,7 +74,7 @@ def Adelaide_Homeloan_Transactions(context: AssetExecutionContext):
     )   
     return df
 
-@asset(compute_kind="python", group_name="qif_ingestion")
+@asset(compute_kind="duckdb", group_name="qif_ingestion_duckdb")
 def Adelaide_Offset_Transactions(context: AssetExecutionContext):
     df = convert_qif_to_df(qif_file=Path('qif_files/Adelaide_Offset_Transactions.qif'), key_generator=key_generator, bank_name="Adelaide")
     context.add_output_metadata(
@@ -84,7 +86,7 @@ def Adelaide_Offset_Transactions(context: AssetExecutionContext):
     )   
     return df
 
-@asset(compute_kind="python", group_name="qif_ingestion")
+@asset(compute_kind="duckdb", group_name="qif_ingestion_duckdb")
 def Bendigo_Bank_Homeloan_Transactions(context: AssetExecutionContext):
     df = convert_qif_to_df(qif_file=Path('qif_files/Bendigo_Bank_Homeloan_Transactions.qif'), key_generator=key_generator, bank_name="Bendigo")
     context.add_output_metadata(
@@ -96,7 +98,7 @@ def Bendigo_Bank_Homeloan_Transactions(context: AssetExecutionContext):
     )   
     return df
 
-@asset(compute_kind="python", group_name="qif_ingestion")
+@asset(compute_kind="duckdb", group_name="qif_ingestion_duckdb")
 def Bendigo_Bank_Offset_Transactions(context: AssetExecutionContext):
     df = convert_qif_to_df(qif_file=Path('qif_files/Bendigo_Bank_Offset_Transactions.qif'), key_generator=key_generator, bank_name="Bendigo")
     context.add_output_metadata(
@@ -108,7 +110,7 @@ def Bendigo_Bank_Offset_Transactions(context: AssetExecutionContext):
     )   
     return df
 
-@asset(compute_kind="python", group_name="qif_ingestion")
+@asset(compute_kind="duckdb", group_name="qif_ingestion_duckdb")
 def ING_BillsBillsBills_Transactions(context: AssetExecutionContext):
     df = convert_qif_to_df(qif_file=Path('qif_files/ING_BillsBillsBills_Transactions.qif'), key_generator=key_generator, bank_name="ING")
     context.add_output_metadata(
@@ -120,7 +122,7 @@ def ING_BillsBillsBills_Transactions(context: AssetExecutionContext):
     )   
     return df
 
-@asset(compute_kind="python", group_name="qif_ingestion")
+@asset(compute_kind="duckdb", group_name="qif_ingestion_duckdb")
 def ING_Countdown_Transactions(context: AssetExecutionContext):
     df = convert_qif_to_df(qif_file=Path('qif_files/ING_Countdown_Transactions.qif'), key_generator=key_generator, bank_name="ING")
     context.add_output_metadata(
@@ -133,33 +135,64 @@ def ING_Countdown_Transactions(context: AssetExecutionContext):
     return df
 
 
+
+
+
+@asset(compute_kind="postgres", group_name="qif_ingestion_pg")
 def upload_dataframe_to_postgres(
-    context, QIF_to_DF: Dict[str, Optional[pd.DataFrame]], my_conn: pgConnection
+    context: AssetExecutionContext, postgres_db: pgConnection
 ) -> None:
+    schema = "raw"
+    qif_filepath = Path('qif_files')
+    qif_files = qif_filepath.glob("*.qif")
 
-    schema = "landing"
+    # Ensure the raw schema exists
+    create_schema_sql = f"CREATE SCHEMA IF NOT EXISTS {schema};"
+    verify_schema_sql = f"SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{schema}';"
 
-    # Upload the dataframe
-    for table_name, df in QIF_to_DF.items():
+    with postgres_db._db_connection.engine.connect() as conn:
+        try:
+            context.log.info(f"Creating schema with: {create_schema_sql}")
+            conn.execute(text(create_schema_sql))
+            context.log.info("Schema creation statement executed.")
+            
+            result = conn.execute(text(verify_schema_sql)).fetchone()
+            if not result:
+                raise RuntimeError(f"Failed to create or verify the existence of schema '{schema}'.")
+            context.log.info(f"Schema '{schema}' exists.")
+        except Exception as e:
+            context.log.error(f"Error ensuring schema exists: {e}")
+            raise
+
+    for file in qif_files:
+        qif_processor = quiffen.Qif.parse(file, day_first=False)
+        df = qif_processor.to_dataframe()
+        table_name = file.stem
+
+        # Upload the dataframe
         if df is not None:
             dtype = {
-                "category": JSONB,  # Ensuring SQLAlchemy treats this column as JSONB
-                "splits": JSONB,
+                "category": JSONB(),  # Use instances of the types
+                "splits": JSONB(),
             }
-            df.to_sql(
-                name=table_name,
-                con=my_conn,
-                schema=schema,
-                if_exists="replace",
-                index=False,
-                dtype=dtype,
-            )
-            context.add_output_metadata(
-                metadata={
-                    "num_records": len(df),  # Metadata can be any key-value pair
-                    "preview": MetadataValue.md(df.head().to_markdown()),
-                }
-            )
-            logger.info(f"Data uploaded successfully to {schema}.{table_name} table.")
+            try:
+                df.to_sql(
+                    name=table_name,
+                    con=postgres_db._db_connection.engine,  # Use the engine from DBConnection
+                    schema=schema,
+                    if_exists="replace",
+                    index=False,
+                    dtype=dtype,
+                )
+                context.add_output_metadata(
+                    metadata={
+                        "num_records": len(df),  # Metadata can be any key-value pair
+                        "preview": MetadataValue.md(df.head().to_markdown()),
+                    }
+                )
+                context.log.info(f"Data uploaded successfully to {schema}.{table_name} table.")
+            except Exception as e:
+                context.log.error(f"Error uploading data to {schema}.{table_name}: {e}")
+                raise
         else:
-            logger.error(f"No data to upload for {table_name}.")
+            context.log.error(f"No data to upload for {table_name}.")

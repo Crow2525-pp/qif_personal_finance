@@ -10,7 +10,7 @@ sources:
           dagster:
             asset_key: ["ING_BillsBillsBills_Transactions"]
         columns:
-          - name: composite_key
+          - name: primary_key
             tests:
               - unique
               - not_null
@@ -21,7 +21,7 @@ sources:
           dagster:
             asset_key: ["ING_Countdown_Transactions"]
         columns:
-          - name: composite_key
+          - name: primary_key
             tests:
               - unique
               - not_null
@@ -31,7 +31,7 @@ sources:
           dagster:
             asset_key: ["Adelaide_Offset_Transactions"]
         columns:
-          - name: composite_key
+          - name: primary_key
             tests:
               - unique
               - not_null
@@ -41,7 +41,7 @@ sources:
           dagster:
             asset_key: ["Adelaide_Homeloan_Transactions"]
         columns:
-          - name: composite_key
+          - name: primary_key
             tests:
               - unique
               - not_null      
@@ -51,7 +51,7 @@ sources:
           dagster:
             asset_key: ["Bendigo_Bank_Offset_Transactions"]
         columns:
-          - name: composite_key
+          - name: primary_key
             tests:
               - unique
               - not_null
@@ -60,7 +60,7 @@ sources:
           dagster:
             asset_key: ["Bendigo_Bank_Homeloan_Transactions"]
         columns:
-          - name: composite_key
+          - name: primary_key
             tests:
               - unique
               - not_null

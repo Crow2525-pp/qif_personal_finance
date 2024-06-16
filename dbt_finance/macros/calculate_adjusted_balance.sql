@@ -10,7 +10,7 @@ WITH transactions_with_balance AS (
     FROM {{ ref(table_name) }}
 ),
 balance_adjustment AS (
-    SELECT balance - CAST((SELECT account_balance FROM {{ ref('known_values') }} WHERE account_name = '{{ account_name }}') AS decimal(14,2)) AS adjustment
+    SELECT line_number, balance - CAST((SELECT account_balance FROM {{ ref('known_values') }} WHERE account_name = '{{ account_name }}') AS decimal(14,2)) AS adjustment
     FROM transactions_with_balance
     WHERE date = (SELECT specific_date FROM {{ ref('known_values') }} WHERE account_name = '{{ account_name }}')
     LIMIT 1
