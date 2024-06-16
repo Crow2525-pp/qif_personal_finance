@@ -5,8 +5,8 @@ from typing import Dict, Optional
 
 import pandas as pd
 import quiffen
-from dagster import (AssetExecutionContext, MetadataValue, asset,
-                     get_dagster_logger, logger)
+from dagster import (AssetExecutionContext, AssetOut, MetadataValue, Output, asset,
+                     get_dagster_logger, logger, multi_asset)
 from dagster_dbt import DbtCliResource, dbt_assets
 from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import JSONB
@@ -137,11 +137,23 @@ def ING_Countdown_Transactions(context: AssetExecutionContext):
 
 
 
-@asset(compute_kind="postgres", group_name="qif_ingestion_pg")
+@multi_asset(
+    outs={
+        "Adelaide_Homeloan_Transactions": AssetOut(is_required=False),
+        "Adelaide_Offset_Transactions": AssetOut(is_required=False),
+        "Bendigo_Bank_Homeloan_Transactions": AssetOut(is_required=False),
+        "Bendigo_Bank_Offset_Transactions": AssetOut(is_required=False),
+        "ING_BillsBillsBills_Transactions": AssetOut(is_required=False),
+        "ING_Countdown_Transactions": AssetOut(is_required=False),
+    },
+    can_subset=True,
+    compute_kind="postgres",
+    group_name="qif_ingestion_pg",
+)
 def upload_dataframe_to_postgres(
     context: AssetExecutionContext, postgres_db: pgConnection
-) -> None:
-    schema = "raw"
+):
+    schema = "raw" # ensure that this is configurable by dagstger
     qif_filepath = Path('qif_files')
     qif_files = qif_filepath.glob("*.qif")
 
@@ -172,9 +184,10 @@ def upload_dataframe_to_postgres(
             raise
 
     for file in qif_files:
-        qif_processor = quiffen.Qif.parse(file, day_first=False)
-        df = qif_processor.to_dataframe()
         table_name = file.stem
+        bank_name = table_name.split('_')[0]
+        
+        df = convert_qif_to_df(qif_file=file, key_generator=key_generator, bank_name=bank_name)
 
         # Upload the dataframe
         if df is not None:
@@ -191,14 +204,17 @@ def upload_dataframe_to_postgres(
                     index=False,
                     dtype=dtype,
                 )
+
                 context.add_output_metadata(
                     metadata={
                         "data_types": MetadataValue.md(df.dtypes.to_markdown()),
                         "num_records": len(df),
                         "preview": MetadataValue.md(df.head().to_markdown()),
-                    }
+                    }, output_name=table_name
                 )
                 context.log.info(f"Data uploaded successfully to {schema}.{table_name} table.")
+                
+                yield Output(value=table_name, output_name=table_name)
             except Exception as e:
                 context.log.error(f"Error uploading data to {schema}.{table_name}: {e}")
                 raise

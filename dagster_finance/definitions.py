@@ -22,12 +22,12 @@ from .constants import DBT_PROJECT_DIR
 
 defs = Definitions(
     assets=[
-        ING_BillsBillsBills_Transactions,
-        ING_Countdown_Transactions,
-        Bendigo_Bank_Offset_Transactions,
-        Bendigo_Bank_Homeloan_Transactions,
-        Adelaide_Offset_Transactions,
-        Adelaide_Homeloan_Transactions,
+        # ING_BillsBillsBills_Transactions,
+        # ING_Countdown_Transactions,
+        # Bendigo_Bank_Offset_Transactions,
+        # Bendigo_Bank_Homeloan_Transactions,
+        # Adelaide_Offset_Transactions,
+        # Adelaide_Homeloan_Transactions,
         finance_dbt_assets,
         upload_dataframe_to_postgres
         
