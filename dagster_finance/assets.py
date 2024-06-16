@@ -1,7 +1,5 @@
-import hashlib
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional
 
 import pandas as pd
 import quiffen
@@ -10,7 +8,6 @@ from dagster import (
     AssetOut,
     MetadataValue,
     Output,
-    asset,
     get_dagster_logger,
     logger,
     multi_asset,
@@ -18,11 +15,12 @@ from dagster import (
 from dagster_dbt import DbtCliResource, dbt_assets
 from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.types import JSON
 
 logger = get_dagster_logger()
 
 from .constants import dbt_manifest_path
-from .resources import pgConnection
+from .resources import dbConnection
 
 
 @dbt_assets(
@@ -80,11 +78,10 @@ def convert_qif_to_df(
         "ING_Countdown_Transactions": AssetOut(is_required=False),
     },
     can_subset=True,
-    compute_kind="postgres",
-    group_name="qif_ingestion_pg",
+    group_name="qif_ingestion",
 )
 def upload_dataframe_to_database(
-    context: AssetExecutionContext, personal_finance_database: pgConnection
+    context: AssetExecutionContext, personal_finance_database: dbConnection
 ):
     schema = "raw"  # TODO: ensure that this is configurable by dagstger
     qif_filepath = Path("qif_files")
@@ -126,12 +123,20 @@ def upload_dataframe_to_database(
             qif_file=file, key_generator=key_generator, bank_name=bank_name
         )
 
-        # Upload the dataframe
-        if df is not None:
+        # Why am I doing JSON or JSONB anyway?  Splits must have some data in them, but they don't.
+        if 'postgres' in personal_finance_database.connection_string:
             dtype = {
-                "category": JSONB(),  # Use instances of the types
+                "category": JSONB(),
                 "splits": JSONB(),
             }
+        else:
+            dtype = {
+                "category": JSON(),
+                "splits": JSON(),
+            }
+
+        # Upload the dataframe
+        if df is not None:
             try:
                 df.to_sql(
                     name=table_name,

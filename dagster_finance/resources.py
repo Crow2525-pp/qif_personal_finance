@@ -26,7 +26,7 @@ def get_database_connection(connection_url: str):
     finally:
         engine.dispose()
 
-class pgConnection(ConfigurableResource):
+class dbConnection(ConfigurableResource):
     connection_string: str
 
     _db_connection: DBConnection = PrivateAttr()
@@ -47,8 +47,8 @@ if __name__ == "__main__":
     postgres_conn_str = os.getenv("POSTGRES_CONN_STR")
     print(f"Postgres Connection String: {postgres_conn_str}")
 
-    # Manually create an instance of pgConnection with the connection string
-    pg_conn = pgConnection(connection_string=postgres_conn_str)
+    # Manually create an instance of dbConnection with the connection string
+    pg_conn = dbConnection(connection_string=postgres_conn_str)
 
     with pg_conn.yield_for_execution(None):
         # Example query - adjust the SQL to fit your actual database schema and purpose
