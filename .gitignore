@@ -11,11 +11,12 @@ schedules.db
 *.db-shm
 *.db-wal
 *.wal
-dbt_finace/target/
-dbt_finace/dbt_packages/
-dbt_finace/logs/
-dbt_finance/macros/
-dbt_finance/dbt_packages/
+pipeline_personal_finance/dbt_finace/target/
+pipeline_personal_finance/dbt_finace/dbt_packages/
+pipeline_personal_finance/dbt_finace/logs/
+pipeline_personal_finance/dbt_finance/macros/
+pipeline_personal_finance/dbt_finance/dbt_packages/
+pipeline_personal_finance/dbt_finance/target/
 *.duckdb
 *.db
 *.complete
@@ -23,7 +24,6 @@ dbt_finance/dbt_packages/
 *.out
 tmp
 postgres
-dbt_finance/target/
 pipeline_personal_finance/qif_files
 *.log
 *.logs
