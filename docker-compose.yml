@@ -1,42 +1,112 @@
-version: '3.8'
+version: '3.9'
 
 services:
-  dagster_dbt:
-    container_name: dagster_dbt
+  dagster_webserver:
     build: 
       context: .
-      dockerfile: dagster_finance/dockerfile
-    environment:
-      - DAGSTER_HOME=/opt/personal_finance_dashboard/dagster_finance
-      - DBT_PROJECT_DIR=/opt/personal_finance_dashboard/dbt_finance
-      - DAGSTER_DBT_PARSE_PROJECT_ON_LOAD=1
-    volumes:
-      - .:/opt/personal_finance_dashboard # I want everything except for these below files setup.
-    working_dir: /opt/personal_finance_dashboard
+      dockerfile: Dockerfile
+    entrypoint: 
+      - dagster-webserver
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "3000"
+      - --workspace
+      - "dagster_home/workspace.yaml"
+    container_name: dagster_webserver
+    expose:
+      - "3000"
     ports:
       - "3000:3000"
+    environment:
+      DAGSTER_POSTGRES_HOST: ${DAGSTER_POSTGRES_HOST}
+      DAGSTER_POSTGRES_USER: ${DAGSTER_POSTGRES_USER}
+      DAGSTER_POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD}
+      DAGSTER_POSTGRES_PORT: ${DAGSTER_POSTGRES_PORT}
+      DAGSTER_POSTGRES_DB: ${DAGSTER_POSTGRES_DB}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/io_manager_storage:/tmp/io_manager_storage
+    networks:
+      - dagster_network
+    depends_on:
+      - dagster_postgres
+      - pipeline_personal_finance
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
 
-  postgres:
+  dagster_daemon:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    entrypoint:
+      - dagster-daemon
+      - run
+      - --workspace
+      - "dagster_home/workspace.yaml"
+    # expose:
+    #   - "4000"
+    # ports:
+    #   - "4000:4000"
+    container_name: dagster_daemon
+    restart: on-failure
+    environment:
+      DAGSTER_POSTGRES_HOST: ${DAGSTER_POSTGRES_HOST}
+      DAGSTER_POSTGRES_USER: ${DAGSTER_POSTGRES_USER}
+      DAGSTER_POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD}
+      DAGSTER_POSTGRES_PORT: ${DAGSTER_POSTGRES_PORT}
+      DAGSTER_POSTGRES_DB: ${DAGSTER_POSTGRES_DB}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/io_manager_storage:/tmp/io_manager_storage
+    networks:
+      - dagster_network
+    depends_on:
+      - dagster_postgres
+      - pipeline_personal_finance
+
+  pipeline_personal_finance:
+    container_name: pipeline_personal_finance
+    build:
+      context: ./pipeline_personal_finance
+      dockerfile: dockerfile
+    image: pipeline_personal_finance
+    environment:
+      TIMEZONE: Australia/Melbourne
+      DAGSTER_CURRENT_IMAGE: pipeline_personal_finance
+      DAGSTER_POSTGRES_HOST: ${DAGSTER_POSTGRES_HOST}
+      DAGSTER_POSTGRES_USER: ${DAGSTER_POSTGRES_USER}
+      DAGSTER_POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD}
+      DAGSTER_POSTGRES_PORT: ${DAGSTER_POSTGRES_PORT}
+      DAGSTER_POSTGRES_DB: ${DAGSTER_POSTGRES_DB}
+    volumes:
+    #      - ./pipeline_personal_finance:/docker/appdata/dagster/pipeline_personal_finance
+      - /tmp/dagster-data:/docker/appdata/dagster/dagster_home/
+    networks:
+      - dagster_network
+
+  
+  dagster_postgres:
     image: postgres:16
     shm_size: 128mb
     restart: always
-    container_name: postgres
+    container_name: dagster_postgres
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_CONN_STR=${POSTGRES_CONN_STR}
-      - POSTGRES_DB=personal_finance
-      - PUID=${USER_ID}
-      - PGID=${GRP_ID}
-      - TZ=${TIMEZONE}
+      POSTGRES_USER: ${DAGSTER_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${DAGSTER_POSTGRES_DB}
+      PGDATA: /var/lib/postgresql/data/personal_finance/
     ports:
-      - 5000:5432
+      - "5432:5432"
     volumes:
-      - /docker/appdata/postgres:/var/lib/postgresql/data
-    depends_on:
-      - dagster_dbt
+      - ./postgres:/var/lib/postgresql/data/
+    networks:
+      - dagster_network
+
+networks:
+  dagster_network:
+    driver: bridge
+    name: dagster_network

@@ -3,7 +3,7 @@ import os
 from dagster import Definitions, EnvVar
 from dagster_dbt import DbtCliResource
 
-from dagster_finance.resources import dbConnection
+from pipeline_personal_finance.resources import dbConnection
 from dagster_duckdb_pandas import duckdb_pandas_io_manager
 from dagster_duckdb import DuckDBResource
 

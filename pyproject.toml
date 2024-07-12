@@ -24,6 +24,3 @@ duckdb-engine = "^0.13.0"
 [build-system]
 requires = ["poetry-core", "setuptools"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.dagster]
-module_name = "dagster_finance"
