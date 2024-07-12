@@ -21,9 +21,12 @@ dbt_finance/dbt_packages/
 *.complete
 *.err
 *.out
-/tmp_*
+tmp
+postgres
 dbt_finance/target/
-qif_files
+pipeline_personal_finance/qif_files
+*.log
+*.logs
 /tmp*
 *.log
 *.csv

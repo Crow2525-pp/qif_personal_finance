@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "dagster core services"
+version = "0.1.0"
+description = ""
+authors = ["Phil Patterson <philip.james.patterson@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.11.9"
+dagster = "*"
+dagster-postgres= "*"
+dagster-graphql= "*"
+dagster-webserver= "*"
+dagster-docker= "*"
+
+[build-system]
+requires = ["poetry-core", "setuptools"]
+build-backend = "poetry.core.masonry.api"

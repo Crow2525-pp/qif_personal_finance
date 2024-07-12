@@ -12,10 +12,14 @@ ENV DAGSTER_APP=/docker/appdata/dagster
 # Create application directory
 WORKDIR ${DAGSTER_APP}
 
-COPY requirements.txt pyproject.toml .env ./
+COPY pyproject.toml .env ./
 
 # Install the required dependencies
-RUN pip install -r requirements.txt
+RUN pip install poetry
+RUN poetry config virtualenvs.create false
+RUN poetry install --no-dev
+
+
 WORKDIR ${DAGSTER_APP}
 
 # Create Dagster home directory

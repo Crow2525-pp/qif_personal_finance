@@ -1,0 +1,8 @@
+dagster==1.7.10
+dagster-postgres==0.23.10
+dagster-duckdb==0.23.10
+dagster-duckdb-polars==0.23.10
+duckdb==1.0.0
+dagster-graphql==1.7.10
+dagster-webserver==1.7.10
+dagster-docker==0.23.10

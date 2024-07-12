@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "pipeline personal finance"
+version = "0.1.0"
+description = "Dagster pipeline for a personal project"
+authors = ["Phil Patterson <philip.james.patterson@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.11.9"
+quiffen ="*"
+pandas  ="*"
+dagster  ="*"
+dagster-postgres  ="*"
+numpy  ="*"
+dagster-dbt  ="*"
+dagster-duckdb-pandas = "^0.23.13"
+
+
+[build-system]
+requires = ["poetry-core", "setuptools"]
+build-backend = "poetry.core.masonry.api"

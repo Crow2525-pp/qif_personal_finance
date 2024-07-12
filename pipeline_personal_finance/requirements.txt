@@ -1,0 +1,7 @@
+quiffen==2.0.11
+pandas>=1.5.1,<2.0.0
+dagster==1.7.10
+dagster-postgres==0.23.10
+numpy==1.26.4
+dagster-dbt ==0.23.13
+

@@ -6,25 +6,16 @@ WORKDIR /docker/appdata/dagster/pipeline_personal_finance
 
 COPY . .
 
-
-# # Set correct permissions for files
-# RUN chmod 644 .env && \
-#     chmod 755 /docker/appdata/dagster/pipeline_personal_finance  # Set directory permission
-
 # Install the required dependencies
-RUN pip install -r requirements.txt
+RUN pip install poetry
+RUN poetry config virtualenvs.create false
+RUN poetry install --no-dev
 
 # Expose the port that Dagster gRPC server uses
 EXPOSE 4000
 
 # Set the working directory to where the .env needs to be moved
 WORKDIR /docker/appdata/dagster
-
-# Move the .env file from the pipeline_personal_finance directory to the current directory
-#RUN mv pipeline_personal_finance/.env .
-
-# Keep the container running with a command that does not exit
-# CMD ["tail", "-f", "/dev/null"]
 
 # Command to run the Dagster gRPC server
 CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "pipeline_personal_finance"]

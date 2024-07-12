@@ -2,10 +2,12 @@
 
 ## Plan
 - Use granfana to display finance information on a home assistant dashboard for wife & I to access
- - [x] Use postgres server to store banking data
- - [x] Use dbt to transform the data into workable metrics
- - [x] Use dagster to orchestrate the qif -> postgres and dbt       transformations
-- Use Docker to run the project from docker server at home
+- [x] Use postgres server to store banking data
+- [x] Use dbt to transform the data into workable metrics
+- [x] Use dagster to orchestrate the qif -> postgres and dbt       transformations
+- [x] Use Docker to run the project from docker server at home
+- [ ] Upload Docker to Home Server
+
 
 ## Todo
  - Get docker compose files working

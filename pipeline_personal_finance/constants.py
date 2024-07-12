@@ -6,7 +6,7 @@ from pathlib import Path
 import logging
 from dagster_dbt import DbtCliResource
 
-DBT_PROJECT_DIR = Path(__file__).joinpath("..", "..", "dbt_finance").resolve()
+DBT_PROJECT_DIR = Path(__file__).joinpath("..", "dbt_finance").resolve()
 
 # Log the DBT_PROJECT_DIR when the application starts or when it's used
 logging.info(f"DBT_PROJECT_DIR set to: {DBT_PROJECT_DIR}")
