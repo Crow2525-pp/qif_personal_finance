@@ -31,5 +31,5 @@ pipeline_personal_finance/qif_files
 *.log
 *.csv
 *.ods
-*.env
+.env
 
