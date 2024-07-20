@@ -509,6 +509,24 @@ files = [
 ]
 
 [[package]]
+name = "dbt-postgres"
+version = "1.8.2"
+description = "The set of adapter protocols and base functionality that supports integration with dbt-core"
+optional = false
+python-versions = ">=3.8.0"
+files = [
+    {file = "dbt_postgres-1.8.2-py3-none-any.whl", hash = "sha256:b0d9f53b5927722cd22e8135e0b76181febf3cf89aef8caf039c59bfce78afc9"},
+    {file = "dbt_postgres-1.8.2.tar.gz", hash = "sha256:23b302626dd11e90594ccff0347148252c37af1a1e8c8710bc9c03b05337f3d3"},
+]
+
+[package.dependencies]
+agate = ">=1.0,<2.0"
+dbt-adapters = ">=0.1.0a1,<2.0"
+dbt-common = ">=0.1.0a1,<2.0"
+dbt-core = ">=1.8.0a1"
+psycopg2-binary = ">=2.9,<3.0"
+
+[[package]]
 name = "dbt-semantic-interfaces"
 version = "0.5.1"
 description = "The shared semantic layer definitions that dbt-core and MetricFlow use"
@@ -2591,4 +2609,4 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 [metadata]
 lock-version = "2.0"
 python-versions = "3.11.9"
-content-hash = "f8a043b3d9bc8ba9425302d7fe498d56fd035d09dd3ca305a0c35fbc7adb377e"
+content-hash = "cabfcec56d85fe15c540d13e72f0579801ef0f46f4bcca98f3b82b4904c5fb26"
