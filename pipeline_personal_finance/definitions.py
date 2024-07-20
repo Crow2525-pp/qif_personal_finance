@@ -10,6 +10,7 @@ from dagster_duckdb import DuckDBResource
 from .assets import finance_dbt_assets, upload_dataframe_to_database
 from .constants import DBT_PROJECT_DIR
 
+
 resources = {
     "dev": {
         "personal_finance_database": dbConnection(
