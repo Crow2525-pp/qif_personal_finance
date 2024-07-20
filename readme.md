@@ -1,3 +1,7 @@
+# Introduction
+- Use granfana to display finance information on a home assistant dashboard for wife & I to access
+- Deploy on a home server and update QIF files (manually/periodically) to gain financial insights.
+
 # Installation
 1. ensure that docker is installed and running (windows)
 2. replace sample.env with a .env and update with your own credentials
