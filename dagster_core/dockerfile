@@ -17,7 +17,7 @@ COPY pyproject.toml ./
 # Install the required dependencies
 RUN pip install poetry
 RUN poetry config virtualenvs.create false
-RUN poetry install --without dev
+RUN poetry install --no-dev
 
 
 WORKDIR ${DAGSTER_APP}
