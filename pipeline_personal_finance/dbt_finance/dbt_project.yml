@@ -44,13 +44,3 @@ models:
       +schema: reporting
       +materialized: table
 
-seeds:
-  personal_finance:
-  +enabled: true
-  +schema: seed
-  known_values:
-    +enabled: true
-    +quote_columns: true
-  banking_categories:
-    +enabled: true
-    +quote_columns: true

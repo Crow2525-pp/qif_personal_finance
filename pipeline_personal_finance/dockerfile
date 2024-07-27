@@ -11,6 +11,11 @@ RUN pip install poetry
 RUN poetry config virtualenvs.create false
 RUN poetry install --no-dev
 
+WORKDIR /docker/appdata/dagster/pipeline_personal_finance/dbt_finance
+
+RUN dbt clean
+RUN dbt deps
+
 # Expose the port that Dagster gRPC server uses
 EXPOSE 4000
 
