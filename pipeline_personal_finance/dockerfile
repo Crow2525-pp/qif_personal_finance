@@ -9,6 +9,7 @@ COPY . .
 # Install the required dependencies
 RUN pip install poetry
 RUN poetry config virtualenvs.create false
+RUN poetry lock
 RUN poetry install
 
 RUN poetry run dbt clean --project-dir dbt_finance
