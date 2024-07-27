@@ -21,7 +21,7 @@ from sqlalchemy.types import JSON
 logger = get_dagster_logger()
 
 from .constants import dbt_manifest_path
-from .resources import dbConnection
+from .resources import SqlAlchemyClientResource
 
 
 @dbt_assets(
@@ -84,7 +84,7 @@ def convert_qif_to_df(
     group_name="qif_ingestion",
 )
 def upload_dataframe_to_database(
-    context: AssetExecutionContext, personal_finance_database: dbConnection
+    context: AssetExecutionContext, personal_finance_database: SqlAlchemyClientResource
 ):
     schema = "raw"  # TODO: ensure that this is configurable by dagstger
     qif_filepath = Path("qif_files")

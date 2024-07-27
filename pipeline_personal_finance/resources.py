@@ -7,12 +7,12 @@ from dagster import ConfigurableResource, EnvVar
 drivername = "postgresql+psycopg2"
 
 class SqlAlchemyClientResource(ConfigurableResource):
-    drivername: str
+    drivername: str = "postgresql+psycopg2"
     username: str = EnvVar("DAGSTER_POSTGRES_USER")
-    password: str
-    host: str
-    port: int
-    database: str
+    password: str = EnvVar("DAGSTER_POSTGRES_PASSWORD")
+    host: str = EnvVar("DAGSTER_POSTGRES_HOST")
+    port: int = EnvVar("DAGSTER_POSTGRES_PORT")
+    database: str = EnvVar("DAGSTER_POSTGRES_DB")
 
 
     def create_engine(self):

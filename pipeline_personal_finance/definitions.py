@@ -4,7 +4,7 @@ from dagster import Definitions, EnvVar
 from dagster_dbt import DbtCliResource
 from dotenv import load_dotenv
 
-from pipeline_personal_finance.resources import dbConnection
+from pipeline_personal_finance.resources import SqlAlchemyClientResource
 from dagster_duckdb_pandas import duckdb_pandas_io_manager
 from dagster_duckdb import DuckDBResource
 
@@ -16,7 +16,7 @@ load_dotenv()
 
 resources = {
     "dev": {
-        "personal_finance_database": dbConnection(
+        "personal_finance_database": SqlAlchemyClientResource(
             connection_string="duckdb:///duckdb/finance.duckdb"
         ),
         # DuckDBResource(database="duckdb/finance.duckdb", schema="finance.raw"),
