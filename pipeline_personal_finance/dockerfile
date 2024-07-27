@@ -14,8 +14,6 @@ RUN poetry run pip install rpds
 
 WORKDIR /docker/appdata/dagster/pipeline_personal_finance/dbt_finance
 
-RUN sleep infinity
-
 RUN poetry run dbt deps
 RUN poetry run dbt build
 
