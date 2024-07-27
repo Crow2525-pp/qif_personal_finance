@@ -13,9 +13,9 @@ RUN poetry install
 
 WORKDIR /docker/appdata/dagster/pipeline_personal_finance/dbt_finance
 
-RUN dbt clean
-RUN dbt deps
-RUN dbt build
+RUN poetry run dbt clean
+RUN poetry run dbt deps
+RUN poetry run dbt build
 
 # Set the working directory to where the service needs to be started from
 WORKDIR /docker/appdata/dagster
