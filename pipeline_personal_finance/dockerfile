@@ -10,6 +10,7 @@ COPY . .
 # Install the required dependencies
 RUN pip install poetry
 RUN poetry config virtualenvs.create false
+RUN poetry lock
 RUN poetry install --no-root
 
 # Set the full project directory path for dbt commands
