@@ -9,18 +9,20 @@ COPY . .
 # Install the required dependencies
 RUN pip install poetry
 RUN poetry config virtualenvs.create false
-RUN poetry install --no-dev
+RUN poetry install
 
 WORKDIR /docker/appdata/dagster/pipeline_personal_finance/dbt_finance
 
 RUN dbt clean
 RUN dbt deps
+RUN dbt build
+
+# Set the working directory to where the service needs to be started from
+WORKDIR /docker/appdata/dagster
 
 # Expose the port that Dagster gRPC server uses
 EXPOSE 4000
 
-# Set the working directory to where the .env needs to be moved
-WORKDIR /docker/appdata/dagster
 
 # Command to run the Dagster gRPC server
 CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "pipeline_personal_finance"]
