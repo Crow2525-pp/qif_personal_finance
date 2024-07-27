@@ -4,13 +4,13 @@ FROM python:3.11
 # Set the working directory in the Docker image
 WORKDIR /docker/appdata/dagster/pipeline_personal_finance
 
+# Copy the application code to the working directory
 COPY . .
 
 # Install the required dependencies
 RUN pip install poetry
 RUN poetry config virtualenvs.create false
-RUN poetry lock
-RUN poetry install
+RUN poetry install --no-root
 
 # Set the full project directory path for dbt commands
 RUN poetry run dbt clean --project-dir /docker/appdata/dagster/pipeline_personal_finance/dbt_finance
