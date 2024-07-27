@@ -13,9 +13,9 @@ RUN poetry config virtualenvs.create false
 RUN poetry install --no-root
 
 # Set the full project directory path for dbt commands
-RUN poetry run dbt clean --project-dir /docker/appdata/dagster/pipeline_personal_finance/dbt_finance
-RUN poetry run dbt deps --project-dir /docker/appdata/dagster/pipeline_personal_finance/dbt_finance
-RUN poetry run dbt build --project-dir /docker/appdata/dagster/pipeline_personal_finance/dbt_finance
+RUN poetry run dbt clean --project-dir pipeline_personal_finance/dbt_finance/ --profiles-dir pipeline_personal_finance/dbt_finance/
+RUN poetry run dbt deps --project-dir pipeline_personal_finance/dbt_finance/ --profiles-dir pipeline_personal_finance/dbt_finance/
+RUN poetry run dbt build --project-dir pipeline_personal_finance/dbt_finance/ --profiles-dir pipeline_personal_finance/dbt_finance/
 
 # Set the working directory to where the service needs to be started from
 WORKDIR /docker/appdata/dagster
