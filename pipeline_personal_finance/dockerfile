@@ -8,14 +8,10 @@ WORKDIR /docker/appdata/dagster/pipeline_personal_finance
 COPY . .
 
 # Install the required dependencies
-RUN pip install pipx
-RUN pipx install poetry
-RUN poetry config virtualenvs.create false
+RUN pip install poetry
 RUN poetry lock
 RUN poetry install --no-root
-
-# Add /home/docker/.local/bin to PATH
-ENV PATH="/home/docker/.local/bin:${PATH}"
+RUN poetry shell
 
 # Set the full project directory path for dbt commands
 RUN poetry run dbt clean --project-dir pipeline_personal_finance/dbt_finance/ --profiles-dir pipeline_personal_finance/dbt_finance/
