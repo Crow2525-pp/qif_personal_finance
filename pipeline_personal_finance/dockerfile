@@ -11,7 +11,6 @@ COPY . .
 RUN pip install poetry
 RUN poetry lock
 RUN poetry install --no-root
-RUN poetry shell
 
 # Set the full project directory path for dbt commands
 RUN poetry run dbt clean --project-dir pipeline_personal_finance/dbt_finance/ --profiles-dir pipeline_personal_finance/dbt_finance/
