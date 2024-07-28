@@ -8,40 +8,40 @@ WORKDIR /docker/appdata/dagster/pipeline_personal_finance
 COPY . .
 
 # Install the required dependencies
-RUN pip install poetry > /docker/appdata/dagster/install.log 2>&1 && \
-    echo "Poetry version:" >> /docker/appdata/dagster/install.log 2>&1 && \
-    poetry --version >> /docker/appdata/dagster/install.log 2>&1
+RUN pip install poetry > /tmp/install.log 2>&1 && \
+    echo "Poetry version:" >> /tmp/install.log 2>&1 && \
+    poetry --version >> /tmp/install.log 2>&1
 
 # Debug: List the contents of the working directory
-RUN echo "Listing contents of /docker/appdata/dagster/pipeline_personal_finance:" >> /docker/appdata/dagster/install.log 2>&1 && \
-    ls -la /docker/appdata/dagster/pipeline_personal_finance >> /docker/appdata/dagster/install.log 2>&1
+RUN echo "Listing contents of /docker/appdata/dagster/pipeline_personal_finance:" >> /tmp/install.log 2>&1 && \
+    ls -la /docker/appdata/dagster/pipeline_personal_finance >> /tmp/install.log 2>&1
 
 # Run poetry lock and check its success
-RUN poetry lock >> /docker/appdata/dagster/install.log 2>&1 && \
-    echo "Poetry lock completed successfully" >> /docker/appdata/dagster/install.log 2>&1
+RUN poetry lock >> /tmp/install.log 2>&1 && \
+    echo "Poetry lock completed successfully" >> /tmp/install.log 2>&1
 
 # Install project dependencies
-RUN poetry install --no-root >> /docker/appdata/dagster/install.log 2>&1 && \
-    echo "Poetry install completed successfully" >> /docker/appdata/dagster/install.log 2>&1
+RUN poetry install --no-root >> /tmp/install.log 2>&1 && \
+    echo "Poetry install completed successfully" >> /tmp/install.log 2>&1
 
 # Debug: List installed packages
-RUN echo "Listing installed packages:" >> /docker/appdata/dagster/install.log 2>&1 && \
-    poetry show >> /docker/appdata/dagster/install.log 2>&1
+RUN echo "Listing installed packages:" >> /tmp/install.log 2>&1 && \
+    poetry show >> /tmp/install.log 2>&1
 
 # Set the full project directory path for dbt commands
-RUN poetry run dbt clean --project-dir pipeline_personal_finance/dbt_finance/ --profiles-dir pipeline_personal_finance/dbt_finance/ >> /docker/appdata/dagster/install.log 2>&1 && \
-    echo "DBT clean completed successfully" >> /docker/appdata/dagster/install.log 2>&1
-RUN poetry run dbt deps --project-dir pipeline_personal_finance/dbt_finance/ --profiles-dir pipeline_personal_finance/dbt_finance/ >> /docker/appdata/dagster/install.log 2>&1 && \
-    echo "DBT deps completed successfully" >> /docker/appdata/dagster/install.log 2>&1
-RUN poetry run dbt build --project-dir pipeline_personal_finance/dbt_finance/ --profiles-dir pipeline_personal_finance/dbt_finance/ >> /docker/appdata/dagster/install.log 2>&1 && \
-    echo "DBT build completed successfully" >> /docker/appdata/dagster/install.log 2>&1
+RUN poetry run dbt clean --project-dir pipeline_personal_finance/dbt_finance/ --profiles-dir pipeline_personal_finance/dbt_finance/ >> /tmp/install.log 2>&1 && \
+    echo "DBT clean completed successfully" >> /tmp/install.log 2>&1
+RUN poetry run dbt deps --project-dir pipeline_personal_finance/dbt_finance/ --profiles-dir pipeline_personal_finance/dbt_finance/ >> /tmp/install.log 2>&1 && \
+    echo "DBT deps completed successfully" >> /tmp/install.log 2>&1
+RUN poetry run dbt build --project-dir pipeline_personal_finance/dbt_finance/ --profiles-dir pipeline_personal_finance/dbt_finance/ >> /tmp/install.log 2>&1 && \
+    echo "DBT build completed successfully" >> /tmp/install.log 2>&1
 
 # Debug: List the contents of the dbt project directory
-RUN echo "Listing contents of pipeline_personal_finance/dbt_finance:" >> /docker/appdata/dagster/install.log 2>&1 && \
-    ls -la pipeline_personal_finance/dbt_finance >> /docker/appdata/dagster/install.log 2>&1
+RUN echo "Listing contents of pipeline_personal_finance/dbt_finance:" >> /tmp/install.log 2>&1 && \
+    ls -la pipeline_personal_finance/dbt_finance >> /tmp/install.log 2>&1
 
 # Display the log file
-RUN cat /docker/appdata/dagster/install.log
+RUN cat /tmp/install.log
 
 # Set the working directory to where the service needs to be started from
 WORKDIR /docker/appdata/dagster
