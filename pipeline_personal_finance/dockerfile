@@ -14,6 +14,9 @@ RUN poetry config virtualenvs.create false
 RUN poetry lock
 RUN poetry install --no-root
 
+# Add /home/docker/.local/bin to PATH
+ENV PATH="/home/docker/.local/bin:${PATH}"
+
 # Set the full project directory path for dbt commands
 RUN poetry run dbt clean --project-dir pipeline_personal_finance/dbt_finance/ --profiles-dir pipeline_personal_finance/dbt_finance/
 RUN poetry run dbt deps --project-dir pipeline_personal_finance/dbt_finance/ --profiles-dir pipeline_personal_finance/dbt_finance/
