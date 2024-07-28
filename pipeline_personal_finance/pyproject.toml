@@ -15,7 +15,6 @@ numpy  ="*"
 dagster-dbt  ="*"
 dagster-duckdb-pandas = "^0.23.13"
 dbt-postgres = "^1.8.2"
-rpds = "*"
 
 
 [build-system]

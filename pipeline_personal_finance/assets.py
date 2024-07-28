@@ -95,7 +95,7 @@ def upload_dataframe_to_database(
     verify_schema_sql = f"SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{schema}';"
     check_db_sql = "SELECT current_database();"
 
-    with personal_finance_database._db_connection.engine.connect() as conn:
+    with personal_finance_database.get_connection() as conn:
         try:
             # Check the current database name
             context.log.info(f"Executing: {check_db_sql}")
@@ -126,24 +126,17 @@ def upload_dataframe_to_database(
             qif_file=file, key_generator=key_generator, bank_name=bank_name
         )
 
-        # Why am I doing JSON or JSONB anyway?  Splits must have some data in them, but they don't.
-        if 'postgres' in personal_finance_database.connection_string:
-            dtype = {
-                "category": JSONB(),
-                "splits": JSONB(),
-            }
-        else:
-            dtype = {
-                "category": JSON(),
-                "splits": JSON(),
-            }
+        dtype = {
+            "category": JSONB(),
+            "splits": JSONB(),
+        }
 
         # Upload the dataframe
         if df is not None:
             try:
                 df.to_sql(
                     name=table_name,
-                    con=personal_finance_database._db_connection.engine,
+                    con=personal_finance_database.get_connection(),
                     schema=schema,
                     if_exists="replace",
                     index=False,
