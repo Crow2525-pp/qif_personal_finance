@@ -8,14 +8,37 @@ WORKDIR /docker/appdata/dagster/pipeline_personal_finance
 COPY . .
 
 # Install the required dependencies
-RUN pip install poetry
-RUN poetry lock
-RUN poetry install --no-root
+RUN pip install poetry && \
+    echo "Poetry version:" && \
+    poetry --version
+
+# Debug: List the contents of the working directory
+RUN echo "Listing contents of /docker/appdata/dagster/pipeline_personal_finance:" && \
+    ls -la /docker/appdata/dagster/pipeline_personal_finance
+
+# Run poetry lock and check its success
+RUN poetry lock && \
+    echo "Poetry lock completed successfully"
+
+# Install project dependencies
+RUN poetry install --no-root && \
+    echo "Poetry install completed successfully"
+
+# Debug: List installed packages
+RUN echo "Listing installed packages:" && \
+    poetry show
 
 # Set the full project directory path for dbt commands
-RUN poetry run dbt clean --project-dir pipeline_personal_finance/dbt_finance/ --profiles-dir pipeline_personal_finance/dbt_finance/
-RUN poetry run dbt deps --project-dir pipeline_personal_finance/dbt_finance/ --profiles-dir pipeline_personal_finance/dbt_finance/
-RUN poetry run dbt build --project-dir pipeline_personal_finance/dbt_finance/ --profiles-dir pipeline_personal_finance/dbt_finance/
+RUN poetry run dbt clean --project-dir pipeline_personal_finance/dbt_finance/ --profiles-dir pipeline_personal_finance/dbt_finance/ && \
+    echo "DBT clean completed successfully"
+RUN poetry run dbt deps --project-dir pipeline_personal_finance/dbt_finance/ --profiles-dir pipeline_personal_finance/dbt_finance/ && \
+    echo "DBT deps completed successfully"
+RUN poetry run dbt build --project-dir pipeline_personal_finance/dbt_finance/ --profiles-dir pipeline_personal_finance/dbt_finance/ && \
+    echo "DBT build completed successfully"
+
+# Debug: List the contents of the dbt project directory
+RUN echo "Listing contents of pipeline_personal_finance/dbt_finance:" && \
+    ls -la pipeline_personal_finance/dbt_finance
 
 # Set the working directory to where the service needs to be started from
 WORKDIR /docker/appdata/dagster
