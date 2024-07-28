@@ -29,3 +29,4 @@ class SqlAlchemyClientResource(ConfigurableResource):
 
     def get_connection(self):
         return self.create_engine().connect()
+    

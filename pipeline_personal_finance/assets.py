@@ -84,13 +84,40 @@ def convert_qif_to_df(
     group_name="qif_ingestion",
 )
 def upload_dataframe_to_database(
-    context: AssetExecutionContext, personal_finance_database: SqlAlchemyClientResource
-):
-    schema = "raw"  # TODO: ensure that this is configurable by dagstger
-    qif_filepath = Path("qif_files")
-    qif_files = qif_filepath.glob("*.qif")
+    context: AssetExecutionContext, personal_finance_database: SqlAlchemyClientResource):
+    # TODO: How do you make this asset configurable by dagstger
+
+    # Adding initial log message to confirm function start
+    context.log.info("Starting the upload_dataframe_to_database asset.")
+
+    # get a list of QIF Files and add them to a list.
+    qif_filepath = Path("pipeline_personal_finance/qif_files")
+    
+    if qif_filepath.exists():
+        context.log.debug("QIF file directory found.")
+        # Find all QIF files in the directory
+        qif_files = list(qif_filepath.glob("*.qif"))
+    
+        if qif_files:
+            context.log.info(f"Found {len(qif_files)} QIF files.")
+            # Get the first few elements of the list
+            qif_files_head = qif_files[:5]
+            
+            # Convert the list of Path objects to a list of strings
+            qif_files_head_str = [str(qif_file) for qif_file in qif_files_head]
+            
+            # Create a markdown representation of the list
+            markdown_list = "\n".join(f"- {qif_file}" for qif_file in qif_files_head_str)
+            
+            # Log the markdown list using context.log.debug
+            context.log.debug(f"First few QIF files:\n{markdown_list}")     
+        else:
+            context.log.critical("No QIF files found.")
+    else:
+        context.log.critical(f"Directory '{qif_filepath}' does not exist.")
 
     # Ensure the raw schema exists
+    schema = "raw"
     create_schema_sql = f"CREATE SCHEMA IF NOT EXISTS {schema};"
     verify_schema_sql = f"SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{schema}';"
     check_db_sql = "SELECT current_database();"
