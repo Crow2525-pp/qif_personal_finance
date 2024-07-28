@@ -52,7 +52,7 @@ key_generator = PrimaryKeyGenerator()
 def convert_qif_to_df(
     qif_file: Path, key_generator: PrimaryKeyGenerator, bank_name: str
 ) -> pd.DataFrame:
-    qif_processor = quiffen.Qif.parse(qif_file, day_first=False)
+    qif_processor = quiffen.Qif.parse(str(qif_file), day_first=False)
     df = qif_processor.to_dataframe()
 
     if df is not None:
