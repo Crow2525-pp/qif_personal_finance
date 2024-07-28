@@ -8,7 +8,8 @@ WORKDIR /docker/appdata/dagster/pipeline_personal_finance
 COPY . .
 
 # Install the required dependencies
-RUN pip install poetry
+RUN pip install pipx
+RUN pipx install poetry
 RUN poetry config virtualenvs.create false
 RUN poetry lock
 RUN poetry install --no-root
