@@ -20,6 +20,8 @@ dbt-duckdb = "^1.8.1"
 duckdb = "^1.0.0"
 dagster-duckdb = "^0.23.9"
 duckdb-engine = "^0.13.0"
+pytest = "^8.3.2"
+pytest-mock = "^3.14.0"
 
 [build-system]
 requires = ["poetry-core", "setuptools"]
