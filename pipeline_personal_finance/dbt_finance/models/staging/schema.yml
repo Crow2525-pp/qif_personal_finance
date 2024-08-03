@@ -3,7 +3,7 @@ version: 2
 sources:
   - name: personalfinance_dagster
     schema: raw
-    database: finance
+    database: personal_finance
     tables:
       - name: ING_BillsBillsBills_Transactions
         meta:

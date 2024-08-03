@@ -19,7 +19,7 @@ categorized_transactions AS (
     LEFT JOIN category_mappings cm ON t.account = cm.account
     AND (
         -- First priority: from/to fields
-        (t.from IS NOT NULL AND t.to IS NOT NULL AND (cm.from IS NOT NULL AND cm.to IS NOT NULL) AND t.from = cm.from AND t.to = cm.to)
+        (t.From IS NOT NULL AND t.To IS NOT NULL AND (cm.From IS NOT NULL AND cm.To IS NOT NULL) AND t.From = cm.From AND t.To = cm.To)
         OR
         -- Second priority: transaction type
         (t.transaction_type IS NOT NULL AND cm.transaction_type IS NOT NULL AND t.transaction_type = cm.transaction_type)

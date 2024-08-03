@@ -7,12 +7,12 @@
 WITH cleaned_memo_data AS (
     SELECT
         primary_key,
-        -- Normalize the delimiters and split the memo field
-        string_split_regex(REGEXP_REPLACE(memo, '{{ transaction_types | join('|') }}', ''), ' - ') AS Split_Memo,
+        -- Normalize the delimiters and split the memo field into an array
+        regexp_split_to_array(regexp_replace(memo, '{{ transaction_types | join('|') }}', ''), ' - ') AS Split_Memo,
         -- Replace the transaction_types with an empty string
-        trim(REGEXP_REPLACE(memo, '{{ transaction_types | join('|') }}', '')) AS Transaction_Description,
-        -- Extract the transaction type using the transaction_types list
-        regexp_extract(memo, '{{ transaction_types | join('|') }}') AS Transaction_Type
+        regexp_replace(memo, '{{ transaction_types | join('|') }}', '') AS Transaction_Description,
+        -- Extract the first occurrence of any transaction type using regex
+        (regexp_matches(memo, '{{ transaction_types | join('|') }}'))[1] AS Transaction_Type
     FROM
         {{ source('personalfinance_dagster', 'Adelaide_Offset_Transactions') }}
 )
@@ -35,7 +35,7 @@ SELECT
     trim(c.Transaction_Description) as Transaction_Description,
     trim(c.Transaction_Type) as Transaction_Type,
     -- Other fields from the original table
-    a.amount,
+    cast(a.amount as float) as amount,
     a.line_number,    
     a.primary_key,
     -- Additional fields like current date and time
