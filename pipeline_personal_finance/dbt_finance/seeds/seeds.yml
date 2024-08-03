@@ -37,7 +37,7 @@ seeds:
       show: true
       node_color: "#34d399" # A shade of green
     config:
-      deliminter: ","
+      delimiter: ","
     +quote_columns: false
     +column_types:
       transaction_description: varchar(200)
