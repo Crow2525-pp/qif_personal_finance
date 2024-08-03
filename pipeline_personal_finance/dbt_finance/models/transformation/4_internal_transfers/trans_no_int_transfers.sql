@@ -2,11 +2,13 @@
 
 select *
 from {{ ref('trans_categories') }}
-where 
-    trim(lower(transaction_type)) NOT IN ({{ "'" + "', '".join(internal_transaction_types | map('lower')) + "'" }})
-    AND
-    "FROM" = ''
-    AND
-    "TO" = ''
-    and 
+where
+    trim(lower(transaction_type)) not in (
+        {{ "'" + "', '".join(internal_transaction_types | map('lower')) + "'" }}
+    )
+    and
+    sender = ''
+    and
+    recepient = ''
+    and
     category <> 'Internal Transfer'

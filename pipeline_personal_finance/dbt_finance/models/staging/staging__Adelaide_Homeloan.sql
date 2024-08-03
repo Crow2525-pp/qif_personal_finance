@@ -6,40 +6,48 @@
 
 
 with cleaned_memo_data as (
-    SELECT
+    select
         primary_key,
         -- Normalize the delimiters and split the memo field into an array
-        regexp_split_to_array(regexp_replace(memo, '{{ transaction_types | join('|') }}', ''), ' - ') AS Split_Memo,
+        regexp_split_to_array(
+            regexp_replace(memo, '{{ transaction_types | join('|') }}', ''),
+            ' - '
+        ) as split_memo,
         -- Replace the transaction_types with an empty string
-        regexp_replace(memo, '{{ transaction_types | join('|') }}', '') AS Transaction_Description,
+        regexp_replace(
+            memo, '{{ transaction_types | join('|') }}', ''
+        ) as transaction_description,
         -- Extract the first occurrence of any transaction type using regex
-        (regexp_matches(memo, '{{ transaction_types | join('|') }}'))[1] AS Transaction_Type
-    FROM
+        (
+            regexp_matches(memo, '{{ transaction_types | join('|') }}')
+        )[1] as transaction_type
+    from
         {{ source('personalfinance_dagster', 'Adelaide_Homeloan_Transactions') }}
 )
 
-SELECT 
-    date_trunc('day', a.date) as date,
+select
+    '' as receipt,
     --COALESCE(ARRAY_EXTRACT(c.Split_Memo, 1), NULL) AS Memo_Part_1,
     --COALESCE(ARRAY_EXTRACT(c.Split_Memo, 2), NULL) AS Memo_Part_2,
     --COALESCE(ARRAY_EXTRACT(c.Split_Memo, 3), NULL) AS Memo_Part_3, 
     --COALESCE(ARRAY_EXTRACT(c.Split_Memo, 4), NULL) AS Memo_Part_4,
-    trim(a.memo) as memo,
-    '' as Receipt,
-    '' as Location,
-    '' as Description_Date,
-    '' as Card_No,
-    '' as "From",
-    '' as To,
-    trim(c.Transaction_Description) as Transaction_Description,
-    trim(c.Transaction_Type) as Transaction_Type,
+    '' as location,
+    '' as description_date,
+    '' as card_no,
+    '' as sender,
+    '' as recepient,
     cast(a.amount as float) as amount,
-    a.line_number,    
+    a.line_number,
     c.primary_key,
+    'adelaide_homeloan' as account,
+    date_trunc('day', a.date) as date,
+    trim(a.memo) as memo,
+    trim(c.transaction_description) as transaction_description,
+    trim(c.transaction_type) as transaction_type,
     current_date,
-    current_time,
-    'adelaide_homeloan' as Account
+    current_time
 
-FROM {{ source('personalfinance_dagster', 'Adelaide_Homeloan_Transactions') }} as a
+from
+    {{ source('personalfinance_dagster', 'Adelaide_Homeloan_Transactions') }} as a
 left join cleaned_memo_data as c
-on a.primary_key = c.primary_key
+    on a.primary_key = c.primary_key

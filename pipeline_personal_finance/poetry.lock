@@ -265,13 +265,13 @@ files = [
 
 [[package]]
 name = "dagster"
-version = "1.7.15"
+version = "1.7.16"
 description = "Dagster is an orchestration platform for the development, production, and observation of data assets."
 optional = false
 python-versions = "<3.13,>=3.8"
 files = [
-    {file = "dagster-1.7.15-py3-none-any.whl", hash = "sha256:55bbf574e71c79d1f2aa24901e2e3944101912c768deb1dc2e1d615b284c26f4"},
-    {file = "dagster-1.7.15.tar.gz", hash = "sha256:a2cb988671c5d224579e2b3d4f60941e40bb318e423aef280e1ca09a6a48e9c8"},
+    {file = "dagster-1.7.16-py3-none-any.whl", hash = "sha256:7b940f89b4d68d188f0a0b2f912957c745bd392c1631763f0d2057b252f6e5e4"},
+    {file = "dagster-1.7.16.tar.gz", hash = "sha256:a355be92503325061cc4c1e0401f63927c8e10f3b9b79b951886cd398056014a"},
 ]
 
 [package.dependencies]
@@ -279,7 +279,7 @@ alembic = ">=1.2.1,<1.6.3 || >1.6.3,<1.7.0 || >1.7.0,<1.11.0 || >1.11.0"
 click = ">=5.0"
 coloredlogs = ">=6.1,<=14.0"
 croniter = ">=0.3.34"
-dagster-pipes = "1.7.15"
+dagster-pipes = "1.7.16"
 docstring-parser = "*"
 filelock = "*"
 grpcio = ">=1.44.0,<1.65.0"
@@ -316,17 +316,17 @@ test = ["buildkite-test-collector", "docker", "fsspec (<2024.5.0)", "grpcio-tool
 
 [[package]]
 name = "dagster-dbt"
-version = "0.23.15"
+version = "0.23.16"
 description = "A Dagster integration for dbt"
 optional = false
 python-versions = "<3.13,>=3.8"
 files = [
-    {file = "dagster-dbt-0.23.15.tar.gz", hash = "sha256:c2c668c8eecd6c21eb7b897e73e3280dcac843fca308e3306d298b0b60654e68"},
-    {file = "dagster_dbt-0.23.15-py3-none-any.whl", hash = "sha256:bdd8ab4c8e63b6688a30c46a82af96c33d3f8250185b10423dbcdf9938b2974b"},
+    {file = "dagster-dbt-0.23.16.tar.gz", hash = "sha256:aded3d91ad99590b7af6e59c8097a7b2844a516293542233a7f593d8f8b5e838"},
+    {file = "dagster_dbt-0.23.16-py3-none-any.whl", hash = "sha256:a7da8db8bec66b324ff3db9efef0c01948413981fa06575d724ad931e78ef86a"},
 ]
 
 [package.dependencies]
-dagster = "1.7.15"
+dagster = "1.7.16"
 dbt-core = ">=1.6,<1.9"
 Jinja2 = "*"
 networkx = "*"
@@ -342,17 +342,17 @@ test = ["dagster-duckdb", "dagster-duckdb-pandas", "dbt-duckdb"]
 
 [[package]]
 name = "dagster-duckdb"
-version = "0.23.15"
+version = "0.23.16"
 description = "Package for DuckDB-specific Dagster framework op and resource components."
 optional = false
 python-versions = "<3.13,>=3.8"
 files = [
-    {file = "dagster-duckdb-0.23.15.tar.gz", hash = "sha256:1c19d07cff9446a12f4e4846d8c5cfcf0b5fc0f83d5b673f712b8af2adca60ba"},
-    {file = "dagster_duckdb-0.23.15-py3-none-any.whl", hash = "sha256:1555bfafa6589b7b5740b78d9fad02bf738874415652097b479fa6a6c4acb6fd"},
+    {file = "dagster-duckdb-0.23.16.tar.gz", hash = "sha256:37b01b3abd1cdb87b84ca1f6a880508f4a4b379545353991fbf66ad75a395324"},
+    {file = "dagster_duckdb-0.23.16-py3-none-any.whl", hash = "sha256:289e8518153b11d9400d301c59c00cb5625f9dacee0d09d05762c319bb446ddf"},
 ]
 
 [package.dependencies]
-dagster = "1.7.15"
+dagster = "1.7.16"
 duckdb = "*"
 
 [package.extras]
@@ -361,60 +361,60 @@ pyspark = ["pyspark (>=3)"]
 
 [[package]]
 name = "dagster-duckdb-pandas"
-version = "0.23.15"
+version = "0.23.16"
 description = "Package for storing Pandas DataFrames in DuckDB."
 optional = false
 python-versions = "<3.13,>=3.8"
 files = [
-    {file = "dagster-duckdb-pandas-0.23.15.tar.gz", hash = "sha256:ef4230951c1e254386150ddae6ce8d7323c3ba8c54aba2c59e23158fe717d1ad"},
-    {file = "dagster_duckdb_pandas-0.23.15-py3-none-any.whl", hash = "sha256:7250d1e80026444c1c631e173677767e452dff2adf9e844f6ac2f6ae97e5b51e"},
+    {file = "dagster-duckdb-pandas-0.23.16.tar.gz", hash = "sha256:86bcdd6c58e2ecec7fe4abe3aa24f1ba52576abc823fc6e3cda98dcdc9d30505"},
+    {file = "dagster_duckdb_pandas-0.23.16-py3-none-any.whl", hash = "sha256:42439d9a97209327166a33afd448fdc628f5f6ab32054c2d60dd9867f4562003"},
 ]
 
 [package.dependencies]
-dagster = "1.7.15"
-dagster-duckdb = "0.23.15"
+dagster = "1.7.16"
+dagster-duckdb = "0.23.16"
 pandas = "*"
 
 [[package]]
 name = "dagster-pipes"
-version = "1.7.15"
+version = "1.7.16"
 description = "Toolkit for Dagster integrations with transform logic outside of Dagster"
 optional = false
 python-versions = "<3.13,>=3.8"
 files = [
-    {file = "dagster-pipes-1.7.15.tar.gz", hash = "sha256:15c34ef482fc0002f44d209f11409a61ca4757e13a5aec514dcd803136228766"},
-    {file = "dagster_pipes-1.7.15-py3-none-any.whl", hash = "sha256:fc316b198b6e4dd636ecfadd641fbef563b1161189929db9735bb8c300b03ebb"},
+    {file = "dagster-pipes-1.7.16.tar.gz", hash = "sha256:d78ab631c556966f8e35fc49b297d7a6a03d1546f692a85f024cba1c14fc628b"},
+    {file = "dagster_pipes-1.7.16-py3-none-any.whl", hash = "sha256:14d3299633242f0ecbd08934490879346ae7e0386b608b6a9c759d078fda0a1c"},
 ]
 
 [[package]]
 name = "dagster-postgres"
-version = "0.23.15"
+version = "0.23.16"
 description = "A Dagster integration for postgres"
 optional = false
 python-versions = "<3.13,>=3.8"
 files = [
-    {file = "dagster-postgres-0.23.15.tar.gz", hash = "sha256:633bd3dce7277e5817a906db434adac669d9012f0fa3a6a2eaec23a4a3a6d5ca"},
-    {file = "dagster_postgres-0.23.15-py3-none-any.whl", hash = "sha256:689bfdad3c72b986b288d534b5d3a2869afde1dbaaeb2790cf14d42e5e1b0d68"},
+    {file = "dagster-postgres-0.23.16.tar.gz", hash = "sha256:517376ee3dc0efb3fe98979f277a912add020c168a1f8d1f3f7f007b556d70ca"},
+    {file = "dagster_postgres-0.23.16-py3-none-any.whl", hash = "sha256:e79d74ecca6167b769e961b0483aea83ec83bf064b9bc2fbf4e25c94737adfbb"},
 ]
 
 [package.dependencies]
-dagster = "1.7.15"
+dagster = "1.7.16"
 psycopg2-binary = "*"
 
 [[package]]
 name = "dbt-adapters"
-version = "1.3.2"
+version = "1.4.0"
 description = "The set of adapter protocols and base functionality that supports integration with dbt-core"
 optional = false
 python-versions = ">=3.8.0"
 files = [
-    {file = "dbt_adapters-1.3.2-py3-none-any.whl", hash = "sha256:959425d55220b33722d54ed73ab5654f73f9b8153fa0c5314f6f40308c012ad0"},
-    {file = "dbt_adapters-1.3.2.tar.gz", hash = "sha256:6aa37efeb0e07803f83d2b4cb3cc157348f42be546e9f5c2dc972ee9a4b70f0b"},
+    {file = "dbt_adapters-1.4.0-py3-none-any.whl", hash = "sha256:cff7360ea3b9161d8aeb58ef641b9bf416ee68b8058e2b11e3dff811b5bf7267"},
+    {file = "dbt_adapters-1.4.0.tar.gz", hash = "sha256:9b7d8ae793a3ebe272dfd8f328f281f1633c6527407e18521c38a071946417ea"},
 ]
 
 [package.dependencies]
 agate = ">=1.0,<2.0"
-dbt-common = ">=1.3,<2.0"
+dbt-common = ">=1.6,<2.0"
 mashumaro = {version = ">=3.0,<4.0", extras = ["msgpack"]}
 protobuf = ">=3.0,<5.0"
 pytz = ">=2015.7"
@@ -422,13 +422,13 @@ typing-extensions = ">=4.0,<5.0"
 
 [[package]]
 name = "dbt-common"
-version = "1.6.0"
+version = "1.7.0"
 description = "The shared common utilities that dbt-core and adapter implementations use"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "dbt_common-1.6.0-py3-none-any.whl", hash = "sha256:543ffe14e81e126cf573f3f5badf17408a1cd350993214f4a6346e3ac0187806"},
-    {file = "dbt_common-1.6.0.tar.gz", hash = "sha256:1e3063921354ba8681da21fe1882f516ce7418fa2838996254e466f9e31cdc16"},
+    {file = "dbt_common-1.7.0-py3-none-any.whl", hash = "sha256:ade7cf908492e83f890fd2c2bbb286f685dfe55a28ee1076f5485041b9acb93e"},
+    {file = "dbt_common-1.7.0.tar.gz", hash = "sha256:bf085abd6c2d871ec802f0b78a13467ca1d8be1603b165bb80caa9309d6b292d"},
 ]
 
 [package.dependencies]
@@ -2168,13 +2168,13 @@ files = [
 
 [[package]]
 name = "setuptools"
-version = "71.1.0"
+version = "72.1.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "setuptools-71.1.0-py3-none-any.whl", hash = "sha256:33874fdc59b3188304b2e7c80d9029097ea31627180896fb549c578ceb8a0855"},
-    {file = "setuptools-71.1.0.tar.gz", hash = "sha256:032d42ee9fb536e33087fb66cac5f840eb9391ed05637b3f2a76a7c8fb477936"},
+    {file = "setuptools-72.1.0-py3-none-any.whl", hash = "sha256:5a03e1860cf56bb6ef48ce186b0e557fdba433237481a9a625176c2831be15d1"},
+    {file = "setuptools-72.1.0.tar.gz", hash = "sha256:8d243eff56d095e5817f796ede6ae32941278f542e0f941867cc05ae52b162ec"},
 ]
 
 [package.extras]
@@ -2293,13 +2293,13 @@ sqlcipher = ["sqlcipher3_binary"]
 
 [[package]]
 name = "sqlglot"
-version = "25.7.1"
+version = "25.8.1"
 description = "An easily customizable SQL parser and transpiler"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "sqlglot-25.7.1-py3-none-any.whl", hash = "sha256:d907e07baaa910b1b1ad1f95bc01aeef95734132efb7372d08da8966e9f5b55c"},
-    {file = "sqlglot-25.7.1.tar.gz", hash = "sha256:bab34b0beea365317fd67e50defbfabc97f14d8e1968ccef509b13030c4af561"},
+    {file = "sqlglot-25.8.1-py3-none-any.whl", hash = "sha256:9e79b211ecc15b23440be3fc82f292615ee2c49d85571ca861cc0398120d7baf"},
+    {file = "sqlglot-25.8.1.tar.gz", hash = "sha256:afc4df057ab11be23278655ec8c31b21118077d0c68c001a9764767b72799a99"},
 ]
 
 [package.dependencies]
