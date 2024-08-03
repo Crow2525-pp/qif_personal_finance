@@ -1,35 +1,26 @@
-dagster_project/dbt project/database/
-*.qif
-/dagster_project/dbt project/dagster_dbt_project/dagster_dbt_project/assets/__pycache__
-/dagster_project/dbt project/dagster_dbt_project/tmp*
-/dagster_project/dbt project/dagster_dbt_project/tmp5buk9thn/history/*.db
-/dagster_project/dagster_dbt_project/dagster_dbt_project/__pycache__
+pipeline_personal_finance/dbt_finance/logs
+pipeline_personal_finance/dbt_finance/dbt_packages
+pipeline_personal_finance/dbt_finance/target
+pipeline_personal_finance/qif_files
+postgres
 __pycache__
+tmp
+/tmp*
 runs.db
 index.db
 schedules.db
+*.qif
 *.db-shm
 *.db-wal
 *.wal
-pipeline_personal_finance/dbt_finace/target/
-pipeline_personal_finance/dbt_finace/dbt_packages/
-pipeline_personal_finance/dbt_finace/logs/
-pipeline_personal_finance/dbt_finance/macros/
-pipeline_personal_finance/dbt_finance/dbt_packages/
-pipeline_personal_finance/dbt_finance/target/
 *.duckdb
 *.db
 *.complete
 *.err
 *.out
-tmp
-postgres
-pipeline_personal_finance/qif_files
 *.log
 *.logs
-/tmp*
-*.log
 *.csv
 *.ods
 .env
-
+!pipeline_personal_finance/dbt_finance/macros
