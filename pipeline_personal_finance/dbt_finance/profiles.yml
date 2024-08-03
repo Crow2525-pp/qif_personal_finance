@@ -1,9 +1,22 @@
 personal_finance:
-  target: prod
+  target: test
   outputs:
+    dev:
+      type: duckdb
+      database: finance
+      schema: raw
+      path: "C:/Users/Phil/Documents/Projects/personal_finance_dashboard/duckdb/finance.duckdb"
     prod:
       type: postgres
-      host: dagster_postgres
+      host: 192.168.1.103
+      user: postgres
+      password: test
+      port: 5432
+      dbname: personal_finance
+      schema: landing
+    test:
+      type: postgres
+      host: localhost
       user: postgres
       password: test
       port: 5432

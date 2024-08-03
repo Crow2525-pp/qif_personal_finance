@@ -1,34 +1,37 @@
-WITH RankedBalances AS (
+WITH RANKEDBALANCES AS (
     SELECT
-        Account,
-        Category,
-        subcategory,
-        Date,
-        adjusted_balance,
-        ROW_NUMBER() OVER(PARTITION BY Account ORDER BY Date DESC) as rn, -- Rank for the most recent transaction
-        ROW_NUMBER() OVER(PARTITION BY Account, YEAR(Date) ORDER BY Date DESC) as rn_year,
-        ROW_NUMBER() OVER(PARTITION BY Account, YEAR(Date), QUARTER(Date) ORDER BY Date DESC) as rn_quarter,
-        ROW_NUMBER() OVER(PARTITION BY Account, YEAR(Date), MONTH(Date) ORDER BY Date DESC) as rn_month,
-        ROW_NUMBER() OVER(PARTITION BY Account, YEAR(Date), WEEK(Date) ORDER BY Date DESC) as rn_week,
-        ROW_NUMBER() OVER(PARTITION BY Account, YEAR(Date), MONTH(Date), DAY(Date) ORDER BY Date DESC) as rn_day
+        ACCOUNT,
+        CATEGORY,
+        SUBCATEGORY,
+        DATE,
+        ADJUSTED_BALANCE,
+        -- Rank for the most recent transaction
+        ROW_NUMBER() OVER (PARTITION BY ACCOUNT, EXTRACT(YEAR FROM DATE) ORDER BY DATE DESC) AS RN_YEAR,
+        ROW_NUMBER() OVER (PARTITION BY ACCOUNT, EXTRACT(YEAR FROM DATE), EXTRACT(QUARTER FROM DATE) ORDER BY DATE DESC) AS RN_QUARTER,
+        ROW_NUMBER() OVER (PARTITION BY ACCOUNT, EXTRACT(YEAR FROM DATE), EXTRACT(MONTH FROM DATE) ORDER BY DATE DESC) AS RN_MONTH,
+        ROW_NUMBER() OVER (PARTITION BY ACCOUNT, EXTRACT(YEAR FROM DATE), EXTRACT(WEEK FROM DATE) ORDER BY DATE DESC) AS RN_WEEK,
+        ROW_NUMBER() OVER (PARTITION BY ACCOUNT, EXTRACT(YEAR FROM DATE), EXTRACT(MONTH FROM DATE), EXTRACT(DAY FROM DATE) ORDER BY DATE DESC) AS RN_DAY
+
     FROM
         {{ ref("trans_no_int_transfers") }}
 )
+
 SELECT
-    Account,
-    Category,
-    subcategory,
-    Date AS PeriodStart,
-    CASE 
-        WHEN rn_day = 1 THEN 'Day'
-        WHEN rn_week = 1 THEN 'Week'
-        WHEN rn_month = 1 THEN 'Month'
-        WHEN rn_quarter = 1 THEN 'Quarter'
-        WHEN rn_year = 1 THEN 'Year'
-        ELSE NULL -- For safety, though each row should fit one of the above categories
-    END AS PeriodType,
-    adjusted_balance AS LatestBalance
-FROM 
-    RankedBalances
-WHERE 
-    rn_day = 1 OR rn_week = 1 OR rn_month = 1 OR rn_quarter = 1 OR rn_year = 1 -- Ensuring it's the latest for any period
+    ACCOUNT,
+    CATEGORY,
+    SUBCATEGORY,
+    DATE AS PERIODSTART,
+    ADJUSTED_BALANCE AS LATESTBALANCE,
+    CASE
+        WHEN RN_DAY = 1 THEN 'Day'
+        WHEN RN_WEEK = 1 THEN 'Week'
+        WHEN RN_MONTH = 1 THEN 'Month'
+        WHEN RN_QUARTER = 1 THEN 'Quarter'
+        WHEN RN_YEAR = 1 THEN 'Year'
+        -- For safety, though each row should fit one of the above categories
+    END AS PERIODTYPE
+FROM
+    RANKEDBALANCES
+WHERE
+    -- Ensuring it's the latest for any period
+    RN_DAY = 1 OR RN_WEEK = 1 OR RN_MONTH = 1 OR RN_QUARTER = 1 OR RN_YEAR = 1

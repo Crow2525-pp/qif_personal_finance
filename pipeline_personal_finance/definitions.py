@@ -15,11 +15,15 @@ from .resources import SqlAlchemyClientResource
 load_dotenv()
 
 resources = {
-    "dev": {
+     "dev": {
         "personal_finance_database": SqlAlchemyClientResource(
-            connection_string="duckdb:///duckdb/finance.duckdb"
-        ),
-        # DuckDBResource(database="duckdb/finance.duckdb", schema="finance.raw"),
+            drivername="postgresql+psycopg2",
+            username=EnvVar("DAGSTER_POSTGRES_USER"),
+            password=EnvVar("DAGSTER_POSTGRES_PASSWORD"),
+            host=EnvVar("DAGSTER_POSTGRES_HOST"),
+            port=int(os.getenv("DAGSTER_POSTGRES_PORT")),
+            database=EnvVar("DAGSTER_POSTGRES_DB"),
+            ),
         "dbt": DbtCliResource(project_dir=os.fspath(DBT_PROJECT_DIR)),
     },
     "prod": {
@@ -35,7 +39,7 @@ resources = {
     },
 }
 
-deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "dev")
+deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "prod")
 
 defs = Definitions(
     assets=[finance_dbt_assets, upload_dataframe_to_database],

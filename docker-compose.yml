@@ -82,6 +82,7 @@ services:
       DAGSTER_POSTGRES_DB: ${DAGSTER_POSTGRES_DB}
       DBT_PROJECT_DIR: ${DBT_PROJECT_DIR}
       DBT_PROFILES_DIR: ${DBT_PROJECT_DIR}
+      DAGSTER_DEPLOYMENT: ${DAGSTER_DEPLOYMENT}
     volumes:
     #      - ./pipeline_personal_finance:/docker/appdata/dagster/pipeline_personal_finance
       - /tmp/dagster-data:/docker/appdata/dagster/dagster_home/

@@ -28,7 +28,8 @@ from .resources import SqlAlchemyClientResource
     manifest=dbt_manifest_path,
 )
 def finance_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
-    deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "dev")
+    # TODO: find out why dagster_deployment env var is not working. Fixed as Prod for moment.
+    deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "prod")
     target = "prod" if deployment_name == "prod" else "dev"
     yield from dbt.cli(["build", f"--target", target], context=context).stream()
 

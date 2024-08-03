@@ -42,8 +42,8 @@ seeds:
     +column_types:
       transaction_description: varchar(200)
       transaction_type: varchar(50)
-      from: varchar(100)
-      to: varchar(100)
+      sender: varchar(100)
+      recepient: varchar(100)
       account: varchar(50)
       category: varchar(200)
       subcategory: varchar(200)
@@ -52,7 +52,7 @@ seeds:
         description: "Describes the nature of the transaction.  If null then wildcard."
       - name: transaction_type
         description: "Categorizes the transaction by type, such as 'credit', 'debit', etc.  If null then wildcard."
-      - name: to
+      - name: sender
         description: "Indicates the recipient or destination account of the transaction.  If null then wildcard."
       - name: account
         description: "Identifies the account from which the transaction originated. "
