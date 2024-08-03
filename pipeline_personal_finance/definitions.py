@@ -15,7 +15,7 @@ from .resources import SqlAlchemyClientResource
 load_dotenv()
 
 resources = {
-     "env": {
+     "dev": {
         "personal_finance_database": SqlAlchemyClientResource(
             drivername="postgresql+psycopg2",
             username=EnvVar("DAGSTER_POSTGRES_USER"),
@@ -39,7 +39,7 @@ resources = {
     },
 }
 
-deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "dev")
+deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "prod")
 
 defs = Definitions(
     assets=[finance_dbt_assets, upload_dataframe_to_database],

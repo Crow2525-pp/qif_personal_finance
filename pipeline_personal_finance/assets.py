@@ -28,7 +28,8 @@ from .resources import SqlAlchemyClientResource
     manifest=dbt_manifest_path,
 )
 def finance_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
-    deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "dev")
+    # TODO: find out why dagster_deployment env var is not working. Fixed as Prod for moment.
+    deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "prod")
     target = "prod" if deployment_name == "prod" else "dev"
     yield from dbt.cli(["build", f"--target", target], context=context).stream()
 
@@ -52,7 +53,7 @@ key_generator = PrimaryKeyGenerator()
 def convert_qif_to_df(
     qif_file: Path, key_generator: PrimaryKeyGenerator, bank_name: str
 ) -> pd.DataFrame:
-    qif_processor = quiffen.Qif.parse(qif_file, day_first=False)
+    qif_processor = quiffen.Qif.parse(str(qif_file), day_first=False)
     df = qif_processor.to_dataframe()
 
     if df is not None:
