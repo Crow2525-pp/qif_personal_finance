@@ -17,7 +17,7 @@ categorized_transactions AS (
         COALESCE(cm.subcategory, 'Uncategorised') AS subcategory
     FROM transaction_data AS t
     LEFT JOIN category_mappings AS cm 
-    ON t.account = cm.account
+    ON t.account_name = cm.account_name
         AND (
         -- First priority: from/to fields
             (

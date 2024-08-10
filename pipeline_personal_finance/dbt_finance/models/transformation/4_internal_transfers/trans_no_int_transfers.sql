@@ -6,9 +6,9 @@ where
     trim(lower(transaction_type)) not in (
         {{ "'" + "', '".join(internal_transaction_types | map('lower')) + "'" }}
     )
-    and
+    {# and
     sender = ''
     and
-    recepient = ''
+    recepient = '' #}
     and
     category <> 'Internal Transfer'

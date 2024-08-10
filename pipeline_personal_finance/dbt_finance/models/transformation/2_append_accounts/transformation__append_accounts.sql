@@ -12,7 +12,7 @@ select
     a.amount,
     a.line_number,
     a.primary_key,
-    a.account,
+    a.account_name,
     a.adjusted_balance,
     a.balance as unadjusted_balance
 from {{ ref("transformation__Adel_Homeloan_adjst_bal") }} as a
@@ -33,7 +33,7 @@ select
     b.amount,
     b.line_number,
     b.primary_key,
-    b.account,
+    b.account_name,
     b.adjusted_balance,
     b.balance as unadjusted_balance
 from {{ ref("transformation__Adel_Offset_adjst_bal") }} as b
@@ -54,7 +54,7 @@ select
     c.amount,
     c.line_number,
     c.primary_key,
-    c.account,
+    c.account_name,
     c.adjusted_balance,
     c.balance as unadjusted_balance
 from {{ ref("transformation__Ben_Homeloan_adjst_bal") }} as c
@@ -75,7 +75,7 @@ select
     d.amount,
     d.line_number,
     d.primary_key,
-    d.account,
+    d.account_name,
     d.adjusted_balance,
     d.balance as unadjusted_balance
 from {{ ref("transformation__Ben_Offset_adjst_bal") }} as d
@@ -96,7 +96,7 @@ select
     e.amount,
     e.line_number,
     e.primary_key,
-    e.account,
+    e.account_name,
     e.adjusted_balance,
     e.balance as unadjusted_balance
 
@@ -118,7 +118,7 @@ select
     f.amount,
     f.line_number,
     f.primary_key,
-    f.account,
+    f.account_name,
     f.adjusted_balance,
     f.balance as unadjusted_balance
 from {{ ref("transformation__ING_countdown_adjst_bal") }} as f
