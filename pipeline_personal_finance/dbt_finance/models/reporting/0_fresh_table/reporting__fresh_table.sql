@@ -1,5 +1,5 @@
 select
-    account,
+    account_name,
     date,
     amount,
     adjusted_balance as balance,

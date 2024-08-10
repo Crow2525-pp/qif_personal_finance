@@ -4,6 +4,8 @@
 'DIRECT DEBIT', 'DIRECT CREDIT', 'BANK@POST PAYMEN', 'MONTHLY ADMINISTRATION FEE', 'DEBIT INTEREST', 
 'INTERNET TRANSFER CREDIT', 'ADVANCE'] %}
 
+/* TODO: Rename all cols - Current Date / Current Time to ETL DATETIME stamp
+*/
 
 with cleaned_memo_data as (
     select
@@ -39,7 +41,7 @@ select
     cast(a.amount as float) as amount,
     a.line_number,
     c.primary_key,
-    'adelaide_homeloan' as account,
+    'adelaide_homeloan' as account_name,
     date_trunc('day', a.date) as date,
     trim(a.memo) as memo,
     trim(c.transaction_description) as transaction_description,

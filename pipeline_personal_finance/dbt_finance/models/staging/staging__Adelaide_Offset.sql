@@ -41,7 +41,7 @@ SELECT
     -- Additional fields like current date and time
     current_date,
     current_time,
-    'adelaide_offset' as Account
+    'adelaide_offset' as account_name
 FROM {{ source('personalfinance_dagster', 'Adelaide_Offset_Transactions') }} as a
 LEFT JOIN cleaned_memo_data as c
 ON a.primary_key = c.primary_key
