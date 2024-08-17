@@ -86,6 +86,7 @@ services:
     volumes:
     #      - ./pipeline_personal_finance:/docker/appdata/dagster/pipeline_personal_finance
       - /tmp/dagster-data:/docker/appdata/dagster/dagster_home/
+      - ${QIF_FILE_DIRECTORY}:/docker/appdata/dagster/pipeline_personal_finance/qif_files
     networks:
       - dagster_network
 
