@@ -1,5 +1,5 @@
 personal_finance:
-  target: test
+  target: prod
   outputs:
     dev:
       type: duckdb

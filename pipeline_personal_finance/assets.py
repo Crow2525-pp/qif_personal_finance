@@ -92,7 +92,7 @@ def upload_dataframe_to_database(
     context.log.info("Starting the upload_dataframe_to_database asset.")
 
     # get a list of QIF Files and add them to a list.
-    qif_filepath = Path("pipeline_personal_finance/qif_files")
+    qif_filepath = Path("qif_files")
     
     if qif_filepath.exists():
         context.log.debug("QIF file directory found.")
