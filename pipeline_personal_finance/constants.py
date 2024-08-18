@@ -23,3 +23,6 @@ dbt_manifest_path = (
     .wait()
     .target_path.joinpath("manifest.json")
 )
+
+
+qif_files = 'pipeline_personal_finance/qif_files'

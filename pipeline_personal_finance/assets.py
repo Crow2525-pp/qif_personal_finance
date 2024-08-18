@@ -20,7 +20,7 @@ from sqlalchemy.types import JSON
 
 logger = get_dagster_logger()
 
-from .constants import dbt_manifest_path
+from .constants import dbt_manifest_path, qif_files
 from .resources import SqlAlchemyClientResource
 
 
@@ -92,7 +92,9 @@ def upload_dataframe_to_database(
     context.log.info("Starting the upload_dataframe_to_database asset.")
 
     # get a list of QIF Files and add them to a list.
-    qif_filepath = Path("qif_files")
+    # Should this be relative to the Asset.py file or the Dagster core/daemon
+    # previously worked with Dagstercore daemon location
+    qif_filepath = Path(qif_files)
     
     if qif_filepath.exists():
         context.log.debug("QIF file directory found.")
@@ -115,7 +117,8 @@ def upload_dataframe_to_database(
         else:
             context.log.critical("No QIF files found.")
     else:
-        context.log.critical(f"Directory '{qif_filepath}' does not exist.")
+        absolute_path = os.path.abspath(qif_filepath)
+        context.log.critical(f"Directory '{absolute_path}' does not exist.")
 
     # Ensure the raw schema exists
     schema = "raw"

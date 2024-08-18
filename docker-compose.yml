@@ -60,6 +60,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
+      - ${QIF_FILE_DIRECTORY}:/docker/appdata/dagster/pipeline_personal_finance/qif_files
+
     networks:
       - dagster_network
     depends_on:
