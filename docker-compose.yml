@@ -60,7 +60,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
-      - ${QIF_FILE_DIRECTORY}:/docker/appdata/dagster/pipeline_personal_finance/qif_files
 
     networks:
       - dagster_network
@@ -86,9 +85,7 @@ services:
       DBT_PROFILES_DIR: ${DBT_PROJECT_DIR}
       DAGSTER_DEPLOYMENT: ${DAGSTER_DEPLOYMENT}
     volumes:
-    #      - ./pipeline_personal_finance:/docker/appdata/dagster/pipeline_personal_finance
       - /tmp/dagster-data:/docker/appdata/dagster/dagster_home/
-      - ${QIF_FILE_DIRECTORY}:/docker/appdata/dagster/pipeline_personal_finance/qif_files
     networks:
       - dagster_network
 

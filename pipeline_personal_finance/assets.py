@@ -94,7 +94,15 @@ def upload_dataframe_to_database(
     # get a list of QIF Files and add them to a list.
     # Should this be relative to the Asset.py file or the Dagster core/daemon
     # previously worked with Dagstercore daemon location
-    qif_filepath = Path(qif_files)
+    cwd = Path.cwd()
+    cwd = cwd / 'pipeline_personal_finance'
+    # List directories within the current directory
+    directories = [dir for dir in cwd.iterdir() if dir.is_dir()]
+
+    # Print each directory
+    for directory in directories:
+        context.log.info(f"current working directory folders: {directory}")
+    qif_filepath = Path("pipeline_personal_finance/qif_files")
     
     if qif_filepath.exists():
         context.log.debug("QIF file directory found.")
