@@ -1,8 +1,6 @@
 WITH RANKEDBALANCES AS (
     SELECT
         account_name,
-        CATEGORY,
-        SUBCATEGORY,
         DATE,
         ADJUSTED_BALANCE,
         -- Calculate the maximum date for each period
@@ -17,8 +15,6 @@ WITH RANKEDBALANCES AS (
 
 SELECT
     account_name,
-    CATEGORY,
-    SUBCATEGORY,
     DATE AS PERIODSTART,
     ADJUSTED_BALANCE AS LATESTBALANCE,
     CASE
