@@ -1,35 +1,39 @@
-WITH RANKEDBALANCES AS (
+
+WITH Calendar AS (
+    -- Reference the calendar table correctly
+    SELECT DATE
+    FROM {{ ref('date_calendar') }}  -- This references the date_calendar model you've created
+),
+AccountBalances AS (
     SELECT
         account_name,
         DATE,
-        ADJUSTED_BALANCE,
-        -- Calculate the maximum date for each period
-        MAX(DATE) OVER (PARTITION BY account_name, EXTRACT(YEAR FROM DATE)) AS MAX_DATE_YEAR,
-        MAX(DATE) OVER (PARTITION BY account_name, EXTRACT(YEAR FROM DATE), EXTRACT(QUARTER FROM DATE)) AS MAX_DATE_QUARTER,
-        MAX(DATE) OVER (PARTITION BY account_name, EXTRACT(YEAR FROM DATE), EXTRACT(MONTH FROM DATE)) AS MAX_DATE_MONTH,
-        MAX(DATE) OVER (PARTITION BY account_name, EXTRACT(YEAR FROM DATE), EXTRACT(WEEK FROM DATE)) AS MAX_DATE_WEEK,
-        MAX(DATE) OVER (PARTITION BY account_name, EXTRACT(YEAR FROM DATE), EXTRACT(MONTH FROM DATE), EXTRACT(DAY FROM DATE)) AS MAX_DATE_DAY
+        ADJUSTED_BALANCE
     FROM
-        {{ ref("trans_no_int_transfers") }}
+        {{ ref("trans_no_int_transfers") }}  -- Reference to another table/model in your dbt project
+),
+RankedBalances AS (
+    SELECT
+        c.DATE,
+        ab.account_name,
+        ab.ADJUSTED_BALANCE,
+        COALESCE(
+            LAG(ab.ADJUSTED_BALANCE) OVER (PARTITION BY ab.account_name ORDER BY c.DATE),
+            ab.ADJUSTED_BALANCE
+        ) AS LAST_KNOWN_BALANCE
+    FROM
+        Calendar c
+        LEFT JOIN AccountBalances ab ON c.DATE = ab.DATE
+    WHERE
+        c.DATE >= (SELECT MIN(DATE) FROM AccountBalances) AND
+        c.DATE <= (SELECT MAX(DATE) FROM AccountBalances)
 )
 
 SELECT
+    DATE,
     account_name,
-    DATE AS PERIODSTART,
-    ADJUSTED_BALANCE AS LATESTBALANCE,
-    CASE
-        WHEN DATE = MAX_DATE_DAY THEN 'Day'
-        WHEN DATE = MAX_DATE_WEEK THEN 'Week'
-        WHEN DATE = MAX_DATE_MONTH THEN 'Month'
-        WHEN DATE = MAX_DATE_QUARTER THEN 'Quarter'
-        WHEN DATE = MAX_DATE_YEAR THEN 'Year'
-        -- For safety, though each row should fit one of the above categories
-    END AS PERIODTYPE
+    LAST_KNOWN_BALANCE
 FROM
-    RANKEDBALANCES
-WHERE
-    DATE = MAX_DATE_DAY 
-    OR DATE = MAX_DATE_WEEK 
-    OR DATE = MAX_DATE_MONTH 
-    OR DATE = MAX_DATE_QUARTER 
-    OR DATE = MAX_DATE_YEAR
+    RankedBalances
+ORDER BY
+    account_name, DATE;
