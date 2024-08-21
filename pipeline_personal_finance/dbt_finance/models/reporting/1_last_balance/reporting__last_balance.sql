@@ -36,4 +36,4 @@ SELECT
 FROM
     RankedBalances
 ORDER BY
-    account_name, DATE;
+    account_name, DATE

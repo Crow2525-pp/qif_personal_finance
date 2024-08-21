@@ -15,7 +15,7 @@ select  distinct
 		    ELSE SPLIT_PART(SPLIT_PART(account_name, '_', 2), '_Transactions.qif', 1)
 		END
 	    ) AS account_name,
-    date
+    cast(date as date) as date
 	from {{ ref('reporting__fresh_table') }}
 ),
 final as (

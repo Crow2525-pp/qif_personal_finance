@@ -38,7 +38,7 @@ SELECT
     c.primary_key,
     current_date,
     current_time,
-    'adelaide_homeloan' as account_name
+    'bendigo_offset' as account_name
 
 FROM {{ source('personalfinance_dagster', 'Bendigo_Bank_Offset_Transactions') }} as a
 left join cleaned_memo_data as c
