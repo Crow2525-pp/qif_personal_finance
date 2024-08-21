@@ -9,18 +9,14 @@ from dagster import (
     AssetOut,
     MetadataValue,
     Output,
-    get_dagster_logger,
-    logger,
     multi_asset,
 )
 from dagster_dbt import DbtCliResource, dbt_assets
 from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.types import JSON
 
-logger = get_dagster_logger()
 
-from .constants import dbt_manifest_path, qif_files
+from .constants import dbt_manifest_path
 from .resources import SqlAlchemyClientResource
 
 
@@ -31,7 +27,7 @@ def finance_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
     # TODO: find out why dagster_deployment env var is not working. Fixed as Prod for moment.
     deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "prod")
     target = "prod" if deployment_name == "prod" else "dev"
-    yield from dbt.cli(["build", f"--target", target], context=context).stream()
+    yield from dbt.cli(["build", "--target", target], context=context).stream()
 
 
 class PrimaryKeyGenerator:
@@ -85,7 +81,8 @@ def convert_qif_to_df(
     group_name="qif_ingestion",
 )
 def upload_dataframe_to_database(
-    context: AssetExecutionContext, personal_finance_database: SqlAlchemyClientResource):
+    context: AssetExecutionContext, personal_finance_database: SqlAlchemyClientResource
+):
     # TODO: How do you make this asset configurable by dagstger
 
     # Adding initial log message to confirm function start
@@ -95,7 +92,7 @@ def upload_dataframe_to_database(
     # Should this be relative to the Asset.py file or the Dagster core/daemon
     # previously worked with Dagstercore daemon location
     cwd = Path.cwd()
-    cwd = cwd / 'pipeline_personal_finance'
+    cwd = cwd / "pipeline_personal_finance"
     # List directories within the current directory
     directories = [dir for dir in cwd.iterdir() if dir.is_dir()]
 
@@ -103,30 +100,20 @@ def upload_dataframe_to_database(
     for directory in directories:
         context.log.info(f"current working directory folders: {directory}")
     qif_filepath = Path("pipeline_personal_finance/qif_files")
-    
+
     if qif_filepath.exists():
         context.log.debug("QIF file directory found.")
         # Find all QIF files in the directory
         qif_files = list(qif_filepath.glob("*.qif"))
-    
+
         if qif_files:
             context.log.info(f"Found {len(qif_files)} QIF files.")
-            # Get the first few elements of the list
-            qif_files_head = qif_files[:5]
-            
-            # Convert the list of Path objects to a list of strings
-            qif_files_head_str = [str(qif_file) for qif_file in qif_files_head]
-            
-            # Create a markdown representation of the list
-            markdown_list = "\n".join(f"- {qif_file}" for qif_file in qif_files_head_str)
-            
-            # Log the markdown list using context.log.debug
-            context.log.debug(f"First few QIF files:\n{markdown_list}")     
         else:
             context.log.critical("No QIF files found.")
     else:
-        absolute_path = os.path.abspath(qif_filepath)
-        context.log.critical(f"Directory '{absolute_path}' does not exist.")
+        context.log.critical(
+            f"Directory '{os.path.abspath(qif_filepath)}' does not exist."
+        )
 
     # Ensure the raw schema exists
     schema = "raw"
