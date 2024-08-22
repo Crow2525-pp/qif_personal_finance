@@ -36,7 +36,7 @@ SELECT
     a.primary_key,
     current_date,
     current_time,
-    'ING_billsbillsbills' as account_name
+    'ing_billsbillsbills' as account_name
 FROM {{ source('personalfinance_dagster', 'ING_BillsBillsBills_Transactions') }} as a
 left join cleaned_memo_data as c
 on a.primary_key = c.primary_key

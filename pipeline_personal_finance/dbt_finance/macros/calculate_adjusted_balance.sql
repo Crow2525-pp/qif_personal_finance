@@ -4,7 +4,7 @@
 WITH transactions_with_balance AS (
     SELECT *,
            CAST(SUM(amount) OVER (
-               PARTITION BY account_name ORDER BY date DESC, line_number DESC
+               PARTITION BY account_name ORDER BY date ASC, line_number ASC
                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
            ) AS decimal(14,2)) AS balance
     FROM {{ ref(table_name) }}
@@ -34,8 +34,7 @@ adjusted_transactions AS (
     SELECT t.*,
            t.balance - COALESCE(b.adjustment, 0) AS adjusted_balance
     FROM transactions_with_balance t
-    LEFT JOIN balance_adjustment b 
-        ON t.line_number = b.line_number
+    CROSS JOIN balance_adjustment b 
 )
 SELECT * FROM adjusted_transactions
 {% endmacro %}

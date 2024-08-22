@@ -12,4 +12,4 @@ select
         when amount < 0 then 'CREDIT'
         else 'NEURAL'
     end as amount_type
-from {{ ref('trans_no_int_transfers') }}
+from {{ ref('trans_categories') }}
