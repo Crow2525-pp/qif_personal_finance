@@ -21,7 +21,7 @@ WITH cleaned_memo_data AS (
 
 
 SELECT 
-    date_trunc('day', a.date) as date,
+    cast(date_trunc('day', a.date) as date) as date,
     COALESCE(trim((c.Split_Memo)[1]), NULL) AS Transaction_Description, 
     COALESCE(trim((c.Split_Memo)[2]), NULL) AS Transaction_Type, 
     trim(c.memo) as memo,

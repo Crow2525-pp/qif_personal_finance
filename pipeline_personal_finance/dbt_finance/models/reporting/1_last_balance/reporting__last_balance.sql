@@ -1,6 +1,4 @@
-
 WITH Calendar AS (
-    -- Reference the calendar table correctly
     SELECT DATE
     FROM {{ ref('date_calendar') }}  -- This references the date_calendar model you've created
 ),
@@ -8,32 +6,32 @@ AccountBalances AS (
     SELECT
         account_name,
         DATE,
-        ADJUSTED_BALANCE
+        balance
     FROM
-        {{ ref("trans_no_int_transfers") }}  -- Reference to another table/model in your dbt project
+        {{ ref("reporting__fresh_table") }}  -- Reference to another table/model in your dbt project
 ),
-RankedBalances AS (
+balances_with_dates AS (
     SELECT
         c.DATE,
         ab.account_name,
-        ab.ADJUSTED_BALANCE,
-        COALESCE(
-            LAG(ab.ADJUSTED_BALANCE) OVER (PARTITION BY ab.account_name ORDER BY c.DATE),
-            ab.ADJUSTED_BALANCE
-        ) AS LAST_KNOWN_BALANCE
+        ab.balance
     FROM
         Calendar c
         LEFT JOIN AccountBalances ab ON c.DATE = ab.DATE
-    WHERE
-        c.DATE >= (SELECT MIN(DATE) FROM AccountBalances) AND
-        c.DATE <= (SELECT MAX(DATE) FROM AccountBalances)
+),
+--gets the last non-null array: https://stackoverflow.com/questions/56728095/postgresql-last-value-ignore-nulls
+latest_balances AS (
+    SELECT
+        DATE,
+        account_name,
+ 		(ARRAY_REMOVE(ARRAY_AGG(balance) OVER (PARTITION BY account_name ORDER BY date), NULL))[COUNT(balance) OVER (PARTITION BY account_name ORDER BY date)] AS latest_balance
+        FROM balances_with_dates
 )
-
-SELECT
+SELECT 
     DATE,
     account_name,
-    LAST_KNOWN_BALANCE
-FROM
-    RankedBalances
-ORDER BY
+    latest_balance
+FROM 
+    latest_balances
+ORDER BY 
     account_name, DATE

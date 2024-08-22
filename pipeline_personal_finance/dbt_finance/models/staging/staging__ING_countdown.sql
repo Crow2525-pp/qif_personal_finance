@@ -56,7 +56,7 @@ SELECT
     a.line_number,
     a.primary_key,
     'ING_countdown' as account_name,
-    date_trunc('day', a.date) AS date,
+    cast(date_trunc('day', a.date) as date) as date,
     coalesce(trim((c.split_memo)[1]), null) AS transaction_description,
     coalesce(trim((c.split_memo)[2]), null) AS transaction_type,
     trim(c.memo) AS memo,

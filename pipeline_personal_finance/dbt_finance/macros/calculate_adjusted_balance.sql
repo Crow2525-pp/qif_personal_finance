@@ -25,7 +25,7 @@ balance_adjustment AS (
         trans.balance - known.specific_balance AS adjustment
     FROM transactions_with_balance trans
     LEFT JOIN known_values known
-        ON trans.account_name = known.account_name
+        ON lower(trans.account_name) = lower(known.account_name)
     WHERE 
         trans.date = known.specific_date
 ),

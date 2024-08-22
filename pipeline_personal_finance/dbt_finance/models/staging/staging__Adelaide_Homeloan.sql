@@ -42,7 +42,7 @@ select
     a.line_number,
     c.primary_key,
     'adelaide_homeloan' as account_name,
-    date_trunc('day', a.date) as date,
+    cast(date_trunc('day', a.date) as date) as date,
     trim(a.memo) as memo,
     trim(c.transaction_description) as transaction_description,
     trim(c.transaction_type) as transaction_type,

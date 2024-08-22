@@ -19,7 +19,7 @@ WITH cleaned_memo_data AS (
 
 SELECT 
     -- Extract date component and other parts from the original 'date' field
-    date_trunc('day', a.date) as date,
+    cast(date_trunc('day', a.date) as date) as date,
     --COALESCE(ARRAY_EXTRACT(c.Split_Memo, 1), NULL) AS Memo_Part_1,
     --COALESCE(ARRAY_EXTRACT(c.Split_Memo, 2), NULL) AS Memo_Part_2,
     --COALESCE(ARRAY_EXTRACT(c.Split_Memo, 3), NULL) AS Memo_Part_3, 
