@@ -23,6 +23,8 @@ from .resources import SqlAlchemyClientResource
 # TODO: Unique Indentifiers - 
 #   Group transactions by month.
     # Assign a unique identifier to each transaction based on its description, amount, date, and its index within the group.
+# TODO: Add Monitoring of new QIF Files within dir.
+
 
 @dbt_assets(
     manifest=dbt_manifest_path,
