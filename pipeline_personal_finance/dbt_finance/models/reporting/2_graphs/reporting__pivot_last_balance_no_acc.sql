@@ -12,19 +12,21 @@
 
 WITH query AS (
     SELECT
-        TO_CHAR(date, 'YYYY-MM') AS year_month,
+        --date, 
+        TO_CHAR(date, 'YYYY-MM') AS year_month, 
         {% for account in accounts %}
-        MAX(CASE WHEN account_name = '{{ account }}' THEN latest_balance ELSE NULL END) AS "{{ account }}"
+            SUM(CASE WHEN EXTRACT(YEAR FROM date) = {{ year }} THEN latest_balance ELSE NULL END) AS "{{ year }}"
         {% if not loop.last %}, {% endif %}
         {% endfor %}
     FROM
         {{ ref("reporting__last_balance") }}
     GROUP BY
-        year_month
+        1
     ORDER BY
-        year_month
+        1
 )
 SELECT
+    --date,
     year_month,
     {% for account in accounts %}
     "{{ account }}"
