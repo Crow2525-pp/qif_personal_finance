@@ -7,7 +7,7 @@ WITH cleaned_memo_data AS (
         d.description_date,
         cn.card_no,
         f.sender,
-        t.recepient,
+        t.recipient,
         regexp_split_to_array(a.payee, ' - ') AS split_memo
     FROM
         {{ source('personalfinance_dagster', 'ING_Countdown_Transactions') }} AS a
@@ -44,7 +44,7 @@ WITH cleaned_memo_data AS (
         ON true
     LEFT JOIN
         LATERAL (
-            SELECT (regexp_matches(a.payee, 'To ([A-Za-z\s]+)$'))[1] AS recepient
+            SELECT (regexp_matches(a.payee, 'To ([A-Za-z\s]+)$'))[1] AS recipient
         ) AS t
         ON true
 )
@@ -63,7 +63,7 @@ SELECT
     trim(c.location) AS location,
     trim(c.card_no) AS card_no,
     trim(c.sender) AS sender,
-    trim(c.recepient) AS recepient,
+    trim(c.recipient) AS recipient,
     current_date,
     current_time
 FROM {{ source('personalfinance_dagster', 'ING_Countdown_Transactions') }} AS a

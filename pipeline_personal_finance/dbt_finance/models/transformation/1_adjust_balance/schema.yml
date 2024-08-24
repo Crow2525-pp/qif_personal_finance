@@ -13,7 +13,7 @@ models:
         data_type: text
       - name: sender
         data_type: text
-      - name: recepient
+      - name: recipient
         data_type: text
       - name: amount
         data_type: double precision
@@ -62,7 +62,7 @@ models:
         data_type: text
       - name: sender
         data_type: text
-      - name: recepient
+      - name: recipient
         data_type: text
       - name: transaction_description
         data_type: text
@@ -105,7 +105,7 @@ models:
         data_type: text
       - name: sender
         data_type: text
-      - name: recepient
+      - name: recipient
         data_type: text
       - name: transaction_description
         data_type: text
@@ -149,7 +149,7 @@ models:
         data_type: text
       - name: sender
         data_type: text
-      - name: recepient
+      - name: recipient
         data_type: text
       - name: transaction_description
         data_type: text
@@ -197,7 +197,7 @@ models:
         data_type: text
       - name: sender
         data_type: text
-      - name: recepient
+      - name: recipient
         data_type: text
       - name: amount
         data_type: double precision
@@ -248,7 +248,7 @@ models:
         data_type: text
       - name: sender
         data_type: text
-      - name: recepient
+      - name: recipient
         data_type: text
       - name: current_date
         data_type: date

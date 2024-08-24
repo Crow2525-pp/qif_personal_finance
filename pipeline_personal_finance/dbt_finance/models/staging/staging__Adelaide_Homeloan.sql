@@ -37,7 +37,7 @@ select
     '' as description_date,
     '' as card_no,
     '' as sender,
-    '' as recepient,
+    '' as recipient,
     cast(a.amount as float) as amount,
     a.line_number,
     c.primary_key,

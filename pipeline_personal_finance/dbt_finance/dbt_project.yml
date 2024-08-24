@@ -44,3 +44,16 @@ models:
       +schema: reporting
       +materialized: table
 
+seeds:
+  schema: landing
+  personal_finance:
+    banking_categories:
+      +column_types:
+        origin_key: int
+        transaction_description: text
+        transaction_type: text
+        sender: text
+        recipient: text
+        account_name: text
+        category: text
+        subcategory: text

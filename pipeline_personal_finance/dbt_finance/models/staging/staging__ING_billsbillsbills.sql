@@ -8,7 +8,7 @@ WITH cleaned_memo_data AS (
         d.Description_Date,
         cn.Card_No,
         f.sender,
-        t.recepient
+        t.recipient
     FROM 
         {{ source('personalfinance_dagster', 'ING_BillsBillsBills_Transactions') }} a
     LEFT JOIN LATERAL (SELECT (regexp_matches(a.payee, 'Receipt (\d+)'))[1] AS Receipt) r ON a.payee ~ 'Receipt (\d+)' 
@@ -16,7 +16,7 @@ WITH cleaned_memo_data AS (
     LEFT JOIN LATERAL (SELECT (regexp_matches(a.payee, 'Date (\d{2} [A-Za-z]{3} \d{4})'))[1] AS Description_Date) d ON a.payee ~ 'Date (\d{2} [A-Za-z]{3} \d{4})'
     LEFT JOIN LATERAL (SELECT (regexp_matches(a.payee, 'Card ([\dx]+)$'))[1] AS Card_No) cn ON a.payee ~ 'Card ([\dx]+)$'
     LEFT JOIN LATERAL (SELECT (regexp_matches(a.payee, 'From ([A-Za-z\s]+)$'))[1] AS sender) f ON a.payee ~ 'From ([A-Za-z\s]+)$'
-    LEFT JOIN LATERAL (SELECT (regexp_matches(a.payee, 'To ([A-Za-z\s]+)$'))[1] AS recepient) t ON a.payee ~ 'To ([A-Za-z\s]+)$'
+    LEFT JOIN LATERAL (SELECT (regexp_matches(a.payee, 'To ([A-Za-z\s]+)$'))[1] AS recipient) t ON a.payee ~ 'To ([A-Za-z\s]+)$'
 )
 
 
@@ -30,7 +30,7 @@ SELECT
     c.Description_Date,
     trim(c.Card_No) as Card_No,
     trim(c.sender) as sender,
-    trim(c.recepient) as recepient,
+    trim(c.recipient) as recipient,
     cast(a.amount as float) as amount,
     a.line_number,    
     a.primary_key,

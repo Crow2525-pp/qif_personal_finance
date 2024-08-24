@@ -20,9 +20,9 @@ from .constants import dbt_manifest_path
 from .resources import SqlAlchemyClientResource
 
 # TODO: Incremental Refresh
-# TODO: Unique Indentifiers - 
+# TODO: Unique Indentifiers -
 #   Group transactions by month.
-    # Assign a unique identifier to each transaction based on its description, amount, date, and its index within the group.
+# Assign a unique identifier to each transaction based on its description, amount, date, and its index within the group.
 # TODO: Add Monitoring of new QIF Files within dir.
 
 
@@ -121,8 +121,8 @@ def upload_dataframe_to_database(
             f"Directory '{os.path.abspath(qif_filepath)}' does not exist."
         )
 
-    # Ensure the raw schema exists
-    schema = "raw"
+    # Ensure the landing schema exists
+    schema = "landing"
     create_schema_sql = f"CREATE SCHEMA IF NOT EXISTS {schema};"
     verify_schema_sql = f"SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{schema}';"
     check_db_sql = "SELECT current_database();"

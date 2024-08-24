@@ -30,7 +30,7 @@ SELECT
     '' as Description_Date,
     '' as Card_No,
     '' as sender,
-    '' as recepient,
+    '' as recipient,
     trim(c.Transaction_Description) as Transaction_Description,
     trim(c.Transaction_Type) as Transaction_Type,
     cast(a.amount as float) as amount,

@@ -14,7 +14,8 @@ categorized_transactions AS (
         t.*,
         -- Use COALESCE to handle cases where there might not be a match and you want a default value
         COALESCE(cm.category, 'Uncategorised') AS category,
-        COALESCE(cm.subcategory, 'Uncategorised') AS subcategory
+        COALESCE(cm.subcategory, 'Uncategorised') AS subcategory,
+        COALESCE(cm.store, 'Uncategorised') as store
     FROM transaction_data AS t
     LEFT JOIN category_mappings AS cm 
     ON t.account_name = cm.account_name
@@ -22,10 +23,10 @@ categorized_transactions AS (
         -- First priority: from/to fields
             (
                 t.sender IS NOT NULL
-                AND t.recepient IS NOT NULL
-                AND (cm.sender IS NOT NULL AND cm.recepient IS NOT NULL)
+                AND t.recipient IS NOT NULL
+                AND (cm.sender IS NOT NULL AND cm.recipient IS NOT NULL)
                 AND t.sender = cm.sender
-                AND t.recepient = cm.recepient
+                AND t.recipient = cm.recipient
             )
             OR
             -- Second priority: transaction type
