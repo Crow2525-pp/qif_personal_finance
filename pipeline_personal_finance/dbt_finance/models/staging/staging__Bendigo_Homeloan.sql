@@ -15,7 +15,7 @@ with cleaned_memo_data as (
         -- Extract the first occurrence of any transaction type using regex
         (regexp_matches(memo, '{{ transaction_types | join('|') }}'))[1] AS Transaction_Type
     FROM
-        {{ source('personalfinance_dagster', 'Bendigo_Bank_Homeloan_Transactions') }}
+        {{ source('personalfinance_dagster', 'Bendigo_Homeloan_Transactions') }}
 )
 
 SELECT 
@@ -40,6 +40,6 @@ SELECT
     current_time,
     'bendigo_homeloan' as account_name
 
-FROM {{ source('personalfinance_dagster', 'Bendigo_Bank_Homeloan_Transactions') }} as a
+FROM {{ source('personalfinance_dagster', 'Bendigo_Homeloan_Transactions') }} as a
 left join cleaned_memo_data as c
 on a.primary_key = c.primary_key

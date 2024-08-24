@@ -25,10 +25,7 @@ final as (
     bank_name, 
     account_name,
     min(date) as start_date,
-    case
-      when CURRENT_DATE >= max(date) then '9999-12-31'
-      else max(date)
-    end as end_date
+  	max(date) as end_date
 from
   subquery
 group by

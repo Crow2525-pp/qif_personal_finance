@@ -15,7 +15,6 @@ sources:
               - unique
               - not_null
 
-
       - name: ING_Countdown_Transactions
         meta:
           dagster:
@@ -35,7 +34,7 @@ sources:
             tests:
               - unique
               - not_null
-            
+
       - name: Adelaide_Homeloan_Transactions
         meta:
           dagster:
@@ -44,21 +43,21 @@ sources:
           - name: primary_key
             tests:
               - unique
-              - not_null      
+              - not_null
 
-      - name: Bendigo_Bank_Offset_Transactions
+      - name: Bendigo_Offset_Transactions
         meta:
           dagster:
-            asset_key: ["Bendigo_Bank_Offset_Transactions"]
+            asset_key: ["Bendigo_Offset_Transactions"]
         columns:
           - name: primary_key
             tests:
               - unique
               - not_null
-      - name: Bendigo_Bank_Homeloan_Transactions
+      - name: Bendigo_Homeloan_Transactions
         meta:
           dagster:
-            asset_key: ["Bendigo_Bank_Homeloan_Transactions"]
+            asset_key: ["Bendigo_Homeloan_Transactions"]
         columns:
           - name: primary_key
             tests:
@@ -68,7 +67,8 @@ sources:
 models:
   - name: staging__Adelaide_Homeloan
   - name: staging__Adelaide_Offset
-  - name: staging__Bendigo_Bank_Homeloan
-  - name: staging__Bendigo_Bank_Offset
+  - name: staging__Bendigo_Homeloan
+  - name: staging__Bendigo_Offset
   - name: staging__ING_billsbillsbills
   - name: staging__ING_countdown
+

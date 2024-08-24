@@ -13,9 +13,7 @@ categorized_transactions AS (
     SELECT
         t.*,
         -- Use COALESCE to handle cases where there might not be a match and you want a default value
-        COALESCE(cm.category, 'Uncategorised') AS category,
-        COALESCE(cm.subcategory, 'Uncategorised') AS subcategory,
-        COALESCE(cm.store, 'Uncategorised') as store
+        COALESCE(cm.origin_key, 'Uncategorised') AS category_foreign_key,
     FROM transaction_data AS t
     LEFT JOIN category_mappings AS cm 
     ON t.account_name = cm.account_name
@@ -47,13 +45,5 @@ categorized_transactions AS (
         )
 )
 
-SELECT
-    *,
-    -- The final selection can also be a place to apply additional logic if needed
-    CASE
-        WHEN category IS NULL THEN 'Uncategorised'
-        WHEN subcategory IS NULL THEN 'Uncategorised'
-        ELSE category
-    END AS final_category,
-    COALESCE (subcategory, 'Uncategorised') AS final_subcategory
+SELECT *
 FROM categorized_transactions
