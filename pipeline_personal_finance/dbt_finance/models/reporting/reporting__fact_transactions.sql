@@ -5,7 +5,7 @@ select
     adjusted_balance as balance,
     memo,
     transaction_type,
-    category_foreign_key
+    category_foreign_key,
     case
         when amount > 0 then 'DEBIT'
         when amount < 0 then 'CREDIT'

@@ -14,8 +14,8 @@ WITH query AS (
     SELECT
         TO_CHAR(date, 'YYYY-MM') AS year_month,
         {% for account in accounts %}
-        MAX(CASE WHEN account_name = '{{ account }}' THEN latest_balance ELSE NULL END) AS "{{ account }}"
-        {% if not loop.last %}, {% endif %}
+          MAX(CASE WHEN lower(account_name) = lower('{{ account }}') THEN latest_balance ELSE NULL END) AS "{{ account }}"
+          {% if not loop.last %}, {% endif %}
         {% endfor %}
     FROM
         {{ ref("reporting__last_balance") }}
@@ -27,8 +27,8 @@ WITH query AS (
 SELECT
     year_month,
     {% for account in accounts %}
-    "{{ account }}"
-    {% if not loop.last %}, {% endif %}
+      "{{ account }}"
+      {% if not loop.last %}, {% endif %}
     {% endfor %}
 FROM
     query

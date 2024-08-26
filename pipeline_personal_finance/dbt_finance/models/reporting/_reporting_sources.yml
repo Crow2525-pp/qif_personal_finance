@@ -1,0 +1,8 @@
+version 2:
+
+sources:
+  - name: reporting_scd_updates
+    schema: reporting
+    database: personal_finance
+    tables:
+      - name: dim_account

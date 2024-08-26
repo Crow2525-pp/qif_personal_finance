@@ -13,7 +13,7 @@ categorized_transactions AS (
     SELECT
         t.*,
         -- Use COALESCE to handle cases where there might not be a match and you want a default value
-        COALESCE(cm.origin_key, 'Uncategorised') AS category_foreign_key,
+        COALESCE(cm.origin_key, 99999) AS category_foreign_key
     FROM transaction_data AS t
     LEFT JOIN category_mappings AS cm 
     ON t.account_name = cm.account_name

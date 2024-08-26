@@ -9,6 +9,8 @@ AccountBalances AS (
         balance
     FROM
         {{ ref("reporting__fresh_table") }}  -- Reference to another table/model in your dbt project
+    WHERE
+      upper(internal_indicator) = 'EXTERNAL'
 ),
 balances_with_dates AS (
     SELECT

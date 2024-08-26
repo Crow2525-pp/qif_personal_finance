@@ -16,6 +16,8 @@ from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import JSONB
 
 
+from dagster import 
+
 from .constants import dbt_manifest_path
 from .resources import SqlAlchemyClientResource
 
@@ -78,8 +80,8 @@ def convert_qif_to_df(
     outs={
         "Adelaide_Homeloan_Transactions": AssetOut(is_required=False),
         "Adelaide_Offset_Transactions": AssetOut(is_required=False),
-        "Bendigo_Bank_Homeloan_Transactions": AssetOut(is_required=False),
-        "Bendigo_Bank_Offset_Transactions": AssetOut(is_required=False),
+        "Bendigo_Homeloan_Transactions": AssetOut(is_required=False),
+        "Bendigo_Offset_Transactions": AssetOut(is_required=False),
         "ING_BillsBillsBills_Transactions": AssetOut(is_required=False),
         "ING_Countdown_Transactions": AssetOut(is_required=False),
     },
@@ -105,7 +107,7 @@ def upload_dataframe_to_database(
     # Print each directory
     for directory in directories:
         context.log.info(f"current working directory folders: {directory}")
-    qif_filepath = Path("pipeline_personal_finance/qif_files")
+    qif_filepath = Path(QIF_FILES)
 
     if qif_filepath.exists():
         context.log.debug("QIF file directory found.")
