@@ -10,8 +10,6 @@ AccountBalances AS (
         balance
     FROM
         {{ ref("reporting__fact_transactions") }}
-    WHERE
-      upper(internal_indicator) = 'EXTERNAL'
 ),
 balances_with_dates AS (
     SELECT

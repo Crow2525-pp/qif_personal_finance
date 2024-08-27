@@ -13,6 +13,7 @@
 WITH accounts_as_columns AS (
     SELECT
         year_month,
+        account_foreign_key,
         category_foreign_key,
         {% for account in accounts %}
           MAX(CASE WHEN upper(account_foreign_key) = upper('{{ account }}') THEN latest_balance ELSE NULL END) AS "{{ account }}"
@@ -21,12 +22,13 @@ WITH accounts_as_columns AS (
     FROM
         {{ ref("reporting__periodic_snapshot_yyyymm_balance") }}
     GROUP BY
-        1,2
+        1,2,3
     ORDER BY
-        1,2
+        1,2,3
 )
 SELECT
     aac.year_month,
+    aac.account_foreign_key,
     aac.category_foreign_key,
     cat.category,
     cat.subcategory,
