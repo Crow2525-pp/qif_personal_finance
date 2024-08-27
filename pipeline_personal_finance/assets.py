@@ -18,7 +18,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 
 from dagster import 
 
-from .constants import dbt_manifest_path
+from .constants import dbt_manifest_path, QIF_FILES
 from .resources import SqlAlchemyClientResource
 
 # TODO: Incremental Refresh

@@ -9,41 +9,39 @@ category_mappings AS (
 ),
 
 -- Join transactions with mappings and categorize them
-categorized_transactions AS (
+categorised_transactions AS (
     SELECT
         t.*,
-        -- Use COALESCE to handle cases where there might not be a match and you want a default value
-        COALESCE(cm.origin_key, 99999) AS category_foreign_key
+        -- Null Value means uncat
+        cm.origin_key AS category_foreign_key
     FROM transaction_data AS t
     LEFT JOIN category_mappings AS cm 
-    ON t.account_name = cm.account_name
+    ON upper(t.account_name) = upper(cm.account_name)
         AND (
         -- First priority: from/to fields
             (
                 t.sender IS NOT NULL
                 AND t.recipient IS NOT NULL
                 AND (cm.sender IS NOT NULL AND cm.recipient IS NOT NULL)
-                AND t.sender = cm.sender
-                AND t.recipient = cm.recipient
+                AND upper(t.sender) = upper(cm.sender)
+                AND upper(t.recipient) = upper(cm.recipient)
             )
             OR
             -- Second priority: transaction type
             (
                 t.transaction_type IS NOT NULL
                 AND cm.transaction_type IS NOT NULL
-                AND t.transaction_type = cm.transaction_type
+                AND upper(t.transaction_type) = upper(cm.transaction_type)
             )
             OR
             -- Third priority: transaction description
             (
                 t.transaction_description IS NOT NULL
                 AND cm.transaction_description IS NOT NULL
-                AND t.transaction_description ILIKE '%'
-                || cm.transaction_description
-                || '%'
+                AND t.transaction_description ILIKE CONCAT('%', cm.transaction_description, '%')
             )
         )
 )
 
 SELECT *
-FROM categorized_transactions
+FROM categorised_transactions

@@ -1,0 +1,6 @@
+version 2:
+
+models:
+  - name: reporting__periodic_snapshot_yyyymm_balance
+    description: shows a periodic balance by yyyy-mm
+    
