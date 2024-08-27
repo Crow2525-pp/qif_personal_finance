@@ -15,7 +15,7 @@ balances_with_dates AS (
     SELECT
         TO_CHAR(c.date, 'YYYY-MM') as year_month,
         ab.account_foreign_key,
-        ab.category_foreign_key,
+        ab.category_foreign_ey,
         ab.balance
     FROM
         Calendar c
