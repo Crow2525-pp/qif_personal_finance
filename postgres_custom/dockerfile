@@ -1,0 +1,10 @@
+FROM postgres:16
+
+# Copy the custom entrypoint script
+COPY custom_entrypoint.sh /usr/local/bin/
+
+# Set the script to be the entrypoint
+ENTRYPOINT ["custom-entrypoint.sh"]
+
+# Default command to be executed
+CMD ["postgres"]
