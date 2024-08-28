@@ -1,6 +1,7 @@
 with final as (
 SELECT 
     year_month, 
+    account_foreign_key,
     latest_balance,
     row_number() Over(
         partition by 
@@ -15,8 +16,9 @@ FROM
 
 select 
     year_month,
+    account_foreign_key,
     sum(latest_balance) as net_position
 from final
 where last_rn = 1
 and latest_balance is not null
-group by year_month
+group by 1,2
