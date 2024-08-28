@@ -95,12 +95,14 @@ services:
       context: ./postgres_custom
       dockerfile: dockerfile
     shm_size: 128mb
-    restart: always
+    restart: on-failure
     container_name: dagster_postgres
     environment:
       POSTGRES_USER: ${DAGSTER_POSTGRES_USER}
       POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD}
       POSTGRES_DB: ${DAGSTER_POSTGRES_DB}
+      GRAFANA_USER: ${GRAFANA_USER}
+      GRAFANA_PASSWORD: ${GRAFANA_PASSWORD}
       PGDATA: /var/lib/postgresql/data/personal_finance/
     ports:
       - "5432:5432"
