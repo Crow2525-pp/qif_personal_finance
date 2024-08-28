@@ -12,7 +12,6 @@
 WITH monthly_differences AS (
     SELECT
         a.year_month,
-        a.category_foreign_key,
         {% for account in accounts %}
           a."{{ account }}" - COALESCE(b."{{ account }}", 0) AS "{{ account }}_MoM"
           {% if not loop.last %}, {% endif %}
@@ -22,18 +21,11 @@ WITH monthly_differences AS (
     LEFT JOIN 
         {{ ref("viz__balance_by_year_month") }} as b 
         ON a.year_month = TO_CHAR(TO_DATE(b.year_month, 'YYYY-MM') - INTERVAL '1 month', 'YYYY-MM')
-        and a.category_foreign_key = b.category_foreign_key
 )
 
 SELECT 
-    md.*,
-    cat.category,
-    cat.subcategory,
-    cat.store,
-    cat.internal_indicator
+    *
 FROM 
-    monthly_differences as md
-    left join {{ ref("dim_category") }} as cat
-    on md.category_foreign_key = cat.origin_key
+    monthly_differences
 ORDER BY 
-    md.year_month ASC
+    year_month ASC

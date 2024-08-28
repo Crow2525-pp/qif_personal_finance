@@ -5,8 +5,7 @@ WITH transactions_with_balance AS (
     SELECT *,
            CAST(SUM(amount) OVER (
                PARTITION BY 
-                    account_name,
-                    category_foreign_key
+                    account_name
                 ORDER BY 
                     date ASC, 
                     line_number ASC
@@ -18,7 +17,6 @@ WITH transactions_with_balance AS (
 known_values AS (
     SELECT 
         CAST(account_balance AS decimal(14,2)) AS specific_balance,
-        category_foreign_key
         specific_date,
         account_name
     FROM {{ ref('known_values') }}

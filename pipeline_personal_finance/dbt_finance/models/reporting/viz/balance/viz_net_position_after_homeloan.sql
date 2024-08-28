@@ -5,8 +5,7 @@ SELECT
     row_number() Over(
         partition by 
             year_month,
-            account_foreign_key,
-            category_foreign_key
+            account_foreign_key
         order by
             year_month desc
     ) as last_rn
