@@ -15,9 +15,6 @@ from dagster_dbt import DbtCliResource, dbt_assets
 from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import JSONB
 
-
-from dagster import 
-
 from .constants import dbt_manifest_path, QIF_FILES
 from .resources import SqlAlchemyClientResource
 
