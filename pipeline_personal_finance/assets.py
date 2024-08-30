@@ -68,7 +68,7 @@ def convert_qif_to_df(
         # add an ingestion timestamp
         df["ingestion_date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     else:
-        raise ValueError(f"Datafrmae is empty for {qif_file}")
+        raise ValueError(f"Dataframe is empty for {qif_file}")
 
     return df
 
