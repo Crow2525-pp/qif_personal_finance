@@ -1,4 +1,5 @@
 select
+    row_number() over() as surrogate_key,
     trans.date,
     trans.amount,
     trans.adjusted_balance as balance,

@@ -36,9 +36,9 @@ categorised_transactions AS (
             OR
             -- Third priority: transaction description
             (
-                t.transaction_description IS NOT NULL
+                t.memo IS NOT NULL
                 AND cm.transaction_description IS NOT NULL
-                AND t.transaction_description ILIKE CONCAT('%', cm.transaction_description, '%')
+                AND t.memo ILIKE CONCAT('%', cm.transaction_description, '%')
             )
         )
 )
