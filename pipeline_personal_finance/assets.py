@@ -10,9 +10,6 @@ from dagster import (
     MetadataValue,
     Output,
     context,
-    op,
-    graph_asset,
-    asset,
     multi_asset,
 )
 from dagster_dbt import DbtCliResource, dbt_assets
@@ -22,7 +19,6 @@ from typing import List
 from .constants import dbt_manifest_path, QIF_FILES
 from .resources import SqlAlchemyClientResource
 
-# TODO Sort out this multiple asset bullshit
 # TODO: Incremental Refresh
 # TODO: Unique Indentifiers -
 #   Group transactions by month.
@@ -30,6 +26,7 @@ from .resources import SqlAlchemyClientResource
 # TODO: Add Monitoring of new QIF Files within dir.
 
 
+# TODO: Move dbt_assets to a seperate file?
 @dbt_assets(
     manifest=dbt_manifest_path,
 )
@@ -44,6 +41,8 @@ class PrimaryKeyGenerator:
     def __init__(self):
         self.counters = {"ING": 20000, "Bendigo": 40000, "Adelaide": 60000}
 
+    # BUG: Where a bank has multiple accounts you'd expect the number to increment
+    # over the two banks.  Probably not needed.
     def get_next_key(self, bank_name):
         if bank_name not in self.counters:
             raise ValueError(f"Bank name {bank_name} is not recognized.")
@@ -56,24 +55,20 @@ class PrimaryKeyGenerator:
 key_generator = PrimaryKeyGenerator()
 
 
-def convert_qif_to_df(
+def process_qif_file(
     qif_file: Path, key_generator: PrimaryKeyGenerator, bank_name: str
 ) -> pd.DataFrame:
-    qif_processor = quiffen.Qif.parse(str(qif_file), day_first=True)
-    df = qif_processor.to_dataframe()
+    
+    df = quiffen.Qif.parse(str(qif_file), day_first=True).to_dataframe()
 
-    if df is not None:
-        df.dropna(how="all", axis=1, inplace=True)
+    df.dropna(how="all", axis=1, inplace=True)
 
-        # Generate primary keys
-        df["primary_key"] = [
-            key_generator.get_next_key(bank_name) for _ in range(len(df))
-        ]
-
-        # add an ingestion timestamp
-        df["ingestion_date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    else:
-        raise ValueError(f"Dataframe is empty for {qif_file}")
+    df["primary_key"] = [
+        key_generator.get_next_key(bank_name) for _ in range(len(df))
+    ]
+    
+    # TODO: Consider UTC time
+    df["ingestion_date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     return df
 
