@@ -24,3 +24,4 @@ schedules.db
 *.ods
 .env
 !pipeline_personal_finance/dbt_finance/macros
+.venv

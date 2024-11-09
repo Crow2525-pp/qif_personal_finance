@@ -9,15 +9,20 @@ from dagster import (
     AssetOut,
     MetadataValue,
     Output,
+    context,
+    op,
+    graph_asset,
+    asset,
     multi_asset,
 )
 from dagster_dbt import DbtCliResource, dbt_assets
 from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import JSONB
-
+from typing import List
 from .constants import dbt_manifest_path, QIF_FILES
 from .resources import SqlAlchemyClientResource
 
+# TODO Sort out this multiple asset bullshit
 # TODO: Incremental Refresh
 # TODO: Unique Indentifiers -
 #   Group transactions by month.
@@ -73,6 +78,12 @@ def convert_qif_to_df(
     return df
 
 
+def fetch_qif_files(directory: Path) -> List:
+    if directory.exists():
+        return list(directory.glob("*.qif"))
+    return []
+
+
 @multi_asset(
     outs={
         "Adelaide_Homeloan_Transactions": AssetOut(is_required=False),
@@ -109,18 +120,7 @@ def upload_dataframe_to_database(
     if qif_filepath.exists():
         context.log.debug("QIF file directory found.")
         # Find all QIF files in the directory
-        qif_files = list(qif_filepath.glob("*.qif"))
-
-        if qif_files:
-            context.log.info(f"Found {len(qif_files)} QIF files.")
-        else:
-            context.log.critical("No QIF files found.")
-    else:
-        context.log.critical(
-            f"Directory '{os.path.abspath(qif_filepath)}' does not exist."
-        )
-
-    # Ensure the landing schema exists
+        # Ensure the landing schema exists
     schema = "landing"
     create_schema_sql = f"CREATE SCHEMA IF NOT EXISTS {schema};"
     verify_schema_sql = f"SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{schema}';"

@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Phil Patterson <philip.james.patterson@gmail.com>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "<3.13,>=3.8"
@@ -26,3 +27,7 @@ pytest-mock = "^3.14.0"
 [build-system]
 requires = ["poetry-core", "setuptools"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"

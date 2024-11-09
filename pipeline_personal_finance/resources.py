@@ -30,3 +30,26 @@ class SqlAlchemyClientResource(ConfigurableResource):
     def get_connection(self):
         return self.create_engine().connect()
     
+    def check_schema_exists(self, schema: str):
+        # Ensure the landing schema exists
+        schema = "landing"
+        create_schema_sql = f"CREATE SCHEMA IF NOT EXISTS {schema};"
+        verify_schema_sql = f"SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{schema}';"
+        check_db_sql = "SELECT current_database();"
+
+        with self.get_connection() as conn:
+            try:
+                # Check the current database name
+                result = conn.execute(sqlalchemy.text(check_db_sql)).fetchone()
+                current_db = result[0] if result else "Unknown"
+
+                conn.execute(sqlalchemy.text(create_schema_sql))
+                conn.commit()  # Commit the schema creation
+
+                result = conn.execute(sqlalchemy.text(verify_schema_sql)).fetchone()
+                if not result:
+                    raise RuntimeError(
+                        f"Failed to create or verify the existence of schema '{schema}'."
+                    )
+            except Exception as e:
+                raise
