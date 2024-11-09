@@ -7,7 +7,7 @@ readme = "README.md"
 package-mode = false
 
 [tool.poetry.dependencies]
-python = "<3.13,>=3.8"
+python = ">=3.10,<3.13"
 quiffen = "^2.0.9"
 pandas = "<2.1"
 dagster = "^1.7.4"
@@ -16,13 +16,6 @@ dbt-core = "^1.7.14"
 dagster-dbt = "^0.23.4"
 dagster-webserver = "^1.7.4"
 dbt = "^1.0.0.37.15"
-dagster-duckdb-pandas = "^0.23.8"
-dbt-duckdb = "^1.8.1"
-duckdb = "^1.0.0"
-dagster-duckdb = "^0.23.9"
-duckdb-engine = "^0.13.0"
-pytest = "^8.3.2"
-pytest-mock = "^3.14.0"
 
 [build-system]
 requires = ["poetry-core", "setuptools"]

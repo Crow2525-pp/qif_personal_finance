@@ -10,7 +10,7 @@ COPY . .
 # Install the required dependencies
 RUN pip install poetry
 RUN poetry config virtualenvs.create false
-RUN poetry install --no-root
+RUN poetry install
 
 # Set the working directory to dbt dir to build the script
 WORKDIR /docker/appdata/dagster/pipeline_personal_finance/dbt_finance
