@@ -9,7 +9,6 @@ from dagster import (
     AssetOut,
     MetadataValue,
     Output,
-    context,
     multi_asset,
 )
 from dagster_dbt import DbtCliResource, dbt_assets
@@ -58,15 +57,12 @@ key_generator = PrimaryKeyGenerator()
 def process_qif_file(
     qif_file: Path, key_generator: PrimaryKeyGenerator, bank_name: str
 ) -> pd.DataFrame:
-    
     df = quiffen.Qif.parse(str(qif_file), day_first=True).to_dataframe()
 
     df.dropna(how="all", axis=1, inplace=True)
 
-    df["primary_key"] = [
-        key_generator.get_next_key(bank_name) for _ in range(len(df))
-    ]
-    
+    df["primary_key"] = [key_generator.get_next_key(bank_name) for _ in range(len(df))]
+
     # TODO: Consider UTC time
     df["ingestion_date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -77,6 +73,45 @@ def fetch_qif_files(directory: Path) -> List:
     if directory.exists():
         return list(directory.glob("*.qif"))
     return []
+
+
+def verify_database_schema(
+    context: AssetExecutionContext,
+    personal_finance_database: SqlAlchemyClientResource,
+    schema: str = "landing",
+):
+    verify_schema_sql = f"SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{schema}';"
+    create_schema_sql = f"CREATE SCHEMA IF NOT EXISTS {schema};"
+    check_db_sql = "SELECT current_database();"
+
+    with personal_finance_database.get_connection() as conn:
+        try:
+            # Check if Schema is in DB Information Schema
+            context.log.debug(f"Executing: {check_db_sql}")
+            result = conn.execute(text(check_db_sql)).fetchone()
+            current_db = result[0] if result else "Unknown"
+            context.log.debug(f"Connected to database: {current_db}")
+            if result:
+                context.log.info(f"Schema '{schema}' already exists. Skipping creation.")
+                return 
+
+            # If not, then try and create it
+            context.log.info(f"Create if not exists schema with: {create_schema_sql}")
+            conn.execute(text(create_schema_sql))
+            conn.commit()
+            context.log.debug("Schema creation committed.")
+
+            # Check the information_schema to ensure it's there.
+            context.log.debug(f"Verifying schema with: {verify_schema_sql}")
+            result = conn.execute(text(verify_schema_sql)).fetchone()
+            if not result:
+                raise RuntimeError(
+                    f"Schema '{schema}' was not found in the database after creation."
+                )
+            context.log.info(f"Schema '{schema}' exists and verified.")
+        except Exception as e:
+            context.log.error(f"Error ensuring schema exists: {e}")
+            raise
 
 
 @multi_asset(
@@ -92,7 +127,7 @@ def fetch_qif_files(directory: Path) -> List:
     group_name="qif_ingestion",
 )
 def upload_dataframe_to_database(
-    context: AssetExecutionContext, personal_finance_database: SqlAlchemyClientResource
+    context: AssetExecutionContext, personal_finance_database: SqlAlchemyClientResource, schema: str = 'landing'
 ):
     # TODO: How do you make this asset configurable by dagstger
 
@@ -109,46 +144,21 @@ def upload_dataframe_to_database(
 
     # Print each directory
     for directory in directories:
-        context.log.info(f"current working directory folders: {directory}")
-    qif_filepath = Path(QIF_FILES)
+        context.log.debug(f"current working directory folders: {directory}")
 
+    verify_database_schema(context, personal_finance_database, schema)
+
+    qif_filepath = Path(QIF_FILES)
     if qif_filepath.exists():
         context.log.debug("QIF file directory found.")
-        # Find all QIF files in the directory
-        # Ensure the landing schema exists
-    schema = "landing"
-    create_schema_sql = f"CREATE SCHEMA IF NOT EXISTS {schema};"
-    verify_schema_sql = f"SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{schema}';"
-    check_db_sql = "SELECT current_database();"
 
-    with personal_finance_database.get_connection() as conn:
-        try:
-            # Check the current database name
-            context.log.info(f"Executing: {check_db_sql}")
-            result = conn.execute(text(check_db_sql)).fetchone()
-            current_db = result[0] if result else "Unknown"
-            context.log.info(f"Connected to database: {current_db}")
-
-            context.log.info(f"Creating schema with: {create_schema_sql}")
-            conn.execute(text(create_schema_sql))
-            conn.commit()  # Commit the schema creation
-            context.log.info("Schema creation statement executed.")
-
-            result = conn.execute(text(verify_schema_sql)).fetchone()
-            if not result:
-                raise RuntimeError(
-                    f"Failed to create or verify the existence of schema '{schema}'."
-                )
-            context.log.info(f"Schema '{schema}' exists.")
-        except Exception as e:
-            context.log.error(f"Error ensuring schema exists: {e}")
-            raise
+    qif_files = fetch_qif_files(qif_filepath)
 
     for file in qif_files:
         table_name = file.stem
         bank_name = table_name.split("_")[0]
 
-        df = convert_qif_to_df(
+        df = process_qif_file(
             qif_file=file, key_generator=key_generator, bank_name=bank_name
         )
 
