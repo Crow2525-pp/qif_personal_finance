@@ -13,7 +13,6 @@ from dagster import (
 )
 from dagster_dbt import DbtCliResource, dbt_assets
 from sqlalchemy import text
-from sqlalchemy.dialects.postgresql import JSONB
 from typing import List
 from .constants import dbt_manifest_path, QIF_FILES
 from .resources import SqlAlchemyClientResource
@@ -113,7 +112,9 @@ def verify_database_schema(
             context.log.error(f"Error ensuring schema exists: {e}")
             raise
 
-
+# QUERY: I am not sure why I think I need to break multi into parts?  
+# It doesn't make a lot of sense to me.  Having the assets feed into DBT is fine.
+# Perhaps I read something somewhere that has me concerned.
 @multi_asset(
     outs={
         "Adelaide_Homeloan_Transactions": AssetOut(is_required=False),
@@ -163,8 +164,8 @@ def upload_dataframe_to_database(
         )
 
         dtype = {
-            "category": JSONB(),
-            "splits": JSONB(),
+            "category": "json",
+            "splits": "json",
         }
 
         # Upload the dataframe
