@@ -1,11 +1,11 @@
 personal_finance:
   target: prod
   outputs:
-    dev:
-      type: duckdb
-      database: finance
-      schema: landing
-      path: "C:/Users/Phil/Documents/Projects/personal_finance_dashboard/duckdb/finance.duckdb"
+    # dev:
+    #   type: duckdb
+    #   database: finance
+    #   schema: landing
+    #   path: "C:/Users/Phil/Documents/Projects/personal_finance_dashboard/duckdb/finance.duckdb"
     prod:
       type: postgres
       host: 192.168.1.103
