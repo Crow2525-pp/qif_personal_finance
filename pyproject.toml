@@ -24,3 +24,6 @@ build-backend = "poetry.core.masonry.api"
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
+
+[tool.dagster]
+module = 'pipeline_personal_finance'
