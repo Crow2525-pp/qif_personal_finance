@@ -91,8 +91,10 @@ def verify_database_schema(
             current_db = result[0] if result else "Unknown"
             context.log.debug(f"Connected to database: {current_db}")
             if result:
-                context.log.info(f"Schema '{schema}' already exists. Skipping creation.")
-                return 
+                context.log.info(
+                    f"Schema '{schema}' already exists. Skipping creation."
+                )
+                return
 
             # If not, then try and create it
             context.log.info(f"Create if not exists schema with: {create_schema_sql}")
@@ -112,7 +114,8 @@ def verify_database_schema(
             context.log.error(f"Error ensuring schema exists: {e}")
             raise
 
-# QUERY: I am not sure why I think I need to break multi into parts?  
+
+# QUERY: I am not sure why I think I need to break multi into parts?
 # It doesn't make a lot of sense to me.  Having the assets feed into DBT is fine.
 # Perhaps I read something somewhere that has me concerned.
 @multi_asset(
@@ -128,12 +131,8 @@ def verify_database_schema(
     group_name="qif_ingestion",
 )
 def upload_dataframe_to_database(
-    context: AssetExecutionContext, personal_finance_database: SqlAlchemyClientResource, schema: str = 'landing'
+    context: AssetExecutionContext, personal_finance_database: SqlAlchemyClientResource
 ):
-    # TODO: How do you make this asset configurable by dagstger
-
-    # Adding initial log message to confirm function start
-    context.log.info("Starting the upload_dataframe_to_database asset.")
 
     # get a list of QIF Files and add them to a list.
     # Should this be relative to the Asset.py file or the Dagster core/daemon
@@ -147,6 +146,7 @@ def upload_dataframe_to_database(
     for directory in directories:
         context.log.debug(f"current working directory folders: {directory}")
 
+    schema = "landing"
     verify_database_schema(context, personal_finance_database, schema)
 
     qif_filepath = Path(QIF_FILES)
