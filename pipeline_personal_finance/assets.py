@@ -12,7 +12,7 @@ from dagster import (
     multi_asset,
 )
 from dagster_dbt import DbtCliResource, dbt_assets
-from sqlalchemy import text
+from sqlalchemy import text, JSON
 from typing import List
 from .constants import dbt_manifest_path, QIF_FILES
 from .resources import SqlAlchemyClientResource
@@ -164,8 +164,8 @@ def upload_dataframe_to_database(
         )
 
         dtype = {
-            "category": "json",
-            "splits": "json",
+            "category": JSON,
+            "splits": JSON,
         }
 
         # Upload the dataframe
