@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from pipeline_personal_finance.constants import QIF_FILES
+import re
+from typing import Optional
 import hashlib
 
 
@@ -66,9 +68,39 @@ def add_incremental_row_number(
     return df
 
 
+def validate_date_format(date_str: str) -> bool:
+    return bool(re.match(r"^\d{4}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])$", date_str))
+
+
+def add_filename_data_to_dataframe(
+    filename: str, dataframe: pd.DataFrame
+) -> pd.DataFrame:
+    base_name = filename.rsplit(".", 1)[0]
+
+    parts = base_name.split("_")
+
+    if len(parts) != 4 or parts[2] != "Transactions":
+        raise ValueError(
+            "Filename format must be 'BankName_AccountName_Transactions_YYYYMMDD"
+        )
+
+    bank_name, account_name, _, dates = parts
+
+    if not validate_date_format(dates):
+        raise ValueError(
+            f"Invalid date format in filename: {dates}. Must be in YYYYMMDD format"
+        )
+
+    dataframe["BankName"] = bank_name
+    dataframe["AccountName"] = account_name
+    dataframe["Dates"] = dates
+
+    return dataframe
+
+
 def union_unique(
     df1: pd.DataFrame, df2: pd.DataFrame, unique_column: str
-) -> pd.Dataframe:
+) -> Optional[pd.DataFrame]:
     combined = pd.concat([df1, df2], ignore_index=True)
 
     unique_combined = combined.drop_duplicates(subset=unique_column)
@@ -82,7 +114,6 @@ def main():
     for file in qif_files:
         qif = Qif.parse(file, day_first=True)
         df = qif.to_dataframe()
-        # df["year_month_index"] = df["date"].apply(get_monthly_order)
         df_indexed = add_incremental_row_number(df, "date", "line_number")
         df_indexed["origin_key"] = df_indexed.apply(create_primary_key, axis=1)
 
@@ -93,7 +124,11 @@ def main():
             print(f"Duplicate rows: \n{duplicates}")
             raise ValueError("The primary key contains duplicate values")
 
-        print(df_indexed.head())
+        df_filename = add_filename_data_to_dataframe(
+            filename=file.name, dataframe=df_indexed
+        )
+
+        print(df_filename.head())
 
 
 if __name__ == "__main__":
