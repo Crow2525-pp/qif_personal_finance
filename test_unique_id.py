@@ -4,6 +4,14 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from pipeline_personal_finance.constants import QIF_FILES
+import hashlib
+
+
+def create_primary_key(row):
+    concatenated_values = f"{row['year']};{row['month']};{row['month_order']}"
+
+    return concatenated_values
+    # return hashlib.md5(concatenated_values.encode()).hexdigest()
 
 
 def add_incremental_row_number(
@@ -19,6 +27,10 @@ def add_incremental_row_number(
     df["is_earliest_month"] = df["month"] == df["earliest_month"]
 
     df["date_int"] = df[date_col].view("int64")
+
+    # This section inverts the date to make the dadtum point the end of the month
+    # for the earliest month because the dataset will be cropped at the tail
+    # and expand at the head.
 
     df["date_order"] = np.where(
         df["is_earliest_month"],
@@ -40,11 +52,13 @@ def add_incremental_row_number(
 
     df.drop(
         columns=[
-            "year",
-            "month",
+            # "year",
+            # "month",
             "earliest_month",
-            # 'is_earliest_month',
-            #  "line_order",
+            "is_earliest_month",
+            "line_order",
+            "date_order",
+            "date_int",
         ],
         inplace=True,
     )
@@ -52,21 +66,14 @@ def add_incremental_row_number(
     return df
 
 
-# def get_monthly_order(date: pd.Series) -> pd.Series:
-#     df = date.to_frame()
-#     df["year"] = df.dt.year
-#     df["month"] = df.dt.month
-#     min_year = df["year"].min()
-#     min_month = df["month"][df["year"] == min_year].min()
-#
-#     def calculate_index(df):
-#         y, m = df["year"], df["month"]
-#         if y == min_year and m == min_month:
-#             return -y
-#         else:
-#             return y
-#
-#     df["date"].apply(lambda d: calculate_index(d))
+def union_unique(
+    df1: pd.DataFrame, df2: pd.DataFrame, unique_column: str
+) -> pd.Dataframe:
+    combined = pd.concat([df1, df2], ignore_index=True)
+
+    unique_combined = combined.drop_duplicates(subset=unique_column)
+
+    return unique_combined
 
 
 def main():
@@ -77,6 +84,15 @@ def main():
         df = qif.to_dataframe()
         # df["year_month_index"] = df["date"].apply(get_monthly_order)
         df_indexed = add_incremental_row_number(df, "date", "line_number")
+        df_indexed["origin_key"] = df_indexed.apply(create_primary_key, axis=1)
+
+        if df_indexed["origin_key"].is_unique:
+            print("no duplicates found")
+        else:
+            duplicates = df[df.duplicated(subset="origin_key", keep=False)]
+            print(f"Duplicate rows: \n{duplicates}")
+            raise ValueError("The primary key contains duplicate values")
+
         print(df_indexed.head())
 
 
