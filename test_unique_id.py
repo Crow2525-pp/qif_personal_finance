@@ -12,8 +12,8 @@ import hashlib
 def create_primary_key(row):
     concatenated_values = f"{row['year']};{row['month']};{row['month_order']}"
 
-    return concatenated_values
-    # return hashlib.md5(concatenated_values.encode()).hexdigest()
+    # return concatenated_values
+    return hashlib.md5(concatenated_values.encode()).hexdigest()
 
 
 def add_incremental_row_number(
@@ -93,7 +93,7 @@ def add_filename_data_to_dataframe(
 
     dataframe["BankName"] = bank_name
     dataframe["AccountName"] = account_name
-    dataframe["Dates"] = dates
+    dataframe["Extract_Date"] = dates
 
     return dataframe
 
@@ -111,6 +111,9 @@ def union_unique(
 def main():
     qif_filepath = Path(QIF_FILES)
     qif_files = qif_filepath.glob("*.qif")
+
+    grouped_dataframes = {}
+
     for file in qif_files:
         qif = Qif.parse(file, day_first=True)
         df = qif.to_dataframe()
@@ -128,7 +131,21 @@ def main():
             filename=file.name, dataframe=df_indexed
         )
 
-        print(df_filename.head())
+        bank_name = df_filename["BankName"].iloc[0]
+        account_name = df_filename["AccountName"].iloc[0]
+        key = (bank_name, account_name)
+
+        if key in grouped_dataframes:
+            print(f"Combining data for bank: {bank_name}, account: {account_name}")
+            grouped_dataframes[key] = union_unique(
+                grouped_dataframes[key], df_filename, unique_column="origin_key"
+            )
+        else:
+            grouped_dataframes[key] = df_filename
+
+        for (bank, account), dataframe in grouped_dataframes.items():
+            print(f"Final dataframe for bank: {bank}, account: {account}")
+            print(dataframe.head())
 
 
 if __name__ == "__main__":
