@@ -29,6 +29,13 @@ from .resources import SqlAlchemyClientResource
 @dbt_assets(
     manifest=dbt_manifest_path,
 )
+def finance_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
+    # TODO: find out why dagster_deployment env var is not working. Fixed as Prod for moment.
+    deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "prod")
+    target = "prod" if deployment_name == "prod" else "dev"
+    yield from dbt.cli(["build", "--target", target], context=context).stream()
+
+
 
 def hash_concat_row_wise(df: pd.DataFrame) -> pd.Series:
     # Define a function to hash concatenated values of a row
