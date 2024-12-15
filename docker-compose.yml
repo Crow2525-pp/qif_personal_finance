@@ -40,6 +40,9 @@ services:
     build: 
       context: ./dagster_core
       dockerfile: Dockerfile
+      args:
+        - DAGSTER_APP=$DAGSTER_APP
+        - DAGSTER_HOME=$DAGSTER_HOME
     entrypoint:
       - dagster-daemon
       - run

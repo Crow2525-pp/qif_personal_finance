@@ -2,12 +2,13 @@
 
 FROM python:3.11-slim
 
-# Environment variables
-ENV DAGSTER_HOME=/docker/appdata/dagster/dagster_home/
-ENV DAGSTER_APP=/docker/appdata/dagster
-
-
 # RUN rm /var/lib/postgresql/data
+ARG DAGSTER_HOME
+ARG DAGSTER_APP
+
+ENV DAGSTER_HOME=${DAGSTER_HOME:-homenotset}
+ENV DAGSTER_APP=${DAGSTER_APP:-appnotset}
+
 
 # Create application directory
 WORKDIR ${DAGSTER_APP}
@@ -17,7 +18,7 @@ COPY pyproject.toml ./
 # Install the required dependencies
 RUN pip install poetry
 RUN poetry config virtualenvs.create false
-RUN poetry install --no-dev
+RUN poetry install --only main
 
 
 WORKDIR ${DAGSTER_APP}
