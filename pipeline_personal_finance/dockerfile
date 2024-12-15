@@ -11,7 +11,7 @@ COPY . .
 RUN pip install poetry
 RUN poetry config virtualenvs.create false
 # RUN poetry shell
-RUN poetry install --without dev
+RUN poetry install --only main
 
 # Set the working directory to dbt dir to build the script
 WORKDIR /docker/appdata/dagster/pipeline_personal_finance/dbt_finance
@@ -19,7 +19,7 @@ WORKDIR /docker/appdata/dagster/pipeline_personal_finance/dbt_finance
 # Set the full project directory path for dbt commands
 # RUN poetry run dbt clean
 RUN poetry run dbt deps
-RUN poetry run dbt compile
+# RUN poetry run dbt compile
 
 # Set the working directory to where the service needs to be started from
 WORKDIR /docker/appdata/dagster
