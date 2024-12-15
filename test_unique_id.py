@@ -120,32 +120,40 @@ def main():
         df_indexed = add_incremental_row_number(df, "date", "line_number")
         df_indexed["origin_key"] = df_indexed.apply(create_primary_key, axis=1)
 
-        if df_indexed["origin_key"].is_unique:
-            print("no duplicates found")
-        else:
-            duplicates = df[df.duplicated(subset="origin_key", keep=False)]
-            print(f"Duplicate rows: \n{duplicates}")
-            raise ValueError("The primary key contains duplicate values")
-
         df_filename = add_filename_data_to_dataframe(
             filename=file.name, dataframe=df_indexed
         )
 
         bank_name = df_filename["BankName"].iloc[0]
         account_name = df_filename["AccountName"].iloc[0]
+        extract_date = df_filename["Extract_Date"].iloc[0]
         key = (bank_name, account_name)
 
         if key in grouped_dataframes:
-            print(f"Combining data for bank: {bank_name}, account: {account_name}")
+            print(
+                f"Combining data for bank: {bank_name}, account: {account_name}, for extract date: {extract_date}"
+            )
             grouped_dataframes[key] = union_unique(
                 grouped_dataframes[key], df_filename, unique_column="origin_key"
             )
         else:
             grouped_dataframes[key] = df_filename
 
-        for (bank, account), dataframe in grouped_dataframes.items():
-            print(f"Final dataframe for bank: {bank}, account: {account}")
-            print(dataframe.head())
+    for (bank, account), dataframe in grouped_dataframes.items():
+
+        if dataframe["origin_key"].is_unique:
+            print("no duplicates found")
+        else:
+            duplicates = dataframe[
+                dataframe.duplicated(subset="origin_key", keep=False)
+            ]
+            print(f"Duplicate rows: \n{duplicates}")
+            raise ValueError("The primary key contains duplicate values")
+
+        print(f"Final dataframe for bank: {bank}, account: {account}")
+        print(dataframe.head())
+        unique_extract_dates = dataframe["Extract_Date"].unique()
+        print(f"Unique dates: {unique_extract_dates}")
 
 
 if __name__ == "__main__":
