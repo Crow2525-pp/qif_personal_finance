@@ -1,9 +1,10 @@
-from datetime import datetime
 import os
 from pathlib import Path
-
+import hashlib
 import pandas as pd
-import quiffen
+import numpy as np
+import re
+from quiffen import Qif
 from dagster import (
     AssetExecutionContext,
     AssetOut,
@@ -13,7 +14,7 @@ from dagster import (
 )
 from dagster_dbt import DbtCliResource, dbt_assets
 from sqlalchemy import text, JSON
-from typing import List
+from typing import Optional
 from .constants import dbt_manifest_path, QIF_FILES
 from .resources import SqlAlchemyClientResource
 
@@ -28,50 +29,109 @@ from .resources import SqlAlchemyClientResource
 @dbt_assets(
     manifest=dbt_manifest_path,
 )
-def finance_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
-    # TODO: find out why dagster_deployment env var is not working. Fixed as Prod for moment.
-    deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "prod")
-    target = "prod" if deployment_name == "prod" else "dev"
-    yield from dbt.cli(["build", "--target", target], context=context).stream()
+
+def hash_concat_row_wise(df: pd.DataFrame) -> pd.Series:
+    # Define a function to hash concatenated values of a row
+    def hash_row(row):
+        concatenated_values = f"{row['year']}{row['month']}{row['month_order']}"
+        hash_obj = hashlib.md5(concatenated_values.encode())
+        hash_hex = hash_obj.hexdigest()
+        return hash_hex
+
+    # Apply this function across rows
+    return df.apply(hash_row, axis=1)
 
 
-class PrimaryKeyGenerator:
-    def __init__(self):
-        self.counters = {"ING": 20000, "Bendigo": 40000, "Adelaide": 60000}
-
-    # BUG: Where a bank has multiple accounts you'd expect the number to increment
-    # over the two banks.  Probably not needed.
-    def get_next_key(self, bank_name):
-        if bank_name not in self.counters:
-            raise ValueError(f"Bank name {bank_name} is not recognized.")
-        next_key = self.counters[bank_name] + 1
-        self.counters[bank_name] = next_key
-        return next_key
-
-
-# Create an instance of the generator
-key_generator = PrimaryKeyGenerator()
-
-
-def process_qif_file(
-    qif_file: Path, key_generator: PrimaryKeyGenerator, bank_name: str
+def add_incremental_row_number(
+    df: pd.DataFrame, date_col: str = "date", line_col="line_number"
 ) -> pd.DataFrame:
-    df = quiffen.Qif.parse(str(qif_file), day_first=True).to_dataframe()
+    df[date_col] = pd.to_datetime(df[date_col])
 
-    df.dropna(how="all", axis=1, inplace=True)
+    df["year"] = df[date_col].dt.year
+    df["month"] = df[date_col].dt.month
 
-    df["primary_key"] = [key_generator.get_next_key(bank_name) for _ in range(len(df))]
+    df["earliest_month"] = df.groupby("year")["month"].transform("min")
 
-    # TODO: Consider UTC time
-    df["ingestion_date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    df["is_earliest_month"] = df["month"] == df["earliest_month"]
+
+    df["date_int"] = df[date_col].view("int64")
+
+    # This section inverts the date to make the dadtum point the end of the month
+    # for the earliest month because the dataset will be cropped at the tail
+    # and expand at the head.
+
+    df["date_order"] = np.where(
+        df["is_earliest_month"],
+        -df["date_int"],  # negate for earliest month
+        df["date_int"],
+    )
+
+    df["line_order"] = np.where(
+        df["is_earliest_month"],
+        -df[line_col],  # negate for earliest month
+        df[line_col],
+    )
+    df = df.sort_values(
+        by=["year", "is_earliest_month", "month", "date_order", "line_order"],
+        ascending=[True, False, True, True, True],
+    )
+
+    df["month_order"] = df.groupby(["year", "month"]).cumcount() + 1
+
+    df.drop(
+        columns=[
+            # "year",
+            # "month",
+            "earliest_month",
+            "is_earliest_month",
+            "line_order",
+            "date_order",
+            "date_int",
+        ],
+        inplace=True,
+    )
 
     return df
 
 
-def fetch_qif_files(directory: Path) -> List:
-    if directory.exists():
-        return list(directory.glob("*.qif"))
-    return []
+def validate_date_format(date_str: str) -> bool:
+    return bool(re.match(r"^\d{4}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])$", date_str))
+
+
+def add_filename_data_to_dataframe(
+    filename: str, dataframe: pd.DataFrame
+) -> pd.DataFrame:
+    base_name = filename.rsplit(".", 1)[0]
+
+    parts = base_name.split("_")
+
+    if len(parts) != 4 or parts[2] != "Transactions":
+        raise ValueError(
+            "Filename format must be 'BankName_AccountName_Transactions_YYYYMMDD"
+        )
+
+    bank_name, account_name, _, dates = parts
+
+    if not validate_date_format(dates):
+        raise ValueError(
+            f"Invalid date format in filename: {dates}. Must be in YYYYMMDD format"
+        )
+
+    dataframe["BankName"] = bank_name
+    dataframe["AccountName"] = account_name
+    dataframe["Extract_Date"] = dates
+
+    return dataframe
+
+
+def union_unique(
+    df1: pd.DataFrame, df2: pd.DataFrame, unique_column: str
+) -> Optional[pd.DataFrame]:
+    combined = pd.concat([df1, df2], ignore_index=True)
+
+    unique_combined = combined.drop_duplicates(subset=unique_column)
+
+    return unique_combined
 
 
 def verify_database_schema(
@@ -115,9 +175,6 @@ def verify_database_schema(
             raise
 
 
-# QUERY: I am not sure why I think I need to break multi into parts?
-# It doesn't make a lot of sense to me.  Having the assets feed into DBT is fine.
-# Perhaps I read something somewhere that has me concerned.
 @multi_asset(
     outs={
         "Adelaide_Homeloan_Transactions": AssetOut(is_required=False),
@@ -133,35 +190,56 @@ def verify_database_schema(
 def upload_dataframe_to_database(
     context: AssetExecutionContext, personal_finance_database: SqlAlchemyClientResource
 ):
-
-    # get a list of QIF Files and add them to a list.
-    # Should this be relative to the Asset.py file or the Dagster core/daemon
-    # previously worked with Dagstercore daemon location
-    cwd = Path.cwd()
-    cwd = cwd / "pipeline_personal_finance"
-    # List directories within the current directory
-    directories = [dir for dir in cwd.iterdir() if dir.is_dir()]
-
-    # Print each directory
-    for directory in directories:
-        context.log.debug(f"current working directory folders: {directory}")
-
-    schema = "landing"
-    verify_database_schema(context, personal_finance_database, schema)
-
     qif_filepath = Path(QIF_FILES)
-    if qif_filepath.exists():
-        context.log.debug("QIF file directory found.")
+    qif_files = qif_filepath.glob("*.qif")
 
-    qif_files = fetch_qif_files(qif_filepath)
+    grouped_dataframes = {}
 
     for file in qif_files:
-        table_name = file.stem
-        bank_name = table_name.split("_")[0]
-
-        df = process_qif_file(
-            qif_file=file, key_generator=key_generator, bank_name=bank_name
+        qif = Qif.parse(file, day_first=True)
+        df = qif.to_dataframe()
+        df_indexed = add_incremental_row_number(df, "date", "line_number")
+        
+        df_indexed["origin_key"] = hash_concat_row_wise(df_indexed)
+        
+        df_filename = add_filename_data_to_dataframe(
+            filename=file.name, dataframe=df_indexed
         )
+
+        bank_name = df_filename["BankName"].iloc[0]
+        account_name = df_filename["AccountName"].iloc[0]
+        extract_date = df_filename["Extract_Date"].iloc[0]
+        key = (bank_name, account_name)
+
+        if key in grouped_dataframes:
+            print(
+                f"Combining data for bank: {bank_name}, account: {account_name}, for extract date: {extract_date}"
+            )
+            grouped_dataframes[key] = union_unique(
+                grouped_dataframes[key], df_filename, unique_column="origin_key"
+            )
+        else:
+            grouped_dataframes[key] = df_filename
+
+    for (bank, account), dataframe in grouped_dataframes.items():
+        if dataframe["origin_key"].is_unique:
+            print("no duplicates found")
+        else:
+            duplicates = dataframe[
+                dataframe.duplicated(subset="origin_key", keep=False)
+            ]
+            print(f"Duplicate rows: \n{duplicates}")
+            raise ValueError("The primary key contains duplicate values")
+
+        print(f"Final dataframe for bank: {bank}, account: {account}")
+        print(dataframe.head())
+        unique_extract_dates = dataframe["Extract_Date"].unique()
+        print(f"Unique dates: {unique_extract_dates}")
+
+        table_name = bank + "_" + account + "_transactions"
+
+        schema = "landing"
+        verify_database_schema(context, personal_finance_database, schema)
 
         dtype = {
             "category": JSON,
@@ -169,9 +247,9 @@ def upload_dataframe_to_database(
         }
 
         # Upload the dataframe
-        if df is not None:
+        if dataframe is not None:
             try:
-                df.to_sql(
+                dataframe.to_sql(
                     name=table_name,
                     con=personal_finance_database.get_connection(),
                     schema=schema,
@@ -182,9 +260,9 @@ def upload_dataframe_to_database(
 
                 context.add_output_metadata(
                     metadata={
-                        "data_types": MetadataValue.md(df.dtypes.to_markdown()),
-                        "num_records": len(df),
-                        "preview": MetadataValue.md(df.head().to_markdown()),
+                        "data_types": MetadataValue.md(dataframe.dtypes.to_markdown()),
+                        "num_records": len(dataframe),
+                        "preview": MetadataValue.md(dataframe.head().to_markdown()),
                     },
                     output_name=table_name,
                 )
@@ -196,5 +274,10 @@ def upload_dataframe_to_database(
             except Exception as e:
                 context.log.error(f"Error uploading data to {schema}.{table_name}: {e}")
                 raise
-        else:
-            context.log.error(f"No data to upload for {table_name}.")
+
+
+def finance_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
+    # TODO: find out why dagster_deployment env var is not working. Fixed as Prod for moment.
+    deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "prod")
+    target = "prod" if deployment_name == "prod" else "dev"
+    yield from dbt.cli(["build", "--target", target], context=context).stream()

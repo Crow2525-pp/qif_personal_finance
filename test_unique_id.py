@@ -1,4 +1,3 @@
-from datetime import date
 from quiffen import Qif
 import pandas as pd
 import numpy as np
