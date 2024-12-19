@@ -88,7 +88,7 @@ services:
       DBT_PROFILES_DIR: ${DBT_PROJECT_DIR}
       DAGSTER_DEPLOYMENT: ${DAGSTER_DEPLOYMENT}
     volumes:
-      - /tmp/dagster-data:/docker/appdata/dagster/dagster_home/
+      - /tmp/dagster-data:${DAGSTER_HOME}
     networks:
       - dagster_network
 
