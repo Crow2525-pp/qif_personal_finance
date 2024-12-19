@@ -1,2 +1,8 @@
 qif_files/
 dbt_finance/duckdb_database/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.git/
+.gitignore

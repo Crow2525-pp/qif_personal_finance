@@ -1,10 +1,8 @@
 # Use an official Python runtime as a parent image
 FROM python:3.11
 
-ARG DAGSTER_HOME
 ARG DAGSTER_APP
 
-ENV DAGSTER_HOME=${DAGSTER_HOME:-homenotset}
 ENV DAGSTER_APP=${DAGSTER_APP:-appnotset}
 
 # Set the working directory in the Docker image
@@ -17,7 +15,13 @@ COPY . .
 RUN pip install poetry
 RUN poetry config virtualenvs.create false
 # RUN poetry shell
-RUN poetry install --only main
+RUN poetry install --only main -v
+
+RUN poetry run pip list
+
+RUN poetry run python -c "import sys; print(sys.path)"
+
+RUN echo $PATH
 
 # Set the working directory to dbt dir to build the script
 WORKDIR ${DAGSTER_APP}/pipeline_personal_finance/dbt_finance
@@ -33,7 +37,6 @@ WORKDIR ${DAGSTER_APP}
 # Expose the port that Dagster gRPC server uses
 EXPOSE 4000
 
-RUN echo $PATH
 
 # Command to run the Dagster gRPC server
 CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "pipeline_personal_finance"]

@@ -1,9 +1,9 @@
 services:
   dagster_webserver:
-    build: 
+    build:
       context: ./dagster_core
       dockerfile: Dockerfile
-    entrypoint: 
+    entrypoint:
       - dagster-webserver
       - --host
       - "0.0.0.0"
@@ -37,12 +37,12 @@ services:
         max-file: "3"
 
   dagster_daemon:
-    build: 
+    build:
       context: ./dagster_core
       dockerfile: Dockerfile
       args:
-        - DAGSTER_APP=$DAGSTER_APP
-        - DAGSTER_HOME=$DAGSTER_HOME
+        DAGSTER_APP: ${DAGSTER_APP}
+        DAGSTER_HOME: ${DAGSTER_HOME}
     entrypoint:
       - dagster-daemon
       - run
@@ -60,6 +60,8 @@ services:
       DAGSTER_POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD}
       DAGSTER_POSTGRES_PORT: ${DAGSTER_POSTGRES_PORT}
       DAGSTER_POSTGRES_DB: ${DAGSTER_POSTGRES_DB}
+      DAGSTER_HOME: ${DAGSTER_HOME}
+      DAGSTER_APP: ${DAGSTER_APP}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
@@ -75,6 +77,9 @@ services:
     build:
       context: ./pipeline_personal_finance
       dockerfile: dockerfile
+      args:
+        - DAGSTER_APP=${DAGSTER_APP}
+        - DAGSTER_HOME=${DAGSTER_HOME}
     image: pipeline_personal_finance
     environment:
       TIMEZONE: Australia/Melbourne
@@ -92,9 +97,8 @@ services:
     networks:
       - dagster_network
 
-  
   dagster_postgres:
-    build: 
+    build:
       context: ./postgres_custom
       dockerfile: dockerfile
     shm_size: 128mb
