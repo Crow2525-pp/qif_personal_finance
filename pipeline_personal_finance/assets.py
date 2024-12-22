@@ -36,7 +36,6 @@ def finance_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
     yield from dbt.cli(["build", "--target", target], context=context).stream()
 
 
-
 def hash_concat_row_wise(df: pd.DataFrame) -> pd.Series:
     # Define a function to hash concatenated values of a row
     def hash_row(row):
@@ -206,9 +205,9 @@ def upload_dataframe_to_database(
         qif = Qif.parse(file, day_first=True)
         df = qif.to_dataframe()
         df_indexed = add_incremental_row_number(df, "date", "line_number")
-        
+
         df_indexed["origin_key"] = hash_concat_row_wise(df_indexed)
-        
+
         df_filename = add_filename_data_to_dataframe(
             filename=file.name, dataframe=df_indexed
         )
@@ -281,10 +280,3 @@ def upload_dataframe_to_database(
             except Exception as e:
                 context.log.error(f"Error uploading data to {schema}.{table_name}: {e}")
                 raise
-
-
-def finance_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
-    # TODO: find out why dagster_deployment env var is not working. Fixed as Prod for moment.
-    deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "prod")
-    target = "prod" if deployment_name == "prod" else "dev"
-    yield from dbt.cli(["build", "--target", target], context=context).stream()
