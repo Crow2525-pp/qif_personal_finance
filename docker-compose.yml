@@ -35,6 +35,8 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    env_file:
+      - .env
 
   dagster_daemon:
     build:
@@ -65,12 +67,13 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
-
     networks:
       - dagster_network
     depends_on:
       - dagster_postgres
       - pipeline_personal_finance
+    env_file:
+      - .env
 
   pipeline_personal_finance:
     container_name: pipeline_personal_finance
@@ -96,6 +99,25 @@ services:
       - /tmp/dagster-data:${DAGSTER_HOME}
     networks:
       - dagster_network
+    ports:
+      - "5678:5678"
+    env_file:
+      - .env
+    entrypoint:
+    command:
+      - -m
+      - debugpy
+      - --listen
+      - 0.0.0.0:5678
+      - -m
+      - dagster
+      - code-server
+      - start
+      - -h
+      - 0.0.0.0
+      - -p
+      - "4000"
+      - -m
 
   dagster_postgres:
     build:
@@ -117,6 +139,8 @@ services:
       - ./postgres:/var/lib/postgresql/data/
     networks:
       - dagster_network
+    env_file:
+      - .env
 
 networks:
   dagster_network:

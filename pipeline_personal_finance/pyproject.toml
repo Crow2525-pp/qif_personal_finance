@@ -19,6 +19,7 @@ dbt-postgres = "^1.8.2"
 [tool.poetry.group.dev.dependencies]
 sqlfluff = "^3.1.1"
 sqlfluff-templater-dbt = "^3.2.5"
+debugpy = "^1.8.11"
 
 [build-system]
 requires = ["poetry-core", "setuptools"]
