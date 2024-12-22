@@ -37,6 +37,7 @@ WORKDIR ${DAGSTER_APP}
 # Expose the port that Dagster gRPC server uses
 EXPOSE 4000
 
+RUN chmod -R -x ${DAGSTER_APP}
 
 # Command to run the Dagster gRPC server
 CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "pipeline_personal_finance"]

@@ -8,14 +8,7 @@ ARG DAGSTER_APP=/docker/appdata/dagster
 
 ENV DAGSTER_HOME=${DAGSTER_HOME:-homenotset}
 ENV DAGSTER_APP=${DAGSTER_APP:-appnotset}
-# Test environment variable passing
-docker-compose config
 
-# Run with explicit environment variable
-docker-compose run --rm -e DAGSTER_HOME=/docker/appdata/dagster/dagster_home pipeline_personal_finance env | findstr DAGSTER
-
-# Debug environment in container
-docker-compose run --rm --entrypoint=/bin/bash pipeline_personal_finance -c "echo DAGSTER_HOME=$DAGSTER_HOME"
 WORKDIR ${DAGSTER_APP}
 
 # Create application directory
@@ -30,6 +23,7 @@ RUN pip install poetry
 RUN poetry config virtualenvs.create false
 RUN poetry install --only main
 
+RUN chmod -R -x ${DAGSTER_APP}/
 
 # Verify setup
 RUN echo "Verifying paths:" && \
