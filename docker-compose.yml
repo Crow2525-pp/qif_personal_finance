@@ -3,6 +3,9 @@ services:
     build:
       context: ./dagster_core
       dockerfile: Dockerfile
+      args:
+        - DAGSTER_APP=${DAGSTER_APP}
+        - DAGSTER_HOME=${DAGSTER_HOME}
     entrypoint:
       - dagster-webserver
       - --host
@@ -96,28 +99,28 @@ services:
       DBT_PROFILES_DIR: ${DBT_PROJECT_DIR}
       DAGSTER_DEPLOYMENT: ${DAGSTER_DEPLOYMENT}
     volumes:
-      - /tmp/dagster-data:${DAGSTER_HOME}
+      - ${DAGSTER_HOME}:/tmp/dagster-data
     networks:
       - dagster_network
     ports:
       - "5678:5678"
     env_file:
       - .env
-    entrypoint:
-    command:
-      - -m
-      - debugpy
-      - --listen
-      - 0.0.0.0:5678
-      - -m
-      - dagster
-      - code-server
-      - start
-      - -h
-      - 0.0.0.0
-      - -p
-      - "4000"
-      - -m
+    # entrypoint:
+    # command:
+    #   - -m
+    #   - debugpy
+    #   - --listen
+    #   - 0.0.0.0:5678
+    #   - -m
+    #   - dagster
+    #   - code-server
+    #   - start
+    #   - -h
+    #   - 0.0.0.0
+    #   - -p
+    #   - "4000"
+    #   - -m
 
   dagster_postgres:
     build:

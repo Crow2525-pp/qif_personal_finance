@@ -3,8 +3,8 @@
 FROM python:3.11-slim
 
 # RUN rm /var/lib/postgresql/data
-ARG DAGSTER_HOME=/docker/appdata/dagster/dagster_home
-ARG DAGSTER_APP=/docker/appdata/dagster
+ARG DAGSTER_HOME
+ARG DAGSTER_APP
 
 ENV DAGSTER_HOME=${DAGSTER_HOME:-homenotset}
 ENV DAGSTER_APP=${DAGSTER_APP:-appnotset}
@@ -12,21 +12,35 @@ ENV DAGSTER_APP=${DAGSTER_APP:-appnotset}
 WORKDIR ${DAGSTER_APP}
 
 # Create application directory
-RUN mkdir -p ${DAGSTER_HOME}/
+RUN mkdir -p ${DAGSTER_HOME}
 
 # Create Dagster home directory
 COPY pyproject.toml ./
-COPY workspace.yaml dagster.yaml  ${DAGSTER_HOME}/
+COPY workspace.yaml dagster.yaml  ${DAGSTER_HOME}
 
 # Install the required dependencies
 RUN pip install poetry
 RUN poetry config virtualenvs.create false
 RUN poetry install --only main
 
-RUN chmod -R -x ${DAGSTER_APP}/
+RUN chmod -R 755 ${DAGSTER_HOME}/
+RUN chmod -R 755 ${DAGSTER_APP}/
 
 # Verify setup
 RUN echo "Verifying paths:" && \
     echo "DAGSTER_HOME=${DAGSTER_HOME}" && \
     echo "DAGSTER_APP=${DAGSTER_APP}" && \
     ls -la ${DAGSTER_HOME}
+
+    # Verify setup and files
+
+RUN echo "Verifying paths:" && \
+    echo "DAGSTER_HOME=${DAGSTER_HOME}" && \
+    echo "DAGSTER_APP=${DAGSTER_APP}" && \
+    ls -la ${DAGSTER_HOME} && \
+    echo "Verifying config files:" && \
+    test -f ${DAGSTER_HOME}/workspace.yaml || (echo "workspace.yaml missing" && exit 1) && \
+    test -f ${DAGSTER_HOME}/dagster.yaml || (echo "dagster.yaml missing" && exit 1) && \
+    echo "Config file contents:" && \
+    cat ${DAGSTER_HOME}/workspace.yaml && \
+    cat ${DAGSTER_HOME}/dagster.yaml

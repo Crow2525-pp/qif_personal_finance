@@ -19,10 +19,6 @@ RUN poetry install --only main -v
 
 RUN poetry run pip list
 
-RUN poetry run python -c "import sys; print(sys.path)"
-
-RUN echo $PATH
-
 # Set the working directory to dbt dir to build the script
 WORKDIR ${DAGSTER_APP}/pipeline_personal_finance/dbt_finance
 
@@ -37,7 +33,7 @@ WORKDIR ${DAGSTER_APP}
 # Expose the port that Dagster gRPC server uses
 EXPOSE 4000
 
-RUN chmod -R -x ${DAGSTER_APP}
+RUN chmod -R 755 ${DAGSTER_APP}
 
 # Command to run the Dagster gRPC server
 CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "pipeline_personal_finance"]
