@@ -19,7 +19,7 @@ numpy = "<2.0"
 pandas = "<2.0.0"
 
 [build-system]
-requires = ["poetry-core", "setuptools"]
+requires = ["poetry-core>=1.6", "setuptools"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pyright]

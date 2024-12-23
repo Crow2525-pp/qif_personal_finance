@@ -3,22 +3,38 @@ FROM python:3.11
 
 ARG DAGSTER_APP
 
-ENV DAGSTER_APP=${DAGSTER_APP:-appnotset}
+
+ENV YOUR_ENV=${YOUR_ENV} \
+  PYTHONFAULTHANDLER=1 \
+  PYTHONUNBUFFERED=1 \
+  PYTHONHASHSEED=random \
+  PIP_NO_CACHE_DIR=off \
+  PIP_DISABLE_PIP_VERSION_CHECK=on \
+  PIP_DEFAULT_TIMEOUT=100 \
+  # Poetry's configuration:
+  POETRY_NO_INTERACTION=1 \
+  POETRY_VIRTUALENVS_CREATE=false \
+  POETRY_CACHE_DIR='/var/cache/pypoetry' \
+  POETRY_HOME='/usr/local' \
+  POETRY_VERSION=1.8.4 \
+  # ^^^
+  # Make sure to update it!
+  DAGSTER_APP=${DAGSTER_APP:-appnotset}
+  
 
 # Set the working directory in the Docker image
 WORKDIR ${DAGSTER_APP}/pipeline_personal_finance
 
-# Copy the application code to the working directory
-COPY . .
-
 # Install the required dependencies
-RUN pip install poetry
-RUN poetry config virtualenvs.create false
-# RUN poetry shell
-RUN poetry install 
-# --only main -v
+RUN curl -sSL https://install.python-poetry.org | python3 -
+COPY poetry.lock pyproject.toml ./
+
+RUN poetry install --only=main --no-interaction --no-ansi
 
 RUN poetry run pip list
+
+# Copy the application code to the working directory
+COPY . .
 
 # Set the working directory to dbt dir to build the script
 WORKDIR ${DAGSTER_APP}/pipeline_personal_finance/dbt_finance
