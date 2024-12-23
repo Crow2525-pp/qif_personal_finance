@@ -106,21 +106,22 @@ services:
       - "5678:5678"
     env_file:
       - .env
-    # entrypoint:
-    # command:
-    #   - -m
-    #   - debugpy
-    #   - --listen
-    #   - 0.0.0.0:5678
-    #   - -m
-    #   - dagster
-    #   - code-server
-    #   - start
-    #   - -h
-    #   - 0.0.0.0
-    #   - -p
-    #   - "4000"
-    #   - -m
+    entrypoint: python
+    command:
+      - -m
+      - debugpy
+      - --listen
+      - 0.0.0.0:5678
+      - -m
+      - dagster
+      - code-server
+      - start
+      - -h
+      - 0.0.0.0
+      - -p
+      - "4000"
+      - -m
+      - defs
 
   dagster_postgres:
     build:

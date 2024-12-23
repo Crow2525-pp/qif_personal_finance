@@ -8,7 +8,28 @@
             "name": "Python Debugger: Module",
             "type": "debugpy",
             "request": "launch",
-            "module": "dagster_finance.resources"
+            "module": "dagster_finance.resources",
+            "pythonArgs": ["-Xfrozen_modules=off"]
+        },
+        {
+            "name": "Python: Remote Attach",
+            "type": "python",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5678
+            },
+            "justMyCode": false,
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/pipeline_personal_finance",
+                    "remoteRoot": "/docker/appdata/dagster/pipeline_personal_finance"
+                },
+                {
+                    "localRoot": "${workspaceFolder}/venv",
+                    "remoteRoot": "/usr/local"
+                }
+            ]
         }
     ]
 }
