@@ -23,8 +23,8 @@ RUN pip install poetry
 RUN poetry config virtualenvs.create false
 RUN poetry install --only main
 
-RUN chmod -R 755 ${DAGSTER_HOME}/
-RUN chmod -R 755 ${DAGSTER_APP}/
+RUN chmod -R +x ${DAGSTER_HOME}/
+RUN chmod -R +x ${DAGSTER_APP}/
 
 # Verify setup
 RUN echo "Verifying paths:" && \

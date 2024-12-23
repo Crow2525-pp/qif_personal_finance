@@ -13,7 +13,7 @@ services:
       - --port
       - "3000"
       - --workspace
-      - "dagster_home/workspace.yaml"
+      - "${DAGSTER_HOME}/workspace.yaml"
     container_name: dagster_webserver
     expose:
       - "3000"
@@ -52,7 +52,7 @@ services:
       - dagster-daemon
       - run
       - --workspace
-      - "dagster_home/workspace.yaml"
+      - "${DAGSTER_HOME}/workspace.yaml"
     # expose:
     #   - "4000"
     # ports:
@@ -67,9 +67,10 @@ services:
       DAGSTER_POSTGRES_DB: ${DAGSTER_POSTGRES_DB}
       DAGSTER_HOME: ${DAGSTER_HOME}
       DAGSTER_APP: ${DAGSTER_APP}
+    # no use on windows.
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /tmp/io_manager_storage:/tmp/io_manager_storage
+      - /tmp/io_manager_storage:${DAGSTER_HOME}/io_manager_storage
     networks:
       - dagster_network
     depends_on:
@@ -85,7 +86,6 @@ services:
       dockerfile: dockerfile
       args:
         - DAGSTER_APP=${DAGSTER_APP}
-        - DAGSTER_HOME=${DAGSTER_HOME}
     image: pipeline_personal_finance
     environment:
       TIMEZONE: Australia/Melbourne
@@ -99,7 +99,7 @@ services:
       DBT_PROFILES_DIR: ${DBT_PROJECT_DIR}
       DAGSTER_DEPLOYMENT: ${DAGSTER_DEPLOYMENT}
     volumes:
-      - ${DAGSTER_HOME}:/tmp/dagster-data
+      - /tmp/dagster-data:/tmp/dagster-data
     networks:
       - dagster_network
     ports:
