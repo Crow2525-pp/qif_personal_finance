@@ -221,6 +221,9 @@ def upload_dataframe_to_database(
             print(
                 f"Combining data for bank: {bank_name}, account: {account_name}, for extract date: {extract_date}"
             )
+            context.log.debug(
+                f"BankName: {bank_name}; AccountName: {account_name}; Extract_Date: {extract_date}"
+            )
             grouped_dataframes[key] = union_unique(
                 grouped_dataframes[key], df_filename, unique_column="origin_key"
             )
@@ -235,14 +238,15 @@ def upload_dataframe_to_database(
                 dataframe.duplicated(subset="origin_key", keep=False)
             ]
             print(f"Duplicate rows: \n{duplicates}")
-            raise ValueError("The primary key contains duplicate values")
+            context.log.error(f"duplicate rows: \n{duplicates}")
+            # raise ValueError("The primary key contains duplicate values")
 
         print(f"Final dataframe for bank: {bank}, account: {account}")
         print(dataframe.head())
         unique_extract_dates = dataframe["Extract_Date"].unique()
         print(f"Unique dates: {unique_extract_dates}")
 
-        table_name = bank + "_" + account + "_transactions"
+        table_name = bank + "_" + account + "_Transactions"
 
         schema = "landing"
         verify_database_schema(context, personal_finance_database, schema)
