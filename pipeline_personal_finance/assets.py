@@ -202,7 +202,7 @@ def upload_dataframe_to_database(
     grouped_dataframes = {}
 
     for file in qif_files:
-        qif = Qif.parse(file, day_first=True)
+        qif = Qif.parse(str(file), day_first=True)
         df = qif.to_dataframe()
         df_indexed = add_incremental_row_number(df, "date", "line_number")
 
