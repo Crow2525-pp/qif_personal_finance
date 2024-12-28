@@ -39,7 +39,7 @@ def finance_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
 def hash_concat_row_wise(df: pd.DataFrame) -> pd.Series:
     # Define a function to hash concatenated values of a row
     def hash_row(row):
-        concatenated_values = f"{row['year']}{row['month']}{row['month_order']}"
+        concatenated_values = f"{row['year']}-{row['month']}-{row['month_order']}"
         hash_obj = hashlib.md5(concatenated_values.encode())
         hash_hex = hash_obj.hexdigest()
         return hash_hex
@@ -206,7 +206,7 @@ def upload_dataframe_to_database(
         df = qif.to_dataframe()
         df_indexed = add_incremental_row_number(df, "date", "line_number")
 
-        df_indexed["origin_key"] = hash_concat_row_wise(df_indexed)
+        df_indexed["primary_key"] = hash_concat_row_wise(df_indexed)
 
         df_filename = add_filename_data_to_dataframe(
             filename=file.name, dataframe=df_indexed
@@ -225,20 +225,20 @@ def upload_dataframe_to_database(
                 f"BankName: {bank_name}; AccountName: {account_name}; Extract_Date: {extract_date}"
             )
             grouped_dataframes[key] = union_unique(
-                grouped_dataframes[key], df_filename, unique_column="origin_key"
+                grouped_dataframes[key], df_filename, unique_column="primary_key"
             )
         else:
             grouped_dataframes[key] = df_filename
 
     for (bank, account), dataframe in grouped_dataframes.items():
-        if dataframe["origin_key"].is_unique:
+        if dataframe["primary_key"].is_unique:
             print("no duplicates found")
         else:
             duplicates = dataframe[
-                dataframe.duplicated(subset="origin_key", keep=False)
+                dataframe.duplicated(subset="primary_key", keep=False)
             ]
             print(f"Duplicate rows: \n{duplicates}")
-            context.log.error(f"duplicate rows: \n{duplicates}")
+            context.log.error(f"{bank}; {account}, duplicate rows: \n{duplicates}")
             # raise ValueError("The primary key contains duplicate values")
 
         print(f"Final dataframe for bank: {bank}, account: {account}")
