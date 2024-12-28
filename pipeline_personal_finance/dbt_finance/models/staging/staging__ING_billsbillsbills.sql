@@ -1,42 +1,52 @@
-WITH cleaned_memo_data AS (
-    SELECT
+with cleaned_memo_data as (
+    select
         a.primary_key,
         a.payee as memo,
-        regexp_split_to_array(a.payee, ' - ') AS Split_Memo,
-        r.Receipt,
-        l.Location,
-        d.Description_Date,
-        cn.Card_No,
+        regexp_split_to_array(a.payee, ' - ') as split_memo,
+        r.receipt,
+        l.location,
+        d.description_date,
+        cn.card_no,
         f.sender,
         t.recipient
-    FROM 
+    from
         {{ source('personalfinance_dagster', 'ING_BillsBillsBills_Transactions') }} a
-    LEFT JOIN LATERAL (SELECT (regexp_matches(a.payee, 'Receipt (\d+)'))[1] AS Receipt) r ON a.payee ~ 'Receipt (\d+)' 
-    LEFT JOIN LATERAL (SELECT (regexp_matches(a.payee, 'In ([A-Za-z\s]+) Date'))[1] AS Location) l ON a.payee ~ 'In ([A-Za-z\s]+) Date'
-    LEFT JOIN LATERAL (SELECT (regexp_matches(a.payee, 'Date (\d{2} [A-Za-z]{3} \d{4})'))[1] AS Description_Date) d ON a.payee ~ 'Date (\d{2} [A-Za-z]{3} \d{4})'
-    LEFT JOIN LATERAL (SELECT (regexp_matches(a.payee, 'Card ([\dx]+)$'))[1] AS Card_No) cn ON a.payee ~ 'Card ([\dx]+)$'
-    LEFT JOIN LATERAL (SELECT (regexp_matches(a.payee, 'From ([A-Za-z\s]+)$'))[1] AS sender) f ON a.payee ~ 'From ([A-Za-z\s]+)$'
-    LEFT JOIN LATERAL (SELECT (regexp_matches(a.payee, 'To ([A-Za-z\s]+)$'))[1] AS recipient) t ON a.payee ~ 'To ([A-Za-z\s]+)$'
+    left join lateral (select (regexp_matches(a.payee, 'Receipt (\d+)'))[1] as receipt) r on a.payee ~ 'Receipt (\d+)'
+    left join
+        lateral (select (regexp_matches(a.payee, 'In ([A-Za-z\s]+) Date'))[1] as location) l
+        on a.payee ~ 'In ([A-Za-z\s]+) Date'
+    left join
+        lateral (select (regexp_matches(a.payee, 'Date (\d{2} [A-Za-z]{3} \d{4})'))[1] as description_date) d
+        on a.payee ~ 'Date (\d{2} [A-Za-z]{3} \d{4})'
+    left join
+        lateral (select (regexp_matches(a.payee, 'Card ([\dx]+)$'))[1] as card_no) cn
+        on a.payee ~ 'Card ([\dx]+)$'
+    left join
+        lateral (select (regexp_matches(a.payee, 'From ([A-Za-z\s]+)$'))[1] as sender) f
+        on a.payee ~ 'From ([A-Za-z\s]+)$'
+    left join
+        lateral (select (regexp_matches(a.payee, 'To ([A-Za-z\s]+)$'))[1] as recipient) t
+        on a.payee ~ 'To ([A-Za-z\s]+)$'
 )
 
 
-SELECT 
+select
     cast(date_trunc('day', a.date) as date) as date,
-    COALESCE(trim((c.Split_Memo)[1]), NULL) AS Transaction_Description, 
-    COALESCE(trim((c.Split_Memo)[2]), NULL) AS Transaction_Type, 
+    coalesce(trim((c.split_memo)[1]), NULL) as transaction_description,
+    coalesce(trim((c.split_memo)[2]), NULL) as transaction_type,
     trim(c.memo) as memo,
-    trim(c.Receipt) as Receipt,
-    trim(c.Location) as Location,
-    c.Description_Date,
-    trim(c.Card_No) as Card_No,
+    trim(c.receipt) as receipt,
+    trim(c.location) as location,
+    c.description_date,
+    trim(c.card_no) as card_no,
     trim(c.sender) as sender,
     trim(c.recipient) as recipient,
     cast(a.amount as float) as amount,
-    a.line_number,    
+    a.line_number,
     a.primary_key,
     current_date,
     current_time,
     'ing_billsbillsbills' as account_name
-FROM {{ source('personalfinance_dagster', 'ING_BillsBillsBills_Transactions') }} as a
+from {{ source('personalfinance_dagster', 'ING_BillsBillsBills_Transactions') }} as a
 left join cleaned_memo_data as c
-on a.primary_key = c.primary_key
+    on a.primary_key = c.primary_key

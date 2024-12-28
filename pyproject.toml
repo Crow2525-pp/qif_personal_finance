@@ -18,6 +18,9 @@ dbt = "^1.0.0.37.15"
 numpy = "<2.0"
 pandas = "<2.0.0"
 
+[tool.poetry.group.dev.dependencies]
+sqlfluff = "^3.3.0"
+
 [build-system]
 requires = ["poetry-core>=1.6", "setuptools"]
 build-backend = "poetry.core.masonry.api"

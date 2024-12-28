@@ -1,6 +1,6 @@
-WITH adjusted_balance AS (
+with adjusted_balance as (
     {{ calculate_adjusted_balance('staging__Adelaide_Homeloan') }})
 
-SELECT
+select
     *
-FROM adjusted_balance
+from adjusted_balance
