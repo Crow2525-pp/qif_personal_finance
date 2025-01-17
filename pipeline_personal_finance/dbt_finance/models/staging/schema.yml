@@ -66,9 +66,38 @@ sources:
 
 models:
   - name: staging__Adelaide_Homeloan
+    columns:
+      - name: primary_key
+        tests:
+          - unique
+          - not_null
   - name: staging__Adelaide_Offset
+    columns:
+      - name: primary_key
+        tests:
+          - unique
+          - not_null
   - name: staging__Bendigo_Homeloan
+    columns:
+      - name: primary_key
+        tests:
+          - unique
+          - not_null
   - name: staging__Bendigo_Offset
+    columns:
+      - name: primary_key
+        tests:
+          - unique
+          - not_null
   - name: staging__ING_billsbillsbills
+    columns:
+      - name: primary_key
+        tests:
+          - unique
+          - not_null
   - name: staging__ING_countdown
-
+    columns:
+      - name: primary_key
+        tests:
+          - unique
+          - not_null
