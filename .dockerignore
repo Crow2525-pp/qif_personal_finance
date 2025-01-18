@@ -1,8 +1,7 @@
-qif_files/
-dbt_finance/duckdb_database/
-.venv/
-__pycache__/
-*.pyc
-.pytest_cache/
-.git/
-.gitignore
+# Ignore everything by default
+**
+
+# Include only the necessary files
+!uv.lock
+!pipeline_personal_finance/**
+!dagster_core/**

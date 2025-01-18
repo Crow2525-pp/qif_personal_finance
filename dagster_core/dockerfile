@@ -2,6 +2,18 @@
 
 FROM python:3.11-slim
 
+# The installer requires curl (and certificates) to download the release archive
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+
+# Download the latest installer
+ADD https://astral.sh/uv/install.sh /uv-installer.sh
+
+# Run the installer then remove it
+RUN sh /uv-installer.sh && rm /uv-installer.sh
+
+# Ensure the installed binary is on the `PATH`
+ENV PATH="/root/.local/bin/:$PATH"
+
 # RUN rm /var/lib/postgresql/data
 ARG DAGSTER_HOME
 ARG DAGSTER_APP
@@ -15,13 +27,11 @@ WORKDIR ${DAGSTER_APP}
 RUN mkdir -p ${DAGSTER_HOME}
 
 # Create Dagster home directory
-COPY pyproject.toml ./
-COPY workspace.yaml dagster.yaml  ${DAGSTER_HOME}
+COPY uv.lock dagster_core/pyproject.toml ./
+COPY dagster_core/workspace.yaml dagster_core/dagster.yaml  ${DAGSTER_HOME}
 
 # Install the required dependencies
-RUN pip install poetry
-RUN poetry config virtualenvs.create false
-RUN poetry install --only main
+RUN uv sync --frozen
 
 RUN chmod -R +x ${DAGSTER_HOME}/
 RUN chmod -R +x ${DAGSTER_APP}/

@@ -4,6 +4,9 @@ sources:
   - name: personalfinance_dagster
     schema: landing
     database: personal_finance
+    constraints:
+      - type: primary_key
+        columns: ["primary_key"]
     tables:
       - name: ING_BillsBillsBills_Transactions
         meta:
