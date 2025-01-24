@@ -1,5 +1,5 @@
 [project]
-name = "qif_personal_finance"
+name = "qif-personal-project"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -9,11 +9,6 @@ dependencies = [
     "dagster-dbt>=0.24.13",
     "dagster-webserver>=1.8.13",
     "dbt>=1.0.0.38.23",
-    "dbt-core>=1.8.8",
-    "dbt-postgres>=1.9.0",
-    "numpy>=2.2.1",
-    "pandas>=1.5.3",
-    "quiffen>=2.0.13",
 ]
 
 [dependency-groups]
@@ -22,4 +17,4 @@ dev = [
 ]
 
 [tool.uv.workspace]
-members = ["dagster_core"]
+members = ["dagster_core", "pipeline_personal_finance"]

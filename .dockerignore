@@ -3,5 +3,6 @@
 
 # Include only the necessary files
 !uv.lock
+!pyproject.toml
 !pipeline_personal_finance/**
 !dagster_core/**

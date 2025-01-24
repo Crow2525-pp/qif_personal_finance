@@ -11,8 +11,8 @@ dependencies = [
     "dbt>=1.0.0.38.23",
     "dbt-core>=1.8.8",
     "dbt-postgres>=1.9.0",
-    "numpy=*",
-    "pandas=*",
+    "numpy>=2.2.2",
+    "pandas>=1.5.3",
     "quiffen>=2.0.13",
 ]
 

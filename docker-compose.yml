@@ -1,8 +1,8 @@
 services:
   dagster_webserver:
     build:
-      context: .
-      dockerfile: ./dagster_core/dockerfile
+      context: dagster_core
+      dockerfile: dockerfile
       args:
         - DAGSTER_APP=${DAGSTER_APP}
         - DAGSTER_HOME=${DAGSTER_HOME}
@@ -43,8 +43,8 @@ services:
 
   dagster_daemon:
     build:
-      context: .
-      dockerfile: ./dagster_core/dockerfile
+      context: dagster_core
+      dockerfile: dockerfile
       args:
         DAGSTER_APP: ${DAGSTER_APP}
         DAGSTER_HOME: ${DAGSTER_HOME}
@@ -82,8 +82,8 @@ services:
   pipeline_personal_finance:
     container_name: pipeline_personal_finance
     build:
-      context: .
-      dockerfile: ./pipeline_personal_finance/dockerfile
+      context: pipeline_personal_finance
+      dockerfile: dockerfile
       args:
         - DAGSTER_APP=${DAGSTER_APP}
     image: pipeline_personal_finance
