@@ -11,7 +11,12 @@ dependencies = [
     "dbt>=1.0.0.38.23",
     "dbt-core>=1.8.8",
     "dbt-postgres>=1.9.0",
-    "numpy>=2.2.1",
-    "pandas>=1.5.3",
+    "numpy=*",
+    "pandas=*",
     "quiffen>=2.0.13",
+]
+
+[dependency-groups]
+dev = [
+    "sqlfluff>=3.3.0",
 ]
