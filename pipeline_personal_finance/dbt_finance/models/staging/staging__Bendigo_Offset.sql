@@ -35,7 +35,7 @@ SELECT
     trim(c.Transaction_Type) as Transaction_Type,
     cast(a.amount as float) as amount,
     a.line_number,    
-    c.primary_key,
+    a.primary_key,
     current_date,
     current_time,
     'bendigo_offset' as account_name

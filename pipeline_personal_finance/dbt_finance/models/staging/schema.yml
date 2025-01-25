@@ -4,9 +4,6 @@ sources:
   - name: personalfinance_dagster
     schema: landing
     database: personal_finance
-    constraints:
-      - type: primary_key
-        columns: ["primary_key"]
     tables:
       - name: ING_BillsBillsBills_Transactions
         meta:
@@ -69,36 +66,58 @@ sources:
 
 models:
   - name: staging__Adelaide_Homeloan
+    constraints:
+    - type: primary_key
+      columns: ["primary_key"]
     columns:
       - name: primary_key
         tests:
           - unique
           - not_null
   - name: staging__Adelaide_Offset
+    constraints:
+    - type: primary_key
+      columns: ["primary_key"]
     columns:
       - name: primary_key
         tests:
           - unique
           - not_null
   - name: staging__Bendigo_Homeloan
+    constraints:
+    - type: primary_key
+      columns: ["primary_key"]
+
     columns:
       - name: primary_key
         tests:
           - unique
           - not_null
   - name: staging__Bendigo_Offset
+    constraints:
+    - type: primary_key
+      columns: ["primary_key"]
+
     columns:
       - name: primary_key
         tests:
           - unique
           - not_null
   - name: staging__ING_billsbillsbills
+    constraints:
+    - type: primary_key
+      columns: ["primary_key"]
+
     columns:
       - name: primary_key
         tests:
           - unique
           - not_null
   - name: staging__ING_countdown
+    constraints:
+    - type: primary_key
+      columns: ["primary_key"]
+
     columns:
       - name: primary_key
         tests:
