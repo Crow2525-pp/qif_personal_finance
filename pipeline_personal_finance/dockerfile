@@ -23,15 +23,21 @@ ENV YOUR_ENV=${YOUR_ENV} \
 # Set the working directory in the Docker image
 
 # Install the required dependencies
+# Explicitly copy files into the container
+RUN ls -l
+
+COPY uv.lock uv.lock
+COPY pyproject.toml pyproject.toml
+COPY pipeline_personal_finance/pyproject.toml pipeline_personal_finance/pyproject.toml
 
 # Install the project's dependencies using the lockfile and settings
 RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-project
-    
-COPY pipeline_personal_finance/* .
 
+    uv sync --frozen --no-install-project
+
+
+COPY pipeline_personal_finance/* .
+    
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev
 

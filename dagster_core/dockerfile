@@ -1,18 +1,24 @@
 # ./dockerfile
 
-FROM python:3.11-slim
+FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim
 
-# The installer requires curl (and certificates) to download the release archive
-RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+ENV YOUR_ENV=${YOUR_ENV} \
+  PYTHONFAULTHANDLER=1 \
+  PYTHONUNBUFFERED=1 \
+  PYTHONHASHSEED=random \
+  # Copy from the cache instead of linking since it's a mounted volume
+  UV_LINK_MODE=copy \ 
+  # Enable bytecode compilation
+  UV_COMPILE_BYTECODE=1 \ 
+  PIP_NO_CACHE_DIR=off \
+  PIP_DISABLE_PIP_VERSION_CHECK=on \
+  PIP_DEFAULT_TIMEOUT=100 \
+  PATH="/.venv/bin:$PATH"
 
-# Download the latest installer
-ADD https://astral.sh/uv/install.sh /uv-installer.sh
 
-# Run the installer then remove it
-RUN sh /uv-installer.sh && rm /uv-installer.sh
-
-# Ensure the installed binary is on the `PATH`
-ENV PATH="/root/.local/bin/:$PATH"
+COPY uv.lock uv.lock
+COPY pyproject.toml pyproject.toml
+COPY dagster_core/pyproject.toml dagster_core/pyproject.toml
 
 # RUN rm /var/lib/postgresql/data
 ARG DAGSTER_HOME
@@ -27,11 +33,17 @@ WORKDIR ${DAGSTER_APP}
 RUN mkdir -p ${DAGSTER_HOME}
 
 # Create Dagster home directory
-COPY uv.lock dagster_core/pyproject.toml ./
+# Install the project's dependencies using the lockfile and settings
+
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev
+
 COPY dagster_core/workspace.yaml dagster_core/dagster.yaml  ${DAGSTER_HOME}
 
-# Install the required dependencies
-RUN uv sync --frozen
+
+# Place executables in the environment at the front of the path
+ENV PATH="/app/.venv/bin:$PATH"
+
 
 RUN chmod -R +x ${DAGSTER_HOME}/
 RUN chmod -R +x ${DAGSTER_APP}/
