@@ -7,6 +7,8 @@ services:
         - DAGSTER_APP=${DAGSTER_APP}
         - DAGSTER_HOME=${DAGSTER_HOME}
     entrypoint:
+      - uv
+      - run
       - dagster-webserver
       - --host
       - "0.0.0.0"

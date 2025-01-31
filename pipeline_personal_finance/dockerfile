@@ -2,8 +2,6 @@
 FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim
 
 ARG DAGSTER_APP
-
-
 ENV YOUR_ENV=${YOUR_ENV} \
   PYTHONFAULTHANDLER=1 \
   PYTHONUNBUFFERED=1 \
@@ -16,19 +14,16 @@ ENV YOUR_ENV=${YOUR_ENV} \
   PIP_DISABLE_PIP_VERSION_CHECK=on \
   PIP_DEFAULT_TIMEOUT=100 \
   PATH="/.venv/bin:$PATH" \
-  
   # Make sure to update it!
   DAGSTER_APP=${DAGSTER_APP:-appnotset}
 
-# Set the working directory in the Docker image
-
-# Install the required dependencies
 # Explicitly copy files into the container
-RUN ls -l
+WORKDIR ${DAGSTER_APP}
 
 COPY uv.lock uv.lock
 COPY pyproject.toml pyproject.toml
 COPY pipeline_personal_finance/pyproject.toml pipeline_personal_finance/pyproject.toml
+
 
 # Install the project's dependencies using the lockfile and settings
 RUN --mount=type=cache,target=/root/.cache/uv \
@@ -36,13 +31,14 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-install-project
 
 
-COPY pipeline_personal_finance/* .
-    
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev
+COPY pipeline_personal_finance pipeline_personal_finance
 
-# Place executables in the environment at the front of the path
-ENV PATH="/app/.venv/bin:$PATH"
+# RUN echo "After COPY - pipeline contents:" && \
+#     ls -la pipeline_personal_finance
+
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --package pipeline_personal_finance
+
 
 # Reset the entrypoint, don't invoke `uv`
 ENTRYPOINT []
@@ -52,9 +48,18 @@ ENTRYPOINT []
 # Set the working directory to dbt dir to build the script
 WORKDIR ${DAGSTER_APP}/pipeline_personal_finance/dbt_finance
 
+# RUN echo "Current directory (dbt_finance):" && \
+#     pwd && \
+#     echo "\nRoot directory:" && \
+#     ls -la / && \
+#     echo "\nCurrent directory contents(dbt_finance):" && \
+#     ls -la && \
+#     echo "\nParent directory contents:(pipeline_personal_finance)" && \
+#     ls -la ..
+
 # Set the full project directory path for dbt commands
 # RUN uv run dbt clean
-RUN dbt deps
+RUN uv run dbt deps
 
 # Set the working directory to where the service needs to be started from
 WORKDIR ${DAGSTER_APP}
@@ -64,6 +69,5 @@ EXPOSE 4000
 
 RUN chmod -R +x ${DAGSTER_APP}
 
-
 # Command to run the Dagster gRPC server
-CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "pipeline_personal_finance"]
+CMD ["uv", "run", "dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "pipeline_personal_finance"]

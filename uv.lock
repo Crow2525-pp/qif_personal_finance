@@ -268,6 +268,7 @@ dependencies = [
     { name = "dagster" },
     { name = "dagster-docker" },
     { name = "dagster-graphql" },
+    { name = "dagster-postgres" },
     { name = "dagster-webserver" },
     { name = "postgres" },
 ]
@@ -277,6 +278,7 @@ requires-dist = [
     { name = "dagster", specifier = ">=1.8.13" },
     { name = "dagster-docker", specifier = ">=0.24.13" },
     { name = "dagster-graphql", specifier = ">=1.8.13" },
+    { name = "dagster-postgres", specifier = ">=0.24.13" },
     { name = "dagster-webserver", specifier = ">=1.8.13" },
     { name = "postgres", specifier = ">=4.0" },
 ]
@@ -339,6 +341,19 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/fe/21/78260c02bf351f01b6beaf3ef3b064e1a524959b22662202dbf107bf0d20/dagster-pipes-1.8.13.tar.gz", hash = "sha256:d7b16c22c662e355ad7fda507e21b5eb7a7bbb479564348961c3d942d081810f", size = 17278 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/db/5a/f5f97d35ecddc6b05ff5dafe23963f9b03b5e27af6e17d85bfd2d22e74f0/dagster_pipes-1.8.13-py3-none-any.whl", hash = "sha256:c14091d416deee921927ce8c248fb8cd10ee26670a990641f3c788a3a237d59c", size = 17118 },
+]
+
+[[package]]
+name = "dagster-postgres"
+version = "0.24.13"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "dagster" },
+    { name = "psycopg2-binary" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/6c/45/a8d6aed7d9cff71847604ecc7ef3dd5900aec74a881e7175de9ac22f1ca2/dagster-postgres-0.24.13.tar.gz", hash = "sha256:d2389a1ddd3ebcab5ad32e5dd1167cebf9152f7b876f1972c7b7529d531c105a", size = 15340 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ef/fe/eafc4265ed2b7761dd5bfbb879b0711ce2796c43085f0e3ad3c146716b0a/dagster_postgres-0.24.13-py3-none-any.whl", hash = "sha256:40aa83935180b2a3eb9967c36c88a3b0b5fb6147275b8d592c235aa68a2cad83", size = 21329 },
 ]
 
 [[package]]
