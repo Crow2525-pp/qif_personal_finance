@@ -13,37 +13,23 @@ ENV YOUR_ENV=${YOUR_ENV} \
   PIP_NO_CACHE_DIR=off \
   PIP_DISABLE_PIP_VERSION_CHECK=on \
   PIP_DEFAULT_TIMEOUT=100 \
-  PATH="/.venv/bin:$PATH" \
   # Make sure to update it!
-  DAGSTER_APP=${DAGSTER_APP:-appnotset}
+  DAGSTER_APP=${DAGSTER_APP:-appnotset} \
+  PATH=".venv/bin:$PATH"
 
 # Explicitly copy files into the container
 WORKDIR ${DAGSTER_APP}
 
 COPY uv.lock uv.lock
 COPY pyproject.toml pyproject.toml
-COPY pipeline_personal_finance/pyproject.toml pipeline_personal_finance/pyproject.toml
-
-
-# Install the project's dependencies using the lockfile and settings
-RUN --mount=type=cache,target=/root/.cache/uv \
-
-    uv sync --frozen --no-install-project
-
+# COPY .venv ${DAGSTER_APP}/.venv
+# RUN echo "Checking for .venv contents:" && ls -la ${DAGSTER_APP}/.venv
 
 COPY pipeline_personal_finance pipeline_personal_finance
 
-# RUN echo "After COPY - pipeline contents:" && \
-#     ls -la pipeline_personal_finance
-
+# Install the project's dependencies using the lockfile and settings
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --package pipeline_personal_finance
-
-
-# Reset the entrypoint, don't invoke `uv`
-ENTRYPOINT []
-
-# Copy the application code to the working directory
 
 # Set the working directory to dbt dir to build the script
 WORKDIR ${DAGSTER_APP}/pipeline_personal_finance/dbt_finance
@@ -59,15 +45,17 @@ WORKDIR ${DAGSTER_APP}/pipeline_personal_finance/dbt_finance
 
 # Set the full project directory path for dbt commands
 # RUN uv run dbt clean
-RUN uv run dbt deps
+RUN UV pip list
 
-# Set the working directory to where the service needs to be started from
-WORKDIR ${DAGSTER_APP}
+RUN dbt deps
 
 # Expose the port that Dagster gRPC server uses
 EXPOSE 4000
 
+# Set the working directory to where the service needs to be started from
+WORKDIR ${DAGSTER_APP}
+
 RUN chmod -R +x ${DAGSTER_APP}
 
 # Command to run the Dagster gRPC server
-CMD ["uv", "run", "dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "pipeline_personal_finance"]
+CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "pipeline_personal_finance"]

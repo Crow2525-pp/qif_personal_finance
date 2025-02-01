@@ -63,3 +63,5 @@ RUN echo "Verifying paths:" && \
     echo "Config file contents:" && \
     cat ${DAGSTER_HOME}/workspace.yaml && \
     cat ${DAGSTER_HOME}/dagster.yaml
+
+# Add entrypoint here for consistency.

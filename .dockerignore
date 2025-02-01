@@ -2,6 +2,7 @@
 **
 
 # Include only the necessary files
+!.venv
 !uv.lock
 !pyproject.toml
 !pipeline_personal_finance/**
