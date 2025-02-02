@@ -66,9 +66,60 @@ sources:
 
 models:
   - name: staging__Adelaide_Homeloan
+    constraints:
+    - type: primary_key
+      columns: ["primary_key"]
+    columns:
+      - name: primary_key
+        tests:
+          - unique
+          - not_null
   - name: staging__Adelaide_Offset
+    constraints:
+    - type: primary_key
+      columns: ["primary_key"]
+    columns:
+      - name: primary_key
+        tests:
+          - unique
+          - not_null
   - name: staging__Bendigo_Homeloan
-  - name: staging__Bendigo_Offset
-  - name: staging__ING_billsbillsbills
-  - name: staging__ING_countdown
+    constraints:
+    - type: primary_key
+      columns: ["primary_key"]
 
+    columns:
+      - name: primary_key
+        tests:
+          - unique
+          - not_null
+  - name: staging__Bendigo_Offset
+    constraints:
+    - type: primary_key
+      columns: ["primary_key"]
+
+    columns:
+      - name: primary_key
+        tests:
+          - unique
+          - not_null
+  - name: staging__ING_billsbillsbills
+    constraints:
+    - type: primary_key
+      columns: ["primary_key"]
+
+    columns:
+      - name: primary_key
+        tests:
+          - unique
+          - not_null
+  - name: staging__ING_countdown
+    constraints:
+    - type: primary_key
+      columns: ["primary_key"]
+
+    columns:
+      - name: primary_key
+        tests:
+          - unique
+          - not_null

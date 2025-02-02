@@ -19,6 +19,7 @@ SELECT
     EXTRACT(YEAR FROM date) AS calendar_year, -- Extract the year
     TO_CHAR(date, 'Month') AS month_long, -- Full month name (e.g., January, February...)
     TO_CHAR(date, 'Mon') AS month_short, -- Abbreviated month name (e.g., Jan, Feb...)
-    EXTRACT(MONTH FROM date) AS month_number -- Extract the month number
+    EXTRACT(MONTH FROM date) AS month_number, -- Extract the month number
+    (EXTRACT(DAY FROM date)::int - 1) / 7 + 1 AS week_number -- Calculate the week number
 FROM
     date_series

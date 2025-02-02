@@ -21,6 +21,9 @@ models:
         data_type: bigint
       - name: primary_key
         data_type: bigint
+        tests:
+          - unique
+          - not_null
       - name: account_name
         data_type: text
       - name: date
@@ -44,7 +47,6 @@ models:
               values: [-564089.65]
               config:
                 where: "date = '2023-06-24' and account_name = 'Adelaide_Homeloan'"
-
 
   - name: transformation__Adel_Offset_adjst_bal
     columns:
@@ -74,6 +76,9 @@ models:
         data_type: bigint
       - name: primary_key
         data_type: bigint
+        tests:
+          - unique
+          - not_null
       - name: current_date
         data_type: date
       - name: current_time
@@ -117,6 +122,9 @@ models:
         data_type: bigint
       - name: primary_key
         data_type: bigint
+        tests:
+          - unique
+          - not_null
       - name: current_date
         data_type: date
       - name: current_time
@@ -161,6 +169,9 @@ models:
         data_type: bigint
       - name: primary_key
         data_type: bigint
+        tests:
+          - unique
+          - not_null
       - name: current_date
         data_type: date
       - name: current_time
@@ -205,6 +216,9 @@ models:
         data_type: bigint
       - name: primary_key
         data_type: bigint
+        tests:
+          - unique
+          - not_null
       - name: current_date
         data_type: date
       - name: current_time
@@ -232,6 +246,9 @@ models:
         data_type: bigint
       - name: primary_key
         data_type: bigint
+        tests:
+          - unique
+          - not_null
       - name: account_name
         data_type: text
       - name: date

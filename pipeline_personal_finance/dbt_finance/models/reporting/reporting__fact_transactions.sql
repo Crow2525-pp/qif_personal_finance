@@ -1,5 +1,5 @@
 select
-    row_number() over() as surrogate_key,
+    row_number() over () as surrogate_key,
     trans.date,
     trans.amount,
     trans.adjusted_balance as balance,
@@ -12,7 +12,7 @@ select
         when trans.amount < 0 then 'CREDIT'
         else 'NEURAL'
     end as amount_type,
-    COALESCE(cat.internal_indicator, 'UNCATEGORISED') as internal_indicator
+    coalesce(cat.internal_indicator, 'UNCATEGORISED') as internal_indicator
 from {{ ref('trans_categories') }} as trans
 left join {{ ref('dim_category') }} as cat
- on  trans.category_foreign_key = cat.origin_key
+    on trans.category_foreign_key = cat.origin_key

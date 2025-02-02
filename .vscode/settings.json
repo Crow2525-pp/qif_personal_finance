@@ -12,5 +12,6 @@
             "pipeline_personal_finance\\dbt_finance": {
                 "deferToProduction": false
             }
-        }
+        },
+        "dbt.enableNewLineagePanel": true
 }

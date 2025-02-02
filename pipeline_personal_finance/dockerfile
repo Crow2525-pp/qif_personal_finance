@@ -1,54 +1,44 @@
 # Use an official Python runtime as a parent image
-FROM python:3.11
+FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim
 
 ARG DAGSTER_APP
-
 
 ENV YOUR_ENV=${YOUR_ENV} \
   PYTHONFAULTHANDLER=1 \
   PYTHONUNBUFFERED=1 \
   PYTHONHASHSEED=random \
+  # Copy from the cache instead of linking since it's a mounted volume
+  UV_LINK_MODE=copy \ 
+  # Enable bytecode compilation
+  UV_COMPILE_BYTECODE=1 \ 
   PIP_NO_CACHE_DIR=off \
   PIP_DISABLE_PIP_VERSION_CHECK=on \
   PIP_DEFAULT_TIMEOUT=100 \
-  # Poetry's configuration:
-  POETRY_NO_INTERACTION=1 \
-  POETRY_VIRTUALENVS_CREATE=false \
-  POETRY_CACHE_DIR='/var/cache/pypoetry' \
-  POETRY_HOME='/usr/local' \
-  POETRY_VERSION=1.8.4 \
-  # ^^^
   # Make sure to update it!
-  DAGSTER_APP=${DAGSTER_APP:-appnotset}
-  
+  DAGSTER_APP=${DAGSTER_APP:-appnotset} \
+  PATH="${DAGSTER_APP}/.venv/bin:$PATH"
 
-# Set the working directory in the Docker image
-WORKDIR ${DAGSTER_APP}/pipeline_personal_finance
+WORKDIR ${DAGSTER_APP}
 
-# Install the required dependencies
-RUN curl -sSL https://install.python-poetry.org | python3 -
-COPY poetry.lock pyproject.toml ./
+COPY uv.lock uv.lock
+COPY pyproject.toml pyproject.toml
+COPY pipeline_personal_finance pipeline_personal_finance
 
-RUN poetry install --only=main --no-interaction --no-ansi
-
-RUN poetry run pip list
-
-# Copy the application code to the working directory
-COPY . .
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --package pipeline_personal_finance
 
 # Set the working directory to dbt dir to build the script
 WORKDIR ${DAGSTER_APP}/pipeline_personal_finance/dbt_finance
 
-# Set the full project directory path for dbt commands
-# RUN poetry run dbt clean
-RUN poetry run dbt deps
-# RUN poetry run dbt compile
+RUN uv pip list
 
-# Set the working directory to where the service needs to be started from
-WORKDIR ${DAGSTER_APP}
+RUN dbt deps
 
 # Expose the port that Dagster gRPC server uses
 EXPOSE 4000
+
+# Set the working directory to where the service needs to be started from
+WORKDIR ${DAGSTER_APP}
 
 RUN chmod -R +x ${DAGSTER_APP}
 

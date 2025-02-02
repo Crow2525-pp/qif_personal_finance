@@ -1,46 +1,45 @@
 # ./dockerfile
 
-FROM python:3.11-slim
+FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim
 
 # RUN rm /var/lib/postgresql/data
 ARG DAGSTER_HOME
 ARG DAGSTER_APP
 
-ENV DAGSTER_HOME=${DAGSTER_HOME:-homenotset}
-ENV DAGSTER_APP=${DAGSTER_APP:-appnotset}
+ENV YOUR_ENV=${YOUR_ENV} \
+  PYTHONFAULTHANDLER=1 \
+  PYTHONUNBUFFERED=1 \
+  PYTHONHASHSEED=random \
+  # Copy from the cache instead of linking since it's a mounted volume
+  UV_LINK_MODE=copy \ 
+  # Enable bytecode compilation
+  UV_COMPILE_BYTECODE=1 \ 
+  PIP_NO_CACHE_DIR=off \
+  PIP_DISABLE_PIP_VERSION_CHECK=on \
+  PIP_DEFAULT_TIMEOUT=100 \
+  # This enables UV to run its env.
+  PATH="${DAGSTER_APP}/.venv/bin:$PATH" \
+  DAGSTER_HOME=${DAGSTER_HOME:-homenotset} \
+  DAGSTER_APP=${DAGSTER_APP:-appnotset}
 
 WORKDIR ${DAGSTER_APP}
 
-# Create application directory
+# context is in root dir and dockerignore ensures only req. files are vis.
+COPY uv.lock uv.lock
+# not sure if I need both pyproject.toml files or just core.
+COPY pyproject.toml pyproject.toml
+COPY dagster_core/pyproject.toml dagster_core/pyproject.toml
+
+# Creates and syncs env; frozen ensures that no updates happen
+# Package sorts out just the sub-project's deps.
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --package dagster_core
+
 RUN mkdir -p ${DAGSTER_HOME}
 
-# Create Dagster home directory
-COPY pyproject.toml ./
-COPY workspace.yaml dagster.yaml  ${DAGSTER_HOME}
-
-# Install the required dependencies
-RUN pip install poetry
-RUN poetry config virtualenvs.create false
-RUN poetry install --only main
+COPY dagster_core/workspace.yaml dagster_core/dagster.yaml  ${DAGSTER_HOME}
 
 RUN chmod -R +x ${DAGSTER_HOME}/
 RUN chmod -R +x ${DAGSTER_APP}/
 
-# Verify setup
-RUN echo "Verifying paths:" && \
-    echo "DAGSTER_HOME=${DAGSTER_HOME}" && \
-    echo "DAGSTER_APP=${DAGSTER_APP}" && \
-    ls -la ${DAGSTER_HOME}
-
-    # Verify setup and files
-
-RUN echo "Verifying paths:" && \
-    echo "DAGSTER_HOME=${DAGSTER_HOME}" && \
-    echo "DAGSTER_APP=${DAGSTER_APP}" && \
-    ls -la ${DAGSTER_HOME} && \
-    echo "Verifying config files:" && \
-    test -f ${DAGSTER_HOME}/workspace.yaml || (echo "workspace.yaml missing" && exit 1) && \
-    test -f ${DAGSTER_HOME}/dagster.yaml || (echo "dagster.yaml missing" && exit 1) && \
-    echo "Config file contents:" && \
-    cat ${DAGSTER_HOME}/workspace.yaml && \
-    cat ${DAGSTER_HOME}/dagster.yaml
+# Add entrypoint here for consistency.
