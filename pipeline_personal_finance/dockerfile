@@ -15,7 +15,7 @@ ENV YOUR_ENV=${YOUR_ENV} \
   PIP_DEFAULT_TIMEOUT=100 \
   # Make sure to update it!
   DAGSTER_APP=${DAGSTER_APP:-appnotset} \
-  PATH=".venv/bin:$PATH"
+  PATH="${DAGSTER_APP}/.venv/bin:$PATH"
 
 # Explicitly copy files into the container
 WORKDIR ${DAGSTER_APP}
@@ -29,7 +29,7 @@ COPY pipeline_personal_finance pipeline_personal_finance
 
 # Install the project's dependencies using the lockfile and settings
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --package pipeline_personal_finance
+    uv sync --frozen --package pipeline_personal_finance
 
 # Set the working directory to dbt dir to build the script
 WORKDIR ${DAGSTER_APP}/pipeline_personal_finance/dbt_finance
@@ -45,7 +45,9 @@ WORKDIR ${DAGSTER_APP}/pipeline_personal_finance/dbt_finance
 
 # Set the full project directory path for dbt commands
 # RUN uv run dbt clean
-RUN UV pip list
+RUN uv pip list
+
+RUN echo $PATH
 
 RUN dbt deps
 
