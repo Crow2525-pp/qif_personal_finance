@@ -2,6 +2,7 @@
 FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim
 
 ARG DAGSTER_APP
+
 ENV YOUR_ENV=${YOUR_ENV} \
   PYTHONFAULTHANDLER=1 \
   PYTHONUNBUFFERED=1 \
@@ -17,37 +18,19 @@ ENV YOUR_ENV=${YOUR_ENV} \
   DAGSTER_APP=${DAGSTER_APP:-appnotset} \
   PATH="${DAGSTER_APP}/.venv/bin:$PATH"
 
-# Explicitly copy files into the container
 WORKDIR ${DAGSTER_APP}
 
 COPY uv.lock uv.lock
 COPY pyproject.toml pyproject.toml
-# COPY .venv ${DAGSTER_APP}/.venv
-# RUN echo "Checking for .venv contents:" && ls -la ${DAGSTER_APP}/.venv
-
 COPY pipeline_personal_finance pipeline_personal_finance
 
-# Install the project's dependencies using the lockfile and settings
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --package pipeline_personal_finance
+    uv sync --frozen --no-dev --package pipeline_personal_finance
 
 # Set the working directory to dbt dir to build the script
 WORKDIR ${DAGSTER_APP}/pipeline_personal_finance/dbt_finance
 
-# RUN echo "Current directory (dbt_finance):" && \
-#     pwd && \
-#     echo "\nRoot directory:" && \
-#     ls -la / && \
-#     echo "\nCurrent directory contents(dbt_finance):" && \
-#     ls -la && \
-#     echo "\nParent directory contents:(pipeline_personal_finance)" && \
-#     ls -la ..
-
-# Set the full project directory path for dbt commands
-# RUN uv run dbt clean
 RUN uv pip list
-
-RUN echo $PATH
 
 RUN dbt deps
 

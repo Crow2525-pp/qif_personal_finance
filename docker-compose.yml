@@ -7,8 +7,6 @@ services:
         - DAGSTER_APP=${DAGSTER_APP}
         - DAGSTER_HOME=${DAGSTER_HOME}
     entrypoint:
-      - uv
-      - run
       - dagster-webserver
       - --host
       - "0.0.0.0"
@@ -108,6 +106,7 @@ services:
     #   - "5678:5678"
     env_file:
       - .env
+    # This looks to enable code-server, which is how you can get docker to look for updates.
     # entrypoint: python
     # command:
     #   - -m

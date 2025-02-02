@@ -6,6 +6,14 @@ run_coordinator:
   module: dagster.core.run_coordinator
   class: QueuedRunCoordinator
 
+# resources:
+#   personal_finance_database:
+#     config:
+#       username: {"env": "DAGSTER_POSTGRES_USER"}
+#       password: {"env": "DAGSTER_POSTGRES_PASSWORD"}
+#       host: {"env": "DAGSTER_POSTGRES_HOST"}
+#       port: {"env": "DAGSTER_POSTGRES_PORT"}
+#       database: {"env": "DAGSTER_POSTGRES_DB"}
 
 run_launcher:
   module: dagster_docker
