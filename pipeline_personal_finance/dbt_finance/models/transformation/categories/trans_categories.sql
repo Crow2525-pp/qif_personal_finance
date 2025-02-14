@@ -1,48 +1,49 @@
--- transformation/trans_categories.sql
-
-with transaction_data as (
-    select * from {{ ref('transformation__append_accounts') }}
+WITH transaction_data AS (
+    SELECT {{ dbt_utils.star(from=ref('transformation__append_accounts')) }}
+    FROM {{ ref('transformation__append_accounts') }}
 ),
 
-category_mappings as (
-    select * from {{ ref('dim_category') }}
+category_mappings AS (
+    SELECT {{ dbt_utils.star(from=ref('dim_category')) }}
+    FROM {{ ref('dim_category') }}
 ),
 
--- Join transactions with mappings and categorize them
-categorised_transactions as (
-    select
-        t.*,
-        -- Null Value means uncat
-        cm.origin_key as category_foreign_key
-    from transaction_data as t
-    left join category_mappings as cm
-        on
-            upper(t.account_name) = upper(cm.account_name)
-            and (
-                -- First priority: from/to fields
+-- Join transactions with category mappings
+categorised_transactions AS (
+    SELECT
+        {{ dbt_utils.star(from="transaction_data") }},
+        -- Assign category key (NULL means uncategorized)
+        category.origin_key AS category_foreign_key
+    FROM transaction_data AS transactions
+    LEFT JOIN category_mappings AS category
+        ON
+            UPPER(transactions.account_name) = UPPER(category.account_name)
+            AND (
+                -- Priority 1: Match on sender & recipient
                 (
-                    t.sender is not NULL
-                    and t.recipient is not NULL
-                    and (cm.sender is not NULL and cm.recipient is not NULL)
-                    and upper(t.sender) = upper(cm.sender)
-                    and upper(t.recipient) = upper(cm.recipient)
+                    transactions.sender IS NOT NULL
+                    AND transactions.recipient IS NOT NULL
+                    AND category.sender IS NOT NULL
+                    AND category.recipient IS NOT NULL
+                    AND UPPER(transactions.sender) = UPPER(category.sender)
+                    AND UPPER(transactions.recipient) = UPPER(category.recipient)
                 )
-                or
-                -- Second priority: transaction type
+                OR
+                -- Priority 2: Match on transaction type
                 (
-                    t.transaction_type is not NULL
-                    and cm.transaction_type is not NULL
-                    and upper(t.transaction_type) = upper(cm.transaction_type)
+                    transactions.transaction_type IS NOT NULL
+                    AND category.transaction_type IS NOT NULL
+                    AND UPPER(transactions.transaction_type) = UPPER(category.transaction_type)
                 )
-                or
-                -- Third priority: transaction description
+                OR
+                -- Priority 3: Match on transaction description (memo)
                 (
-                    t.memo is not NULL
-                    and cm.transaction_description is not NULL
-                    and t.memo ilike concat('%', cm.transaction_description, '%')
+                    transactions.memo IS NOT NULL
+                    AND category.transaction_description IS NOT NULL
+                    AND transactions.memo ILIKE CONCAT('%', category.transaction_description, '%')
                 )
             )
 )
 
-select *
-from categorised_transactions
+SELECT {{ dbt_utils.star(from="categorised_transactions") }}
+FROM categorised_transactions

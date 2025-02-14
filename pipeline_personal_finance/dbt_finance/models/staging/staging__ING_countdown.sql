@@ -1,71 +1,77 @@
-with cleaned_memo_data as (
-    select
-        a.primary_key,
-        a.payee as memo,
-        r.receipt,
-        l.location,
-        d.description_date,
-        cn.card_no,
-        f.sender,
-        t.recipient,
-        regexp_split_to_array(a.payee, ' - ') as split_memo
-    from
-        {{ source('personalfinance_dagster', 'ING_Countdown_Transactions') }} as a
-    left join
-        lateral (
-            select (regexp_matches(a.payee, 'Receipt (\d+)'))[1] as receipt
-        ) as r
-        on true
-    left join
-        lateral (
-            select
-                (regexp_matches(a.payee, 'In ([A-Za-z\s]+) Date'))[
-                    1
-                ] as location
-        ) as l
-        on true
-    left join
-        lateral (
-            select
-                (regexp_matches(a.payee, 'Date (\d{2} [A-Za-z]{3} \d{4})'))[
-                    1
-                ] as description_date
-        ) as d
-        on true
-    left join
-        lateral (
-            select (regexp_matches(a.payee, 'Card ([\dx]+)$'))[1] as card_no
-        ) as cn
-        on true
-    left join
-        lateral (
-            select (regexp_matches(a.payee, 'From ([A-Za-z\s]+)$'))[1] as sender
-        ) as f
-        on true
-    left join
-        lateral (
-            select (regexp_matches(a.payee, 'To ([A-Za-z\s]+)$'))[1] as recipient
-        ) as t
-        on true
+WITH parsed_memo_data AS (
+    SELECT
+        transactions.primary_key,
+        transactions.payee AS memo,
+        regexp_split_to_array(transactions.payee, ' - ') AS split_memo,
+
+        -- Extract relevant details using regex pattern matching
+        receipt_data.receipt,
+        location_data.location,
+        description_date_data.description_date,
+        card_number_data.card_no,
+        sender_data.sender,
+        recipient_data.recipient
+
+    FROM {{ source('personalfinance_dagster', 'ING_BillsBillsBills_Transactions') }} transactions
+
+    -- Extract receipt number
+    LEFT JOIN LATERAL (
+        SELECT (regexp_matches(transactions.payee, 'Receipt (\d+)'))[1] AS receipt
+    ) receipt_data ON transactions.payee ~ 'Receipt (\d+)'
+
+    -- Extract location information
+    LEFT JOIN LATERAL (
+        SELECT (regexp_matches(transactions.payee, 'In ([A-Za-z\s]+) Date'))[1] AS location
+    ) location_data ON transactions.payee ~ 'In ([A-Za-z\s]+) Date'
+
+    -- Extract date information
+    LEFT JOIN LATERAL (
+        SELECT (regexp_matches(transactions.payee, 'Date (\d{2} [A-Za-z]{3} \d{4})'))[1] AS description_date
+    ) description_date_data ON transactions.payee ~ 'Date (\d{2} [A-Za-z]{3} \d{4})'
+
+    -- Extract card number
+    LEFT JOIN LATERAL (
+        SELECT (regexp_matches(transactions.payee, 'Card ([\dx]+)$'))[1] AS card_no
+    ) card_number_data ON transactions.payee ~ 'Card ([\dx]+)$'
+
+    -- Extract sender name
+    LEFT JOIN LATERAL (
+        SELECT (regexp_matches(transactions.payee, 'From ([A-Za-z\s]+)$'))[1] AS sender
+    ) sender_data ON transactions.payee ~ 'From ([A-Za-z\s]+)$'
+
+    -- Extract recipient name
+    LEFT JOIN LATERAL (
+        SELECT (regexp_matches(transactions.payee, 'To ([A-Za-z\s]+)$'))[1] AS recipient
+    ) recipient_data ON transactions.payee ~ 'To ([A-Za-z\s]+)$'
 )
 
-select
-    c.receipt,
-    c.description_date,
-    cast(a.amount as float) as amount,
-    a.line_number,
-    a.primary_key,
-    'ing_countdown' as account_name,
-    cast(date_trunc('day', a.date) as date) as date,
-    coalesce(trim((c.split_memo)[1]), null) as transaction_description,
-    coalesce(trim((c.split_memo)[2]), null) as transaction_type,
-    trim(c.memo) as memo,
-    trim(c.location) as location,
-    trim(c.card_no) as card_no,
-    trim(c.sender) as sender,
-    trim(c.recipient) as recipient,
-    current_date,
-    current_time
-from {{ source('personalfinance_dagster', 'ING_Countdown_Transactions') }} as a
-left join cleaned_memo_data as c
-    on a.primary_key = c.primary_key
+SELECT
+    -- Normalize the date column
+    CAST(DATE_TRUNC('day', transactions.date) AS DATE) AS transaction_date,
+
+    -- Extract transaction details from memo
+    COALESCE(TRIM((parsed_memo.split_memo)[1]), NULL) AS transaction_description,
+    COALESCE(TRIM((parsed_memo.split_memo)[2]), NULL) AS transaction_type,
+    TRIM(parsed_memo.memo) AS memo,
+
+    -- Extracted metadata from regex matches
+    TRIM(parsed_memo.receipt) AS receipt,
+    TRIM(parsed_memo.location) AS location,
+    parsed_memo.description_date,
+    TRIM(parsed_memo.card_no) AS card_no,
+    TRIM(parsed_memo.sender) AS sender,
+    TRIM(parsed_memo.recipient) AS recipient,
+
+    -- Financial details
+    CAST(transactions.amount AS FLOAT) AS transaction_amount,
+    transactions.line_number,
+    transactions.primary_key,
+
+    -- ETL metadata
+    CURRENT_DATE AS etl_date,
+    CURRENT_TIME AS etl_time,
+    'ing_billsbillsbills' AS account_name
+
+FROM {{ source('personalfinance_dagster', 'ING_BillsBillsBills_Transactions') }} transactions
+LEFT JOIN parsed_memo_data AS parsed_memo
+    ON transactions.primary_key = parsed_memo.primary_key

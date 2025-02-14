@@ -1,45 +1,55 @@
-{# Define your variables - these are the words/phrases you want to separate into a transaction type #}
-{% set transaction_types = ['ANYPAY', 'BPAY', 'DIRECT CREDIT', 'RETAIL PURCHASE', 
-'STANDING ORDER AUTOPAY', 'RETAIL PURCHASE', 'EFTPOS WITHDRAWAL', 
-'DIRECT DEBIT', 'DIRECT CREDIT', 'BANK@POST PAYMEN', 'MONTHLY SERVICE FEE', 'INTEREST', 
-'INTERNET TRANSFER CREDIT', 'DRAW DOWN NETT ADVANCE', 'ESTABLISHMENT FEE', 'DRAW DOWN DISBURSEMENTS',
-'DRAW DOWN REGISTRATION FEE', 'TRANSFER'] %}
+{% set transaction_types = [
+    'ANYPAY', 'BPAY', 'DIRECT CREDIT', 'RETAIL PURCHASE', 
+    'STANDING ORDER AUTOPAY', 'EFTPOS WITHDRAWAL', 'DIRECT DEBIT', 
+    'BANK@POST PAYMEN', 'MONTHLY SERVICE FEE', 'INTEREST', 
+    'INTERNET TRANSFER CREDIT', 'DRAW DOWN NETT ADVANCE', 
+    'ESTABLISHMENT FEE', 'DRAW DOWN DISBURSEMENTS',
+    'DRAW DOWN REGISTRATION FEE', 'TRANSFER'
+] %}
 
-with cleaned_memo_data as (
+WITH parsed_memo_data AS (
     SELECT
         primary_key,
-        -- Normalize the delimiters and split the memo field into an array
-        regexp_split_to_array(regexp_replace(memo, '{{ transaction_types | join('|') }}', ''), ' - ') AS Split_Memo,
-        -- Replace the transaction_types with an empty string
-        regexp_replace(memo, '{{ transaction_types | join('|') }}', '') AS Transaction_Description,
-        -- Extract the first occurrence of any transaction type using regex
-        (regexp_matches(memo, '{{ transaction_types | join('|') }}'))[1] AS Transaction_Type
-    FROM
-        {{ source('personalfinance_dagster', 'Bendigo_Homeloan_Transactions') }}
+        -- Remove transaction types and normalize the memo field
+        regexp_replace(memo, '{{ transaction_types | join('|') }}', '', 'g') AS transaction_description,
+        
+        -- Extract the first matching transaction type
+        (regexp_matches(memo, '{{ transaction_types | join('|') }}'))[1] AS transaction_type,
+
+        -- Split memo into an array using " - " as a delimiter
+        regexp_split_to_array(regexp_replace(memo, '{{ transaction_types | join('|') }}', '', 'g'), ' - ') AS split_memo
+    FROM {{ source('personalfinance_dagster', 'Bendigo_Homeloan_Transactions') }}
 )
 
 SELECT 
-    cast(date_trunc('day', a.date) as date) as date,
-    --COALESCE(ARRAY_EXTRACT(c.Split_Memo, 1), NULL) AS Memo_Part_1,
-    --COALESCE(ARRAY_EXTRACT(c.Split_Memo, 2), NULL) AS Memo_Part_2,
-    --COALESCE(ARRAY_EXTRACT(c.Split_Memo, 3), NULL) AS Memo_Part_3, 
-    --COALESCE(ARRAY_EXTRACT(c.Split_Memo, 4), NULL) AS Memo_Part_4,
-    trim(a.memo) as memo,
-    '' as Receipt,
-    '' as Location,
-    '' as Description_Date,
-    '' as Card_No,
-    '' as sender,
-    '' as recipient,
-    trim(c.Transaction_Description) as Transaction_Description,
-    trim(c.Transaction_Type) as Transaction_Type,
-    cast(a.amount as float) as amount,
-    a.line_number,    
-    c.primary_key,
-    current_date,
-    current_time,
-    'bendigo_homeloan' as account_name
+    -- Extract the date component from the original 'date' field
+    CAST(DATE_TRUNC('day', transactions.date) AS DATE) AS transaction_date,
 
-FROM {{ source('personalfinance_dagster', 'Bendigo_Homeloan_Transactions') }} as a
-left join cleaned_memo_data as c
-on a.primary_key = c.primary_key
+    -- Memo fields
+    TRIM(transactions.memo) AS memo,
+
+    -- Additional blank fields for future data
+    '' AS receipt,
+    '' AS location,
+    '' AS description_date,
+    '' AS card_no,
+    '' AS sender,
+    '' AS recipient,
+
+    -- Extracted transaction details
+    TRIM(COALESCE(parsed_memo.transaction_description, '')) AS transaction_description,
+    TRIM(COALESCE(parsed_memo.transaction_type, '')) AS transaction_type,
+
+    -- Financial details
+    CAST(transactions.amount AS FLOAT) AS transaction_amount,
+    transactions.line_number,    
+    transactions.primary_key,
+
+    -- ETL metadata
+    CURRENT_DATE AS etl_date,
+    CURRENT_TIME AS etl_time,
+    'bendigo_homeloan' AS account_name
+
+FROM {{ source('personalfinance_dagster', 'Bendigo_Homeloan_Transactions') }} AS transactions
+LEFT JOIN parsed_memo_data AS parsed_memo
+    ON transactions.primary_key = parsed_memo.primary_key
