@@ -11,7 +11,7 @@ category_mappings AS (
 -- Join transactions with category mappings
 categorised_transactions AS (
     SELECT
-        {{ dbt_utils.star(from="transaction_data") }},
+        {{ dbt_utils.star(from=ref('transformation__append_accounts'), relation_alias="transactions") }},
         -- Assign category key (NULL means uncategorized)
         category.origin_key AS category_foreign_key
     FROM transaction_data AS transactions
@@ -45,5 +45,5 @@ categorised_transactions AS (
             )
 )
 
-SELECT {{ dbt_utils.star(from="categorised_transactions") }}
+SELECT *
 FROM categorised_transactions
