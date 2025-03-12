@@ -1,59 +1,51 @@
-with Calendar as (
-    select Date
-    from {{ ref('date_calendar') }}
+WITH base_data AS (
+    SELECT
+        trans.transaction_date,
+        trans.primary_key,
+        trans.transaction_amount,
+        trans.adjusted_transaction_balance,
+        trans.account_name AS account_foreign_key,
+        trans.category_foreign_key,
+        trans.memo,
+        trans.transaction_type,
+        CASE
+            WHEN trans.transaction_amount > 0 THEN 'DEBIT'
+            WHEN trans.transaction_amount < 0 THEN 'CREDIT'
+            ELSE 'NEUTRAL'
+        END AS amount_type,
+        COALESCE(cat.internal_indicator, 'UNCATEGORISED') AS internal_indicator
+    FROM {{ ref('trans_categories') }} AS trans
+    LEFT JOIN {{ ref('dim_category') }} AS cat
+        ON trans.category_foreign_key = cat.origin_key
 ),
-
-Accountbalances as (
-    select
-        Account_foreign_key,
-        Date,
-        Balance
-    from
-        {{ ref("reporting__fact_transactions") }}
-    where
-        upper(Internal_indicator) != 'INTERNAL'
-),
-
-Balances_with_dates as (
-    select
-        to_char(C.Date, 'YYYY-MM') as Year_month,
-        Ab.Account_foreign_key,
-        Ab.Balance
-    from
-        Calendar C
-    left join Accountbalances Ab on C.Date = Ab.Date
-),
-
--- gets the last non-null array: https://stackoverflow.com/questions/56728095/postgresql-last-value-ignore-nulls
-Latest_balances as (
-    select
-        Year_month,
-        Account_foreign_key,
-        -- Using ARRAY_REMOVE to discard nulls and then selecting the last non-null balance using array indexing
-        (array_remove(
-            array_agg(Balance) over (
-                partition by
-                    Account_foreign_key
-                order by
-                    Year_month
-            ),
-            NULL))[count(Balance) over (
-            partition by
-                Account_foreign_key
-            order by Year_month
-        )] as Latest_balance
-    from Balances_with_dates
-),
-
-Final as (
-    select
-        Year_month,
-        Account_foreign_key,
-        Latest_balance
-    from
-        Latest_balances
-    order by
-        Year_month, Account_foreign_key
+daily_aggregates AS (
+    SELECT
+        transaction_date,
+        account_foreign_key,
+        category_foreign_key,
+        COUNT(*) AS transaction_count,
+        SUM(transaction_amount) AS total_amount,
+        AVG(transaction_amount) AS average_amount,
+        MAX(adjusted_transaction_balance) AS end_of_day_balance,
+        COUNT(CASE WHEN amount_type = 'DEBIT' THEN 1 END) AS debit_count,
+        COUNT(CASE WHEN amount_type = 'CREDIT' THEN 1 END) AS credit_count,
+        MAX(internal_indicator) AS internal_indicator
+    FROM base_data
+    GROUP BY transaction_date, account_foreign_key, category_foreign_key
 )
-
-select * from Final
+SELECT
+    ROW_NUMBER() OVER (ORDER BY dc.date, da.account_foreign_key, da.category_foreign_key) AS surrogate_key,
+    dc.date AS period_date,
+    da.account_foreign_key,
+    da.category_foreign_key,
+    COALESCE(da.transaction_count, 0) AS transaction_count,
+    COALESCE(da.total_amount, 0) AS total_amount,
+    COALESCE(da.average_amount, 0) AS average_amount,
+    COALESCE(da.end_of_day_balance, 0) AS end_of_day_balance,
+    COALESCE(da.debit_count, 0) AS debit_count,
+    COALESCE(da.credit_count, 0) AS credit_count,
+    da.internal_indicator
+FROM {{ ref('date_calendar') }} dc
+LEFT JOIN daily_aggregates da
+    ON dc.date = da.transaction_date
+ORDER BY dc.date, da.account_foreign_key, da.category_foreign_key
