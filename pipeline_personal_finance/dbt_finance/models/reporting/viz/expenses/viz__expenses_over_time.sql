@@ -19,9 +19,9 @@ two_years as (
             trans.year_month = to_char(to_date(trans2.year_month, 'YYYY-MM') + INTERVAL '1 year', 'YYYY-MM')
             and trans.account_foreign_key = trans2.account_foreign_key
             and trans.category_foreign_key = trans2.category_foreign_key
-    left join reporting.dim_category as cat
+    left join {{ ref('dim_category') }} as cat
         on trans.category_foreign_key = cat.origin_key
-    left join reporting.dim_account as acc
+    left join {{ ref('dim_account') }} as acc
         on trans.account_foreign_key = acc.origin_key
     where
         upper(trans.amount_type) = 'CREDIT'

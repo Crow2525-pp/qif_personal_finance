@@ -2,7 +2,7 @@ SELECT
     ROW_NUMBER() OVER () AS surrogate_key,
     trans.primary_key,
     trans.transaction_date AS date,
-    trans.transaction_amount AS amount,
+    round(trans.transaction_amount::numeric, 2) AS amount,
     trans.adjusted_transaction_balance AS balance,
     trans.memo,
     trans.transaction_type,
