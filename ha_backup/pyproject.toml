@@ -1,0 +1,20 @@
+[project]
+name = "ha_backup"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "dagster>=1.8.13",
+    "dagster-dbt>=0.24.13",
+    "dagster-webserver>=1.8.13",
+    "dbt>=1.0.0.38.23",
+]
+
+[dependency-groups]
+dev = [
+    "sqlfluff>=3.3.0",
+]
+
+[tool.uv.workspace]
+members = ["dagster_core", "pipeline_personal_finance", "ha_backup"]
