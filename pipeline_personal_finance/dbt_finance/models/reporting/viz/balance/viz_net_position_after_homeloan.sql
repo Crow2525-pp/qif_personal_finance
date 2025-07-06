@@ -1,14 +1,14 @@
 with final as (
 SELECT 
-    year_month, 
+    period_date as year_month, 
     account_foreign_key,
-    latest_balance,
+    end_of_day_balance as latest_balance,
     row_number() Over(
         partition by 
-            year_month,
+            period_date,
             account_foreign_key
         order by
-            year_month desc
+            period_date desc
     ) as last_rn
 FROM 
     {{ ref("reporting__periodic_snapshot_yyyymm_balance") }}

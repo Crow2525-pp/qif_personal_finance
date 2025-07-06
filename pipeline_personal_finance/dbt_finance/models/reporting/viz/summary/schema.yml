@@ -1,0 +1,11 @@
+version: 2
+models:
+  - name: viz__income_vs_expense_by_month
+    description: "Monthly income and expense summary for Grafana visualization."
+    columns:
+      - name: year_month
+        description: "Year and month (YYYY-MM) of the summary."
+      - name: income
+        description: "Total income for the month."
+      - name: expense
+        description: "Total expenses for the month."

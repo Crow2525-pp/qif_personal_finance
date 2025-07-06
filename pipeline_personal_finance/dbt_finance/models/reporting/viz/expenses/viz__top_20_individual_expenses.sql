@@ -4,7 +4,7 @@ with final as (
         trans.amount_type,
         cat.subcategory,
         trans.memo,
-        trans.amount * -1
+        trans.amount * -1 as amount
     from {{ ref('reporting__fact_transactions') }} as trans
     left join {{ ref('dim_category') }} as cat
         on trans.category_foreign_key = cat.origin_key

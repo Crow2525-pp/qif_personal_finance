@@ -39,7 +39,7 @@ SELECT
     TRIM(COALESCE(parsed_memo.transaction_type, '')) AS transaction_type,
 
     -- Ensure amount is cast properly
-    CAST(transactions.amount AS FLOAT) AS transaction_amount,
+    COALESCE(CAST(transactions.amount AS FLOAT), 0) AS transaction_amount,
     
     -- Maintain primary keys for reference
     transactions.line_number,    

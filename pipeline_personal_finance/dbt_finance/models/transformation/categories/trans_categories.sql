@@ -4,8 +4,12 @@ WITH transaction_data AS (
 ),
 
 category_mappings AS (
-    SELECT {{ dbt_utils.star(from=ref('dim_category')) }}
-    FROM {{ ref('dim_category') }}
+    SELECT 
+        {{ dbt_utils.star(from=ref('dim_categorise_transaction'), relation_alias='cat_trans', except=['origin_key']) }},
+        {{ dbt_utils.star(from=ref('dim_category'), relation_alias='cat') }}
+    FROM {{ ref('dim_categorise_transaction') }} as cat_trans
+    left join {{ ref('dim_category')}} as cat
+        ON cat.origin_key = cat_trans.category_foreign_key
 ),
 
 -- Join transactions with category mappings
@@ -45,5 +49,5 @@ categorised_transactions AS (
             )
 )
 
-SELECT *
+SELECT * 
 FROM categorised_transactions

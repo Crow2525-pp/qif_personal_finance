@@ -1,5 +1,6 @@
 {% set sql %}
-  SELECT DISTINCT lower(origin_key) as origin_key
+  SELECT
+    DISTINCT lower(origin_key) AS origin_key
   FROM {{ ref('dim_account') }}
   WHERE origin_key IS NOT NULL
 {% endset %}
@@ -9,25 +10,49 @@
   {% set accounts = results.columns[0].values() %}
 {% endif %}
 
-WITH monthly_differences AS (
-    SELECT
-        a.year_month,
-        a.account_foreign_key,
-        {% for account in accounts %}
-          a."{{ account }}" - COALESCE(b."{{ account }}", 0) AS "{{ account }}_MoM"
-          {% if not loop.last %}, {% endif %}
-        {% endfor %}
-    FROM 
-        {{ ref("viz__balance_by_year_month") }} as a
-    LEFT JOIN 
-        {{ ref("viz__balance_by_year_month") }} as b 
-        ON a.year_month = TO_CHAR(TO_DATE(b.year_month, 'YYYY-MM') - INTERVAL '1 month', 'YYYY-MM')
-        and a.account_foreign_key = b.account_foreign_key
-)
+WITH
 
-SELECT 
-    *
-FROM 
-    monthly_differences
-ORDER BY 
-    year_month ASC
+  /** grab the current month’s balances **/
+  current_balance AS (
+    SELECT *
+    FROM {{ ref("viz__balance_by_year_month") }}
+  ),
+
+  /** compute what “year_month” would be one month later **/
+  previous_balance AS (
+    SELECT
+      year_month,
+      to_char(
+        to_date(year_month||'-01', 'YYYY-MM-DD')
+        + INTERVAL '1 month'
+      , 'YYYY-MM'
+      ) AS next_year_month,
+      {% for account in accounts %}
+        "{{ account }}"
+        {% if not loop.last %}, {% endif %}
+      {% endfor %}
+    FROM {{ ref("viz__balance_by_year_month") }}
+  ),
+
+  /** do the month-over-month diffs **/
+  monthly_differences AS (
+    SELECT
+      cb.year_month,
+      {% for account in accounts %}
+        cb."{{ account }}"
+          - coalesce(pb."{{ account }}", 0)
+        AS "{{ account }}_MoM"
+        {% if not loop.last %}, {% endif %}
+      {% endfor %}
+    FROM current_balance AS cb
+    LEFT JOIN previous_balance AS pb
+      ON cb.year_month = pb.next_year_month
+  ),
+
+  final AS (
+    SELECT *
+    FROM monthly_differences
+  )
+
+SELECT * FROM final
+ORDER BY year_month ASC

@@ -1,0 +1,9 @@
+version: 2
+models:
+  - name: viz__balance_by_year_month
+    description: "Pivoted account balances by year and month for Grafana visualization."
+    columns:
+      - name: year_month
+        description: "Year and month (YYYY-MM) of the balance."
+      - name: <account_columns>
+        description: "Each column represents the latest balance for a specific account in the given month."

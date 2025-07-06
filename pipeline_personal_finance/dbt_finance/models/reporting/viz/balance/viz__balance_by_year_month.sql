@@ -1,6 +1,6 @@
-
 {% set sql %}
-  SELECT DISTINCT lower(origin_key) as origin_key
+  SELECT
+    DISTINCT lower(origin_key) AS origin_key
   FROM {{ ref('dim_account') }}
   WHERE origin_key IS NOT NULL
 {% endset %}
@@ -10,33 +10,62 @@
   {% set accounts = results.columns[0].values() %}
 {% endif %}
 
-WITH accounts_as_columns AS (
-    SELECT
-        year_month,
-        account_foreign_key,
-        {% for account in accounts %}
-          MAX(CASE WHEN upper(account_foreign_key) = upper('{{ account }}') THEN latest_balance ELSE NULL END) AS "{{ account }}"
-          {% if not loop.last %}, {% endif %}
-        {% endfor %}
-    FROM
-        {{ ref("reporting__periodic_snapshot_yyyymm_balance") }}
-    GROUP BY
-        1,2
-    ORDER BY
-        1,2
-)
-SELECT
-    year_month,
-    account_foreign_key,
-    {% for account in accounts %}
-      "{{ account }}"
-      {% if not loop.last %}, {% endif %}
-    {% endfor %}
-FROM
-    accounts_as_columns
+WITH
 
-WHERE 
-    {% for account in accounts %}
-    COALESCE("{{ account }}", 0) != 0
-    {% if not loop.last %} OR {% endif %}
-    {% endfor %}
+  /**​ Grab only the last snapshot of each month for each account **/
+  monthly_snapshot AS (
+    SELECT
+      date_trunc('month', daily.period_date)::date    AS month_start_date,
+      daily.account_foreign_key                       AS account_key,
+      daily.end_of_day_balance                        AS balance
+    FROM (
+      SELECT
+        period_date,
+        account_foreign_key,
+        end_of_day_balance,
+        row_number() OVER (
+          PARTITION BY account_foreign_key,
+                       date_trunc('month', period_date)
+          ORDER BY period_date DESC
+        ) AS rn
+      FROM {{ ref('reporting__periodic_snapshot_yyyymm_balance') }} AS daily
+    ) AS daily
+    WHERE rn = 1
+  ),
+
+  /**​ Pivot that into one column per account **/
+  pivot_balances AS (
+    SELECT
+      to_char(month_start_date, 'YYYY-MM')        AS year_month,
+      {% for account in accounts %}
+        max(
+          CASE
+            WHEN upper(account_key) = upper('{{ account }}')
+            THEN balance
+            ELSE NULL
+          END
+        )                                        AS "{{ account }}"
+        {% if not loop.last %}, {% endif %}
+      {% endfor %}
+    FROM monthly_snapshot
+    GROUP BY 1
+    ORDER BY 1
+  ),
+
+  /**​ Filter out months where every balance is zero **/
+  final AS (
+    SELECT
+      year_month,
+      {% for account in accounts %}
+        "{{ account }}"
+        {% if not loop.last %}, {% endif %}
+      {% endfor %}
+    FROM pivot_balances
+    WHERE
+      {% for account in accounts %}
+        coalesce("{{ account }}", 0) != 0
+        {% if not loop.last %} OR {% endif %}
+      {% endfor %}
+  )
+
+SELECT * FROM final

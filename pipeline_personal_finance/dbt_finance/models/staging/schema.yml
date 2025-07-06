@@ -8,7 +8,7 @@ sources:
       - name: ING_BillsBillsBills_Transactions
         meta:
           dagster:
-            asset_key: ["ING_BillsBillsBills_Transactions"]
+            asset_key: [ "ING_BillsBillsBills_Transactions" ]
         columns:
           - name: primary_key
             tests:
@@ -18,7 +18,7 @@ sources:
       - name: ING_Countdown_Transactions
         meta:
           dagster:
-            asset_key: ["ING_Countdown_Transactions"]
+            asset_key: [ "ING_Countdown_Transactions" ]
         columns:
           - name: primary_key
             tests:
@@ -28,7 +28,7 @@ sources:
       - name: Adelaide_Offset_Transactions
         meta:
           dagster:
-            asset_key: ["Adelaide_Offset_Transactions"]
+            asset_key: [ "Adelaide_Offset_Transactions" ]
         columns:
           - name: primary_key
             tests:
@@ -38,7 +38,7 @@ sources:
       - name: Adelaide_Homeloan_Transactions
         meta:
           dagster:
-            asset_key: ["Adelaide_Homeloan_Transactions"]
+            asset_key: [ "Adelaide_Homeloan_Transactions" ]
         columns:
           - name: primary_key
             tests:
@@ -48,7 +48,7 @@ sources:
       - name: Bendigo_Offset_Transactions
         meta:
           dagster:
-            asset_key: ["Bendigo_Offset_Transactions"]
+            asset_key: [ "Bendigo_Offset_Transactions" ]
         columns:
           - name: primary_key
             tests:
@@ -57,7 +57,7 @@ sources:
       - name: Bendigo_Homeloan_Transactions
         meta:
           dagster:
-            asset_key: ["Bendigo_Homeloan_Transactions"]
+            asset_key: [ "Bendigo_Homeloan_Transactions" ]
         columns:
           - name: primary_key
             tests:
@@ -67,59 +67,365 @@ sources:
 models:
   - name: staging__Adelaide_Homeloan
     constraints:
-    - type: primary_key
-      columns: ["primary_key"]
+      - type: primary_key
+        columns: [ "primary_key" ]
     columns:
       - name: primary_key
+        description: "Unique identifier for each transaction."
         tests:
-          - unique
           - not_null
+          - unique
+        data_type: text
+      - name: receipt
+        description: "Receipt identifier or reference for the transaction."
+        data_type: text
+      - name: location
+        description: "Physical or virtual location associated with the transaction."
+        data_type: text
+      - name: description_date
+        description: "Date extracted from the transaction description, if present."
+        data_type: text
+      - name: card_no
+        description: "Card number or identifier used for the transaction."
+        data_type: text
+      - name: sender
+        description: "Sender or originator of the transaction."
+        data_type: text
+      - name: recipient
+        description: "Recipient or beneficiary of the transaction."
+        data_type: text
+      - name: transaction_amount
+        description: "The amount of the transaction."
+        tests:
+          - not_null
+        data_type: double precision
+      - name: line_number
+        description: "Line number from the source file or statement."
+        data_type: bigint
+      - name: account_name
+        description: "Account name associated with the transaction."
+        data_type: text
+      - name: transaction_date
+        description: "The date the transaction occurred."
+        tests:
+          - not_null
+        data_type: date
+      - name: memo
+        description: "Memo or additional notes for the transaction."
+        data_type: text
+      - name: transaction_description
+        description: "Description of the transaction as provided by the source."
+        data_type: text
+      - name: transaction_type
+        description: "Type or category of the transaction."
+        data_type: text
+      - name: etl_date
+        description: "Date the transaction was loaded into the data warehouse."
+        data_type: date
+      - name: etl_time
+        description: "Time the transaction was loaded into the data warehouse."
+        data_type: time with time zone
   - name: staging__Adelaide_Offset
     constraints:
-    - type: primary_key
-      columns: ["primary_key"]
+      - type: primary_key
+        columns: [ "primary_key" ]
     columns:
       - name: primary_key
+        description: "Unique identifier for each transaction."
         tests:
-          - unique
           - not_null
+          - unique
+        data_type: text
+      - name: transaction_date
+        description: "The date the transaction occurred."
+        tests:
+          - not_null
+        data_type: date
+      - name: memo
+        description: "Memo or additional notes for the transaction."
+        data_type: text
+      - name: receipt
+        description: "Receipt identifier or reference for the transaction."
+        data_type: text
+      - name: location
+        description: "Physical or virtual location associated with the transaction."
+        data_type: text
+      - name: description_date
+        description: "Date extracted from the transaction description, if present."
+        data_type: text
+      - name: card_no
+        description: "Card number or identifier used for the transaction."
+        data_type: text
+      - name: sender
+        description: "Sender or originator of the transaction."
+        data_type: text
+      - name: recipient
+        description: "Recipient or beneficiary of the transaction."
+        data_type: text
+      - name: transaction_description
+        description: "Description of the transaction as provided by the source."
+        data_type: text
+      - name: transaction_type
+        description: "Type or category of the transaction."
+        data_type: text
+      - name: transaction_amount
+        description: "The amount of the transaction."
+        tests:
+          - not_null
+        data_type: double precision
+      - name: line_number
+        description: "Line number from the source file or statement."
+        data_type: bigint
+      - name: etl_date
+        description: "Date the transaction was loaded into the data warehouse."
+        data_type: date
+      - name: etl_time
+        description: "Time the transaction was loaded into the data warehouse."
+        data_type: time with time zone
+      - name: account_name
+        description: "Account name associated with the transaction."
+        data_type: text
   - name: staging__Bendigo_Homeloan
     constraints:
-    - type: primary_key
-      columns: ["primary_key"]
+      - type: primary_key
+        columns: [ "primary_key" ]
 
     columns:
       - name: primary_key
+        description: "Unique identifier for each transaction."
         tests:
-          - unique
           - not_null
+          - unique
+        data_type: text
+      - name: transaction_date
+        description: "The date the transaction occurred."
+        tests:
+          - not_null
+        data_type: date
+      - name: memo
+        description: "Memo or additional notes for the transaction."
+        data_type: text
+      - name: receipt
+        description: "Receipt identifier or reference for the transaction."
+        data_type: text
+      - name: location
+        description: "Physical or virtual location associated with the transaction."
+        data_type: text
+      - name: description_date
+        description: "Date extracted from the transaction description, if present."
+        data_type: text
+      - name: card_no
+        description: "Card number or identifier used for the transaction."
+        data_type: text
+      - name: sender
+        description: "Sender or originator of the transaction."
+        data_type: text
+      - name: recipient
+        description: "Recipient or beneficiary of the transaction."
+        data_type: text
+      - name: transaction_description
+        description: "Description of the transaction as provided by the source."
+        data_type: text
+      - name: transaction_type
+        description: "Type or category of the transaction."
+        data_type: text
+      - name: transaction_amount
+        description: "The amount of the transaction."
+        tests:
+          - not_null
+        data_type: double precision
+      - name: line_number
+        description: "Line number from the source file or statement."
+        data_type: bigint
+      - name: etl_date
+        description: "Date the transaction was loaded into the data warehouse."
+        data_type: date
+      - name: etl_time
+        description: "Time the transaction was loaded into the data warehouse."
+        data_type: time with time zone
+      - name: account_name
+        description: "Account name associated with the transaction."
+        data_type: text
   - name: staging__Bendigo_Offset
     constraints:
-    - type: primary_key
-      columns: ["primary_key"]
+      - type: primary_key
+        columns: [ "primary_key" ]
 
     columns:
       - name: primary_key
+        description: "Unique identifier for each transaction."
         tests:
-          - unique
           - not_null
+          - unique
+        data_type: text
+      - name: transaction_date
+        description: "The date the transaction occurred."
+        tests:
+          - not_null
+        data_type: date
+      - name: memo
+        description: "Memo or additional notes for the transaction."
+        data_type: text
+      - name: receipt
+        description: "Receipt identifier or reference for the transaction."
+        data_type: text
+      - name: location
+        description: "Physical or virtual location associated with the transaction."
+        data_type: text
+      - name: description_date
+        description: "Date extracted from the transaction description, if present."
+        data_type: text
+      - name: card_no
+        description: "Card number or identifier used for the transaction."
+        data_type: text
+      - name: sender
+        description: "Sender or originator of the transaction."
+        data_type: text
+      - name: recipient
+        description: "Recipient or beneficiary of the transaction."
+        data_type: text
+      - name: transaction_description
+        description: "Description of the transaction as provided by the source."
+        data_type: text
+      - name: transaction_type
+        description: "Type or category of the transaction."
+        data_type: text
+      - name: transaction_amount
+        description: "The amount of the transaction."
+        tests:
+          - not_null
+        data_type: double precision
+      - name: line_number
+        description: "Line number from the source file or statement."
+        data_type: bigint
+      - name: etl_date
+        description: "Date the transaction was loaded into the data warehouse."
+        data_type: date
+      - name: etl_time
+        description: "Time the transaction was loaded into the data warehouse."
+        data_type: time with time zone
+      - name: account_name
+        description: "Account name associated with the transaction."
+        data_type: text
   - name: staging__ING_billsbillsbills
     constraints:
-    - type: primary_key
-      columns: ["primary_key"]
+      - type: primary_key
+        columns: [ "primary_key" ]
 
     columns:
       - name: primary_key
+        description: "Unique identifier for each transaction."
         tests:
-          - unique
           - not_null
+          - unique
+        data_type: text
+      - name: transaction_date
+        description: "The date the transaction occurred."
+        tests:
+          - not_null
+        data_type: date
+      - name: transaction_description
+        description: "Description of the transaction as provided by the source."
+        data_type: text
+      - name: transaction_type
+        description: "Type or category of the transaction."
+        data_type: text
+      - name: memo
+        description: "Memo or additional notes for the transaction."
+        data_type: text
+      - name: receipt
+        description: "Receipt identifier or reference for the transaction."
+        data_type: text
+      - name: location
+        description: "Physical or virtual location associated with the transaction."
+        data_type: text
+      - name: description_date
+        description: "Date extracted from the transaction description, if present."
+        data_type: text
+      - name: card_no
+        description: "Card number or identifier used for the transaction."
+        data_type: text
+      - name: sender
+        description: "Sender or originator of the transaction."
+        data_type: text
+      - name: recipient
+        description: "Recipient or beneficiary of the transaction."
+        data_type: text
+      - name: transaction_amount
+        description: "The amount of the transaction."
+        tests:
+          - not_null
+        data_type: double precision
+      - name: line_number
+        description: "Line number from the source file or statement."
+        data_type: bigint
+      - name: etl_date
+        description: "Date the transaction was loaded into the data warehouse."
+        data_type: date
+      - name: etl_time
+        description: "Time the transaction was loaded into the data warehouse."
+        data_type: time with time zone
+      - name: account_name
+        description: "Account name associated with the transaction."
+        data_type: text
   - name: staging__ING_countdown
     constraints:
-    - type: primary_key
-      columns: ["primary_key"]
+      - type: primary_key
+        columns: [ "primary_key" ]
 
     columns:
       - name: primary_key
+        description: "Unique identifier for each transaction."
         tests:
-          - unique
           - not_null
+          - unique
+        data_type: text
+      - name: transaction_date
+        description: "The date the transaction occurred."
+        tests:
+          - not_null
+        data_type: date
+      - name: transaction_description
+        description: "Description of the transaction as provided by the source."
+        data_type: text
+      - name: transaction_type
+        description: "Type or category of the transaction."
+        data_type: text
+      - name: memo
+        description: "Memo or additional notes for the transaction."
+        data_type: text
+      - name: receipt
+        description: "Receipt identifier or reference for the transaction."
+        data_type: text
+      - name: location
+        description: "Physical or virtual location associated with the transaction."
+        data_type: text
+      - name: description_date
+        description: "Date extracted from the transaction description, if present."
+        data_type: text
+      - name: card_no
+        description: "Card number or identifier used for the transaction."
+        data_type: text
+      - name: sender
+        description: "Sender or originator of the transaction."
+        data_type: text
+      - name: recipient
+        description: "Recipient or beneficiary of the transaction."
+        data_type: text
+      - name: transaction_amount
+        description: "The amount of the transaction."
+        tests:
+          - not_null
+        data_type: double precision
+      - name: line_number
+        description: "Line number from the source file or statement."
+        data_type: bigint
+      - name: etl_date
+        description: "Date the transaction was loaded into the data warehouse."
+        data_type: date
+      - name: etl_time
+        description: "Time the transaction was loaded into the data warehouse."
+        data_type: time with time zone
+      - name: account_name
+        description: "Account name associated with the transaction."
+        data_type: text
