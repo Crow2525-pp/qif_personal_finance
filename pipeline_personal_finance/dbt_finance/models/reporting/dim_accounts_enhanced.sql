@@ -72,8 +72,8 @@ account_hierarchy AS (
     CASE WHEN account_type = 'Home Loan' THEN TRUE ELSE FALSE END AS is_mortgage,
     
     -- Metadata
-    CURRENT_TIMESTAMP AS created_at,
-    CURRENT_TIMESTAMP AS updated_at
+    CAST(CURRENT_TIMESTAMP AS TIMESTAMP) AS created_at,
+    CAST(CURRENT_TIMESTAMP AS TIMESTAMP) AS updated_at
     
   FROM account_metadata
 )

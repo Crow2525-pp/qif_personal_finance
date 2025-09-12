@@ -1,15 +1,15 @@
 WITH filtered_data AS (
     SELECT
-        TO_CHAR(date, 'Mon-YYYY') AS year_month,
-        trans.memo,
-        SUM(amount) AS amount
-    FROM {{ ref('reporting__fact_transactions') }} AS trans
-    LEFT JOIN {{ ref('dim_category') }} AS cat
-      ON trans.category_foreign_key = cat.origin_key
+        TO_CHAR(ft.transaction_date, 'Mon-YYYY') AS year_month,
+        ft.transaction_memo AS memo,
+        SUM(ABS(ft.transaction_amount)) AS amount
+    FROM {{ ref('fct_transactions_enhanced') }} AS ft
+    LEFT JOIN {{ ref('dim_categories_enhanced') }} AS dc
+      ON ft.category_key = dc.category_key
     WHERE
-      UPPER(cat.internal_indicator) = 'EXTERNAL'
-      AND UPPER(trans.amount_type) = 'CREDIT'
-      AND UPPER(cat.category) = 'MORTGAGE'
+      NOT COALESCE(ft.is_internal_transfer, FALSE)
+      AND ft.transaction_amount < 0
+      AND UPPER(dc.level_1_category) = 'MORTGAGE'
     GROUP BY 1, 2
 )
 SELECT 

@@ -28,7 +28,7 @@ deduplicated_accounts AS (
 
 transactions_with_running_balance AS (
   SELECT 
-    {{ dbt_utils.star(from=ref('staging__Adelaide_Homeloan')) }},
+    *,
     CAST(SUM(transaction_amount) OVER (
       PARTITION BY account_name
       ORDER BY transaction_date ASC, line_number ASC

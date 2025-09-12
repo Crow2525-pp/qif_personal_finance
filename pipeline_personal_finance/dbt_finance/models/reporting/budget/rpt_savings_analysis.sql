@@ -103,24 +103,24 @@ savings_metrics AS (
     -- Net worth change (approximation based on cash flow)
     total_income - total_expenses AS net_cash_flow,
     
-    -- Traditional savings rate (excluding mortgage principal)
+    -- Traditional savings rate (ratio, excluding mortgage principal)
     CASE 
       WHEN total_income > 0 
-      THEN ((offset_savings + cash_savings + investment_contributions) / total_income) * 100
+      THEN ((offset_savings + cash_savings + investment_contributions) / total_income)
       ELSE 0 
     END AS traditional_savings_rate_percent,
     
-    -- Total savings rate (including mortgage principal as forced savings)
+    -- Total savings rate (ratio, including mortgage principal as forced savings)
     CASE 
       WHEN total_income > 0 
-      THEN ((offset_savings + cash_savings + investment_contributions + estimated_mortgage_principal_payment) / total_income) * 100
+      THEN ((offset_savings + cash_savings + investment_contributions + estimated_mortgage_principal_payment) / total_income)
       ELSE 0 
     END AS total_savings_rate_percent,
     
-    -- Expense ratio
+    -- Expense ratio (ratio)
     CASE 
       WHEN total_income > 0 
-      THEN (total_expenses / total_income) * 100
+      THEN (total_expenses / total_income)
       ELSE 0 
     END AS expense_ratio_percent,
     
@@ -180,11 +180,11 @@ savings_trends AS (
       ORDER BY transaction_month  
     ) AS ytd_total_income,
     
-    -- Year-to-date savings rate
+    -- Year-to-date savings rate (ratio)
     CASE 
       WHEN SUM(total_income) OVER (PARTITION BY transaction_year ORDER BY transaction_month) > 0
       THEN (SUM(total_savings) OVER (PARTITION BY transaction_year ORDER BY transaction_month) / 
-            SUM(total_income) OVER (PARTITION BY transaction_year ORDER BY transaction_month)) * 100
+            SUM(total_income) OVER (PARTITION BY transaction_year ORDER BY transaction_month))
       ELSE 0
     END AS ytd_savings_rate_percent,
     

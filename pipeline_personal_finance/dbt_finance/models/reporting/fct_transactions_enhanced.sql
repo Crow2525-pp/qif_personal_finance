@@ -6,6 +6,10 @@
       {'columns': ['account_key'], 'unique': false}, 
       {'columns': ['category_key'], 'unique': false},
       {'columns': ['transaction_key'], 'unique': false}
+    ],
+    post_hook=[
+      "{{ create_fk_if_not_exists(this, 'account_key', ref('dim_accounts_enhanced'), 'account_key', 'fk_fct_txn_account') }}",
+      "{{ create_fk_if_not_exists(this, 'category_key', ref('dim_categories_enhanced'), 'category_key', 'fk_fct_txn_category') }}"
     ]
   )
 }}
@@ -29,11 +33,11 @@ fact_base AS (
     
     -- Date dimension
     ct.transaction_date,
-    EXTRACT(YEAR FROM ct.transaction_date) AS transaction_year,
-    EXTRACT(QUARTER FROM ct.transaction_date) AS transaction_quarter,
-    EXTRACT(MONTH FROM ct.transaction_date) AS transaction_month,
-    EXTRACT(DAY FROM ct.transaction_date) AS transaction_day,
-    EXTRACT(DOW FROM ct.transaction_date) AS day_of_week,
+    CAST(EXTRACT(YEAR FROM ct.transaction_date) AS BIGINT) AS transaction_year,
+    CAST(EXTRACT(QUARTER FROM ct.transaction_date) AS BIGINT) AS transaction_quarter,
+    CAST(EXTRACT(MONTH FROM ct.transaction_date) AS BIGINT) AS transaction_month,
+    CAST(EXTRACT(DAY FROM ct.transaction_date) AS BIGINT) AS transaction_day,
+    CAST(EXTRACT(DOW FROM ct.transaction_date) AS BIGINT) AS day_of_week,
     
     -- Foreign keys
     da.account_key,
@@ -69,9 +73,9 @@ fact_base AS (
     ct.recipient,
     
     -- ETL metadata
-    ct.etl_date,
-    ct.etl_time,
-    CURRENT_TIMESTAMP AS fact_created_at
+    CAST(ct.etl_date AS TEXT) AS etl_date,
+    CAST(ct.etl_time AS TEXT) AS etl_time,
+    CAST(CURRENT_TIMESTAMP AS TIMESTAMP) AS fact_created_at
     
   FROM deduplicated_transactions ct
   LEFT JOIN {{ ref('dim_accounts_enhanced') }} da

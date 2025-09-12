@@ -2,8 +2,8 @@
   config(
     materialized='table',
     indexes=[
-      {'columns': ['budget_year_month', 'category_level_1'], 'unique': false},
-      {'columns': ['category_level_1'], 'unique': false}
+      {'columns': ['budget_year_month', 'level_1_category'], 'unique': false},
+      {'columns': ['level_1_category'], 'unique': false}
     ]
   )
 }}

@@ -1,33 +1,39 @@
 {% set sql %}
-  SELECT DISTINCT lower(origin_key) as account_foreign_key
-  FROM {{ ref('dim_account') }}
-  WHERE origin_key IS NOT NULL
+  SELECT DISTINCT lower(account_key) AS account_key
+  FROM {{ ref('dim_accounts_enhanced') }}
+  WHERE account_key IS NOT NULL
 {% endset %}
 
 {% set results = run_query(sql) %}
 {% if execute %}
   {% set accounts = results.columns[0].values() %}
+{% else %}
+  {% set accounts = [] %}
 {% endif %}
 
 WITH base AS (
-    SELECT *,
-           to_char(date, 'YYYY-MM') as year_month
-    FROM {{ ref('reporting__fact_transactions') }}
+    SELECT 
+        to_char(transaction_date, 'YYYY-MM') AS year_month,
+        account_key
+    FROM {{ ref('fct_transactions_enhanced') }}
 ),
 tx_counts AS (
     SELECT
         year_month,
-        account_foreign_key,
+        account_key,
         COUNT(*) AS tx_count
     FROM base
     GROUP BY 1, 2
 )
 SELECT
-    year_month,
-    {% for account in accounts %}
-      MAX(CASE WHEN lower(account_foreign_key) = lower('{{ account }}') THEN tx_count ELSE NULL END) AS "{{ account }}"
-      {% if not loop.last %}, {% endif %}
-    {% endfor %}
+    year_month
+    {% if accounts | length > 0 %}
+      , {% for account in accounts %}
+          MAX(CASE WHEN lower(account_key) = lower('{{ account }}') THEN tx_count END) AS "{{ account }}"{% if not loop.last %}, {% endif %}
+        {% endfor %}
+    {% else %}
+      , SUM(tx_count) AS total_tx_count
+    {% endif %}
 FROM tx_counts
 GROUP BY year_month
 ORDER BY year_month

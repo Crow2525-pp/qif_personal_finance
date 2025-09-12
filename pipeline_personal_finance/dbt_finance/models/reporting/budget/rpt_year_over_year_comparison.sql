@@ -2,8 +2,7 @@
   config(
     materialized='table',
     indexes=[
-      {'columns': ['comparison_year'], 'unique': true},
-      {'columns': ['comparison_year', 'comparison_month'], 'unique': false}
+      {'columns': ['comparison_year'], 'unique': true}
     ]
   )
 }}
@@ -46,7 +45,7 @@ WITH annual_summary AS (
 
 net_worth_annual AS (
   SELECT 
-    budget_year AS comparison_year,
+    transaction_year AS comparison_year,
     
     -- Year-end net worth positions
     MAX(CASE WHEN transaction_month = 12 THEN net_worth END) AS year_end_net_worth,
@@ -70,12 +69,12 @@ net_worth_annual AS (
     MAX(net_worth_health_score) AS best_net_worth_health_score
     
   FROM {{ ref('rpt_household_net_worth') }}
-  GROUP BY budget_year
+  GROUP BY transaction_year
 ),
 
 savings_annual AS (
   SELECT 
-    budget_year AS comparison_year,
+    transaction_year AS comparison_year,
     
     -- Savings totals
     SUM(total_savings) AS annual_total_savings,
@@ -93,12 +92,12 @@ savings_annual AS (
     MAX(CASE WHEN transaction_month = 12 THEN savings_health_score END) AS year_end_savings_health_score
     
   FROM {{ ref('rpt_savings_analysis') }}
-  GROUP BY budget_year
+  GROUP BY transaction_year
 ),
 
 cash_flow_annual AS (
   SELECT 
-    budget_year AS comparison_year,
+    transaction_year AS comparison_year,
     
     -- Cash flow totals
     SUM(total_inflows) AS annual_total_inflows,
@@ -114,7 +113,7 @@ cash_flow_annual AS (
     COUNT(CASE WHEN cash_flow_status = 'Negative' THEN 1 END) AS months_negative_cash_flow
     
   FROM {{ ref('rpt_cash_flow_analysis') }}
-  GROUP BY budget_year
+  GROUP BY transaction_year
 ),
 
 combined_annual_metrics AS (
@@ -216,6 +215,21 @@ year_over_year_comparisons AS (
   FROM combined_annual_metrics
 ),
 
+final_scores AS (
+  SELECT 
+    *,
+    -- Overall financial progress score (1-100)
+    LEAST(100, GREATEST(0,
+      50 + -- Base score
+      (CASE WHEN yoy_income_change_percent > 0 THEN 10 ELSE 0 END) + -- Income growth bonus
+      (CASE WHEN yoy_expense_change_percent < yoy_income_change_percent THEN 15 ELSE -5 END) + -- Expense control bonus
+      (CASE WHEN yoy_net_worth_change_percent > 10 THEN 20 ELSE 0 END) + -- Net worth growth bonus
+      (CASE WHEN yoy_savings_rate_change > 0 THEN 10 ELSE 0 END) + -- Savings improvement bonus
+      (CASE WHEN months_positive_cash_flow >= 10 THEN 10 ELSE 0 END) -- Cash flow consistency bonus
+    )) AS annual_financial_progress_score
+  FROM year_over_year_comparisons
+),
+
 final_analysis AS (
   SELECT 
     *,
@@ -241,16 +255,6 @@ final_analysis AS (
       WHEN yoy_net_worth_change_percent > 0 THEN 'Modest Net Worth Growth'
       ELSE 'Net Worth Decline'
     END AS net_worth_performance,
-    
-    -- Overall financial progress score (1-100)
-    LEAST(100, GREATEST(0,
-      50 + -- Base score
-      (CASE WHEN yoy_income_change_percent > 0 THEN 10 ELSE 0 END) + -- Income growth bonus
-      (CASE WHEN yoy_expense_change_percent < yoy_income_change_percent THEN 15 ELSE -5 END) + -- Expense control bonus
-      (CASE WHEN yoy_net_worth_change_percent > 10 THEN 20 ELSE 0 END) + -- Net worth growth bonus
-      (CASE WHEN yoy_savings_rate_change > 0 THEN 10 ELSE 0 END) + -- Savings improvement bonus
-      (CASE WHEN months_positive_cash_flow >= 10 THEN 10 ELSE 0 END) -- Cash flow consistency bonus
-    )) AS annual_financial_progress_score,
     
     -- Key insights
     CASE 
@@ -281,7 +285,7 @@ final_analysis AS (
     
     CURRENT_TIMESTAMP AS report_generated_at
     
-  FROM year_over_year_comparisons
+  FROM final_scores
 )
 
 SELECT * FROM final_analysis

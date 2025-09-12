@@ -1,5 +1,5 @@
 models:
-  - name: transformation__append_accounts
+  - name: int_append_accounts
     columns:
       - name: _dbt_source_relation
         data_type: text

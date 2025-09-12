@@ -6,6 +6,9 @@
     indexes=[
       {'columns': ['balance_date'], 'unique': false},
       {'columns': ['account_key', 'balance_date'], 'unique': true}
+    ],
+    post_hook=[
+      "{{ create_fk_if_not_exists(this, 'account_key', ref('dim_accounts_enhanced'), 'account_key', 'fk_daily_balances_account') }}"
     ]
   )
 }}
@@ -16,6 +19,8 @@ WITH daily_account_activity AS (
     transaction_date AS balance_date,
     SUM(transaction_amount) AS daily_net_amount,
     COUNT(*) AS daily_transaction_count,
+    SUM(CASE WHEN transaction_direction = 'Debit' THEN transaction_amount_abs ELSE 0 END) AS total_debits,
+    SUM(CASE WHEN transaction_direction = 'Credit' THEN transaction_amount_abs ELSE 0 END) AS total_credits,
     MAX(account_balance) AS end_of_day_balance -- Last balance of the day
   FROM {{ ref('fct_transactions_enhanced') }}
   {% if is_incremental() %}
@@ -32,7 +37,7 @@ date_spine AS (
     da.account_start_date,
     da.account_last_transaction_date
   FROM {{ ref('dim_accounts_enhanced') }} da
-  CROSS JOIN {{ ref('date_calendar') }} dc
+  CROSS JOIN {{ ref('dim_date_calendar') }} dc
   WHERE dc.date >= da.account_start_date
     AND dc.date <= CURRENT_DATE
     {% if is_incremental() %}
@@ -46,6 +51,8 @@ daily_balances_with_gaps AS (
     ds.balance_date,
     COALESCE(daa.daily_net_amount, 0) AS daily_net_amount,
     COALESCE(daa.daily_transaction_count, 0) AS daily_transaction_count,
+    COALESCE(daa.total_debits, 0) AS total_debits,
+    COALESCE(daa.total_credits, 0) AS total_credits,
     daa.end_of_day_balance
   FROM date_spine ds
   LEFT JOIN daily_account_activity daa
@@ -54,12 +61,10 @@ daily_balances_with_gaps AS (
 ),
 
 -- Fill forward balances for days with no transactions
-final_balances AS (
+final_balances_base AS (
   SELECT 
     account_key,
     balance_date,
-    daily_net_amount,
-    daily_transaction_count,
     
     -- Use last known balance if no transactions on this day
     COALESCE(
@@ -68,20 +73,57 @@ final_balances AS (
         PARTITION BY account_key 
         ORDER BY balance_date
       )
-    ) AS end_of_day_balance,
+    ) AS daily_balance,
     
-    -- Additional metrics
-    SUM(daily_net_amount) OVER (
-      PARTITION BY account_key 
-      ORDER BY balance_date 
-      ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-    ) AS running_net_amount,
+    -- Aggregates
+    CAST(daily_transaction_count AS BIGINT) AS transaction_count,
+    total_debits,
+    total_credits,
+    
+    -- Flags
+    (EXTRACT(DOW FROM balance_date) IN (0, 6)) AS is_weekend,
+    (balance_date = (date_trunc('month', balance_date) + interval '1 month' - interval '1 day')::date) AS is_month_end,
     
     -- Metadata
-    CURRENT_TIMESTAMP AS created_at
+    CAST(CURRENT_TIMESTAMP AS TIMESTAMP) AS created_at
     
   FROM daily_balances_with_gaps
+),
+
+final_balances AS (
+  SELECT
+    *,
+    COALESCE(
+      daily_balance - LAG(daily_balance) OVER (
+        PARTITION BY account_key
+        ORDER BY balance_date
+      ), 0
+    ) AS balance_change
+  FROM final_balances_base
+),
+
+final_with_account AS (
+  SELECT
+    -- keys
+    {{ dbt_utils.generate_surrogate_key(['fb.account_key', 'fb.balance_date']) }} AS balance_key,
+    fb.balance_date,
+    fb.account_key,
+    da.account_name,
+    
+    -- metrics
+    fb.daily_balance,
+    fb.balance_change,
+    fb.transaction_count,
+    fb.total_debits,
+    fb.total_credits,
+    fb.is_weekend,
+    fb.is_month_end,
+    fb.created_at
+  FROM final_balances fb
+  JOIN {{ ref('dim_accounts_enhanced') }} da
+    ON fb.account_key = da.account_key
 )
 
-SELECT * FROM final_balances
-WHERE end_of_day_balance IS NOT NULL -- Only include dates where we have balance data
+SELECT *
+FROM final_with_account
+WHERE daily_balance IS NOT NULL -- Only include dates where we have balance data

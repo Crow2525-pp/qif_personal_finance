@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: viz__balance_by_year_month
+  - name: viz_balance_by_year_month
     description: "Pivoted account balances by year and month for Grafana visualization."
     columns:
       - name: year_month

@@ -10,16 +10,18 @@
 {% endif %}
 
 WITH base AS (
-    SELECT *,
-           to_char(date, 'YYYY-MM') as year_month
-    FROM {{ ref('reporting__fact_transactions') }}
+    SELECT 
+        to_char(transaction_date, 'YYYY-MM') AS year_month,
+        transaction_amount,
+        is_internal_transfer
+    FROM {{ ref('fct_transactions_enhanced') }}
 ),
 income_expense AS (
     SELECT
         year_month,
-        SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END) AS income,
-        SUM(CASE WHEN amount < 0 THEN -amount ELSE 0 END) AS expense
-    FROM base
+        SUM(CASE WHEN transaction_amount > 0 AND NOT COALESCE(is_internal_transfer, FALSE) THEN transaction_amount ELSE 0 END) AS income,
+        SUM(CASE WHEN transaction_amount < 0 AND NOT COALESCE(is_internal_transfer, FALSE) THEN -transaction_amount ELSE 0 END) AS expense
+    FROM base 
     GROUP BY 1
 )
 SELECT

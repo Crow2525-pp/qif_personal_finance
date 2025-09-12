@@ -28,7 +28,7 @@ WITH
                        date_trunc('month', period_date)
           ORDER BY period_date DESC
         ) AS rn
-      FROM {{ ref('reporting__periodic_snapshot_yyyymm_balance') }} AS daily
+      FROM {{ ref('rpt_periodic_snapshot_yyyymm_balance') }} AS daily
     ) AS daily
     WHERE rn = 1
   ),

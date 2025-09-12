@@ -1,40 +1,45 @@
--- Test that foreign key constraints actually exist in the database
-WITH expected_constraints AS (
-  SELECT 'fk_fact_transactions_account' AS constraint_name, 'reporting' AS schema_name, 'fct_transactions_enhanced' AS table_name
+-- Adapter-specific physical constraint names may vary.
+-- This test verifies that required FK relationships exist, independent of names.
+
+WITH expected_relationships AS (
+  SELECT 'reporting'::text AS child_schema, 'fct_transactions_enhanced'::text AS child_table,
+         'account_key'::text AS child_column, 'reporting'::text AS parent_schema,
+         'dim_accounts_enhanced'::text AS parent_table, 'account_key'::text AS parent_column
   UNION ALL
-  SELECT 'fk_fact_transactions_category' AS constraint_name, 'reporting' AS schema_name, 'fct_transactions_enhanced' AS table_name
-  UNION ALL  
-  SELECT 'fk_fct_daily_balances_account' AS constraint_name, 'reporting' AS schema_name, 'fct_daily_balances' AS table_name
+  SELECT 'reporting','fct_transactions_enhanced','category_key','reporting','dim_categories_enhanced','category_key'
+  UNION ALL
+  SELECT 'reporting','fct_daily_balances','account_key','reporting','dim_accounts_enhanced','account_key'
 ),
 
-actual_constraints AS (
-  SELECT 
-    tc.constraint_name,
-    tc.table_schema AS schema_name,
-    tc.table_name
+fk_catalog AS (
+  SELECT
+    tc.table_schema      AS child_schema,
+    tc.table_name        AS child_table,
+    kcu.column_name      AS child_column,
+    ccu.table_schema     AS parent_schema,
+    ccu.table_name       AS parent_table,
+    ccu.column_name      AS parent_column
   FROM information_schema.table_constraints tc
+  JOIN information_schema.key_column_usage kcu
+    ON tc.constraint_name = kcu.constraint_name
+   AND tc.table_schema   = kcu.table_schema
+  JOIN information_schema.constraint_column_usage ccu
+    ON ccu.constraint_name = tc.constraint_name
+   AND ccu.table_schema   = tc.table_schema
   WHERE tc.constraint_type = 'FOREIGN KEY'
-    AND tc.table_schema = 'reporting'
-    AND tc.constraint_name IN (
-      'fk_fact_transactions_account',
-      'fk_fact_transactions_category', 
-      'fk_fct_daily_balances_account'
-    )
 ),
 
-missing_constraints AS (
-  SELECT 
-    ec.constraint_name,
-    ec.schema_name,
-    ec.table_name,
-    'Constraint does not exist in database' AS error_message
-  FROM expected_constraints ec
-  LEFT JOIN actual_constraints ac
-    ON ec.constraint_name = ac.constraint_name
-    AND ec.schema_name = ac.schema_name
-    AND ec.table_name = ac.table_name
-  WHERE ac.constraint_name IS NULL
+missing AS (
+  SELECT e.*
+  FROM expected_relationships e
+  LEFT JOIN fk_catalog f
+    ON e.child_schema  = f.child_schema
+   AND e.child_table   = f.child_table
+   AND e.child_column  = f.child_column
+   AND e.parent_schema = f.parent_schema
+   AND e.parent_table  = f.parent_table
+   AND e.parent_column = f.parent_column
+  WHERE f.child_table IS NULL
 )
 
--- Return missing constraints (test fails if any missing)
-SELECT * FROM missing_constraints
+SELECT * FROM missing

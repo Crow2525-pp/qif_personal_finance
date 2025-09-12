@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: viz__transaction_count_by_account_by_month
+  - name: viz_transaction_count_by_account_by_month
     description: "Pivoted monthly transaction counts by account for Grafana visualization."
     columns:
       - name: year_month

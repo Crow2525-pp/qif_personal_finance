@@ -15,7 +15,7 @@ WITH
   /** grab the current month’s balances **/
   current_balance AS (
     SELECT *
-    FROM {{ ref("viz__balance_by_year_month") }}
+    FROM {{ ref("viz_balance_by_year_month") }}
   ),
 
   /** compute what “year_month” would be one month later **/
@@ -31,7 +31,7 @@ WITH
         "{{ account }}"
         {% if not loop.last %}, {% endif %}
       {% endfor %}
-    FROM {{ ref("viz__balance_by_year_month") }}
+    FROM {{ ref("viz_balance_by_year_month") }}
   ),
 
   /** do the month-over-month diffs **/

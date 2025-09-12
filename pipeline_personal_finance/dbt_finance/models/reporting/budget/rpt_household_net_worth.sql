@@ -132,8 +132,8 @@ net_worth_trends AS (
       ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
     ) AS rolling_3m_avg_liabilities,
     
-    -- Year-over-year comparisons
-    LAG(net_worth, 12) OVER (
+    -- Year-over-year comparisons (previous year's same month)
+    LAG(net_worth, 1) OVER (
       PARTITION BY transaction_month
       ORDER BY transaction_year
     ) AS yoy_same_month_net_worth,
@@ -159,9 +159,9 @@ net_worth_analysis AS (
   SELECT 
     *,
     -- Financial ratios
-    CASE WHEN total_assets > 0 THEN (total_liabilities / total_assets) * 100 ELSE 0 END AS debt_to_asset_ratio,
-    CASE WHEN total_liabilities > 0 THEN (liquid_assets / total_liabilities) * 100 ELSE NULL END AS liquidity_ratio,
-    CASE WHEN total_assets > 0 THEN (net_worth / total_assets) * 100 ELSE 0 END AS equity_ratio,
+    CASE WHEN total_assets > 0 THEN (total_liabilities / total_assets) ELSE 0 END AS debt_to_asset_ratio,
+    CASE WHEN total_liabilities > 0 THEN (liquid_assets / total_liabilities) ELSE NULL END AS liquidity_ratio,
+    CASE WHEN total_assets > 0 THEN (net_worth / total_assets) ELSE 0 END AS equity_ratio,
     
     -- Net worth growth analysis
     CASE 
@@ -216,16 +216,16 @@ final_insights AS (
     LEAST(100, GREATEST(0,
       50 + -- Base score
       (CASE WHEN net_worth > 0 THEN 20 ELSE -20 END) + -- Positive net worth bonus
-      (CASE WHEN debt_to_asset_ratio < 50 THEN 15 ELSE -10 END) + -- Low debt ratio bonus
+      (CASE WHEN debt_to_asset_ratio < 0.5 THEN 15 ELSE -10 END) + -- Low debt ratio bonus (ratio scale)
       (CASE WHEN mom_net_worth_change > 0 THEN 10 ELSE 0 END) + -- Growth bonus
-      (CASE WHEN liquidity_ratio > 20 THEN 5 ELSE 0 END) -- Liquidity bonus
+      (CASE WHEN liquidity_ratio > 0.2 THEN 5 ELSE 0 END) -- Liquidity bonus (ratio scale)
     )) AS net_worth_health_score,
     
     -- Financial advice
     CASE 
-      WHEN net_worth < 0 AND debt_to_asset_ratio > 80 THEN 'Focus on debt reduction immediately'
+      WHEN net_worth < 0 AND debt_to_asset_ratio > 0.8 THEN 'Focus on debt reduction immediately'
       WHEN liquid_assets < 1000 THEN 'Build emergency fund before investing'
-      WHEN debt_to_asset_ratio > 70 THEN 'Consider debt consolidation or aggressive paydown'
+      WHEN debt_to_asset_ratio > 0.7 THEN 'Consider debt consolidation or aggressive paydown'
       WHEN net_worth > 0 AND mom_net_worth_change > 0 THEN 'Strong financial position - consider growth investments'
       WHEN estimated_months_expenses_covered > 6 THEN 'Good liquidity - explore investment opportunities'
       ELSE 'Monitor trends and maintain current strategy'

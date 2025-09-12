@@ -60,8 +60,8 @@ monthly_aggregation AS (
 final_metrics AS (
   SELECT 
     *,
-    -- Calculated metrics
-    CASE WHEN total_income > 0 THEN (net_cash_flow / total_income) * 100 ELSE 0 END AS savings_rate_percent,
+    -- Calculated metrics (ratios, not percent-scaled)
+    CASE WHEN total_income > 0 THEN (net_cash_flow / total_income) ELSE 0 END AS savings_rate_percent,
     CASE WHEN total_income > 0 THEN (total_expenses / total_income) * 100 ELSE 0 END AS expense_ratio_percent,
     total_expenses / NULLIF(expense_transaction_count, 0) AS avg_expense_amount,
     

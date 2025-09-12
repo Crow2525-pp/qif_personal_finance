@@ -57,14 +57,16 @@ category_hierarchy AS (
     END AS is_financial_service,
     
     -- Priority for categorization (lower number = higher priority)
-    CASE
-      WHEN internal_indicator = 'Internal' THEN 1
-      WHEN category = 'Salary' THEN 2  
-      WHEN category = 'Mortgage' THEN 3
-      WHEN category = 'Bank Transaction' THEN 4
-      WHEN category = 'Unclassified' THEN 99
-      ELSE 10
-    END AS category_priority,
+    CAST(
+        CASE
+            WHEN internal_indicator = 'Internal' THEN 1
+            WHEN category = 'Salary' THEN 2
+            WHEN category = 'Mortgage' THEN 3
+            WHEN category = 'Bank Transaction' THEN 4
+            WHEN category = 'Unclassified' THEN 99
+            ELSE 10
+        END AS BIGINT
+    ) AS category_priority,
     
     -- Description for reporting
     CASE
@@ -77,8 +79,8 @@ category_hierarchy AS (
     END AS category_description,
     
     -- Metadata
-    CURRENT_TIMESTAMP AS created_at,
-    CURRENT_TIMESTAMP AS updated_at
+    CAST(CURRENT_TIMESTAMP AS TIMESTAMP) AS created_at,
+    CAST(CURRENT_TIMESTAMP AS TIMESTAMP) AS updated_at
     
   FROM unique_categories
 ),
@@ -98,10 +100,10 @@ default_category AS (
     FALSE AS is_internal_transfer,
     FALSE AS is_income,
     FALSE AS is_financial_service,  
-    999 AS category_priority,
+    CAST(999 AS BIGINT) AS category_priority,
     'Transactions that could not be automatically categorized' AS category_description,
-    CURRENT_TIMESTAMP AS created_at,
-    CURRENT_TIMESTAMP AS updated_at
+    CAST(CURRENT_TIMESTAMP AS TIMESTAMP) AS created_at,
+    CAST(CURRENT_TIMESTAMP AS TIMESTAMP) AS updated_at
   FROM (SELECT 1 AS dummy_col) -- Dummy table for single row
 )
 

@@ -1,22 +1,20 @@
-with final as (
-    select
-        trans.date::date,
-        trans.amount_type,
-        cat.subcategory,
-        trans.memo,
-        trans.amount * -1 as amount
-    from {{ ref('reporting__fact_transactions') }} as trans
-    left join {{ ref('dim_category') }} as cat
-        on trans.category_foreign_key = cat.origin_key
-    left join {{ ref('dim_account') }} as acc
-        on trans.account_foreign_key = acc.origin_key
-    where
-        upper(trans.amount_type) = 'CREDIT'
-        and upper(cat.internal_indicator) = 'EXTERNAL'
-        and upper(cat.subcategory) != 'MORTGAGE'
-        and trans.date >= current_date - interval '12 month'
+WITH final AS (
+    SELECT
+        ft.transaction_date::date,
+        ft.transaction_direction,
+        dc.level_2_subcategory AS subcategory,
+        ft.transaction_memo AS memo,
+        ABS(ft.transaction_amount) AS amount
+    FROM {{ ref('fct_transactions_enhanced') }} AS ft
+    LEFT JOIN {{ ref('dim_categories_enhanced') }} AS dc
+      ON ft.category_key = dc.category_key
+    WHERE
+        ft.transaction_amount < 0
+        AND NOT COALESCE(ft.is_internal_transfer, FALSE)
+        AND UPPER(dc.level_1_category) != 'MORTGAGE'
+        AND ft.transaction_date >= CURRENT_DATE - INTERVAL '12 month'
 )
 
-select * from final
-order by amount desc
-limit 20
+SELECT * FROM final
+ORDER BY amount DESC
+LIMIT 20

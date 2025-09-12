@@ -11,7 +11,7 @@ SELECT
             period_date desc
     ) as last_rn
 FROM 
-    {{ ref("reporting__periodic_snapshot_yyyymm_balance") }}
+    {{ ref("rpt_periodic_snapshot_yyyymm_balance") }}
 )
 
 select 

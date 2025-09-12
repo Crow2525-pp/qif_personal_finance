@@ -1,13 +1,13 @@
 version: 2
 models:
-  - name: viz__spending_by_category_by_month
+  - name: viz_spending_by_category_by_month
     description: "Pivoted monthly spending by category for Grafana visualization."
     columns:
       - name: year_month
         description: "Year and month (YYYY-MM) of the spending."
       - name: <category_columns>
         description: "Each column represents the total spending for a specific category in the given month."
-  - name: viz__category_trends_by_year
+  - name: viz_category_trends_by_year
     description: "Pivoted yearly spending by category for Grafana visualization."
     columns:
       - name: year

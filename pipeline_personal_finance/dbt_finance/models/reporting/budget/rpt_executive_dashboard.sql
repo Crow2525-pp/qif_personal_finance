@@ -119,7 +119,7 @@ executive_summary AS (
     ROUND(cms.total_income, 0) AS monthly_income,
     ROUND(cms.total_expenses, 0) AS monthly_expenses,
     ROUND(cms.net_cash_flow, 0) AS monthly_net_cash_flow,
-    ROUND(cms.savings_rate_percent, 1) AS monthly_savings_rate_percent,
+    ROUND(cms.savings_rate_percent, 3) AS monthly_savings_rate_percent,
     
     -- NET WORTH SNAPSHOT
     ROUND(cnw.net_worth, 0) AS current_net_worth,
@@ -156,7 +156,7 @@ executive_summary AS (
     ROUND(cms.ytd_income, 0) AS ytd_income,
     ROUND(cms.ytd_expenses, 0) AS ytd_expenses,
     ROUND(cms.ytd_net_cash_flow, 0) AS ytd_net_cash_flow,
-    CASE WHEN cms.ytd_income > 0 THEN ROUND((cms.ytd_net_cash_flow / cms.ytd_income) * 100, 1) ELSE 0 END AS ytd_savings_rate,
+    CASE WHEN cms.ytd_income > 0 THEN ROUND((cms.ytd_net_cash_flow / cms.ytd_income), 3) ELSE 0 END AS ytd_savings_rate,
     
     -- KEY ALERTS AND RECOMMENDATIONS
     COALESCE(aa.accounts_needing_attention, 0) AS accounts_needing_attention,
@@ -180,10 +180,10 @@ executive_summary AS (
     
     -- BENCHMARKING
     CASE 
-      WHEN cms.savings_rate_percent >= 20 THEN 'Excellent (Top 10%)'
-      WHEN cms.savings_rate_percent >= 15 THEN 'Very Good (Top 25%)'
-      WHEN cms.savings_rate_percent >= 10 THEN 'Good (Average)'
-      WHEN cms.savings_rate_percent >= 5 THEN 'Below Average'
+      WHEN cms.savings_rate_percent >= 0.20 THEN 'Excellent (Top 10%)'
+      WHEN cms.savings_rate_percent >= 0.15 THEN 'Very Good (Top 25%)'
+      WHEN cms.savings_rate_percent >= 0.10 THEN 'Good (Average)'
+      WHEN cms.savings_rate_percent >= 0.05 THEN 'Below Average'
       ELSE 'Needs Improvement'
     END AS savings_rate_benchmark,
     
@@ -233,11 +233,11 @@ final_dashboard AS (
     
     -- Monthly performance vs. goals
     CASE 
-      WHEN monthly_savings_rate_percent >= 15 AND cash_flow_score >= 70 AND monthly_net_worth_change > 0 
+      WHEN monthly_savings_rate_percent >= 0.15 AND cash_flow_score >= 70 AND monthly_net_worth_change > 0 
       THEN 'Exceeding Financial Goals'
-      WHEN monthly_savings_rate_percent >= 10 AND cash_flow_score >= 60 AND monthly_net_worth_change >= 0 
+      WHEN monthly_savings_rate_percent >= 0.10 AND cash_flow_score >= 60 AND monthly_net_worth_change >= 0 
       THEN 'Meeting Financial Goals'
-      WHEN monthly_savings_rate_percent >= 5 AND cash_flow_score >= 50 
+      WHEN monthly_savings_rate_percent >= 0.05 AND cash_flow_score >= 50 
       THEN 'Progressing Toward Goals'
       ELSE 'Below Financial Goals'
     END AS monthly_goal_achievement,
@@ -248,7 +248,7 @@ final_dashboard AS (
         ARRAY[priority_recommendation, 'Review budget and reduce expenses', 'Consider financial planning consultation']
       WHEN accounts_needing_attention > 0 THEN
         ARRAY[priority_recommendation, 'Review account performance', 'Optimize account allocation']
-      WHEN monthly_savings_rate_percent < 15 THEN
+      WHEN monthly_savings_rate_percent < 0.15 THEN
         ARRAY['Increase savings rate to 15%', priority_recommendation, 'Automate savings transfers']
       ELSE 
         ARRAY[priority_recommendation, 'Review investment allocation', 'Consider tax optimization']

@@ -14,7 +14,7 @@ WITH base_data AS (
             ELSE 'NEUTRAL'
         END AS amount_type,
         COALESCE(cat.internal_indicator, 'UNCATEGORISED') AS internal_indicator
-    FROM {{ ref('trans_categories') }} AS trans
+    FROM {{ ref('int_categories') }} AS trans
     LEFT JOIN {{ ref('dim_category') }} AS cat
         ON trans.category_foreign_key = cat.origin_key
 ),
@@ -45,7 +45,7 @@ SELECT
     COALESCE(da.debit_count, 0) AS debit_count,
     COALESCE(da.credit_count, 0) AS credit_count,
     da.internal_indicator
-FROM {{ ref('date_calendar') }} dc
+FROM {{ ref('dim_date_calendar') }} dc
 LEFT JOIN daily_aggregates da
     ON dc.date = da.transaction_date
 ORDER BY dc.date, da.account_foreign_key, da.category_foreign_key

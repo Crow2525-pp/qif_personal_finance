@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: transformation__Adel_Homeloan_adjst_bal
+  - name: int_adel_homeloan_adjst_bal
     description: Adjusts the balance based on known values provided in the seed tables.
     columns:
       - name: receipt
@@ -48,7 +48,7 @@ models:
               config:
                 where: "transaction_date = '2023-06-24' and account_name = 'Adelaide_Homeloan'"
 
-  - name: transformation__Adel_Offset_adjst_bal
+  - name: int_adel_offset_adjst_bal
     columns:
       - name: transaction_date
         data_type: date
@@ -95,7 +95,7 @@ models:
               config:
                 where: "transaction_date = '2023-06-19' and account_name = 'Adelaide_Offset'"
 
-  - name: transformation__Ben_Homeloan_adjst_bal
+  - name: int_ben_homeloan_adjst_bal
     columns:
       - name: transaction_date
         data_type: date
@@ -142,7 +142,7 @@ models:
               config:
                 where: "transaction_date = '2024-03-15' and account_name = 'Bendigo_Bank_Homeloan'"
 
-  - name: transformation__Ben_Offset_adjst_bal
+  - name: int_ben_offset_adjst_bal
     columns:
       - name: transaction_date
         data_type: date
@@ -189,7 +189,7 @@ models:
               config:
                 where: "transaction_date = '2024-01-04' and account_name = 'Bendigo_Bank_Offset'"
 
-  - name: transformation__ING_bills_adjst_bal
+  - name: int_ing_bills_adjst_bal
     columns:
       - name: transaction_date
         data_type: date
