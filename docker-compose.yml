@@ -147,6 +147,29 @@ services:
     env_file:
       - .env
 
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana_dashboard:/var/lib/grafana/dashboards
+    networks:
+      - dagster_network
+    depends_on:
+      - dagster_postgres
+    env_file:
+      - .env
+
+volumes:
+  grafana-storage:
+
 networks:
   dagster_network:
     driver: bridge

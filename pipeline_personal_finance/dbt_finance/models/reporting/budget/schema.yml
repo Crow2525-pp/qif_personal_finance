@@ -1,0 +1,146 @@
+version: 2
+
+models:
+  - name: rpt_monthly_budget_summary
+    description: "Comprehensive monthly budget analysis including income, expenses, savings rates, and trends"
+    columns:
+      - name: budget_year_month
+        description: "YYYY-MM format for easy sorting and filtering"
+        tests:
+          - not_null
+          - unique
+      - name: total_income
+        description: "Total monthly income from all sources"
+        tests:
+          - not_null
+      - name: total_expenses
+        description: "Total monthly expenses excluding internal transfers"
+        tests:
+          - not_null
+      - name: net_cash_flow
+        description: "Income minus expenses (positive = surplus, negative = deficit)"
+      - name: savings_rate_percent
+        description: "Percentage of income saved (net cash flow / income * 100)"
+
+  - name: rpt_category_spending_trends
+    description: "Detailed spending analysis by category with trend identification and variance analysis"
+    columns:
+      - name: budget_year_month
+        description: "YYYY-MM format for time series analysis"
+        tests:
+          - not_null
+      - name: level_1_category
+        description: "Top-level spending category"
+        tests:
+          - not_null
+      - name: monthly_spending
+        description: "Total spending in this category for the month"
+        tests:
+          - not_null
+
+  - name: rpt_account_performance
+    description: "Account-level performance tracking including balance trends and health scores"
+    columns:
+      - name: budget_year_month
+        description: "YYYY-MM format for time series analysis"
+        tests:
+          - not_null
+      - name: account_name
+        description: "Name of the account being analyzed"
+        tests:
+          - not_null
+      - name: account_health_score
+        description: "Composite health score from 1-100 based on account performance"
+        tests:
+          - not_null
+
+  - name: rpt_cash_flow_analysis
+    description: "Monthly cash flow analysis with operational, financing, and investing categorization"
+    columns:
+      - name: budget_year_month
+        description: "YYYY-MM format for time series analysis"
+        tests:
+          - not_null
+          - unique
+      - name: net_cash_flow
+        description: "Total net cash flow for the month"
+        tests:
+          - not_null
+      - name: cash_flow_efficiency_score
+        description: "Cash flow efficiency score from 1-100"
+
+  - name: rpt_household_net_worth
+    description: "Comprehensive net worth tracking with assets, liabilities, and trend analysis"
+    columns:
+      - name: budget_year_month
+        description: "YYYY-MM format for time series analysis"
+        tests:
+          - not_null
+          - unique
+      - name: net_worth
+        description: "Total household net worth (assets - liabilities)"
+        tests:
+          - not_null
+      - name: total_assets
+        description: "Sum of all asset account balances"
+        tests:
+          - not_null
+      - name: total_liabilities
+        description: "Sum of all liability account balances"
+        tests:
+          - not_null
+
+  - name: rpt_savings_analysis
+    description: "Detailed savings rate analysis including different savings types and benchmarking"
+    columns:
+      - name: budget_year_month
+        description: "YYYY-MM format for time series analysis"
+        tests:
+          - not_null
+          - unique
+      - name: total_savings_rate_percent
+        description: "Comprehensive savings rate including all forms of savings"
+        tests:
+          - not_null
+      - name: traditional_savings_rate_percent
+        description: "Traditional savings rate excluding mortgage principal payments"
+        tests:
+          - not_null
+
+  - name: rpt_year_over_year_comparison
+    description: "Annual financial performance comparison with year-over-year analysis"
+    columns:
+      - name: comparison_year
+        description: "Year being analyzed"
+        tests:
+          - not_null
+          - unique
+      - name: annual_income
+        description: "Total income for the year"
+        tests:
+          - not_null
+      - name: annual_expenses
+        description: "Total expenses for the year"
+        tests:
+          - not_null
+      - name: annual_financial_progress_score
+        description: "Overall financial progress score for the year (1-100)"
+
+  - name: rpt_executive_dashboard
+    description: "Executive summary dashboard with key financial health metrics and recommendations"
+    columns:
+      - name: dashboard_month
+        description: "Month this dashboard represents (YYYY-MM format)"
+        tests:
+          - not_null
+          - unique
+      - name: overall_financial_health_score
+        description: "Composite financial health score from 1-100"
+        tests:
+          - not_null
+      - name: overall_financial_health_rating
+        description: "Qualitative rating based on health score"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Excellent', 'Good', 'Fair', 'Needs Improvement', 'Critical Attention Required']
