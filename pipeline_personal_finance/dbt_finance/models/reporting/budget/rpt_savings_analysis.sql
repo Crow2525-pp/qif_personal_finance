@@ -35,7 +35,7 @@ WITH monthly_savings_components AS (
       ELSE 'Other'
     END AS transaction_classification
     
-  FROM {{ ref('fact_transactions_enhanced') }} ft
+  FROM {{ ref('fct_transactions_enhanced') }} ft
   LEFT JOIN {{ ref('dim_accounts_enhanced') }} da
     ON ft.account_key = da.account_key
   LEFT JOIN {{ ref('dim_categories_enhanced') }} dc

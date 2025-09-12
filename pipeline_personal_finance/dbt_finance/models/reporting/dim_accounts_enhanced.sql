@@ -9,29 +9,6 @@
   )
 }}
 
-{#- Define the model contract -#}
-{% set model_contract = [
-  {'name': 'account_key', 'data_type': 'text'},
-  {'name': 'account_name', 'data_type': 'text'},
-  {'name': 'bank_name', 'data_type': 'text'},
-  {'name': 'account_type', 'data_type': 'text'},
-  {'name': 'account_category', 'data_type': 'text'},
-  {'name': 'level_1_bank', 'data_type': 'text'},
-  {'name': 'level_2_category', 'data_type': 'text'},
-  {'name': 'level_3_type', 'data_type': 'text'},
-  {'name': 'level_4_account', 'data_type': 'text'},
-  {'name': 'account_start_date', 'data_type': 'date'},
-  {'name': 'account_last_transaction_date', 'data_type': 'date'},
-  {'name': 'total_transactions', 'data_type': 'bigint'},
-  {'name': 'currency_code', 'data_type': 'text'},
-  {'name': 'is_active', 'data_type': 'boolean'},
-  {'name': 'is_liability', 'data_type': 'boolean'},
-  {'name': 'is_transactional', 'data_type': 'boolean'},
-  {'name': 'is_mortgage', 'data_type': 'boolean'},
-  {'name': 'created_at', 'data_type': 'timestamp'},
-  {'name': 'updated_at', 'data_type': 'timestamp'}
-] %}
-
 WITH account_metadata AS (
   SELECT DISTINCT
     account_name,

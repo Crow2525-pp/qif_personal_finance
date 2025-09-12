@@ -11,12 +11,12 @@
 WITH all_staging_accounts AS (
   {{ dbt_utils.union_relations(
     relations=[
-      ref('staging__Adelaide_Homeloan'),
-      ref('staging__Adelaide_Offset'),
-      ref('staging__Bendigo_Homeloan'),
-      ref('staging__Bendigo_Offset'),
-      ref('staging__ING_billsbillsbills'),
-      ref('staging__ING_countdown')
+      ref('stg_adelaide_homeloan'),
+      ref('stg_adelaide_offset'),
+      ref('stg_bendigo_homeloan'),
+      ref('stg_bendigo_offset'),
+      ref('stg_ing_billsbillsbills'),
+      ref('stg_ing_countdown')
     ]
   ) }}
 ),

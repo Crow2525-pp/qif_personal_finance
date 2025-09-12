@@ -1,5 +1,5 @@
 {% macro calculate_adjusted_balance(table_name) %}
-    {% set account_name = table_name | replace('staging__', '') %}
+    {% set account_name = table_name | replace('stg_', '') %}
 
 WITH transactions_with_balance AS (
     SELECT {{  dbt_utils.star(from=ref(table_name)) }},

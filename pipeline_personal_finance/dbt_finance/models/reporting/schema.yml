@@ -8,6 +8,15 @@ models:
     constraints:
       - type: primary_key
         columns: [account_key]
+      - type: check
+        expression: "account_category IN ('Asset', 'Liability', 'Unknown')"
+        name: chk_account_category_valid
+      - type: check
+        expression: "currency_code IN ('AUD', 'USD', 'EUR', 'GBP')"
+        name: chk_currency_code_valid
+      - type: check
+        expression: "total_transactions >= 0"
+        name: chk_total_transactions_non_negative
     columns:
       - name: account_key
         data_type: text
@@ -74,6 +83,12 @@ models:
     constraints:
       - type: primary_key
         columns: [category_key]
+      - type: check
+        expression: "category_type IN ('Income', 'Expense', 'Internal Transfer', 'Financial Services', 'Uncategorized')"
+        name: chk_category_type_valid
+      - type: check
+        expression: "category_priority >= 1"
+        name: chk_category_priority_positive
     columns:
       - name: category_key
         data_type: text
@@ -124,7 +139,7 @@ models:
         data_type: timestamp
         description: "Timestamp when record was last updated"
 
-  - name: fact_transactions_enhanced
+  - name: fct_transactions_enhanced
     config:
       contract:
         enforced: true
@@ -139,6 +154,15 @@ models:
         columns: [category_key]
         to: ref('dim_categories_enhanced')
         to_columns: [category_key]
+      - type: check
+        expression: "transaction_direction IN ('Debit', 'Credit', 'Zero')"
+        name: chk_transaction_direction_valid
+      - type: check
+        expression: "transaction_amount_abs >= 0"
+        name: chk_transaction_amount_abs_non_negative
+      - type: check
+        expression: "transaction_date >= '2000-01-01' AND transaction_date <= CURRENT_DATE + INTERVAL '1 day'"
+        name: chk_transaction_date_reasonable
     columns:
       - name: transaction_key
         data_type: text
@@ -222,7 +246,7 @@ models:
         data_type: timestamp
         description: "Timestamp when fact record was created"
 
-  - name: fact_daily_balances
+  - name: fct_daily_balances
     config:
       contract:
         enforced: true

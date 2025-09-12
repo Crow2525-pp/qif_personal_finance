@@ -1,10 +1,10 @@
 -- Test that foreign key constraints actually exist in the database
 WITH expected_constraints AS (
-  SELECT 'fk_fact_transactions_account' AS constraint_name, 'reporting' AS schema_name, 'fact_transactions_enhanced' AS table_name
+  SELECT 'fk_fact_transactions_account' AS constraint_name, 'reporting' AS schema_name, 'fct_transactions_enhanced' AS table_name
   UNION ALL
-  SELECT 'fk_fact_transactions_category' AS constraint_name, 'reporting' AS schema_name, 'fact_transactions_enhanced' AS table_name
+  SELECT 'fk_fact_transactions_category' AS constraint_name, 'reporting' AS schema_name, 'fct_transactions_enhanced' AS table_name
   UNION ALL  
-  SELECT 'fk_fact_daily_balances_account' AS constraint_name, 'reporting' AS schema_name, 'fact_daily_balances' AS table_name
+  SELECT 'fk_fct_daily_balances_account' AS constraint_name, 'reporting' AS schema_name, 'fct_daily_balances' AS table_name
 ),
 
 actual_constraints AS (
@@ -18,7 +18,7 @@ actual_constraints AS (
     AND tc.constraint_name IN (
       'fk_fact_transactions_account',
       'fk_fact_transactions_category', 
-      'fk_fact_daily_balances_account'
+      'fk_fct_daily_balances_account'
     )
 ),
 

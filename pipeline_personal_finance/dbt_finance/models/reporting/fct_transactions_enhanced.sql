@@ -11,7 +11,7 @@
 }}
 
 WITH categorized_transactions AS (
-  SELECT * FROM {{ ref('trans_categories') }}
+  SELECT * FROM {{ ref('int_categories') }}
 ),
 
 -- Deduplicate in case there are duplicate primary_keys

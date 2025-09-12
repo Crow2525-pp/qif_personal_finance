@@ -38,7 +38,7 @@ WITH monthly_account_activity AS (
     AVG(ft.transaction_amount) AS avg_transaction_amount,
     STDDEV(ft.transaction_amount) AS transaction_volatility
     
-  FROM {{ ref('fact_transactions_enhanced') }} ft
+  FROM {{ ref('fct_transactions_enhanced') }} ft
   LEFT JOIN {{ ref('dim_accounts_enhanced') }} da
     ON ft.account_key = da.account_key
   GROUP BY 

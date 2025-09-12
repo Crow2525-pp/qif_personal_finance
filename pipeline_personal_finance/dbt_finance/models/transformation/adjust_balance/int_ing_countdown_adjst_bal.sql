@@ -1,5 +1,5 @@
 WITH adjusted_balance AS (
-    {{ calculate_adjusted_balance('staging__ING_countdown') }})
+    {{ calculate_adjusted_balance('stg_ing_countdown') }})
 
 SELECT
     *

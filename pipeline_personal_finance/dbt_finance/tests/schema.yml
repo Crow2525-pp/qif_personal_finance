@@ -8,9 +8,9 @@ tests:
       references a non-existent record in the dimension table.
       
       Tested relationships:
-      - fact_transactions_enhanced.account_key → dim_accounts_enhanced.account_key
-      - fact_transactions_enhanced.category_key → dim_categories_enhanced.category_key  
-      - fact_daily_balances.account_key → dim_accounts_enhanced.account_key
+      - fct_transactions_enhanced.account_key → dim_accounts_enhanced.account_key
+      - fct_transactions_enhanced.category_key → dim_categories_enhanced.category_key  
+      - fct_daily_balances.account_key → dim_accounts_enhanced.account_key
     tags: ['referential_integrity', 'foreign_keys', 'critical']
 
   - name: test_constraint_existence  
@@ -23,7 +23,7 @@ tests:
       Expected constraints:
       - fk_fact_transactions_account
       - fk_fact_transactions_category
-      - fk_fact_daily_balances_account
+      - fk_fct_daily_balances_account
     tags: ['schema_validation', 'foreign_keys', 'infrastructure']
 
   - name: test_balance_continuity

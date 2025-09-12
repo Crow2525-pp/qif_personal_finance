@@ -1,6 +1,6 @@
 WITH transaction_data AS (
-    SELECT {{ dbt_utils.star(from=ref('transformation__append_accounts')) }}
-    FROM {{ ref('transformation__append_accounts') }}
+    SELECT {{ dbt_utils.star(from=ref('int_append_accounts')) }}
+    FROM {{ ref('int_append_accounts') }}
 ),
 
 category_mappings AS (

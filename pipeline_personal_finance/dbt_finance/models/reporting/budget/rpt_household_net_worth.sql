@@ -26,7 +26,7 @@ WITH monthly_account_balances AS (
     MIN(ft.transaction_date) AS month_start_date,
     MAX(ft.transaction_date) AS month_end_date
     
-  FROM {{ ref('fact_transactions_enhanced') }} ft
+  FROM {{ ref('fct_transactions_enhanced') }} ft
   LEFT JOIN {{ ref('dim_accounts_enhanced') }} da
     ON ft.account_key = da.account_key
   GROUP BY 

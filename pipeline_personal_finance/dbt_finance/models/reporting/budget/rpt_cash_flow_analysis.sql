@@ -45,7 +45,7 @@ WITH cash_flow_base AS (
       ELSE 'Operating'
     END AS cash_flow_category
     
-  FROM {{ ref('fact_transactions_enhanced') }} ft
+  FROM {{ ref('fct_transactions_enhanced') }} ft
   LEFT JOIN {{ ref('dim_accounts_enhanced') }} da
     ON ft.account_key = da.account_key
   LEFT JOIN {{ ref('dim_categories_enhanced') }} dc

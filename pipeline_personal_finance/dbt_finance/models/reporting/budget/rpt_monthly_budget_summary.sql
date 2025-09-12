@@ -18,7 +18,7 @@ WITH monthly_transactions AS (
     ft.is_internal_transfer,
     dc.category_type,
     dc.level_1_category
-  FROM {{ ref('fact_transactions_enhanced') }} ft
+  FROM {{ ref('fct_transactions_enhanced') }} ft
   LEFT JOIN {{ ref('dim_categories_enhanced') }} dc
     ON ft.category_key = dc.category_key
   WHERE ft.is_internal_transfer = FALSE -- Exclude internal transfers

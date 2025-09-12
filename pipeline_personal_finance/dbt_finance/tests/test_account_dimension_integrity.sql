@@ -7,7 +7,7 @@ WITH account_integrity AS (
       WHEN da.account_key IS NULL THEN 'MISSING_FROM_DIMENSION'
       ELSE 'VALID'
     END AS integrity_status
-  FROM {{ ref('fact_transactions_enhanced') }} ft
+  FROM {{ ref('fct_transactions_enhanced') }} ft
   LEFT JOIN {{ ref('dim_accounts_enhanced') }} da
     ON ft.account_key = da.account_key
 ),

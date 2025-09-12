@@ -17,7 +17,7 @@ WITH daily_account_activity AS (
     SUM(transaction_amount) AS daily_net_amount,
     COUNT(*) AS daily_transaction_count,
     MAX(account_balance) AS end_of_day_balance -- Last balance of the day
-  FROM {{ ref('fact_transactions_enhanced') }}
+  FROM {{ ref('fct_transactions_enhanced') }}
   {% if is_incremental() %}
     WHERE transaction_date > (SELECT MAX(balance_date) FROM {{ this }})
   {% endif %}
