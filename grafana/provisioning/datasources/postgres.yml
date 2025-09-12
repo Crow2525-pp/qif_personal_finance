@@ -16,5 +16,6 @@ datasources:
       connMaxLifetime: 14400
       postgresVersion: 1200
       timescaledb: false
+      searchPath: "reporting,staging,landing,public"
     isDefault: true
     editable: true

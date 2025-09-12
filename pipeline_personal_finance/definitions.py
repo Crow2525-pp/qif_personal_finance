@@ -1,16 +1,20 @@
 import os
 
-from dagster import Definitions, EnvVar
+from dagster import Definitions, EnvVar, define_asset_job, sensor, RunRequest, SkipReason
 from dagster_dbt import DbtCliResource
 from dotenv import load_dotenv
 
 from .resources import SqlAlchemyClientResource
 from .assets import finance_dbt_assets, upload_dataframe_to_database
-from .constants import DBT_PROJECT_DIR  # , QIF_FILES
+from .constants import DBT_PROJECT_DIR, QIF_FILES
 
 load_dotenv()
 
-# all_asset_job = define_asset_job(name="all_asset_job", "*")  # no selection = all assets
+qif_pipeline_job = define_asset_job(
+    name="qif_pipeline_job",
+    selection=[upload_dataframe_to_database, finance_dbt_assets],
+    description="Complete QIF processing pipeline - ingestion and dbt transformations"
+)
 
 resources = {
     "dev": {
@@ -37,22 +41,43 @@ resources = {
     },
 }
 
+@sensor(job=qif_pipeline_job)
+def qif_file_sensor(context):
+    """
+    Sensor that monitors the QIF files directory for new .qif files
+    and triggers the pipeline when changes are detected.
+    """
+    qif_directory = QIF_FILES
+    
+    if not os.path.exists(qif_directory):
+        context.log.warning(f"QIF directory does not exist: {qif_directory}")
+        return SkipReason(f"QIF directory does not exist: {qif_directory}")
+    
+    qif_files = [f for f in os.listdir(qif_directory) if f.endswith('.qif')]
+    
+    if not qif_files:
+        return SkipReason("No QIF files found in directory")
+    
+    # Create a run request with all current QIF files as the run key
+    # This ensures the pipeline runs when new files are added
+    run_key = f"qif_files_{'_'.join(sorted(qif_files))}"
+    
+    context.log.info(f"Found {len(qif_files)} QIF files: {qif_files}")
+    
+    yield RunRequest(
+        run_key=run_key,
+        tags={
+            "qif_file_count": str(len(qif_files)),
+            "qif_files": ",".join(qif_files)
+        }
+    )
+
 deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "prod")
 
 defs = Definitions(
     assets=[finance_dbt_assets, upload_dataframe_to_database],
     resources=resources[deployment_name],
-    # jobs=[all_asset_job],
+    jobs=[qif_pipeline_job],
+    sensors=[qif_file_sensor],
 )
 
-#
-# @sensor(job=all_asset_job)
-# def my_directory_sensor():
-#     for filename in os.listdir(QIF_FILES):
-#         filepath = os.path.join(QIF_FILES, filename)
-#         if os.path.isfile(filepath):
-#             yield RunRequest(
-#                 run_key=filename,
-#                 run_config=RunConfig(
-#                 ),
-#             )

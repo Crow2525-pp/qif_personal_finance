@@ -124,17 +124,17 @@ savings_metrics AS (
       ELSE 0 
     END AS expense_ratio_percent,
     
-    -- Cash savings rate (liquid savings only)
+    -- Cash savings rate (liquid savings only, ratio 0-1)
     CASE 
       WHEN total_income > 0 
-      THEN ((cash_savings + offset_savings) / total_income) * 100
+      THEN ((cash_savings + offset_savings) / total_income)
       ELSE 0 
     END AS liquid_savings_rate_percent,
     
-    -- Investment rate
+    -- Investment rate (ratio 0-1)
     CASE 
       WHEN total_income > 0 
-      THEN (investment_contributions / total_income) * 100
+      THEN (investment_contributions / total_income)
       ELSE 0 
     END AS investment_rate_percent
     
@@ -200,22 +200,22 @@ savings_trends AS (
 savings_analysis AS (
   SELECT 
     *,
-    -- Savings performance classification
+    -- Savings performance classification (ratio thresholds)
     CASE 
-      WHEN total_savings_rate_percent >= 30 THEN 'Exceptional Saver (30%+)'
-      WHEN total_savings_rate_percent >= 20 THEN 'Strong Saver (20-30%)'
-      WHEN total_savings_rate_percent >= 15 THEN 'Good Saver (15-20%)'
-      WHEN total_savings_rate_percent >= 10 THEN 'Average Saver (10-15%)'
-      WHEN total_savings_rate_percent >= 5 THEN 'Low Saver (5-10%)'
+      WHEN total_savings_rate_percent >= 0.30 THEN 'Exceptional Saver (30%+)'
+      WHEN total_savings_rate_percent >= 0.20 THEN 'Strong Saver (20-30%)'
+      WHEN total_savings_rate_percent >= 0.15 THEN 'Good Saver (15-20%)'
+      WHEN total_savings_rate_percent >= 0.10 THEN 'Average Saver (10-15%)'
+      WHEN total_savings_rate_percent >= 0.05 THEN 'Low Saver (5-10%)'
       ELSE 'Minimal Savings (<5%)'
     END AS savings_performance_tier,
     
-    -- Trend analysis
+    -- Trend analysis (ratio thresholds)
     CASE 
-      WHEN mom_savings_rate_change > 2 THEN 'Improving Significantly'
-      WHEN mom_savings_rate_change > 0.5 THEN 'Improving'
-      WHEN mom_savings_rate_change > -0.5 THEN 'Stable'
-      WHEN mom_savings_rate_change > -2 THEN 'Declining'
+      WHEN mom_savings_rate_change > 0.02 THEN 'Improving Significantly'
+      WHEN mom_savings_rate_change > 0.005 THEN 'Improving'
+      WHEN mom_savings_rate_change > -0.005 THEN 'Stable'
+      WHEN mom_savings_rate_change > -0.02 THEN 'Declining'
       ELSE 'Declining Significantly'
     END AS savings_trend,
     
@@ -223,17 +223,17 @@ savings_analysis AS (
     ABS(total_savings_rate_percent - rolling_3m_avg_savings_rate) AS savings_rate_volatility,
     
     CASE 
-      WHEN ABS(total_savings_rate_percent - rolling_3m_avg_savings_rate) < 2 THEN 'Very Consistent'
-      WHEN ABS(total_savings_rate_percent - rolling_3m_avg_savings_rate) < 5 THEN 'Consistent'
-      WHEN ABS(total_savings_rate_percent - rolling_3m_avg_savings_rate) < 10 THEN 'Somewhat Variable'
+      WHEN ABS(total_savings_rate_percent - rolling_3m_avg_savings_rate) < 0.02 THEN 'Very Consistent'
+      WHEN ABS(total_savings_rate_percent - rolling_3m_avg_savings_rate) < 0.05 THEN 'Consistent'
+      WHEN ABS(total_savings_rate_percent - rolling_3m_avg_savings_rate) < 0.10 THEN 'Somewhat Variable'
       ELSE 'Highly Variable'
     END AS savings_consistency,
     
     -- Financial goals progress (various benchmarks)
     CASE 
-      WHEN traditional_savings_rate_percent >= 20 THEN 'Meeting FIRE Target (20%+)'
-      WHEN traditional_savings_rate_percent >= 15 THEN 'Exceeding Standard Target (15%+)'
-      WHEN traditional_savings_rate_percent >= 10 THEN 'Meeting Standard Target (10%+)'
+      WHEN traditional_savings_rate_percent >= 0.20 THEN 'Meeting FIRE Target (20%+)'
+      WHEN traditional_savings_rate_percent >= 0.15 THEN 'Exceeding Standard Target (15%+)'
+      WHEN traditional_savings_rate_percent >= 0.10 THEN 'Meeting Standard Target (10%+)'
       ELSE 'Below Standard Target (<10%)'
     END AS savings_goal_progress,
     
@@ -258,12 +258,12 @@ final_insights AS (
     -- Savings health score (1-100)
     LEAST(100, GREATEST(0,
       CASE 
-        WHEN total_savings_rate_percent >= 30 THEN 95
-        WHEN total_savings_rate_percent >= 25 THEN 90
-        WHEN total_savings_rate_percent >= 20 THEN 80
-        WHEN total_savings_rate_percent >= 15 THEN 70
-        WHEN total_savings_rate_percent >= 10 THEN 60
-        WHEN total_savings_rate_percent >= 5 THEN 40
+        WHEN total_savings_rate_percent >= 0.30 THEN 95
+        WHEN total_savings_rate_percent >= 0.25 THEN 90
+        WHEN total_savings_rate_percent >= 0.20 THEN 80
+        WHEN total_savings_rate_percent >= 0.15 THEN 70
+        WHEN total_savings_rate_percent >= 0.10 THEN 60
+        WHEN total_savings_rate_percent >= 0.05 THEN 40
         ELSE 20
       END +
       (CASE WHEN mom_savings_rate_change > 0 THEN 5 ELSE 0 END) + -- Improvement bonus
@@ -272,11 +272,11 @@ final_insights AS (
     
     -- Personalized recommendations
     CASE 
-      WHEN total_savings_rate_percent < 5 THEN 'Critical: Create basic savings plan - start with 1% of income'
-      WHEN traditional_savings_rate_percent < 10 AND expense_ratio_percent > 90 THEN 'Focus on reducing expenses to increase savings'
-      WHEN liquid_savings_rate_percent < 5 THEN 'Build emergency fund before other investments'
-      WHEN investment_rate_percent < 5 AND total_savings_rate_percent > 15 THEN 'Consider increasing investment contributions'
-      WHEN total_savings_rate_percent > 25 THEN 'Excellent savings rate - explore tax optimization strategies'
+      WHEN total_savings_rate_percent < 0.05 THEN 'Critical: Create basic savings plan - start with 1% of income'
+      WHEN traditional_savings_rate_percent < 0.10 AND expense_ratio_percent > 0.90 THEN 'Focus on reducing expenses to increase savings'
+      WHEN liquid_savings_rate_percent < 0.05 THEN 'Build emergency fund before other investments'
+      WHEN investment_rate_percent < 0.05 AND total_savings_rate_percent > 0.15 THEN 'Consider increasing investment contributions'
+      WHEN total_savings_rate_percent > 0.25 THEN 'Excellent savings rate - explore tax optimization strategies'
       WHEN savings_consistency = 'Highly Variable' THEN 'Work on making savings more consistent monthly'
       ELSE 'Maintain current savings momentum and look for optimization opportunities'
     END AS savings_recommendation,
@@ -290,7 +290,7 @@ final_insights AS (
     
     -- Monthly savings target to reach standard 15% rate
     CASE 
-      WHEN total_income > 0 AND traditional_savings_rate_percent < 15
+      WHEN total_income > 0 AND traditional_savings_rate_percent < 0.15
       THEN (total_income * 0.15) - (cash_savings + offset_savings + investment_contributions)
       ELSE 0
     END AS additional_monthly_savings_needed_for_15_percent

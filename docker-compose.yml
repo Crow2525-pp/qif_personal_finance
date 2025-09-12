@@ -87,6 +87,9 @@ services:
       args:
         - DAGSTER_APP=${DAGSTER_APP}
     image: pipeline_personal_finance
+    command: ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "pipeline_personal_finance"]
+    expose:
+      - "4000"
     environment:
       TIMEZONE: Australia/Melbourne
       DAGSTER_CURRENT_IMAGE: pipeline_personal_finance
@@ -100,6 +103,7 @@ services:
       DAGSTER_DEPLOYMENT: ${DAGSTER_DEPLOYMENT}
     volumes:
       - /tmp/dagster-data:/tmp/dagster-data
+      - ./pipeline_personal_finance/qif_files:/opt/dagster/app/pipeline_personal_finance/qif_files
     networks:
       - dagster_network
     # ports:
@@ -159,7 +163,7 @@ services:
     volumes:
       - grafana-storage:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
-      - ./grafana_dashboard:/var/lib/grafana/dashboards
+      - ./grafana_dashboards_json:/var/lib/grafana/dashboards
     networks:
       - dagster_network
     depends_on:
