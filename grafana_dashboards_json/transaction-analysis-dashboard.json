@@ -24,8 +24,8 @@
   "panels": [
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "PCC52D03280B7034C"
+        "type": "postgres",
+        "uid": "postgres"
       },
       "description": "Monthly transaction counts by account",
       "fieldConfig": {
@@ -106,7 +106,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month,\n  account_name,\n  transaction_count\nFROM viz_transaction_count_by_account_by_month \nWHERE year_month >= '2024-01'\nORDER BY year_month;",
+          "rawSql": "SELECT \n  DATE_TRUNC('month', f.date)::date as time,\n  a.account_name,\n  COUNT(*) as transaction_count\nFROM reporting.fct_transactions f\nJOIN reporting.dim_account a ON f.account_foreign_key = a.origin_key\nWHERE f.date >= '2024-01-01'\nGROUP BY DATE_TRUNC('month', f.date), a.account_name\nORDER BY time;",
           "refId": "A"
         }
       ],
@@ -129,8 +129,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "PCC52D03280B7034C"
+        "type": "postgres",
+        "uid": "postgres"
       },
       "description": "Debit vs Credit transaction analysis",
       "fieldConfig": {
@@ -242,7 +242,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month,\n  transaction_direction,\n  ABS(SUM(transaction_amount)) as amount\nFROM viz_debit_credit_transactions \nWHERE year_month >= '2024-01'\nGROUP BY year_month, transaction_direction\nORDER BY year_month;",
+          "rawSql": "SELECT \n  year_month,\n  transaction_direction,\n  ABS(SUM(transaction_amount)) as amount\nFROM reporting.viz_debit_credit_transactions \nWHERE year_month >= '2024-01'\nGROUP BY year_month, transaction_direction\nORDER BY year_month;",
           "refId": "A"
         }
       ],
@@ -265,8 +265,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "PCC52D03280B7034C"
+        "type": "postgres",
+        "uid": "postgres"
       },
       "description": "Highest value individual transactions",
       "fieldConfig": {
@@ -376,7 +376,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  transaction_date,\n  ABS(transaction_amount) as transaction_amount,\n  memo,\n  account_name\nFROM viz_top_20_individual_expenses \nORDER BY ABS(transaction_amount) DESC \nLIMIT 15;",
+          "rawSql": "SELECT \n  transaction_date,\n  ABS(transaction_amount) as transaction_amount,\n  memo,\n  account_name\nFROM reporting.viz_top_20_individual_expenses \nORDER BY ABS(transaction_amount) DESC \nLIMIT 15;",
           "refId": "A"
         }
       ],
@@ -385,113 +385,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "PCC52D03280B7034C"
-      },
-      "description": "Expense trends over time by category",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "vis": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "currencyUSD"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 8
-      },
-      "id": 4,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PCC52D03280B7034C"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT \n  year_month,\n  category,\n  ABS(SUM(monthly_spend)) as monthly_spend\nFROM viz_spending_by_category_by_month \nWHERE year_month >= '2024-01' \n  AND category != 'Uncategorized'\nGROUP BY year_month, category\nORDER BY year_month;",
-          "refId": "A"
-        }
-      ],
-      "title": "Monthly Spending by Category",
-      "transformations": [
-        {
-          "id": "convertFieldType",
-          "options": {
-            "conversions": [
-              {
-                "destinationType": "time",
-                "targetField": "year_month"
-              }
-            ],
-            "fields": {}
-          }
-        }
-      ],
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "PCC52D03280B7034C"
+        "type": "postgres",
+        "uid": "postgres"
       },
       "description": "High-value uncategorized transactions needing attention",
       "fieldConfig": {
@@ -589,7 +484,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  transaction_month,\n  ABS(transaction_amount) as transaction_amount,\n  memo\nFROM viz_high_value_uncategorized_without_suggestion \nORDER BY ABS(transaction_amount) DESC \nLIMIT 15;",
+          "rawSql": "SELECT \n  transaction_month,\n  ABS(transaction_amount) as transaction_amount,\n  memo\nFROM reporting.viz_high_value_uncategorized_without_suggestion \nORDER BY ABS(transaction_amount) DESC \nLIMIT 15;",
           "refId": "A"
         }
       ],
@@ -598,8 +493,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "PCC52D03280B7034C"
+        "type": "postgres",
+        "uid": "postgres"
       },
       "description": "Transaction frequency heatmap visualization",
       "fieldConfig": {
@@ -678,7 +573,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  transaction_month,\n  day_of_month,\n  transaction_count\nFROM viz_heatmap \nWHERE transaction_month >= '2024-01'\nORDER BY transaction_month, day_of_month;",
+          "rawSql": "SELECT \n  transaction_month,\n  day_of_month,\n  transaction_count\nFROM reporting.viz_heatmap \nWHERE transaction_month >= '2024-01'\nORDER BY transaction_month, day_of_month;",
           "refId": "A"
         }
       ],
@@ -687,8 +582,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "PCC52D03280B7034C"
+        "type": "postgres",
+        "uid": "postgres"
       },
       "description": "Most common transaction descriptions/memos",
       "fieldConfig": {
@@ -786,7 +681,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  memo,\n  frequency,\n  ABS(total_amount) as total_amount\nFROM viz_top_memos \nORDER BY frequency DESC \nLIMIT 20;",
+          "rawSql": "SELECT \n  memo,\n  frequency,\n  ABS(total_amount) as total_amount\nFROM reporting.viz_top_memos \nORDER BY frequency DESC \nLIMIT 20;",
           "refId": "A"
         }
       ],

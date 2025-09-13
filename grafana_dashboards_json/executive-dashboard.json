@@ -24,8 +24,8 @@
   "panels": [
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "PCC52D03280B7034C"
+        "type": "postgres",
+        "uid": "postgres"
       },
       "description": "Overall Financial Health Score (1-100)",
       "fieldConfig": {
@@ -80,13 +80,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PCC52D03280B7034C"
+            "type": "postgres",
+            "uid": "postgres"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT overall_financial_health_score\nFROM rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
+          "rawSql": "SELECT overall_financial_health_score\nFROM reporting.rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -95,8 +95,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "PCC52D03280B7034C"
+        "type": "postgres",
+        "uid": "postgres"
       },
       "description": "Key financial status and performance indicators",
       "fieldConfig": {
@@ -145,13 +145,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PCC52D03280B7034C"
+            "type": "postgres",
+            "uid": "postgres"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  savings_performance_tier,\n  cash_flow_status,\n  overall_financial_health_rating,\n  current_wealth_milestone\nFROM rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  savings_performance_tier,\n  cash_flow_status,\n  overall_financial_health_rating,\n  current_wealth_milestone\nFROM reporting.rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -160,8 +160,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "PCC52D03280B7034C"
+        "type": "postgres",
+        "uid": "postgres"
       },
       "description": "Current month cash flow score and trend",
       "fieldConfig": {
@@ -216,13 +216,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PCC52D03280B7034C"
+            "type": "postgres",
+            "uid": "postgres"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT cash_flow_score\nFROM rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
+          "rawSql": "SELECT cash_flow_score\nFROM reporting.rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -231,8 +231,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "PCC52D03280B7034C"
+        "type": "postgres",
+        "uid": "postgres"
       },
       "description": "Current month income, expenses, and net cash flow",
       "fieldConfig": {
@@ -358,13 +358,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PCC52D03280B7034C"
+            "type": "postgres",
+            "uid": "postgres"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  monthly_income,\n  monthly_expenses,\n  monthly_net_cash_flow\nFROM rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  monthly_income,\n  monthly_expenses,\n  monthly_net_cash_flow\nFROM reporting.rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -373,8 +373,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "PCC52D03280B7034C"
+        "type": "postgres",
+        "uid": "postgres"
       },
       "description": "Current net worth and key financial ratios",
       "fieldConfig": {
@@ -498,13 +498,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PCC52D03280B7034C"
+            "type": "postgres",
+            "uid": "postgres"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  current_net_worth,\n  total_assets,\n  total_liabilities,\n  liquid_assets\nFROM rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  current_net_worth,\n  total_assets,\n  total_liabilities,\n  liquid_assets\nFROM reporting.rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -513,8 +513,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "PCC52D03280B7034C"
+        "type": "postgres",
+        "uid": "postgres"
       },
       "description": "Savings performance and rates",
       "fieldConfig": {
@@ -638,13 +638,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PCC52D03280B7034C"
+            "type": "postgres",
+            "uid": "postgres"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  monthly_savings_rate_percent,\n  comprehensive_savings_rate,\n  traditional_savings_rate,\n  debt_to_asset_ratio_percent\nFROM rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  monthly_savings_rate_percent,\n  comprehensive_savings_rate,\n  traditional_savings_rate,\n  debt_to_asset_ratio_percent\nFROM reporting.rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -653,8 +653,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "PCC52D03280B7034C"
+        "type": "postgres",
+        "uid": "postgres"
       },
       "description": "Year-to-date financial summary",
       "fieldConfig": {
@@ -752,13 +752,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PCC52D03280B7034C"
+            "type": "postgres",
+            "uid": "postgres"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  ytd_income,\n  ytd_expenses,\n  ytd_total_savings,\n  ytd_net_cash_flow\nFROM rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  ytd_income,\n  ytd_expenses,\n  ytd_total_savings,\n  ytd_net_cash_flow\nFROM reporting.rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -767,8 +767,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "PCC52D03280B7034C"
+        "type": "postgres",
+        "uid": "postgres"
       },
       "description": "3-month averages and financial projections",
       "fieldConfig": {
@@ -866,13 +866,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PCC52D03280B7034C"
+            "type": "postgres",
+            "uid": "postgres"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  three_month_avg_income,\n  three_month_avg_expenses,\n  forecasted_next_month_cash_flow,\n  monthly_net_worth_change\nFROM rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  three_month_avg_income,\n  three_month_avg_expenses,\n  forecasted_next_month_cash_flow,\n  monthly_net_worth_change\nFROM reporting.rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -881,8 +881,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "PCC52D03280B7034C"
+        "type": "postgres",
+        "uid": "postgres"
       },
       "description": "Action items and benchmarking insights",
       "fieldConfig": {
@@ -931,13 +931,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PCC52D03280B7034C"
+            "type": "postgres",
+            "uid": "postgres"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  savings_rate_benchmark,\n  net_worth_benchmark,\n  monthly_goal_achievement,\n  cash_flow_trend\nFROM rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  savings_rate_benchmark,\n  net_worth_benchmark,\n  monthly_goal_achievement,\n  cash_flow_trend\nFROM reporting.rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -946,8 +946,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "PCC52D03280B7034C"
+        "type": "postgres",
+        "uid": "postgres"
       },
       "description": "AI-generated recommendations and action items",
       "fieldConfig": {
@@ -998,13 +998,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PCC52D03280B7034C"
+            "type": "postgres",
+            "uid": "postgres"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  priority_recommendation as \"Priority Recommendation\",\n  accounts_with_issues as \"Accounts Needing Attention\"\nFROM rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  priority_recommendation as \"Priority Recommendation\",\n  accounts_with_issues as \"Accounts Needing Attention\"\nFROM reporting.rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],

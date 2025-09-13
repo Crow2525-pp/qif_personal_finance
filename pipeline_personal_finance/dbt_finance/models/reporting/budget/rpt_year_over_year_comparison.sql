@@ -268,7 +268,7 @@ final_analysis AS (
     -- Top accomplishment
     CASE 
       WHEN yoy_net_worth_change_percent > 20 THEN 'Exceptional net worth growth of ' || ROUND(yoy_net_worth_change_percent, 1) || '%'
-      WHEN yoy_savings_rate_change > 5 THEN 'Significant savings rate improvement of ' || ROUND(yoy_savings_rate_change, 1) || ' percentage points'
+      WHEN yoy_savings_rate_change > 0.05 THEN 'Significant savings rate improvement of ' || ROUND(yoy_savings_rate_change * 100, 1) || ' percentage points'
       WHEN annual_mortgage_reduction > 10000 THEN 'Strong mortgage paydown of $' || ROUND(annual_mortgage_reduction, 0)
       WHEN yoy_income_change_percent > 15 THEN 'Excellent income growth of ' || ROUND(yoy_income_change_percent, 1) || '%'
       ELSE 'Maintained financial stability'
@@ -276,7 +276,7 @@ final_analysis AS (
     
     -- Priority focus area for next year
     CASE 
-      WHEN avg_annual_savings_rate < 10 THEN 'Increase savings rate to at least 10%'
+      WHEN avg_annual_savings_rate < 0.10 THEN 'Increase savings rate to at least 10%'
       WHEN yoy_expense_change_percent > yoy_income_change_percent + 5 THEN 'Focus on expense management'
       WHEN months_negative_cash_flow > 3 THEN 'Improve cash flow consistency'
       WHEN annual_liquid_savings < annual_expenses * 0.25 THEN 'Build emergency fund'

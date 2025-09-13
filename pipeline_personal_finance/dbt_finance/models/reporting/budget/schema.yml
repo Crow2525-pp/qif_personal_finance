@@ -20,7 +20,7 @@ models:
       - name: net_cash_flow
         description: "Income minus expenses (positive = surplus, negative = deficit)"
       - name: savings_rate_percent
-        description: "Percentage of income saved (net cash flow / income * 100)"
+        description: "Ratio of income saved (net cash flow / income, 0–1)"
 
   - name: rpt_category_spending_trends
     description: "Detailed spending analysis by category with trend identification and variance analysis"
