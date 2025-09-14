@@ -25,7 +25,8 @@ WITH monthly_savings_components AS (
     
     -- Classify savings types
     CASE 
-      WHEN da.account_type = 'Offset' AND ft.transaction_amount > 0 THEN 'Offset_Savings'
+      WHEN da.account_type = 'Offset' AND ft.transaction_amount > 0 
+           AND NOT ft.is_income_transaction AND NOT ft.is_internal_transfer THEN 'Offset_Savings'
       WHEN da.account_type IN ('Bills Account', 'Everyday Account') AND ft.transaction_amount > 0 
            AND NOT ft.is_income_transaction AND NOT ft.is_internal_transfer THEN 'Cash_Savings'
       WHEN ft.is_income_transaction THEN 'Income'
@@ -255,6 +256,8 @@ savings_analysis AS (
 final_insights AS (
   SELECT 
     *,
+    -- Alias for Grafana panel to apply USD unit explicitly
+    estimated_annual_liquid_savings AS estimated_annual_liquid_savings_usd,
     -- Savings health score (1-100)
     LEAST(100, GREATEST(0,
       CASE 

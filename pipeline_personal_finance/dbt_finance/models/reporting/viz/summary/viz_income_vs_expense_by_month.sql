@@ -11,22 +11,25 @@
 
 WITH base AS (
     SELECT 
-        to_char(transaction_date, 'YYYY-MM') AS year_month,
-        transaction_amount,
-        is_internal_transfer
-    FROM {{ ref('fct_transactions_enhanced') }}
+        TO_CHAR(ft.transaction_date, 'YYYY-MM') AS year_month,
+        {{ metric_income('ft') }}     AS income_amount,
+        {{ metric_expense(false, 'ft', 'dc') }}    AS expense_amount
+    FROM {{ ref('fct_transactions_enhanced') }} ft
+    LEFT JOIN {{ ref('dim_categories_enhanced') }} dc
+      ON ft.category_key = dc.category_key
 ),
 income_expense AS (
     SELECT
         year_month,
-        SUM(CASE WHEN transaction_amount > 0 AND NOT COALESCE(is_internal_transfer, FALSE) THEN transaction_amount ELSE 0 END) AS income,
-        SUM(CASE WHEN transaction_amount < 0 AND NOT COALESCE(is_internal_transfer, FALSE) THEN -transaction_amount ELSE 0 END) AS expense
+        SUM(income_amount)  AS income,
+        SUM(expense_amount) AS expense
     FROM base 
     GROUP BY 1
 )
 SELECT
+    TO_DATE(year_month || '-01', 'YYYY-MM-DD') AS period_date,
     year_month,
     income,
     expense
 FROM income_expense
-ORDER BY year_month
+ORDER BY period_date

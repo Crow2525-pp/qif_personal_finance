@@ -36,6 +36,7 @@ WITH
   /**​ Pivot that into one column per account **/
   pivot_balances AS (
     SELECT
+      MIN(month_start_date)::date                 AS period_date,
       to_char(month_start_date, 'YYYY-MM')        AS year_month,
       {% for account in accounts %}
         max(
@@ -48,13 +49,14 @@ WITH
         {% if not loop.last %}, {% endif %}
       {% endfor %}
     FROM monthly_snapshot
-    GROUP BY 1
+    GROUP BY 2
     ORDER BY 1
   ),
 
   /**​ Filter out months where every balance is zero **/
   final AS (
     SELECT
+      period_date,
       year_month,
       {% for account in accounts %}
         "{{ account }}"
@@ -69,3 +71,4 @@ WITH
   )
 
 SELECT * FROM final
+ORDER BY period_date

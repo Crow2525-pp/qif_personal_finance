@@ -186,21 +186,21 @@ year_over_year_comparisons AS (
     CASE 
       WHEN LAG(annual_income) OVER (ORDER BY comparison_year) > 0
       THEN ((annual_income - LAG(annual_income) OVER (ORDER BY comparison_year)) / 
-            LAG(annual_income) OVER (ORDER BY comparison_year)) * 100
+            LAG(annual_income) OVER (ORDER BY comparison_year))
       ELSE NULL
     END AS yoy_income_change_percent,
     
     CASE 
       WHEN LAG(annual_expenses) OVER (ORDER BY comparison_year) > 0
       THEN ((annual_expenses - LAG(annual_expenses) OVER (ORDER BY comparison_year)) / 
-            LAG(annual_expenses) OVER (ORDER BY comparison_year)) * 100
+            LAG(annual_expenses) OVER (ORDER BY comparison_year))
       ELSE NULL
     END AS yoy_expense_change_percent,
     
     CASE 
       WHEN LAG(year_end_net_worth) OVER (ORDER BY comparison_year) != 0
       THEN ((year_end_net_worth - LAG(year_end_net_worth) OVER (ORDER BY comparison_year)) / 
-            ABS(LAG(year_end_net_worth) OVER (ORDER BY comparison_year))) * 100
+            ABS(LAG(year_end_net_worth) OVER (ORDER BY comparison_year)))
       ELSE NULL
     END AS yoy_net_worth_change_percent,
     
@@ -223,7 +223,7 @@ final_scores AS (
       50 + -- Base score
       (CASE WHEN yoy_income_change_percent > 0 THEN 10 ELSE 0 END) + -- Income growth bonus
       (CASE WHEN yoy_expense_change_percent < yoy_income_change_percent THEN 15 ELSE -5 END) + -- Expense control bonus
-      (CASE WHEN yoy_net_worth_change_percent > 10 THEN 20 ELSE 0 END) + -- Net worth growth bonus
+      (CASE WHEN yoy_net_worth_change_percent > 0.10 THEN 20 ELSE 0 END) + -- Net worth growth bonus
       (CASE WHEN yoy_savings_rate_change > 0 THEN 10 ELSE 0 END) + -- Savings improvement bonus
       (CASE WHEN months_positive_cash_flow >= 10 THEN 10 ELSE 0 END) -- Cash flow consistency bonus
     )) AS annual_financial_progress_score
@@ -235,23 +235,23 @@ final_analysis AS (
     *,
     -- Performance classifications
     CASE 
-      WHEN yoy_income_change_percent > 10 THEN 'Strong Income Growth'
-      WHEN yoy_income_change_percent > 3 THEN 'Moderate Income Growth'
-      WHEN yoy_income_change_percent > -3 THEN 'Stable Income'
+      WHEN yoy_income_change_percent > 0.10 THEN 'Strong Income Growth'
+      WHEN yoy_income_change_percent > 0.03 THEN 'Moderate Income Growth'
+      WHEN yoy_income_change_percent > -0.03 THEN 'Stable Income'
       ELSE 'Income Decline'
     END AS income_performance,
     
     CASE 
-      WHEN yoy_expense_change_percent < 3 THEN 'Excellent Expense Control'
-      WHEN yoy_expense_change_percent < 7 THEN 'Good Expense Control'
-      WHEN yoy_expense_change_percent < 15 THEN 'Moderate Expense Growth'
+      WHEN yoy_expense_change_percent < 0.03 THEN 'Excellent Expense Control'
+      WHEN yoy_expense_change_percent < 0.07 THEN 'Good Expense Control'
+      WHEN yoy_expense_change_percent < 0.15 THEN 'Moderate Expense Growth'
       ELSE 'High Expense Growth'
     END AS expense_performance,
     
     CASE 
-      WHEN yoy_net_worth_change_percent > 20 THEN 'Exceptional Net Worth Growth'
-      WHEN yoy_net_worth_change_percent > 10 THEN 'Strong Net Worth Growth'
-      WHEN yoy_net_worth_change_percent > 5 THEN 'Good Net Worth Growth'
+      WHEN yoy_net_worth_change_percent > 0.20 THEN 'Exceptional Net Worth Growth'
+      WHEN yoy_net_worth_change_percent > 0.10 THEN 'Strong Net Worth Growth'
+      WHEN yoy_net_worth_change_percent > 0.05 THEN 'Good Net Worth Growth'
       WHEN yoy_net_worth_change_percent > 0 THEN 'Modest Net Worth Growth'
       ELSE 'Net Worth Decline'
     END AS net_worth_performance,
@@ -267,10 +267,10 @@ final_analysis AS (
     
     -- Top accomplishment
     CASE 
-      WHEN yoy_net_worth_change_percent > 20 THEN 'Exceptional net worth growth of ' || ROUND(yoy_net_worth_change_percent, 1) || '%'
-      WHEN yoy_savings_rate_change > 0.05 THEN 'Significant savings rate improvement of ' || ROUND(yoy_savings_rate_change * 100, 1) || ' percentage points'
+      WHEN yoy_net_worth_change_percent > 0.20 THEN 'Exceptional net worth growth of ' || ROUND(yoy_net_worth_change_percent, 3)
+      WHEN yoy_savings_rate_change > 0.05 THEN 'Significant savings rate improvement of ' || ROUND(yoy_savings_rate_change, 3)
       WHEN annual_mortgage_reduction > 10000 THEN 'Strong mortgage paydown of $' || ROUND(annual_mortgage_reduction, 0)
-      WHEN yoy_income_change_percent > 15 THEN 'Excellent income growth of ' || ROUND(yoy_income_change_percent, 1) || '%'
+      WHEN yoy_income_change_percent > 0.15 THEN 'Excellent income growth of ' || ROUND(yoy_income_change_percent, 3)
       ELSE 'Maintained financial stability'
     END AS top_financial_accomplishment,
     

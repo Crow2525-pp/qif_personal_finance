@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: viz_heatmap
+    description: "Yearly matrix of monthly expenses for heatmap panels (higher magnitude)."
+    columns:
+      - name: year
+        description: "Calendar year"
+      - name: Jan
+        description: "Total expenses in January"
+      - name: Feb
+      - name: Mar
+      - name: Apr
+      - name: May
+      - name: Jun
+      - name: Jul
+      - name: Aug
+      - name: Sep
+      - name: Oct
+      - name: Nov
+      - name: Dec
+
+  - name: viz_expense_heatmap_tidy
+    description: "Tidy monthly expense totals for flexible heatmap visualizations."
+    columns:
+      - name: period_date
+        description: "Month start date"
+      - name: year
+        description: "Calendar year"
+      - name: month_label
+        description: "Three-letter month label"
+      - name: amount
+        description: "Total expenses for the month"
+

@@ -13,15 +13,13 @@ WITH monthly_transactions AS (
     ft.transaction_year,
     ft.transaction_month,
     ft.transaction_date,
-    ft.transaction_amount,
-    ft.is_income_transaction,
-    ft.is_internal_transfer,
     dc.category_type,
-    dc.level_1_category
+    dc.level_1_category,
+    {{ metric_income('ft') }}  AS income_amount,
+    {{ metric_expense(false, 'ft', 'dc') }} AS expense_amount
   FROM {{ ref('fct_transactions_enhanced') }} ft
   LEFT JOIN {{ ref('dim_categories_enhanced') }} dc
     ON ft.category_key = dc.category_key
-  WHERE ft.is_internal_transfer = FALSE -- Exclude internal transfers
 ),
 
 monthly_aggregation AS (
@@ -32,26 +30,25 @@ monthly_aggregation AS (
     DATE_TRUNC('month', MIN(transaction_date)) AS month_start_date,
     
     -- Income metrics
-    SUM(CASE WHEN is_income_transaction THEN ABS(transaction_amount) ELSE 0 END) AS total_income,
-    COUNT(CASE WHEN is_income_transaction THEN 1 END) AS income_transaction_count,
+    SUM(income_amount) AS total_income,
+    COUNT(CASE WHEN income_amount > 0 THEN 1 END) AS income_transaction_count,
     
-    -- Expense metrics (excluding internal transfers and income)
-    SUM(CASE WHEN NOT is_income_transaction AND transaction_amount < 0 THEN ABS(transaction_amount) ELSE 0 END) AS total_expenses,
-    COUNT(CASE WHEN NOT is_income_transaction AND transaction_amount < 0 THEN 1 END) AS expense_transaction_count,
+    -- Expense metrics
+    SUM(expense_amount) AS total_expenses,
+    COUNT(CASE WHEN expense_amount > 0 THEN 1 END) AS expense_transaction_count,
     
     -- Net cash flow
-    SUM(CASE WHEN is_income_transaction THEN ABS(transaction_amount) ELSE 0 END) -
-    SUM(CASE WHEN NOT is_income_transaction AND transaction_amount < 0 THEN ABS(transaction_amount) ELSE 0 END) AS net_cash_flow,
+    SUM(income_amount) - SUM(expense_amount) AS net_cash_flow,
     
     -- Category breakdowns
-    SUM(CASE WHEN level_1_category = 'Mortgage' AND transaction_amount < 0 THEN ABS(transaction_amount) ELSE 0 END) AS mortgage_expenses,
-    SUM(CASE WHEN level_1_category = 'Household & Services' AND transaction_amount < 0 THEN ABS(transaction_amount) ELSE 0 END) AS household_expenses,
-    SUM(CASE WHEN level_1_category = 'Food & Drink' AND transaction_amount < 0 THEN ABS(transaction_amount) ELSE 0 END) AS food_expenses,
-    SUM(CASE WHEN level_1_category = 'Family & Kids' AND transaction_amount < 0 THEN ABS(transaction_amount) ELSE 0 END) AS family_expenses,
+    SUM(CASE WHEN level_1_category = 'Mortgage' THEN expense_amount ELSE 0 END) AS mortgage_expenses,
+    SUM(CASE WHEN level_1_category = 'Household & Services' THEN expense_amount ELSE 0 END) AS household_expenses,
+    SUM(CASE WHEN level_1_category = 'Food & Drink' THEN expense_amount ELSE 0 END) AS food_expenses,
+    SUM(CASE WHEN level_1_category = 'Family & Kids' THEN expense_amount ELSE 0 END) AS family_expenses,
     
     -- Total transaction volume
     COUNT(*) AS total_transactions,
-    SUM(ABS(transaction_amount)) AS total_transaction_volume
+    SUM(income_amount + expense_amount) AS total_transaction_volume
     
   FROM monthly_transactions
   GROUP BY transaction_year, transaction_month
@@ -62,7 +59,7 @@ final_metrics AS (
     *,
     -- Calculated metrics (ratios, not percent-scaled)
     CASE WHEN total_income > 0 THEN (net_cash_flow / total_income) ELSE 0 END AS savings_rate_percent,
-    CASE WHEN total_income > 0 THEN (total_expenses / total_income) * 100 ELSE 0 END AS expense_ratio_percent,
+    CASE WHEN total_income > 0 THEN (total_expenses / total_income) ELSE 0 END AS expense_ratio_percent,
     total_expenses / NULLIF(expense_transaction_count, 0) AS avg_expense_amount,
     
     -- Period comparisons

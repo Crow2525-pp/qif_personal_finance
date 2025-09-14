@@ -33,7 +33,58 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "from": 0,
+                "result": {
+                  "text": "Critical"
+                },
+                "to": 40
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 40,
+                "result": {
+                  "text": "Poor"
+                },
+                "to": 50
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 50,
+                "result": {
+                  "text": "Fair"
+                },
+                "to": 75
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 75,
+                "result": {
+                  "text": "Good"
+                },
+                "to": 90
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 90,
+                "result": {
+                  "text": "Excellent"
+                },
+                "to": 100
+              },
+              "type": "range"
+            }
+          ],
           "max": 100,
           "min": 0,
           "thresholds": {
@@ -98,19 +149,62 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Current cash flow status and trend direction",
+      "description": "Current cash flow status ranking (1-5 scale)",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "1": {
+                  "text": "Critical"
+                },
+                "2": {
+                  "text": "Poor" 
+                },
+                "3": {
+                  "text": "Fair"
+                },
+                "4": {
+                  "text": "Good"
+                },
+                "5": {
+                  "text": "Excellent"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "max": 5,
+          "min": 1,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "red",
                 "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              },
+              {
+                "color": "orange",
+                "value": 2
+              },
+              {
+                "color": "yellow",
+                "value": 3
+              },
+              {
+                "color": "light-green",
+                "value": 4
+              },
+              {
+                "color": "green",
+                "value": 5
               }
             ]
           },
@@ -126,9 +220,6 @@
       },
       "id": 2,
       "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -137,9 +228,8 @@
           "fields": "",
           "values": false
         },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
       },
       "pluginVersion": "10.0.0",
       "targets": [
@@ -151,12 +241,102 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  cash_flow_status,\n  cash_flow_trend\nFROM reporting.rpt_cash_flow_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT cash_flow_status_rank\nFROM reporting.rpt_cash_flow_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
-      "title": "Cash Flow Status",
-      "type": "stat"
+      "title": "Cash Flow Status Rank",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Current cash flow trend direction (1-3 scale)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "1": {
+                  "text": "Declining"
+                },
+                "2": {
+                  "text": "Stable"
+                },
+                "3": {
+                  "text": "Improving"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "max": 3,
+          "min": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              },
+              {
+                "color": "yellow",
+                "value": 2
+              },
+              {
+                "color": "green",
+                "value": 3
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "id": 9,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  CASE \n    WHEN cash_flow_trend = 'Declining' THEN 1\n    WHEN cash_flow_trend = 'Stable' THEN 2\n    WHEN cash_flow_trend = 'Improving' THEN 3\n    ELSE 2\n  END as trend_rank\nFROM reporting.rpt_cash_flow_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "refId": "A"
+        }
+      ],
+      "title": "Cash Flow Trend",
+      "type": "gauge"
     },
     {
       "datasource": {
@@ -262,8 +442,8 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
-        "x": 12,
+        "w": 6,
+        "x": 18,
         "y": 0
       },
       "id": 3,
@@ -433,7 +613,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  budget_year_month as time,\n  net_cash_flow,\n  rolling_3m_avg_net_flow\nFROM reporting.rpt_cash_flow_analysis \nORDER BY transaction_year, transaction_month;",
+          "rawSql": "SELECT \n  CONCAT(budget_year_month, '-01')::timestamp as time,\n  net_cash_flow,\n  rolling_3m_avg_net_flow\nFROM reporting.rpt_cash_flow_analysis \nORDER BY transaction_year, transaction_month;",
           "refId": "A"
         }
       ],
@@ -581,7 +761,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  budget_year_month as time,\n  operating_cash_flow,\n  financing_cash_flow,\n  investing_cash_flow\nFROM reporting.rpt_cash_flow_analysis \nORDER BY transaction_year, transaction_month;",
+          "rawSql": "SELECT \n  CONCAT(budget_year_month, '-01')::timestamp as time,\n  operating_cash_flow,\n  financing_cash_flow,\n  investing_cash_flow\nFROM reporting.rpt_cash_flow_analysis \nORDER BY transaction_year, transaction_month;",
           "refId": "A"
         }
       ],
@@ -609,7 +789,7 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "percentunit"
         },
         "overrides": [
           {

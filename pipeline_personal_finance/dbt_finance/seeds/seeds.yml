@@ -52,3 +52,18 @@ seeds:
       - name: subcategory
         description: "More specific classification within a broader category, such as 'electricity' within 'utilities'."
 
+  - name: categories_allowed
+    description: "Display-allowed level_1 categories and their order for viz."
+    docs:
+      show: true
+      node_color: "#3b82f6" # blue
+    columns:
+      - name: category
+        description: "Canonical Level 1 category name."
+        tests:
+          - not_null
+          - unique
+      - name: display_order
+        description: "Order in which to display categories."
+        tests:
+          - not_null

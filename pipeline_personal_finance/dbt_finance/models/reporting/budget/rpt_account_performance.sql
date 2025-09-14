@@ -74,7 +74,7 @@ account_trends AS (
       )) / ABS(LAG(end_of_month_balance) OVER (
         PARTITION BY account_name 
         ORDER BY transaction_year, transaction_month
-      ))) * 100
+      )))
       ELSE NULL
     END AS mom_balance_change_percent,
     
@@ -100,7 +100,7 @@ account_trends AS (
     -- Account utilization (for credit accounts)
     CASE 
       WHEN account_type IN ('Bills Account', 'Everyday Account') AND end_of_month_balance > 0
-      THEN (total_debits / NULLIF(end_of_month_balance, 0)) * 100
+      THEN (total_debits / NULLIF(end_of_month_balance, 0))
       ELSE NULL
     END AS account_utilization_ratio
     
@@ -180,7 +180,7 @@ final_insights AS (
     -- Flag accounts needing attention
     CASE 
       WHEN account_health_score < 40 THEN TRUE
-      WHEN is_liability AND mom_balance_change_percent > 10 THEN TRUE
+      WHEN is_liability AND mom_balance_change_percent > 0.10 THEN TRUE
       WHEN NOT is_liability AND end_of_month_balance < 100 AND account_type != 'Home Loan' THEN TRUE
       ELSE FALSE
     END AS needs_attention_flag,

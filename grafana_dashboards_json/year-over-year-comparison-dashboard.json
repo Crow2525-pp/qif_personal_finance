@@ -104,6 +104,13 @@
           "color": {
             "mode": "thresholds"
           },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -113,8 +120,7 @@
                 "value": null
               }
             ]
-          },
-          "unit": "short"
+          }
         },
         "overrides": []
       },
@@ -126,20 +132,8 @@
       },
       "id": 2,
       "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
+        "frameIndex": 0,
+        "showHeader": true
       },
       "pluginVersion": "10.0.0",
       "targets": [
@@ -151,12 +145,12 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  annual_financial_assessment,\n  top_financial_accomplishment,\n  next_year_priority_focus\nFROM reporting.rpt_year_over_year_comparison \nORDER BY comparison_year DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  'Annual Assessment' as \"Metric\",\n  annual_financial_assessment as \"Assessment\",\n  ROUND(annual_financial_progress_score, 0) || '/100' as \"Score\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison)\nUNION ALL\nSELECT \n  'Key Accomplishment' as \"Metric\",\n  top_financial_accomplishment as \"Assessment\",\n  '' as \"Score\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison)\nUNION ALL\nSELECT \n  'Priority Focus' as \"Metric\",\n  next_year_priority_focus as \"Assessment\",\n  '' as \"Score\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison);",
           "refId": "A"
         }
       ],
       "title": "Annual Financial Assessment",
-      "type": "stat"
+      "type": "table"
     },
     {
       "datasource": {
@@ -179,7 +173,7 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "percentunit"
         },
         "overrides": [
           {
@@ -365,6 +359,13 @@
           "color": {
             "mode": "thresholds"
           },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -374,8 +375,7 @@
                 "value": null
               }
             ]
-          },
-          "unit": "short"
+          }
         },
         "overrides": []
       },
@@ -387,20 +387,8 @@
       },
       "id": 4,
       "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
+        "frameIndex": 0,
+        "showHeader": true
       },
       "pluginVersion": "10.0.0",
       "targets": [
@@ -412,12 +400,12 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  income_performance,\n  expense_performance,\n  net_worth_performance\nFROM reporting.rpt_year_over_year_comparison \nORDER BY comparison_year DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  'Income Performance' as \"Category\",\n  income_performance as \"Current Performance\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison)\nUNION ALL\nSELECT \n  'Expense Performance' as \"Category\",\n  expense_performance as \"Current Performance\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison)\nUNION ALL\nSELECT \n  'Net Worth Performance' as \"Category\",\n  net_worth_performance as \"Current Performance\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison);",
           "refId": "A"
         }
       ],
       "title": "Performance Classifications",
-      "type": "stat"
+      "type": "table"
     },
     {
       "datasource": {
@@ -1379,7 +1367,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  comparison_year as \"Year\",\n  annual_income as \"Income\",\n  annual_expenses as \"Expenses\",\n  annual_net_cash_flow as \"Net Cash Flow\",\n  year_end_net_worth as \"Year-End Net Worth\",\n  ROUND(avg_annual_savings_rate * 100, 1) as \"Avg Savings Rate %\",\n  annual_total_savings as \"Total Savings\",\n  months_positive_cash_flow as \"Positive Cash Flow Months\",\n  annual_financial_progress_score as \"Progress Score\"\nFROM reporting.rpt_year_over_year_comparison \nORDER BY comparison_year DESC \nLIMIT 5;",
+          "rawSql": "SELECT \n  comparison_year as \"Year\",\n  annual_income as \"Income\",\n  annual_expenses as \"Expenses\",\n  annual_net_cash_flow as \"Net Cash Flow\",\n  year_end_net_worth as \"Year-End Net Worth\",\n  ROUND(avg_annual_savings_rate, 1) as \"Avg Savings Rate %\",\n  annual_total_savings as \"Total Savings\",\n  months_positive_cash_flow as \"Positive Cash Flow Months\",\n  annual_financial_progress_score as \"Progress Score\"\nFROM reporting.rpt_year_over_year_comparison \nORDER BY comparison_year DESC \nLIMIT 5;",
           "refId": "A"
         }
       ],

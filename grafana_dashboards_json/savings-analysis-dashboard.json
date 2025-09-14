@@ -157,7 +157,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_savings_rate_percent * 100 as total_savings_rate_percent,\n  traditional_savings_rate_percent * 100 as traditional_savings_rate_percent\nFROM reporting.rpt_savings_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_savings_rate_percent,\n  traditional_savings_rate_percent\nFROM reporting.rpt_savings_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -175,6 +175,13 @@
           "color": {
             "mode": "thresholds"
           },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -184,8 +191,7 @@
                 "value": null
               }
             ]
-          },
-          "unit": "short"
+          }
         },
         "overrides": []
       },
@@ -197,20 +203,8 @@
       },
       "id": 3,
       "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
+        "frameIndex": 0,
+        "showHeader": true
       },
       "pluginVersion": "10.0.0",
       "targets": [
@@ -222,12 +216,12 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  savings_performance_tier,\n  savings_trend,\n  savings_consistency,\n  savings_goal_progress\nFROM reporting.rpt_savings_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  savings_performance_tier as \"Performance Tier\",\n  savings_trend as \"Trend\",\n  savings_consistency as \"Consistency\",\n  savings_goal_progress as \"Goal Progress\"\nFROM reporting.rpt_savings_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
       "title": "Savings Performance Analysis",
-      "type": "stat"
+      "type": "table"
     },
     {
       "datasource": {
@@ -280,7 +274,7 @@
               }
             ]
           },
-          "unit": "percentunit"
+          "unit": "percent"
         },
         "overrides": [
           {
@@ -377,7 +371,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  budget_year_month as time,\n  total_savings_rate_percent,\n  traditional_savings_rate_percent,\n  rolling_3m_avg_savings_rate\nFROM reporting.rpt_savings_analysis \nORDER BY transaction_year, transaction_month;",
+          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  total_savings_rate_percent,\n  traditional_savings_rate_percent,\n  rolling_3m_avg_savings_rate\nFROM reporting.rpt_savings_analysis \nORDER BY transaction_year, transaction_month;",
           "refId": "A"
         }
       ],
@@ -544,7 +538,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  budget_year_month as time,\n  cash_savings,\n  offset_savings,\n  investment_contributions,\n  estimated_mortgage_principal_payment\nFROM reporting.rpt_savings_analysis \nORDER BY transaction_year, transaction_month;",
+          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  cash_savings,\n  offset_savings,\n  investment_contributions,\n  estimated_mortgage_principal_payment\nFROM reporting.rpt_savings_analysis \nORDER BY transaction_year, transaction_month;",
           "refId": "A"
         }
       ],
@@ -729,7 +723,7 @@
               },
               {
                 "id": "unit",
-                "value": "percentunit"
+                "value": "percent"
               }
             ]
           },
@@ -745,7 +739,7 @@
               },
               {
                 "id": "unit",
-                "value": "percentunit"
+                "value": "percent"
               }
             ]
           },
@@ -761,7 +755,7 @@
               },
               {
                 "id": "unit",
-                "value": "percentunit"
+                "value": "percent"
               },
               {
                 "id": "color",
@@ -803,7 +797,7 @@
               },
               {
                 "id": "unit",
-                "value": "percentunit"
+                "value": "percent"
               }
             ]
           }
@@ -935,7 +929,7 @@
               },
               {
                 "id": "unit",
-                "value": "percentunit"
+                "value": "percent"
               }
             ]
           }

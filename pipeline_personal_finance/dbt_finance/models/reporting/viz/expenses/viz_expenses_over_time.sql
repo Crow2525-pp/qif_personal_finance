@@ -1,10 +1,12 @@
 WITH grouped AS (
     SELECT
-        to_char(transaction_date, 'YYYY-MM') AS year_month,
-        account_key,
-        category_key,
-        SUM(transaction_amount) AS amount
-    FROM {{ ref('fct_transactions_enhanced') }}
+        TO_CHAR(ft.transaction_date, 'YYYY-MM') AS year_month,
+        ft.account_key,
+        ft.category_key,
+        SUM({{ metric_expense(exclude_mortgage=true, table_alias='ft', category_alias='dc') }}) AS amount
+    FROM {{ ref('fct_transactions_enhanced') }} ft
+    LEFT JOIN {{ ref('dim_categories_enhanced') }} dc
+      ON ft.category_key = dc.category_key
     GROUP BY 1, 2, 3
 ),
 
@@ -20,23 +22,20 @@ two_years AS (
      AND trans.category_key = trans2.category_key
     LEFT JOIN {{ ref('dim_categories_enhanced') }} AS dc
       ON trans.category_key = dc.category_key
-    WHERE
-      NOT COALESCE(dc.is_internal_transfer, FALSE)
-      AND dc.level_1_category != 'Mortgage'
-      AND trans.amount < 0
+    WHERE trans.amount > 0
     GROUP BY trans.year_month
 ),
 
 rolling_totals AS (
     SELECT
         "Year Month",
-        ("Month LY" * -1) AS "Month LY",
-        ("Month TY" * -1) AS "Month TY",
-        SUM(("Month TY" * -1)) OVER (
+        "Month LY" AS "Month LY",
+        "Month TY" AS "Month TY",
+        SUM("Month TY") OVER (
             ORDER BY to_date("Year Month", 'YYYY-MM')
             ROWS BETWEEN 11 PRECEDING AND CURRENT ROW
         ) AS "R12M TY",
-        SUM(("Month LY" * -1)) OVER (
+        SUM("Month LY") OVER (
             ORDER BY to_date("Year Month", 'YYYY-MM')
             ROWS BETWEEN 11 PRECEDING AND CURRENT ROW
         ) AS "R12M LY"

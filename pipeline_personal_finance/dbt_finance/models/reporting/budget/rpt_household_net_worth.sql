@@ -66,7 +66,7 @@ monthly_net_worth_calculation AS (
     
     -- Breakdown by account categories
     SUM(CASE 
-      WHEN account_type IN ('Bills Account', 'Everyday Account') THEN end_of_month_balance 
+      WHEN account_type IN ('Bills Account', 'Everyday Account', 'Offset') THEN end_of_month_balance 
       ELSE 0 
     END) AS liquid_assets,
     
@@ -112,7 +112,7 @@ net_worth_trends AS (
     CASE 
       WHEN LAG(net_worth) OVER (ORDER BY transaction_year, transaction_month) != 0
       THEN ((net_worth - LAG(net_worth) OVER (ORDER BY transaction_year, transaction_month)) / 
-            ABS(LAG(net_worth) OVER (ORDER BY transaction_year, transaction_month))) * 100
+            ABS(LAG(net_worth) OVER (ORDER BY transaction_year, transaction_month)))
       ELSE NULL
     END AS mom_net_worth_change_percent,
     
@@ -172,10 +172,10 @@ net_worth_analysis AS (
     
     -- Growth rate classification
     CASE 
-      WHEN mom_net_worth_change_percent > 5 THEN 'Strong Growth'
-      WHEN mom_net_worth_change_percent > 1 THEN 'Moderate Growth'
-      WHEN mom_net_worth_change_percent > -1 THEN 'Stable'
-      WHEN mom_net_worth_change_percent > -5 THEN 'Moderate Decline'
+      WHEN mom_net_worth_change_percent > 0.05 THEN 'Strong Growth'
+      WHEN mom_net_worth_change_percent > 0.01 THEN 'Moderate Growth'
+      WHEN mom_net_worth_change_percent > -0.01 THEN 'Stable'
+      WHEN mom_net_worth_change_percent > -0.05 THEN 'Moderate Decline'
       ELSE 'Significant Decline'
     END AS growth_classification,
     
@@ -200,7 +200,7 @@ net_worth_analysis AS (
     -- Year-over-year net worth change
     CASE 
       WHEN yoy_same_month_net_worth IS NOT NULL AND yoy_same_month_net_worth != 0
-      THEN ((net_worth - yoy_same_month_net_worth) / ABS(yoy_same_month_net_worth)) * 100
+      THEN ((net_worth - yoy_same_month_net_worth) / ABS(yoy_same_month_net_worth))
       ELSE NULL
     END AS yoy_net_worth_change_percent,
     
@@ -242,8 +242,8 @@ final_insights AS (
     
     -- Progress toward goals (assuming goal is positive net worth growth)
     CASE 
-      WHEN yoy_net_worth_change_percent > 10 THEN 'Exceeding Expectations'
-      WHEN yoy_net_worth_change_percent > 5 THEN 'On Track'
+      WHEN yoy_net_worth_change_percent > 0.10 THEN 'Exceeding Expectations'
+      WHEN yoy_net_worth_change_percent > 0.05 THEN 'On Track'
       WHEN yoy_net_worth_change_percent > 0 THEN 'Slow Progress'
       ELSE 'Below Expectations'
     END AS annual_progress_assessment

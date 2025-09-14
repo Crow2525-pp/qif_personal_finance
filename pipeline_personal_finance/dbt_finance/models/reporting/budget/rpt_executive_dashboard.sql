@@ -75,6 +75,9 @@ current_cash_flow AS (
     cash_flow_status,
     cash_flow_trend,
     cash_flow_efficiency_score,
+    cash_flow_status_rank,
+    cash_flow_efficiency_percentile,
+    cash_flow_status_compound,
     outflow_to_inflow_ratio,
     cash_flow_recommendation,
     operating_cash_flow,
@@ -120,6 +123,7 @@ executive_summary AS (
     ROUND(cms.total_expenses, 0) AS monthly_expenses,
     ROUND(cms.net_cash_flow, 0) AS monthly_net_cash_flow,
     ROUND(cms.savings_rate_percent, 3) AS monthly_savings_rate_percent,
+    ROUND((cms.savings_rate_percent * 100)::numeric, 1) AS monthly_savings_rate_percent_pct,
     
     -- NET WORTH SNAPSHOT
     ROUND(cnw.net_worth, 0) AS current_net_worth,
@@ -128,19 +132,29 @@ executive_summary AS (
     ROUND(cnw.liquid_assets, 0) AS liquid_assets,
     ROUND(cnw.mom_net_worth_change, 0) AS monthly_net_worth_change,
     ROUND(cnw.debt_to_asset_ratio, 1) AS debt_to_asset_ratio_percent,
+    cnw.net_worth_health_score,
     
     -- SAVINGS PERFORMANCE
     ROUND(cs.total_savings, 0) AS monthly_total_savings,
-    ROUND(cs.total_savings_rate_percent, 1) AS comprehensive_savings_rate,
-    ROUND(cs.traditional_savings_rate_percent, 1) AS traditional_savings_rate,
+    ROUND(cs.total_savings_rate_percent, 3) AS comprehensive_savings_rate, -- ratio 0-1
+    ROUND(cs.traditional_savings_rate_percent, 3) AS traditional_savings_rate, -- ratio 0-1
+    -- percent-scaled versions (0-100) for Grafana display
+    ROUND((cs.total_savings_rate_percent * 100)::numeric, 1) AS comprehensive_savings_rate_pct,
+    ROUND((cs.traditional_savings_rate_percent * 100)::numeric, 1) AS traditional_savings_rate_pct,
     ROUND(cs.ytd_total_savings, 0) AS ytd_total_savings,
     cs.savings_performance_tier,
+    cs.savings_health_score,
     
     -- CASH FLOW HEALTH
     ccf.cash_flow_status,
     ccf.cash_flow_trend,
+    ccf.cash_flow_status_rank,
+    ccf.cash_flow_efficiency_percentile,
+    ccf.cash_flow_status_compound,
     ROUND(ccf.cash_flow_efficiency_score, 0) AS cash_flow_score,
     ROUND(ccf.outflow_to_inflow_ratio, 1) AS expense_to_income_ratio,
+    ROUND((ccf.outflow_to_inflow_ratio * 100)::numeric, 1) AS expense_to_income_ratio_pct,
+    ROUND((ccf.cash_flow_efficiency_percentile * 100)::numeric, 1) AS cash_flow_efficiency_percentile_pct,
     
     -- PERFORMANCE SCORES (Weighted Average)
     ROUND((cnw.net_worth_health_score * 0.3 + 
@@ -150,13 +164,15 @@ executive_summary AS (
     -- TRENDS (3-Month Rolling Averages)
     ROUND(cms.rolling_3m_avg_income, 0) AS three_month_avg_income,
     ROUND(cms.rolling_3m_avg_expenses, 0) AS three_month_avg_expenses,
-    ROUND(cs.rolling_3m_avg_savings_rate, 1) AS three_month_avg_savings_rate,
+    ROUND(cs.rolling_3m_avg_savings_rate, 3) AS three_month_avg_savings_rate, -- ratio 0-1
+    ROUND(cs.rolling_3m_avg_savings_rate * 100, 1) AS three_month_avg_savings_rate_pct,
     
     -- YEAR-TO-DATE PROGRESS
     ROUND(cms.ytd_income, 0) AS ytd_income,
     ROUND(cms.ytd_expenses, 0) AS ytd_expenses,
     ROUND(cms.ytd_net_cash_flow, 0) AS ytd_net_cash_flow,
     CASE WHEN cms.ytd_income > 0 THEN ROUND((cms.ytd_net_cash_flow / cms.ytd_income), 3) ELSE 0 END AS ytd_savings_rate,
+    CASE WHEN cms.ytd_income > 0 THEN ROUND(((cms.ytd_net_cash_flow / cms.ytd_income) * 100)::numeric, 1) ELSE 0 END AS ytd_savings_rate_pct,
     
     -- KEY ALERTS AND RECOMMENDATIONS
     COALESCE(aa.accounts_needing_attention, 0) AS accounts_needing_attention,
@@ -193,6 +209,16 @@ executive_summary AS (
       WHEN cnw.net_worth > 0 THEN 'Positive Net Worth'
       ELSE 'Rebuilding Phase'
     END AS net_worth_benchmark,
+
+    -- Net Worth Benchmark rank for bar gauge (1 worst .. 5 best)
+    CASE 
+      WHEN cnw.net_worth < 0 AND cnw.debt_to_asset_ratio > 0.80 THEN 1 -- Below Target
+      WHEN cnw.net_worth <= 0 THEN 2                                   -- Rebuilding
+      WHEN cnw.net_worth > 0 AND cnw.net_worth <= 100000 THEN 3        -- On Track
+      WHEN cnw.net_worth > 100000 AND cnw.net_worth <= 500000 THEN 4   -- Good
+      WHEN cnw.net_worth > 500000 THEN 5                                -- Excellent
+      ELSE 3
+    END AS net_worth_benchmark_rank,
     
     CURRENT_TIMESTAMP AS dashboard_generated_at
     

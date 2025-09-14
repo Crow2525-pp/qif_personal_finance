@@ -25,7 +25,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "postgres"
+        "uid": "PCC52D03280B7034C"
       },
       "description": "Monthly transaction counts by account",
       "fieldConfig": {
@@ -100,13 +100,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
+            "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  DATE_TRUNC('month', f.date)::date as time,\n  a.account_name,\n  COUNT(*) as transaction_count\nFROM reporting.fct_transactions f\nJOIN reporting.dim_account a ON f.account_foreign_key = a.origin_key\nWHERE f.date >= '2024-01-01'\nGROUP BY DATE_TRUNC('month', f.date), a.account_name\nORDER BY time;",
+          "rawSql": "SELECT \n  DATE_TRUNC('month', f.date)::date as time,\n  a.account_name,\n  COUNT(*) as transaction_count\nFROM reporting.fct_transactions f\nJOIN reporting.dim_account a ON f.account_foreign_key = a.origin_key\nWHERE f.date >= DATE_TRUNC('year', CURRENT_DATE) - INTERVAL '1 year'\nGROUP BY DATE_TRUNC('month', f.date), a.account_name\nORDER BY time;",
           "refId": "A"
         }
       ],
@@ -130,7 +130,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "postgres"
+        "uid": "PCC52D03280B7034C"
       },
       "description": "Debit vs Credit transaction analysis",
       "fieldConfig": {
@@ -236,13 +236,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
+            "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month,\n  transaction_direction,\n  ABS(SUM(transaction_amount)) as amount\nFROM reporting.viz_debit_credit_transactions \nWHERE year_month >= '2024-01'\nGROUP BY year_month, transaction_direction\nORDER BY year_month;",
+          "rawSql": "SELECT \n  year_month,\n  transaction_direction,\n  ABS(SUM(transaction_amount)) as amount\nFROM reporting.viz_debit_credit_transactions \nWHERE year_month >= TO_CHAR(DATE_TRUNC('year', CURRENT_DATE) - INTERVAL '1 year', 'YYYY-MM')\nGROUP BY year_month, transaction_direction\nORDER BY year_month;",
           "refId": "A"
         }
       ],
@@ -266,7 +266,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "postgres"
+        "uid": "PCC52D03280B7034C"
       },
       "description": "Highest value individual transactions",
       "fieldConfig": {
@@ -301,7 +301,7 @@
             "properties": [
               {
                 "id": "unit",
-                "value": "currency"
+                "value": "currencyUSD"
               },
               {
                 "id": "displayName",
@@ -370,13 +370,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
+            "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  transaction_date,\n  ABS(transaction_amount) as transaction_amount,\n  memo,\n  account_name\nFROM reporting.viz_top_20_individual_expenses \nORDER BY ABS(transaction_amount) DESC \nLIMIT 15;",
+          "rawSql": "SELECT \n  transaction_date,\n  ABS(amount) as transaction_amount,\n  memo,\n  subcategory\nFROM reporting.viz_top_20_individual_expenses \nORDER BY ABS(amount) DESC \nLIMIT 15;",
           "refId": "A"
         }
       ],
@@ -386,7 +386,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "postgres"
+        "uid": "PCC52D03280B7034C"
       },
       "description": "High-value uncategorized transactions needing attention",
       "fieldConfig": {
@@ -421,7 +421,7 @@
             "properties": [
               {
                 "id": "unit",
-                "value": "currency"
+                "value": "currencyUSD"
               },
               {
                 "id": "displayName",
@@ -478,13 +478,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
+            "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  transaction_month,\n  ABS(transaction_amount) as transaction_amount,\n  memo\nFROM reporting.viz_high_value_uncategorized_without_suggestion \nORDER BY ABS(transaction_amount) DESC \nLIMIT 15;",
+          "rawSql": "SELECT \n  period_start as transaction_date,\n  total_amount_abs as transaction_amount,\n  sample_memo as memo\nFROM reporting.viz_high_value_uncategorized_without_suggestion \nORDER BY total_amount_abs DESC \nLIMIT 15;",
           "refId": "A"
         }
       ],
@@ -494,96 +494,47 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "postgres"
+        "uid": "PCC52D03280B7034C"
       },
-      "description": "Transaction frequency heatmap visualization",
+      "description": "Monthly expense matrix (Year x Month) with heatmap cell coloring",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "spectrum"
-          },
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "vis": false
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
+          "color": { "mode": "thresholds" },
+          "custom": { "cellOptions": { "type": "heatmap" } },
+          "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null } ] }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "year" },
+            "properties": [ { "id": "custom.cellOptions", "value": { "type": "auto" } } ]
+          }
+        ]
       },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 16
-      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
       "id": 6,
       "options": {
-        "calculate": false,
-        "cellGap": 1,
-        "color": {
-          "exponent": 0.5,
-          "fill": "dark-orange",
-          "mode": "spectrum",
-          "reverse": false,
-          "scale": "exponential",
-          "scheme": "Spectral",
-          "steps": 64
-        },
-        "exemplars": {
-          "color": "rgba(255,0,255,0.7)"
-        },
-        "filterValues": {
-          "le": 1e-9
-        },
-        "legend": {
-          "show": true
-        },
-        "rowsFrame": {
-          "layout": "auto"
-        },
-        "tooltip": {
-          "show": true,
-          "yHistogram": false
-        },
-        "yAxis": {
-          "axisPlacement": "left",
-          "reverse": false,
-          "unit": "short"
-        }
+        "cellHeight": "sm",
+        "footer": { "show": false, "fields": "", "reducer": ["sum"], "countRows": false },
+        "showHeader": true
       },
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PCC52D03280B7034C"
-          },
+          "datasource": { "type": "postgres", "uid": "PCC52D03280B7034C" },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  transaction_month,\n  day_of_month,\n  transaction_count\nFROM reporting.viz_heatmap \nWHERE transaction_month >= '2024-01'\nORDER BY transaction_month, day_of_month;",
+          "rawSql": "SELECT * FROM reporting.viz_heatmap ORDER BY year;",
           "refId": "A"
         }
       ],
-      "title": "Transaction Activity Heatmap",
-      "type": "heatmap"
+      "title": "Expense Heatmap (Year x Month)",
+      "type": "table"
     },
     {
       "datasource": {
         "type": "postgres",
-        "uid": "postgres"
+        "uid": "PCC52D03280B7034C"
       },
       "description": "Most common transaction descriptions/memos",
       "fieldConfig": {
@@ -642,7 +593,7 @@
             "properties": [
               {
                 "id": "unit",
-                "value": "currency"
+                "value": "currencyUSD"
               },
               {
                 "id": "displayName",
@@ -675,13 +626,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
+            "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  memo,\n  frequency,\n  ABS(total_amount) as total_amount\nFROM reporting.viz_top_memos \nORDER BY frequency DESC \nLIMIT 20;",
+          "rawSql": "SELECT \n  transaction_memo as memo,\n  COUNT(*) as frequency,\n  ABS(SUM(transaction_amount)) as total_amount\nFROM reporting.fct_transactions_enhanced \nWHERE transaction_memo IS NOT NULL AND transaction_memo <> ''\nGROUP BY transaction_memo\nORDER BY COUNT(*) DESC \nLIMIT 20;",
           "refId": "A"
         }
       ],

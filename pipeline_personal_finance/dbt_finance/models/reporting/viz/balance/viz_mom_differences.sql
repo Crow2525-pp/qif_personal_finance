@@ -12,21 +12,16 @@
 
 WITH
 
-  /** grab the current month’s balances **/
   current_balance AS (
     SELECT *
     FROM {{ ref("viz_balance_by_year_month") }}
   ),
 
-  /** compute what “year_month” would be one month later **/
   previous_balance AS (
     SELECT
+      period_date,
+      (period_date + INTERVAL '1 month')::date AS next_period_date,
       year_month,
-      to_char(
-        to_date(year_month||'-01', 'YYYY-MM-DD')
-        + INTERVAL '1 month'
-      , 'YYYY-MM'
-      ) AS next_year_month,
       {% for account in accounts %}
         "{{ account }}"
         {% if not loop.last %}, {% endif %}
@@ -34,25 +29,19 @@ WITH
     FROM {{ ref("viz_balance_by_year_month") }}
   ),
 
-  /** do the month-over-month diffs **/
   monthly_differences AS (
     SELECT
+      cb.period_date,
       cb.year_month,
       {% for account in accounts %}
-        cb."{{ account }}"
-          - coalesce(pb."{{ account }}", 0)
-        AS "{{ account }}_MoM"
+        cb."{{ account }}" - COALESCE(pb."{{ account }}", 0) AS "{{ account }}_MoM"
         {% if not loop.last %}, {% endif %}
       {% endfor %}
     FROM current_balance AS cb
     LEFT JOIN previous_balance AS pb
-      ON cb.year_month = pb.next_year_month
-  ),
-
-  final AS (
-    SELECT *
-    FROM monthly_differences
+      ON cb.period_date = pb.next_period_date
   )
 
-SELECT * FROM final
-ORDER BY year_month ASC
+SELECT *
+FROM monthly_differences
+ORDER BY period_date ASC

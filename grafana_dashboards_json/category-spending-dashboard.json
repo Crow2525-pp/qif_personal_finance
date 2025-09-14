@@ -25,7 +25,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "postgres"
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -67,7 +67,7 @@
             "lastNotNull"
           ],
           "fields": "",
-          "values": false
+          "values": true
         },
         "tooltip": {
           "mode": "single",
@@ -78,7 +78,7 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "postgres"
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -93,7 +93,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "postgres"
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -160,12 +160,12 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "postgres"
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "WITH top_categories AS (\n    SELECT level_1_category\n    FROM reporting.rpt_category_spending_trends \n    WHERE transaction_year >= 2024\n      AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n      AND monthly_spending > 0\n    GROUP BY level_1_category\n    ORDER BY SUM(monthly_spending) DESC\n    LIMIT 6\n  )\n  SELECT \n    CONCAT(budget_year_month, '-01')::timestamp as time,\n    level_1_category,\n    SUM(monthly_spending) as value\n  FROM reporting.rpt_category_spending_trends \n  WHERE transaction_year >= 2024\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n    AND level_1_category IN (SELECT level_1_category FROM top_categories)\n  GROUP BY budget_year_month, level_1_category\n  ORDER BY time, level_1_category;",
+          "rawSql": "WITH top_categories AS (\n    SELECT level_1_category\n    FROM reporting.rpt_category_spending_trends \n    WHERE transaction_year >= EXTRACT(YEAR FROM DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year'))\n      AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n      AND monthly_spending > 0\n    GROUP BY level_1_category\n    ORDER BY SUM(monthly_spending) DESC\n    LIMIT 6\n  )\n  SELECT \n    CONCAT(budget_year_month, '-01')::timestamp as time,\n    level_1_category as metric,\n    SUM(monthly_spending) as value\n  FROM reporting.rpt_category_spending_trends \n  WHERE transaction_year >= EXTRACT(YEAR FROM DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year'))\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n    AND level_1_category IN (SELECT level_1_category FROM top_categories)\n  GROUP BY budget_year_month, level_1_category\n  ORDER BY time, level_1_category;",
           "refId": "A"
         }
       ],
@@ -175,7 +175,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "postgres"
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -231,7 +231,8 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": true,
+          "values": []
         },
         "tooltip": {
           "mode": "single",
@@ -242,12 +243,12 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "postgres"
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "WITH top_categories AS (\n    SELECT level_1_category\n    FROM reporting.rpt_category_spending_trends \n    WHERE transaction_year >= 2024\n      AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n      AND monthly_spending > 0\n    GROUP BY level_1_category\n    ORDER BY SUM(monthly_spending) DESC\n    LIMIT 8\n  )\n  SELECT \n    CONCAT(budget_year_month, '-01')::timestamp as time,\n    level_1_category,\n    SUM(monthly_spending) as value\n  FROM reporting.rpt_category_spending_trends \n  WHERE transaction_year >= 2023\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n    AND level_1_category IN (SELECT level_1_category FROM top_categories)\n  GROUP BY budget_year_month, level_1_category\n  ORDER BY time, level_1_category;",
+          "rawSql": "WITH top_categories AS (\n    SELECT level_1_category\n    FROM reporting.rpt_category_spending_trends \n    WHERE transaction_year >= EXTRACT(YEAR FROM DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year'))\n      AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n      AND monthly_spending > 0\n    GROUP BY level_1_category\n    ORDER BY SUM(monthly_spending) DESC\n    LIMIT 8\n  )\n  SELECT \n    CONCAT(budget_year_month, '-01')::timestamp as time,\n    level_1_category as metric,\n    SUM(monthly_spending) as value\n  FROM reporting.rpt_category_spending_trends \n  WHERE transaction_year >= EXTRACT(YEAR FROM DATE_TRUNC('year', CURRENT_DATE - INTERVAL '2 years'))\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n    AND level_1_category IN (SELECT level_1_category FROM top_categories)\n  GROUP BY budget_year_month, level_1_category\n  ORDER BY time, level_1_category;",
           "refId": "A"
         }
       ],
@@ -257,7 +258,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "postgres"
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -288,7 +289,20 @@
           "mappings": [],
           "unit": "currencyUSD"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "year"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -324,12 +338,12 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "postgres"
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  CAST(transaction_year as text) as year,\n  SUM(monthly_spending) as amount\nFROM reporting.rpt_category_spending_trends \nWHERE transaction_year >= 2020\n  AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n  AND monthly_spending > 0\nGROUP BY transaction_year\nORDER BY transaction_year;",
+          "rawSql": "SELECT \n  CAST(transaction_year as text) as year,\n  SUM(monthly_spending) as amount\nFROM reporting.rpt_category_spending_trends \nWHERE transaction_year >= EXTRACT(YEAR FROM DATE_TRUNC('year', CURRENT_DATE - INTERVAL '5 years'))\n  AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n  AND monthly_spending > 0\nGROUP BY transaction_year\nORDER BY transaction_year;",
           "refId": "A"
         }
       ],
@@ -339,7 +353,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "postgres"
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -437,7 +451,7 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "postgres"
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",

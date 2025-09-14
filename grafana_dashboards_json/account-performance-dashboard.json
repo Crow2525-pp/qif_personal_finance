@@ -24,7 +24,7 @@
   "panels": [
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
+        "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
       "description": "Account balances over time",
@@ -100,13 +100,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
+            "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month,\n  bendigo_offset,\n  ing_billsbillsbills,\n  bendigo_homeloan,\n  ing_countdown\nFROM reporting.viz_balance_by_year_month \nWHERE year_month >= '2024-01'\nORDER BY year_month;",
+          "rawSql": "SELECT \n  year_month,\n  bendigo_offset,\n  ing_billsbillsbills,\n  bendigo_homeloan,\n  ing_countdown\nFROM reporting.viz_balance_by_year_month \nWHERE period_date >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\nORDER BY period_date;",
           "refId": "A"
         }
       ],
@@ -129,7 +129,7 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
+        "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
       "description": "Current account balances",
@@ -254,13 +254,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
+            "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  bendigo_offset,\n  ing_billsbillsbills,\n  bendigo_homeloan,\n  ing_countdown\nFROM reporting.viz_balance_by_year_month \nORDER BY year_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  bendigo_offset,\n  ing_billsbillsbills,\n  bendigo_homeloan,\n  ing_countdown\nFROM reporting.viz_balance_by_year_month \nORDER BY period_date DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -269,7 +269,7 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
+        "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
       "description": "Net position after home loan offset",
@@ -284,8 +284,8 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 20,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -349,13 +349,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
+            "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  TO_CHAR(year_month, 'YYYY-MM') as year_month,\n  AVG(net_position) as net_position\nFROM reporting.viz_net_position_after_homeloan \nWHERE year_month >= '2024-01-01' AND net_position <> 0\nGROUP BY TO_CHAR(year_month, 'YYYY-MM')\nORDER BY year_month;",
+          "rawSql": "SELECT \n  year_month,\n  AVG(net_position) as net_position\nFROM reporting.viz_net_position_after_homeloan \nWHERE year_month >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year') AND net_position <> 0\nGROUP BY year_month\nORDER BY year_month;",
           "refId": "A"
         }
       ],
@@ -378,7 +378,7 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
+        "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
       "description": "Month-over-month balance changes",
@@ -490,13 +490,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
+            "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month,\n  \"bendigo_offset_MoM\" as bendigo_offset,\n  \"ing_billsbillsbills_MoM\" as ing_bills,\n  \"bendigo_homeloan_MoM\" as bendigo_loan,\n  \"ing_countdown_MoM\" as ing_countdown\nFROM reporting.viz_mom_differences \nWHERE year_month >= '2024-01'\nORDER BY year_month;",
+          "rawSql": "SELECT \n  year_month,\n  \"bendigo_offset_MoM\" as bendigo_offset,\n  \"ing_billsbillsbills_MoM\" as ing_bills,\n  \"bendigo_homeloan_MoM\" as bendigo_loan,\n  \"ing_countdown_MoM\" as ing_countdown\nFROM reporting.viz_mom_differences \nWHERE period_date >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\nORDER BY period_date;",
           "refId": "A"
         }
       ],
@@ -519,7 +519,7 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
+        "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
       "description": "Interest payments over time",
@@ -595,13 +595,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
+            "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month,\n  \"DEBIT_INTEREST\" as interest_amount,\n  \"MONTHLY_ADMINISTRATION_FEE\" as admin_fee\nFROM reporting.viz_interest_payments \nWHERE year_month >= 'Jan-2024'\nORDER BY year_month;",
+          "rawSql": "SELECT \n  year_month,\n  \"INTEREST\" as interest_amount\nFROM reporting.viz_interest_payments \nWHERE TO_DATE(year_month, 'Mon-YYYY') >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\nORDER BY TO_DATE(year_month, 'Mon-YYYY');",
           "refId": "A"
         }
       ],
@@ -624,7 +624,7 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
+        "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
       "description": "Account performance metrics from detailed reporting",
@@ -725,13 +725,13 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
+            "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT DISTINCT\n  account_name,\n  account_type,\n  bank_name,\n  account_category,\n  is_liability,\n  is_transactional,\n  is_mortgage\nFROM rpt_account_performance \nWHERE budget_year_month = (\n  SELECT MAX(budget_year_month) FROM rpt_account_performance\n)\nORDER BY bank_name, account_name;",
+          "rawSql": "SELECT DISTINCT\n  account_name,\n  account_type,\n  bank_name,\n  account_category,\n  is_liability,\n  is_transactional,\n  is_mortgage\nFROM reporting.rpt_account_performance \nWHERE budget_year_month = (\n  SELECT MAX(budget_year_month) FROM reporting.rpt_account_performance\n)\nORDER BY bank_name, account_name;",
           "refId": "A"
         }
       ],

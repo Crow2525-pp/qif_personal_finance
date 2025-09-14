@@ -17,51 +17,26 @@ WITH category_monthly_spending AS (
     dc.level_2_subcategory,
     dc.level_3_store,
     dc.category_type,
-    ft.is_internal_transfer,
     
-    -- Expense amounts (only negative transactions, exclude internal transfers and income)
-    SUM(CASE 
-      WHEN ft.transaction_amount < 0 
-       AND NOT ft.is_internal_transfer 
-       AND NOT ft.is_income_transaction 
-      THEN ABS(ft.transaction_amount) 
-      ELSE 0 
-    END) AS monthly_spending,
+    -- Expense amounts (exclude internal transfers and income)
+    SUM({{ metric_expense(false, 'ft', 'dc') }}) AS monthly_spending,
     
-    COUNT(CASE 
-      WHEN ft.transaction_amount < 0 
-       AND NOT ft.is_internal_transfer 
-       AND NOT ft.is_income_transaction 
-      THEN 1 
-    END) AS transaction_count,
+    COUNT(CASE WHEN {{ metric_expense(false, 'ft', 'dc') }} > 0 THEN 1 END) AS transaction_count,
     
-    AVG(CASE 
-      WHEN ft.transaction_amount < 0 
-       AND NOT ft.is_internal_transfer 
-       AND NOT ft.is_income_transaction 
-      THEN ABS(ft.transaction_amount) 
-    END) AS avg_transaction_amount,
+    AVG(NULLIF({{ metric_expense(false, 'ft', 'dc') }}, 0)) AS avg_transaction_amount,
     
-    MAX(CASE 
-      WHEN ft.transaction_amount < 0 
-       AND NOT ft.is_internal_transfer 
-       AND NOT ft.is_income_transaction 
-      THEN ABS(ft.transaction_amount) 
-    END) AS max_transaction_amount
+    MAX({{ metric_expense(false, 'ft', 'dc') }}) AS max_transaction_amount
     
   FROM {{ ref('fct_transactions_enhanced') }} ft
   LEFT JOIN {{ ref('dim_categories_enhanced') }} dc
     ON ft.category_key = dc.category_key
-  WHERE NOT COALESCE(ft.is_internal_transfer, FALSE)
-    AND NOT COALESCE(ft.is_income_transaction, FALSE)
   GROUP BY 
     ft.transaction_year, 
     ft.transaction_month,
     dc.level_1_category,
     dc.level_2_subcategory, 
     dc.level_3_store,
-    dc.category_type,
-    ft.is_internal_transfer
+    dc.category_type
 ),
 
 category_trends AS (
@@ -91,7 +66,7 @@ category_trends AS (
       )) / LAG(monthly_spending) OVER (
         PARTITION BY level_1_category, level_2_subcategory 
         ORDER BY transaction_year, transaction_month
-      )) * 100
+      ))
       ELSE NULL
     END AS mom_spending_change_percent,
     
@@ -111,7 +86,7 @@ category_trends AS (
     -- Percentage of total monthly spending
     monthly_spending / SUM(monthly_spending) OVER (
       PARTITION BY transaction_year, transaction_month
-    ) * 100 AS percent_of_total_monthly_spending
+    ) AS percent_of_total_monthly_spending
     
   FROM category_monthly_spending
 ),
@@ -143,7 +118,7 @@ category_summary_stats AS (
     -- Volatility indicator
     CASE 
       WHEN AVG(monthly_spending) > 0 
-      THEN (STDDEV(monthly_spending) / AVG(monthly_spending)) * 100
+      THEN (STDDEV(monthly_spending) / AVG(monthly_spending))
       ELSE 0
     END AS spending_volatility_coefficient
     
@@ -163,17 +138,17 @@ final_report AS (
     
     -- Spending trend classification
     CASE 
-      WHEN mom_spending_change_percent > 20 THEN 'Increasing Significantly'
-      WHEN mom_spending_change_percent > 5 THEN 'Increasing'
-      WHEN mom_spending_change_percent > -5 THEN 'Stable'
-      WHEN mom_spending_change_percent > -20 THEN 'Decreasing'
+      WHEN mom_spending_change_percent > 0.20 THEN 'Increasing Significantly'
+      WHEN mom_spending_change_percent > 0.05 THEN 'Increasing'
+      WHEN mom_spending_change_percent > -0.05 THEN 'Stable'
+      WHEN mom_spending_change_percent > -0.20 THEN 'Decreasing'
       ELSE 'Decreasing Significantly'
     END AS spending_trend_category,
     
     -- Budget planning insights
     CASE 
-      WHEN cs.spending_volatility_coefficient > 50 THEN 'High Variability - Plan Buffer'
-      WHEN cs.spending_volatility_coefficient > 25 THEN 'Moderate Variability'
+      WHEN cs.spending_volatility_coefficient > 0.50 THEN 'High Variability - Plan Buffer'
+      WHEN cs.spending_volatility_coefficient > 0.25 THEN 'Moderate Variability'
       ELSE 'Stable Spending Pattern'
     END AS budget_planning_insight,
     

@@ -106,6 +106,14 @@ models:
         description: "Traditional savings rate excluding mortgage principal payments"
         tests:
           - not_null
+      - name: estimated_annual_liquid_savings
+        description: "Estimated annual liquid savings (cash + offset) at current monthly pace"
+        meta:
+          unit: currencyUSD
+      - name: estimated_annual_liquid_savings_usd
+        description: "Estimated annual liquid savings (USD unit alias for Grafana)"
+        meta:
+          unit: currencyUSD
 
   - name: rpt_year_over_year_comparison
     description: "Annual financial performance comparison with year-over-year analysis"
@@ -138,9 +146,15 @@ models:
         description: "Composite financial health score from 1-100"
         tests:
           - not_null
-      - name: overall_financial_health_rating
-        description: "Qualitative rating based on health score"
-        tests:
-          - not_null
-          - accepted_values:
-              values: ['Excellent', 'Good', 'Fair', 'Needs Improvement', 'Critical Attention Required']
+      - name: monthly_savings_rate_percent_pct
+        description: "Monthly savings rate, percentage scaled (0-100)"
+      - name: expense_to_income_ratio_pct
+        description: "Expense to income ratio, percentage scaled (0-100)"
+      - name: cash_flow_efficiency_percentile_pct
+        description: "Cash flow efficiency percentile scaled to 0-100"
+      - name: ytd_savings_rate_pct
+        description: "Year-to-date savings rate, percentage scaled (0-100)"
+      - name: net_worth_health_score
+        description: "Net worth health score (1-100)"
+      - name: savings_health_score
+        description: "Savings health score (1-100)"

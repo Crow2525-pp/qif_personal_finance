@@ -124,8 +124,8 @@ cash_flow_trends AS (
     operating_inflows - operating_outflows AS operating_cash_flow,
     
     -- Cash flow ratios and metrics
-    CASE WHEN total_inflows > 0 THEN (total_outflows / total_inflows) * 100 ELSE 0 END AS outflow_to_inflow_ratio,
-    CASE WHEN total_inflows > 0 THEN (net_cash_flow / total_inflows) * 100 ELSE 0 END AS cash_flow_margin_percent,
+    CASE WHEN total_inflows > 0 THEN (total_outflows / total_inflows) ELSE 0 END AS outflow_to_inflow_ratio,
+    CASE WHEN total_inflows > 0 THEN (net_cash_flow / total_inflows) ELSE 0 END AS cash_flow_margin_percent,
     
     -- Month-over-month changes
     LAG(total_inflows) OVER (ORDER BY transaction_year, transaction_month) AS prev_month_inflows,
@@ -173,13 +173,13 @@ cash_flow_analysis AS (
     -- Calculate month-over-month percentage changes
     CASE 
       WHEN prev_month_inflows > 0 
-      THEN ((total_inflows - prev_month_inflows) / prev_month_inflows) * 100 
+      THEN ((total_inflows - prev_month_inflows) / prev_month_inflows)
       ELSE NULL 
     END AS mom_inflow_change_percent,
     
     CASE 
       WHEN prev_month_outflows > 0 
-      THEN ((total_outflows - prev_month_outflows) / prev_month_outflows) * 100 
+      THEN ((total_outflows - prev_month_outflows) / prev_month_outflows)
       ELSE NULL 
     END AS mom_outflow_change_percent,
     
@@ -209,8 +209,8 @@ cash_flow_analysis AS (
     LEAST(100, GREATEST(0,
       50 + -- Base score
       (CASE WHEN net_cash_flow > 0 THEN 30 ELSE -20 END) + -- Positive cash flow bonus
-      (CASE WHEN cash_flow_margin_percent > 10 THEN 20 ELSE 0 END) + -- High margin bonus
-      (CASE WHEN outflow_to_inflow_ratio < 80 THEN 10 ELSE -10 END) -- Efficiency bonus/penalty
+      (CASE WHEN cash_flow_margin_percent > 0.10 THEN 20 ELSE 0 END) + -- High margin bonus
+      (CASE WHEN outflow_to_inflow_ratio < 0.80 THEN 10 ELSE -10 END) -- Efficiency bonus/penalty
     )) AS cash_flow_efficiency_score,
     
     CURRENT_TIMESTAMP AS report_generated_at
@@ -221,11 +221,35 @@ cash_flow_analysis AS (
 final_insights AS (
   SELECT 
     *,
+    -- Ranked status (1 worst .. 5 best)
+    CASE 
+      WHEN cash_flow_status = 'Negative' AND cash_flow_trend = 'Declining' THEN 1
+      WHEN cash_flow_status = 'Negative' THEN 2
+      WHEN cash_flow_status = 'Breakeven' THEN 3
+      WHEN cash_flow_status = 'Positive' AND cash_flow_trend <> 'Improving' THEN 4
+      WHEN cash_flow_status = 'Positive' AND cash_flow_trend = 'Improving' THEN 5
+      ELSE 3
+    END AS cash_flow_status_rank,
+
+    -- Percentile position among all months by efficiency
+    PERCENT_RANK() OVER (ORDER BY cash_flow_efficiency_score) AS cash_flow_efficiency_percentile,
+
+    -- Human-friendly compound status with rank
+    (cash_flow_status || ' (' || cash_flow_trend || ') — Rank ' ||
+      CASE 
+        WHEN cash_flow_status = 'Negative' AND cash_flow_trend = 'Declining' THEN '1/5'
+        WHEN cash_flow_status = 'Negative' THEN '2/5'
+        WHEN cash_flow_status = 'Breakeven' THEN '3/5'
+        WHEN cash_flow_status = 'Positive' AND cash_flow_trend <> 'Improving' THEN '4/5'
+        WHEN cash_flow_status = 'Positive' AND cash_flow_trend = 'Improving' THEN '5/5'
+        ELSE '3/5'
+      END
+    ) AS cash_flow_status_compound,
     -- Add actionable insights
     CASE 
       WHEN cash_flow_efficiency_score < 40 THEN 'Critical - Review spending immediately'
       WHEN net_cash_flow < 0 AND cash_flow_trend = 'Declining' THEN 'Warning - Negative cash flow trend'
-      WHEN outflow_to_inflow_ratio > 95 THEN 'Caution - Very tight cash flow'
+      WHEN outflow_to_inflow_ratio > 0.95 THEN 'Caution - Very tight cash flow'
       WHEN net_cash_flow > rolling_3m_avg_net_flow * 1.5 THEN 'Excellent - Consider investment opportunities'
       WHEN cash_flow_efficiency_score > 80 THEN 'Good - Maintain current patterns'
       ELSE 'Monitor - Track trends closely'

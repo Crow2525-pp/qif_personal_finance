@@ -7,3 +7,31 @@ models:
         description: "Year and month (YYYY-MM) of the balance."
       - name: <account_columns>
         description: "Each column represents the latest balance for a specific account in the given month."
+
+  - name: viz_account_balance_trends
+    description: "End-of-month total assets, total liabilities, and net worth for the last 24 months."
+    columns:
+      - name: date
+        description: "Month start date for the end-of-month balance."
+      - name: total_assets
+        description: "Sum of balances for non-liability accounts."
+      - name: total_liabilities
+        description: "Sum of absolute balances for liability accounts."
+      - name: net_worth
+        description: "Assets minus liabilities."
+
+  - name: viz_account_balance_trends_by_account
+    description: "End-of-month balances per account (tidy format) for the last 24 months."
+    columns:
+      - name: date
+        description: "Month start date for the end-of-month balance."
+      - name: account_name
+        description: "Account identifier for the series."
+      - name: bank_name
+        description: "Bank of the account."
+      - name: account_type
+        description: "Type classification (Offset, Home Loan, etc.)."
+      - name: is_liability
+        description: "Whether the account is a liability."
+      - name: balance
+        description: "End-of-month balance for the account."
