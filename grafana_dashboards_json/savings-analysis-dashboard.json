@@ -86,7 +86,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT savings_health_score\nFROM reporting.rpt_savings_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT savings_health_score\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -157,7 +157,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_savings_rate_percent,\n  traditional_savings_rate_percent\nFROM reporting.rpt_savings_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_savings_rate_percent,\n  traditional_savings_rate_percent\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -216,7 +216,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  savings_performance_tier as \"Performance Tier\",\n  savings_trend as \"Trend\",\n  savings_consistency as \"Consistency\",\n  savings_goal_progress as \"Goal Progress\"\nFROM reporting.rpt_savings_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  savings_performance_tier as \"Performance Tier\",\n  savings_trend as \"Trend\",\n  savings_consistency as \"Consistency\",\n  savings_goal_progress as \"Goal Progress\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -680,7 +680,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_savings,\n  cash_savings,\n  offset_savings,\n  investment_contributions\nFROM reporting.rpt_savings_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_savings,\n  cash_savings,\n  offset_savings,\n  investment_contributions\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -836,7 +836,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  liquid_savings_rate_percent,\n  investment_rate_percent,\n  mom_savings_rate_change,\n  savings_rate_volatility\nFROM reporting.rpt_savings_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  liquid_savings_rate_percent,\n  investment_rate_percent,\n  mom_savings_rate_change,\n  savings_rate_volatility\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -968,7 +968,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  ytd_total_savings,\n  ytd_total_income,\n  ytd_savings_rate_percent\nFROM reporting.rpt_savings_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  ytd_total_savings,\n  ytd_total_income,\n  ytd_savings_rate_percent\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1082,7 +1082,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  estimated_years_to_50k,\n  additional_monthly_savings_needed_for_15_percent,\n  yoy_savings_rate_improvement\nFROM reporting.rpt_savings_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  estimated_years_to_50k,\n  additional_monthly_savings_needed_for_15_percent,\n  yoy_savings_rate_improvement\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1149,7 +1149,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  savings_recommendation as \"Savings Recommendation\",\n  savings_performance_tier as \"Performance Tier\",\n  ROUND(estimated_annual_liquid_savings, 0) as \"Est. Annual Liquid Savings\"\nFROM reporting.rpt_savings_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  savings_recommendation as \"Savings Recommendation\",\n  savings_performance_tier as \"Performance Tier\",\n  ROUND(estimated_annual_liquid_savings, 0) as \"Est. Annual Liquid Savings\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],

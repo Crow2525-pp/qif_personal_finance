@@ -1,69 +1,69 @@
-# seeds/seeds.yml
-
 version: 2
 
 seeds:
   - name: known_values
-    description: "Contains known account balances and dates for balance adjustments."
+    description: Contains known account balances and dates for balance adjustments.
     docs:
       show: true
-      node_color: "#34d399" # A shade of green
-    # config:
-    #   deliminter: "," 
-    # +quote_columns: false
-    # +column_types:
-    #   account_name: varchar(50)
-    #   specific_date: date
-    #   account_balance: float
-
+      node_color: "#34d399"
     columns:
-    - name: "account_name"
-      description: "The name of the account."
-      tests:
-        - unique
-        - not_null
-    - name: specific_date
-      description: "The specific date for the known balance."
-      tests:
-        - not_null
-    - name: account_balance
-      description: "The known balance of the account on the specific date."
-      tests:
-        - not_null
+      - name: account_name
+        description: The name of the account.
+        tests:
+          - unique
+          - not_null
+      - name: specific_date
+        description: The specific date for the known balance.
+        tests:
+          - not_null
+      - name: account_balance
+        description: The known balance of the account on the specific date.
+        tests:
+          - not_null
+      - name: is_asset
+        description: True if the account represents an asset (e.g., checking, savings, offset).
+      - name: is_liquid_asset
+        description: True if the asset is liquid and readily accessible.
+      - name: is_loan
+        description: True if the account is a liability/loan account.
+      - name: is_homeloan
+        description: True if the loan is specifically a home loan / mortgage.
+      - name: is_debt
+        description: True if the account is a debt (usually synonymous with loan).
 
   - name: banking_categories
-    description: "list of transaction descriptions and their categories.  Nulls are wildcards in their searches."
+    description: list of transaction descriptions and their categories. Nulls are wildcards in their searches.
     docs:
       show: true
-      node_color: "#34d399" # A shade of green
+      node_color: "#34d399"
     columns:
       - name: transaction_description
-        description: "Describes the nature of the transaction.  If null then wildcard."
+        description: Describes the nature of the transaction. If null then wildcard.
       - name: transaction_type
-        description: "Categorizes the transaction by type, such as 'credit', 'debit', etc.  If null then wildcard."
+        description: Categorizes the transaction by type, such as credit, debit, etc. If null then wildcard.
       - name: sender
-        description: "Indicates the recipient or destination account of the transaction.  If null then wildcard."
+        description: Indicates the recipient or destination account of the transaction. If null then wildcard.
       - name: account_name
-        description: "Identifies the account from which the transaction originated. "
+        description: Identifies the account from which the transaction originated.
         tests:
           - not_null
       - name: category
-        description: "General classification of the transaction, such as 'rent', 'salary', 'utilities', etc."
+        description: General classification of the transaction, such as rent, salary, utilities, etc.
       - name: subcategory
-        description: "More specific classification within a broader category, such as 'electricity' within 'utilities'."
+        description: More specific classification within a broader category, such as electricity within utilities.
 
   - name: categories_allowed
-    description: "Display-allowed level_1 categories and their order for viz."
+    description: Display-allowed level_1 categories and their order for viz.
     docs:
       show: true
-      node_color: "#3b82f6" # blue
+      node_color: "#3b82f6"
     columns:
       - name: category
-        description: "Canonical Level 1 category name."
+        description: Canonical Level 1 category name.
         tests:
           - not_null
           - unique
       - name: display_order
-        description: "Order in which to display categories."
+        description: Order in which to display categories.
         tests:
           - not_null

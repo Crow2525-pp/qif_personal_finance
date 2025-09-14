@@ -53,7 +53,7 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -86,7 +86,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT annual_financial_progress_score\nFROM reporting.rpt_year_over_year_comparison \nORDER BY comparison_year DESC \nLIMIT 1;",
+          "rawSql": "SELECT annual_financial_progress_score\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -125,7 +125,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 1,
         "w": 16,
         "x": 8,
         "y": 0
@@ -145,11 +145,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  'Annual Assessment' as \"Metric\",\n  annual_financial_assessment as \"Assessment\",\n  ROUND(annual_financial_progress_score, 0) || '/100' as \"Score\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison)\nUNION ALL\nSELECT \n  'Key Accomplishment' as \"Metric\",\n  top_financial_accomplishment as \"Assessment\",\n  '' as \"Score\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison)\nUNION ALL\nSELECT \n  'Priority Focus' as \"Metric\",\n  next_year_priority_focus as \"Assessment\",\n  '' as \"Score\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison);",
+          "rawSql": "SELECT \n  'Annual Assessment' as \"Metric\",\n  annual_financial_assessment as \"Assessment\",\n  ROUND(annual_financial_progress_score, 0) || '/100' as \"Score\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE))\nUNION ALL\nSELECT \n  'Key Accomplishment' as \"Metric\",\n  top_financial_accomplishment as \"Assessment\",\n  '' as \"Score\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE))\nUNION ALL\nSELECT \n  'Priority Focus' as \"Metric\",\n  next_year_priority_focus as \"Assessment\",\n  '' as \"Score\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE));",
           "refId": "A"
         }
       ],
-      "title": "Annual Financial Assessment",
+      "title": "Annual Notes (Consolidated into Overview)",
       "type": "table"
     },
     {
@@ -341,7 +341,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  yoy_income_change_percent,\n  yoy_expense_change_percent,\n  yoy_net_worth_change_percent,\n  yoy_savings_rate_change\nFROM reporting.rpt_year_over_year_comparison \nORDER BY comparison_year DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  yoy_income_change_percent,\n  yoy_expense_change_percent,\n  yoy_net_worth_change_percent,\n  yoy_savings_rate_change\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -386,26 +386,83 @@
         "y": 8
       },
       "id": 4,
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#8B0000", "value": null },
+              { "color": "#FF4500", "value": 25 },
+              { "color": "#FFD700", "value": 50 },
+              { "color": "#32CD32", "value": 75 },
+              { "color": "#00FF00", "value": 90 }
+            ]
+          },
+          "color": { "mode": "palette-classic-by-name" },
+          "max": 100,
+          "min": 0,
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Annual Progress Score" },
+            "properties": [
+              { "id": "color", "value": { "fixedColor": "#32CD32", "mode": "fixed" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Income Performance" },
+            "properties": [
+              { "id": "color", "value": { "fixedColor": "#4169E1", "mode": "fixed" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Expense Performance" },
+            "properties": [
+              { "id": "color", "value": { "fixedColor": "#FFD700", "mode": "fixed" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Net Worth Performance" },
+            "properties": [
+              { "id": "color", "value": { "fixedColor": "#FF6347", "mode": "fixed" } }
+            ]
+          }
+        ]
+      },
       "options": {
-        "frameIndex": 0,
-        "showHeader": true
+        "reduceOptions": { "values": false, "calcs": ["lastNotNull"], "fields": "" },
+        "orientation": "horizontal",
+        "legend": { "showLegend": false, "displayMode": "list", "placement": "bottom", "calcs": [] },
+        "displayMode": "gradient",
+        "valueMode": "color",
+        "namePlacement": "auto",
+        "showUnfilled": true,
+        "sizing": "auto",
+        "minVizWidth": 8,
+        "minVizHeight": 16,
+        "maxVizHeight": 300,
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
+          "datasource": { "type": "postgres", "uid": "PCC52D03280B7034C" },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  'Income Performance' as \"Category\",\n  income_performance as \"Current Performance\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison)\nUNION ALL\nSELECT \n  'Expense Performance' as \"Category\",\n  expense_performance as \"Current Performance\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison)\nUNION ALL\nSELECT \n  'Net Worth Performance' as \"Category\",\n  net_worth_performance as \"Current Performance\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison);",
+          "rawSql": "WITH latest AS (\n  SELECT *\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n  ORDER BY comparison_year DESC\n  LIMIT 1\n)\nSELECT\n  COALESCE((SELECT annual_financial_progress_score FROM latest), 0)::double precision AS \"Annual Progress Score\",\n  COALESCE((SELECT CASE income_performance\n             WHEN 'Strong Income Growth' THEN 100\n             WHEN 'Moderate Income Growth' THEN 80\n             WHEN 'Stable Income' THEN 60\n             WHEN 'Income Decline' THEN 20\n             ELSE 0 END FROM latest), 0)::double precision AS \"Income Performance\",\n  COALESCE((SELECT CASE expense_performance\n             WHEN 'Excellent Expense Control' THEN 100\n             WHEN 'Good Expense Control' THEN 80\n             WHEN 'Moderate Expense Growth' THEN 60\n             WHEN 'High Expense Growth' THEN 20\n             ELSE 0 END FROM latest), 0)::double precision AS \"Expense Performance\",\n  COALESCE((SELECT CASE net_worth_performance\n             WHEN 'Exceptional Net Worth Growth' THEN 100\n             WHEN 'Strong Net Worth Growth' THEN 80\n             WHEN 'Good Net Worth Growth' THEN 60\n             WHEN 'Modest Net Worth Growth' THEN 40\n             WHEN 'Net Worth Decline' THEN 20\n             ELSE 0 END FROM latest), 0)::double precision AS \"Net Worth Performance\";",
           "refId": "A"
         }
       ],
-      "title": "Performance Classifications",
-      "type": "table"
+      "title": "Annual Performance Overview",
+      "type": "bargauge"
     },
     {
       "datasource": {
@@ -821,7 +878,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  annual_total_savings,\n  annual_liquid_savings,\n  annual_investment_contributions,\n  annual_mortgage_reduction\nFROM reporting.rpt_year_over_year_comparison \nORDER BY comparison_year DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  annual_total_savings,\n  annual_liquid_savings,\n  annual_investment_contributions,\n  annual_mortgage_reduction\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -987,7 +1044,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  months_positive_cash_flow,\n  months_negative_cash_flow,\n  ROUND(avg_cash_flow_efficiency, 1) as avg_cash_flow_efficiency,\n  annual_transaction_count\nFROM reporting.rpt_year_over_year_comparison \nORDER BY comparison_year DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  months_positive_cash_flow,\n  months_negative_cash_flow,\n  ROUND(avg_cash_flow_efficiency, 1) as avg_cash_flow_efficiency,\n  annual_transaction_count\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1367,7 +1424,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  comparison_year as \"Year\",\n  annual_income as \"Income\",\n  annual_expenses as \"Expenses\",\n  annual_net_cash_flow as \"Net Cash Flow\",\n  year_end_net_worth as \"Year-End Net Worth\",\n  ROUND(avg_annual_savings_rate, 1) as \"Avg Savings Rate %\",\n  annual_total_savings as \"Total Savings\",\n  months_positive_cash_flow as \"Positive Cash Flow Months\",\n  annual_financial_progress_score as \"Progress Score\"\nFROM reporting.rpt_year_over_year_comparison \nORDER BY comparison_year DESC \nLIMIT 5;",
+          "rawSql": "SELECT \n  comparison_year as \"Year\",\n  annual_income as \"Income\",\n  annual_expenses as \"Expenses\",\n  annual_net_cash_flow as \"Net Cash Flow\",\n  year_end_net_worth as \"Year-End Net Worth\",\n  ROUND(avg_annual_savings_rate, 1) as \"Avg Savings Rate %\",\n  annual_total_savings as \"Total Savings\",\n  months_positive_cash_flow as \"Positive Cash Flow Months\",\n  annual_financial_progress_score as \"Progress Score\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 5;",
           "refId": "A"
         }
       ],

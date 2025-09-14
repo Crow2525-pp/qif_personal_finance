@@ -27,7 +27,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Current month income vs expenses",
+      "description": "MOST RECENT COMPLETE MONTH (August 2025): Income vs expenses data excludes current incomplete month for accurate quarterly review",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -157,7 +157,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_income,\n  total_expenses,\n  net_cash_flow\nFROM reporting.rpt_monthly_budget_summary \nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_income,\n  total_expenses,\n  net_cash_flow\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -261,7 +261,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  savings_rate_percent,\n  expense_ratio_percent\nFROM reporting.rpt_monthly_budget_summary \nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  savings_rate_percent,\n  expense_ratio_percent\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -584,7 +584,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  mortgage_expenses,\n  household_expenses,\n  food_expenses,\n  family_expenses\nFROM reporting.rpt_monthly_budget_summary \nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  mortgage_expenses,\n  household_expenses,\n  food_expenses,\n  family_expenses\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -702,7 +702,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_transactions,\n  income_transaction_count,\n  expense_transaction_count,\n  avg_expense_amount\nFROM reporting.rpt_monthly_budget_summary \nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_transactions,\n  income_transaction_count,\n  expense_transaction_count,\n  avg_expense_amount\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -844,7 +844,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  ytd_income,\n  ytd_expenses,\n  ytd_net_cash_flow\nFROM reporting.rpt_monthly_budget_summary \nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  ytd_income,\n  ytd_expenses,\n  ytd_net_cash_flow\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1057,7 +1057,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  budget_year_month as \"Month\",\n  total_income as \"Income\",\n  total_expenses as \"Expenses\",\n  net_cash_flow as \"Net Cash Flow\",\n  ROUND(savings_rate_percent, 1) as \"Savings Rate %\",\n  ROUND(expense_ratio_percent, 1) as \"Expense Ratio %\",\n  total_transactions as \"Transactions\"\nFROM reporting.rpt_monthly_budget_summary \nORDER BY budget_year DESC, budget_month DESC \nLIMIT 12;",
+          "rawSql": "SELECT \n  budget_year_month as \"Month\",\n  total_income as \"Income\",\n  total_expenses as \"Expenses\",\n  net_cash_flow as \"Net Cash Flow\",\n  ROUND(savings_rate_percent, 1) as \"Savings Rate %\",\n  ROUND(expense_ratio_percent, 1) as \"Expense Ratio %\",\n  total_transactions as \"Transactions\"\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 12;",
           "refId": "A"
         }
       ],

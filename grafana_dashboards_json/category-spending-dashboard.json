@@ -42,7 +42,20 @@
           "mappings": [],
           "unit": "currencyUSD"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "MoM Change %"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -83,12 +96,12 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  level_1_category as category,\n  SUM(monthly_spending) as amount\nFROM reporting.rpt_category_spending_trends \nWHERE budget_year_month = (\n  SELECT MAX(budget_year_month) FROM reporting.rpt_category_spending_trends\n)\n  AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n  AND monthly_spending > 0\nGROUP BY level_1_category\nORDER BY amount DESC\nLIMIT 10;",
+          "rawSql": "WITH latest_months AS (\n  SELECT \n    budget_year_month,\n    ROW_NUMBER() OVER (ORDER BY budget_year_month DESC) as rn\n  FROM reporting.rpt_category_spending_trends \n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n  GROUP BY budget_year_month\n  LIMIT 2\n),\ncurrent_month AS (\n  SELECT \n    level_1_category,\n    SUM(monthly_spending) as current_amount\n  FROM reporting.rpt_category_spending_trends cst\n  JOIN latest_months lm ON cst.budget_year_month = lm.budget_year_month\n  WHERE lm.rn = 1\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n  GROUP BY level_1_category\n),\nprior_month AS (\n  SELECT \n    level_1_category,\n    SUM(monthly_spending) as prior_amount\n  FROM reporting.rpt_category_spending_trends cst\n  JOIN latest_months lm ON cst.budget_year_month = lm.budget_year_month\n  WHERE lm.rn = 2\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n  GROUP BY level_1_category\n)\nSELECT \n  cm.level_1_category as \"Category\",\n  ROUND(cm.current_amount, 0) as \"Current Month ($)\",\n  ROUND(COALESCE(pm.prior_amount, 0), 0) as \"Prior Month ($)\",\n  CASE \n    WHEN COALESCE(pm.prior_amount, 0) = 0 THEN NULL\n    ELSE ROUND(((cm.current_amount - COALESCE(pm.prior_amount, 0)) / COALESCE(pm.prior_amount, 1)) * 100, 1)\n  END as \"MoM Change %\"\nFROM current_month cm\nLEFT JOIN prior_month pm ON cm.level_1_category = pm.level_1_category\nORDER BY cm.current_amount DESC\nLIMIT 10;",
           "refId": "A"
         }
       ],
-      "title": "Top 10 Spending Categories (Current Month)",
-      "type": "piechart"
+      "title": "Top 10 Spending Categories with MoM Change",
+      "type": "table"
     },
     {
       "datasource": {
@@ -165,7 +178,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "WITH top_categories AS (\n    SELECT level_1_category\n    FROM reporting.rpt_category_spending_trends \n    WHERE transaction_year >= EXTRACT(YEAR FROM DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year'))\n      AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n      AND monthly_spending > 0\n    GROUP BY level_1_category\n    ORDER BY SUM(monthly_spending) DESC\n    LIMIT 6\n  )\n  SELECT \n    CONCAT(budget_year_month, '-01')::timestamp as time,\n    level_1_category as metric,\n    SUM(monthly_spending) as value\n  FROM reporting.rpt_category_spending_trends \n  WHERE transaction_year >= EXTRACT(YEAR FROM DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year'))\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n    AND level_1_category IN (SELECT level_1_category FROM top_categories)\n  GROUP BY budget_year_month, level_1_category\n  ORDER BY time, level_1_category;",
+          "rawSql": "WITH top_categories AS (\n    SELECT level_1_category\n    FROM reporting.rpt_category_spending_trends \n    WHERE transaction_year >= EXTRACT(YEAR FROM DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year'))\n    AND budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n      AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n      AND monthly_spending > 0\n    GROUP BY level_1_category\n    ORDER BY SUM(monthly_spending) DESC\n    LIMIT 6\n  )\n  SELECT \n    CONCAT(budget_year_month, '-01')::timestamp as time,\n    level_1_category as metric,\n    SUM(monthly_spending) as value\n  FROM reporting.rpt_category_spending_trends \n  WHERE transaction_year >= EXTRACT(YEAR FROM DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year'))\n    AND budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n    AND level_1_category IN (SELECT level_1_category FROM top_categories)\n  GROUP BY budget_year_month, level_1_category\n  ORDER BY time, level_1_category;",
           "refId": "A"
         }
       ],
@@ -248,7 +261,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "WITH top_categories AS (\n    SELECT level_1_category\n    FROM reporting.rpt_category_spending_trends \n    WHERE transaction_year >= EXTRACT(YEAR FROM DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year'))\n      AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n      AND monthly_spending > 0\n    GROUP BY level_1_category\n    ORDER BY SUM(monthly_spending) DESC\n    LIMIT 8\n  )\n  SELECT \n    CONCAT(budget_year_month, '-01')::timestamp as time,\n    level_1_category as metric,\n    SUM(monthly_spending) as value\n  FROM reporting.rpt_category_spending_trends \n  WHERE transaction_year >= EXTRACT(YEAR FROM DATE_TRUNC('year', CURRENT_DATE - INTERVAL '2 years'))\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n    AND level_1_category IN (SELECT level_1_category FROM top_categories)\n  GROUP BY budget_year_month, level_1_category\n  ORDER BY time, level_1_category;",
+          "rawSql": "WITH top_categories AS (\n    SELECT level_1_category\n    FROM reporting.rpt_category_spending_trends \n    WHERE transaction_year >= EXTRACT(YEAR FROM DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year'))\n    AND budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n      AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n      AND monthly_spending > 0\n    GROUP BY level_1_category\n    ORDER BY SUM(monthly_spending) DESC\n    LIMIT 8\n  )\n  SELECT \n    CONCAT(budget_year_month, '-01')::timestamp as time,\n    level_1_category as metric,\n    SUM(monthly_spending) as value\n  FROM reporting.rpt_category_spending_trends \n  WHERE transaction_year >= EXTRACT(YEAR FROM DATE_TRUNC('year', CURRENT_DATE - INTERVAL '2 years'))\n    AND budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n    AND level_1_category IN (SELECT level_1_category FROM top_categories)\n  GROUP BY budget_year_month, level_1_category\n  ORDER BY time, level_1_category;",
           "refId": "A"
         }
       ],
@@ -343,11 +356,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  CAST(transaction_year as text) as year,\n  SUM(monthly_spending) as amount\nFROM reporting.rpt_category_spending_trends \nWHERE transaction_year >= EXTRACT(YEAR FROM DATE_TRUNC('year', CURRENT_DATE - INTERVAL '5 years'))\n  AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n  AND monthly_spending > 0\nGROUP BY transaction_year\nORDER BY transaction_year;",
+          "rawSql": "SELECT \n  CAST(transaction_year as text) as year,\n  SUM(monthly_spending) as amount\nFROM reporting.rpt_category_spending_trends \nWHERE transaction_year >= EXTRACT(YEAR FROM DATE_TRUNC('year', CURRENT_DATE - INTERVAL '5 years'))\n  AND transaction_year < EXTRACT(YEAR FROM CURRENT_DATE)\n  AND level_1_category NOT IN ('Bank Transaction', 'Salary')\n  AND monthly_spending > 0\nGROUP BY transaction_year\nORDER BY transaction_year;",
           "refId": "A"
         }
       ],
-      "title": "Annual Total Spending (By Year)",
+      "title": "Annual Total Spending (Complete Years Only)",
       "type": "barchart"
     },
     {
@@ -456,7 +469,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH current_month AS (\n  SELECT \n    level_1_category,\n    SUM(monthly_spending) as current_amount\n  FROM reporting.rpt_category_spending_trends \n  WHERE budget_year_month = (\n    SELECT MAX(budget_year_month) FROM reporting.rpt_category_spending_trends\n  )\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n  GROUP BY level_1_category\n),\nrolling_averages AS (\n  SELECT \n    level_1_category,\n    SUM(rolling_3m_avg_spending) as avg_3m_spending\n  FROM reporting.rpt_category_spending_trends \n  WHERE budget_year_month = (\n    SELECT MAX(budget_year_month) FROM reporting.rpt_category_spending_trends\n  )\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n  GROUP BY level_1_category\n)\nSELECT \n  cm.level_1_category as category,\n  CASE \n    WHEN cm.current_amount > ra.avg_3m_spending THEN cm.current_amount - ra.avg_3m_spending\n    ELSE 0\n  END as \"Above Average\",\n  CASE \n    WHEN cm.current_amount < ra.avg_3m_spending THEN ra.avg_3m_spending - cm.current_amount\n    ELSE 0\n  END as \"Below Average\"\nFROM current_month cm\nJOIN rolling_averages ra ON cm.level_1_category = ra.level_1_category\nWHERE ABS(cm.current_amount - ra.avg_3m_spending) > 50\nORDER BY ABS(cm.current_amount - ra.avg_3m_spending) DESC\nLIMIT 10;",
+          "rawSql": "WITH current_month AS (\n  SELECT \n    level_1_category,\n    SUM(monthly_spending) as current_amount\n  FROM reporting.rpt_category_spending_trends \n  WHERE budget_year_month = (\n    SELECT MAX(budget_year_month) FROM reporting.rpt_category_spending_trends WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n  )\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n  GROUP BY level_1_category\n),\nrolling_averages AS (\n  SELECT \n    level_1_category,\n    SUM(rolling_3m_avg_spending) as avg_3m_spending\n  FROM reporting.rpt_category_spending_trends \n  WHERE budget_year_month = (\n    SELECT MAX(budget_year_month) FROM reporting.rpt_category_spending_trends WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n  )\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n  GROUP BY level_1_category\n)\nSELECT \n  cm.level_1_category as category,\n  CASE \n    WHEN cm.current_amount > ra.avg_3m_spending THEN cm.current_amount - ra.avg_3m_spending\n    ELSE 0\n  END as \"Above Average\",\n  CASE \n    WHEN cm.current_amount < ra.avg_3m_spending THEN ra.avg_3m_spending - cm.current_amount\n    ELSE 0\n  END as \"Below Average\"\nFROM current_month cm\nJOIN rolling_averages ra ON cm.level_1_category = ra.level_1_category\nWHERE ABS(cm.current_amount - ra.avg_3m_spending) > 50\nORDER BY ABS(cm.current_amount - ra.avg_3m_spending) DESC\nLIMIT 10;",
           "refId": "A"
         }
       ],

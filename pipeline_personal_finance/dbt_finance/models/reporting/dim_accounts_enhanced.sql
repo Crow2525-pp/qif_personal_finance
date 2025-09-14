@@ -45,6 +45,18 @@ WITH account_metadata AS (
   GROUP BY account_name
 ),
 
+known_flags AS (
+  SELECT DISTINCT
+    LOWER(account_name) AS account_name_lower,
+    -- Robust boolean parsing from seed CSV strings (handle empty strings and nulls)
+    CASE WHEN LOWER(TRIM(COALESCE(is_asset::text, 'false'))) IN ('true','t','1','yes','y') THEN TRUE ELSE FALSE END       AS is_asset,
+    CASE WHEN LOWER(TRIM(COALESCE(is_liquid_asset::text, 'false'))) IN ('true','t','1','yes','y') THEN TRUE ELSE FALSE END AS is_liquid_asset,
+    CASE WHEN LOWER(TRIM(COALESCE(is_loan::text, 'false'))) IN ('true','t','1','yes','y') THEN TRUE ELSE FALSE END         AS is_loan,
+    CASE WHEN LOWER(TRIM(COALESCE(is_homeloan::text, 'false'))) IN ('true','t','1','yes','y') THEN TRUE ELSE FALSE END     AS is_homeloan,
+    CASE WHEN LOWER(TRIM(COALESCE(is_debt::text, 'false'))) IN ('true','t','1','yes','y') THEN TRUE ELSE FALSE END         AS is_debt
+  FROM {{ ref('known_values') }}
+),
+
 account_hierarchy AS (
   SELECT 
     {{ dbt_utils.generate_surrogate_key(['account_name']) }} AS account_key,
@@ -66,16 +78,23 @@ account_hierarchy AS (
     currency_code,
     is_active,
     
-    -- Business logic flags
-    CASE WHEN account_category = 'Liability' THEN TRUE ELSE FALSE END AS is_liability,
+    -- Business logic flags (prefer seed flags; fall back to heuristics)
+    COALESCE(k.is_loan OR k.is_debt,
+             CASE WHEN account_category = 'Liability' THEN TRUE ELSE FALSE END) AS is_liability,
     CASE WHEN account_type IN ('Offset', 'Bills Account', 'Everyday Account') THEN TRUE ELSE FALSE END AS is_transactional,
-    CASE WHEN account_type = 'Home Loan' THEN TRUE ELSE FALSE END AS is_mortgage,
+    COALESCE(k.is_homeloan,
+             CASE WHEN account_type = 'Home Loan' THEN TRUE ELSE FALSE END) AS is_mortgage,
+    -- Expose additional flags from seeds for downstream use
+    COALESCE(k.is_asset, CASE WHEN account_category = 'Asset' THEN TRUE ELSE FALSE END)       AS is_asset,
+    COALESCE(k.is_liquid_asset, CASE WHEN account_type IN ('Offset','Bills Account','Everyday Account') THEN TRUE ELSE FALSE END) AS is_liquid_asset,
     
     -- Metadata
     CAST(CURRENT_TIMESTAMP AS TIMESTAMP) AS created_at,
     CAST(CURRENT_TIMESTAMP AS TIMESTAMP) AS updated_at
     
-  FROM account_metadata
+  FROM account_metadata am
+  LEFT JOIN known_flags k
+    ON LOWER(am.account_name) = k.account_name_lower
 )
 
 SELECT * FROM account_hierarchy

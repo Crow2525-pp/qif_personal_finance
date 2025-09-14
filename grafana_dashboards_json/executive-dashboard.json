@@ -27,86 +27,49 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Your overall financial health score from 0-100. This composite metric evaluates your savings rate, debt levels, cash flow, and net worth trends. Scores: 85+ Excellent, 70-84 Good, 50-69 Fair, 30-49 Poor, <30 Critical.",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic-by-name"
+            "mode": "palette-classic"
           },
           "custom": {
-            "displayMode": "basic",
-            "minVizHeight": 10,
-            "minVizWidth": 0,
-            "orientation": "horizontal",
-            "showUnfilled": true,
-            "width": 0.9
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
           },
-          "mappings": [
-            {
-              "type": "value",
-              "options": {
-                "100": { "text": "Excellent" },
-                "80": { "text": "Good" },
-                "60": { "text": "Fair" },
-                "40": { "text": "Poor" },
-                "20": { "text": "Critical" },
-                "0":  { "text": "No Data" }
-              }
-            }
-          ],
-          "max": 100,
-          "min": 0,
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "#8B4513",
+                "color": "green",
                 "value": null
-              },
-              {
-                "color": "#D2691E",
-                "value": 30
-              },
-              {
-                "color": "#FFD700",
-                "value": 50
-              },
-              {
-                "color": "#32CD32",
-                "value": 70
-              },
-              {
-                "color": "#00FF00",
-                "value": 85
               }
             ]
-          },
-          "unit": "short"
+          }
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 12,
+        "h": 3,
+        "w": 24,
         "x": 0,
         "y": 0
       },
-      "id": 1,
+      "id": 20,
       "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
           "fields": "",
-          "values": false
+          "reducer": [
+            "sum"
+          ],
+          "show": false
         },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
+        "showHeader": false
       },
       "pluginVersion": "10.0.0",
       "targets": [
@@ -118,195 +81,12 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT overall_financial_health_score as \"Overall Financial Health\"\nFROM reporting.rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
+          "rawSql": "SELECT CONCAT('📊 Financial Summary for ', dashboard_month, ' | Overall Health: ', overall_financial_health_rating, ' | Next Month Forecast: $', ROUND(forecasted_next_month_cash_flow, 0)::text) as summary FROM reporting.rpt_executive_dashboard ORDER BY dashboard_year DESC, dashboard_month_num DESC LIMIT 1",
           "refId": "A"
         }
       ],
-      "title": "Financial Health Score",
-      "transformations": [],
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
-      "description": "Core financial health metrics: Overall Health (composite score), Savings Rate (% of income saved monthly), Debt Ratio (debt as % of assets - lower is better), Cash Flow Score (cash flow efficiency rating 0-100).",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic-by-name"
-          },
-          "custom": {
-            "displayMode": "basic",
-            "minVizHeight": 10,
-            "minVizWidth": 0,
-            "orientation": "horizontal",
-            "showUnfilled": true,
-            "width": 0.6
-          },
-          "mappings": [],
-          "max": 100,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#8B0000",
-                "value": null
-              },
-              {
-                "color": "#FF4500",
-                "value": 25
-              },
-              {
-                "color": "#FFD700",
-                "value": 50
-              },
-              {
-                "color": "#32CD32",
-                "value": 75
-              },
-              {
-                "color": "#00FF00",
-                "value": 90
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Overall Health"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#FF6B35",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Savings Health"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#F7931E",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Net Worth Health"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#FFD23F",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Cash Flow Efficiency"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#EE4B6A",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 12,
-        "y": 0
-      },
-      "id": 2,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "WITH latest_data AS (\n  SELECT *\n  FROM reporting.rpt_executive_dashboard \n  ORDER BY dashboard_year DESC, dashboard_month_num DESC \n  LIMIT 1\n)\nSELECT 'Overall Health' as metric_label, overall_financial_health_score as value FROM latest_data\nUNION ALL\nSELECT 'Savings Rate', monthly_savings_rate_percent FROM latest_data\nUNION ALL\nSELECT 'Debt Ratio', debt_to_asset_ratio_percent FROM latest_data\nUNION ALL\nSELECT 'Cash Flow Score', cash_flow_score FROM latest_data",
-          "refId": "A"
-        }
-      ],
-      "title": "Key Health Metrics",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "indexByName": {
-              "metric_label": 0,
-              "value": 1
-            },
-            "renameByName": {}
-          }
-        },
-        {
-          "id": "groupBy",
-          "options": {
-            "fields": {
-              "metric_label": {
-                "aggregations": [],
-                "operation": "groupby"
-              },
-              "value": {
-                "aggregations": [
-                  "lastNotNull"
-                ],
-                "operation": "aggregate"
-              }
-            }
-          }
-        }
-      ],
-      "type": "bargauge"
+      "title": "Executive Summary Header",
+      "type": "table"
     },
     {
       "datasource": {
@@ -409,10 +189,6 @@
       },
       "id": 3,
       "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "vertical",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -420,9 +196,9 @@
           "fields": "",
           "values": false
         },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true,
+        "orientation": "horizontal"
       },
       "pluginVersion": "10.0.0",
       "targets": [
@@ -469,7 +245,7 @@
           }
         }
       ],
-      "type": "bargauge"
+      "type": "gauge"
     },
     {
       "datasource": {
@@ -546,10 +322,6 @@
       },
       "id": 4,
       "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "vertical",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -557,9 +329,9 @@
           "fields": "",
           "values": false
         },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true,
+        "orientation": "horizontal"
       },
       "pluginVersion": "10.0.0",
       "targets": [
@@ -606,7 +378,7 @@
           }
         }
       ],
-      "type": "bargauge"
+      "type": "gauge"
     },
     {
       "datasource": {
@@ -753,7 +525,7 @@
                       "value": null
                     },
                     {
-                      "color": "#FFD700", 
+                      "color": "#FFD700",
                       "value": -100000
                     },
                     {
@@ -823,7 +595,7 @@
           "refId": "A"
         }
       ],
-      "title": "Financial Snapshot",
+      "title": "Financial Snapshot (Current Month)",
       "type": "stat"
     },
     {
@@ -840,7 +612,7 @@
           "custom": {
             "displayMode": "basic",
             "minVizHeight": 10,
-            "minVizWidth": 0,
+            "minVizWidth": 150,
             "orientation": "horizontal",
             "showUnfilled": true,
             "width": 0.6
@@ -908,7 +680,7 @@
           },
           {
             "matcher": {
-              "id": "byName", 
+              "id": "byName",
               "options": "Savings Performance"
             },
             "properties": [
@@ -940,9 +712,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 12,
-        "x": 12,
-        "y": 14
+        "w": 24,
+        "x": 0,
+        "y": 0
       },
       "id": 6,
       "options": {
@@ -955,7 +727,7 @@
             "lastNotNull"
           ],
           "fields": "",
-          "values": false
+          "values": true
         },
         "showPercentChange": false,
         "textMode": "auto",
@@ -971,7 +743,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest_data AS (\n  SELECT *\n  FROM reporting.rpt_executive_dashboard \n  ORDER BY dashboard_year DESC, dashboard_month_num DESC \n  LIMIT 1\n)\nSELECT\n  COALESCE((SELECT CASE overall_financial_health_rating\n             WHEN 'Excellent Financial Health' THEN 100\n             WHEN 'Good Financial Health' THEN 80\n             WHEN 'Fair Financial Health' THEN 60\n             WHEN 'Poor Financial Health' THEN 40\n             WHEN 'Critical Attention Required' THEN 20\n             ELSE 0\n           END FROM latest_data), 0)::double precision AS \"Financial Health\",\n  COALESCE((SELECT CASE monthly_goal_achievement\n             WHEN 'Exceeding Financial Goals' THEN 100\n             WHEN 'Meeting Financial Goals' THEN 80\n             WHEN 'Close to Financial Goals' THEN 60\n             WHEN 'Below Financial Goals' THEN 40\n             WHEN 'Far Below Financial Goals' THEN 20\n             ELSE 0\n           END FROM latest_data), 0)::double precision AS \"Goal Achievement\",\n  COALESCE((SELECT CASE savings_rate_benchmark\n             WHEN 'Exceptional Performance' THEN 100\n             WHEN 'Above Average' THEN 80\n             WHEN 'Average Performance' THEN 60\n             WHEN 'Needs Improvement' THEN 40\n             WHEN 'Critical Improvement Needed' THEN 20\n             ELSE 0\n           END FROM latest_data), 0)::double precision AS \"Savings Performance\",\n  COALESCE((SELECT CASE net_worth_benchmark\n             WHEN 'Wealth Accumulation Phase' THEN 100\n             WHEN 'Wealth Building Phase' THEN 80\n             WHEN 'Stability Phase' THEN 60\n             WHEN 'Recovery Phase' THEN 40\n             WHEN 'Rebuilding Phase' THEN 20\n             ELSE 0\n           END FROM latest_data), 0)::double precision AS \"Net Worth Progress\";",
+          "rawSql": "WITH latest_data AS (\n  SELECT *\n  FROM reporting.rpt_executive_dashboard \n  ORDER BY dashboard_year DESC, dashboard_month_num DESC \n  LIMIT 1\n)\nSELECT\n  COALESCE((SELECT overall_financial_health_score FROM latest_data), 0)::double precision AS \"Financial Health\",\n  COALESCE((SELECT CASE savings_rate_benchmark\n             WHEN 'Exceptional Performance' THEN 100\n             WHEN 'Above Average' THEN 80\n             WHEN 'Average Performance' THEN 60\n             WHEN 'Needs Improvement' THEN 40\n             WHEN 'Critical Improvement Needed' THEN 20\n             ELSE 0\n           END FROM latest_data), 0)::double precision AS \"Savings Performance\",\n  COALESCE((SELECT CASE net_worth_benchmark\n             WHEN 'Wealth Accumulation Phase' THEN 100\n             WHEN 'Wealth Building Phase' THEN 80\n             WHEN 'Stability Phase' THEN 60\n             WHEN 'Recovery Phase' THEN 40\n             WHEN 'Rebuilding Phase' THEN 20\n             ELSE 0\n           END FROM latest_data), 0)::double precision AS \"Net Worth Progress\";",
           "refId": "A"
         }
       ],
@@ -1014,7 +786,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 42
       },
       "id": 7,
       "options": {
@@ -1361,7 +1133,7 @@
           "refId": "A"
         }
       ],
-      "title": "Cash Flow Trends",
+      "title": "Cash Flow Trends (Current Month)",
       "type": "stat"
     },
     {
@@ -1509,41 +1281,12 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest_data AS (\n  SELECT *\n  FROM reporting.rpt_executive_dashboard \n  ORDER BY dashboard_year DESC, dashboard_month_num DESC \n  LIMIT 1\n),\nadditional_metrics AS (\n  SELECT \n    'Savings Tier Score' as metric_label,\n    CASE current_savings_tier\n      WHEN 'Exceptional Saver (30%+)' THEN 100\n      WHEN 'Strong Saver (20-29%)' THEN 85\n      WHEN 'Good Saver (15-19%)' THEN 70\n      WHEN 'Average Saver (10-14%)' THEN 55\n      WHEN 'Low Saver (5-9%)' THEN 40\n      WHEN 'Minimal Saver (1-4%)' THEN 25\n      WHEN 'Non-Saver (0%)' THEN 10\n      ELSE 0\n    END as score\n  FROM latest_data\n  \n  UNION ALL\n  \n  SELECT \n    'Net Worth Health',\n    net_worth_health_score\n  FROM latest_data\n  \n  UNION ALL\n  \n  SELECT \n    'Account Health',\n    CASE \n      WHEN accounts_needing_attention = 0 THEN 100\n      WHEN accounts_needing_attention = 1 THEN 70\n      WHEN accounts_needing_attention = 2 THEN 40\n      ELSE 20\n    END\n  FROM latest_data\n  \n  UNION ALL\n  \n  SELECT \n    'Cash Flow Status',\n    CASE cash_flow_status\n      WHEN 'Strong Positive' THEN 100\n      WHEN 'Positive' THEN 80\n      WHEN 'Neutral' THEN 60\n      WHEN 'Negative' THEN 40\n      WHEN 'Critical' THEN 20\n      ELSE 0\n    END\n  FROM latest_data\n)\nSELECT metric_label, score FROM additional_metrics;",
+          "rawSql": "WITH latest_data AS (\n  SELECT *\n  FROM reporting.rpt_executive_dashboard \n  ORDER BY dashboard_year DESC, dashboard_month_num DESC \n  LIMIT 1\n)\nSELECT\n  CASE current_savings_tier\n    WHEN 'Exceptional Saver (30%+)' THEN 100\n    WHEN 'Strong Saver (20-29%)' THEN 85\n    WHEN 'Good Saver (15-19%)' THEN 70\n    WHEN 'Average Saver (10-14%)' THEN 55\n    WHEN 'Low Saver (5-9%)' THEN 40\n    WHEN 'Minimal Saver (1-4%)' THEN 25\n    WHEN 'Non-Saver (0%)' THEN 10\n    ELSE 0\n  END::double precision AS \"Savings Tier Score\",\n  COALESCE(net_worth_health_score, 0)::double precision AS \"Net Worth Health\",\n  CASE \n    WHEN accounts_needing_attention = 0 THEN 100\n    WHEN accounts_needing_attention = 1 THEN 70\n    WHEN accounts_needing_attention = 2 THEN 40\n    ELSE 20\n  END::double precision AS \"Account Health\",\n  CASE cash_flow_status\n    WHEN 'Strong Positive' THEN 100\n    WHEN 'Positive' THEN 80\n    WHEN 'Neutral' THEN 60\n    WHEN 'Negative' THEN 40\n    WHEN 'Critical' THEN 20\n    ELSE 0\n  END::double precision AS \"Cash Flow Status\"\nFROM latest_data;",
           "refId": "A"
         }
       ],
       "title": "Additional Performance Metrics",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "indexByName": {
-              "metric_label": 0,
-              "score": 1
-            },
-            "renameByName": {}
-          }
-        },
-        {
-          "id": "groupBy",
-          "options": {
-            "fields": {
-              "metric_label": {
-                "aggregations": [],
-                "operation": "groupby"
-              },
-              "score": {
-                "aggregations": [
-                  "lastNotNull"
-                ],
-                "operation": "aggregate"
-              }
-            }
-          }
-        }
-      ],
+      "transformations": [],
       "type": "bargauge"
     }
   ],
@@ -1565,7 +1308,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Executive Financial Overview",
+  "title": "Executive Financial Overview (Most Recent Complete Month)",
   "uid": "executive_dashboard",
   "version": 2,
   "weekStart": ""

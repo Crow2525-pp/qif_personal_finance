@@ -27,7 +27,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Current household net worth",
+      "description": "MOST RECENT COMPLETE MONTH (August 2025): Household net worth data excludes current incomplete month for accurate quarterly review",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -88,11 +88,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT net_worth\nFROM reporting.rpt_household_net_worth \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT net_worth\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
-      "title": "Current Net Worth",
+      "title": "Current Net Worth (Aug 2025)",
       "type": "gauge"
     },
     {
@@ -307,7 +307,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  net_worth_health_score,\n  CASE \n    WHEN financial_position = 'Critical Debt' THEN 0\n    WHEN financial_position = 'High Debt' THEN 20\n    WHEN financial_position = 'Negative Net Worth' THEN 40\n    WHEN financial_position = 'Low Net Worth' THEN 60\n    WHEN financial_position = 'Positive Net Worth' THEN 80\n    WHEN financial_position = 'Strong Net Worth' THEN 100\n    ELSE 40\n  END as financial_position_score,\n  CASE \n    WHEN wealth_milestone = 'Crisis Phase' THEN 0\n    WHEN wealth_milestone = 'Recovery Phase' THEN 20\n    WHEN wealth_milestone = 'Rebuilding Phase' THEN 40\n    WHEN wealth_milestone = 'Stability Phase' THEN 60\n    WHEN wealth_milestone = 'Growth Phase' THEN 80\n    WHEN wealth_milestone = 'Wealth Phase' THEN 100\n    ELSE 40\n  END as wealth_milestone_score\nFROM reporting.rpt_household_net_worth \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  net_worth_health_score,\n  CASE \n    WHEN financial_position = 'Critical Debt' THEN 0\n    WHEN financial_position = 'High Debt' THEN 20\n    WHEN financial_position = 'Negative Net Worth' THEN 40\n    WHEN financial_position = 'Low Net Worth' THEN 60\n    WHEN financial_position = 'Positive Net Worth' THEN 80\n    WHEN financial_position = 'Strong Net Worth' THEN 100\n    ELSE 40\n  END as financial_position_score,\n  CASE \n    WHEN wealth_milestone = 'Crisis Phase' THEN 0\n    WHEN wealth_milestone = 'Recovery Phase' THEN 20\n    WHEN wealth_milestone = 'Rebuilding Phase' THEN 40\n    WHEN wealth_milestone = 'Stability Phase' THEN 60\n    WHEN wealth_milestone = 'Growth Phase' THEN 80\n    WHEN wealth_milestone = 'Wealth Phase' THEN 100\n    ELSE 40\n  END as wealth_milestone_score\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -430,7 +430,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_assets,\n  total_liabilities,\n  liquid_assets\nFROM reporting.rpt_household_net_worth \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_assets,\n  total_liabilities,\n  liquid_assets\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -892,7 +892,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  mom_net_worth_change,\n  mom_net_worth_change_percent,\n  debt_to_asset_ratio,\n  growth_classification\nFROM reporting.rpt_household_net_worth \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  mom_net_worth_change,\n  mom_net_worth_change_percent,\n  debt_to_asset_ratio,\n  growth_classification\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1040,7 +1040,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  ytd_net_worth_change,\n  yoy_net_worth_change_percent,\n  monthly_mortgage_principal_reduction,\n  estimated_months_expenses_covered\nFROM reporting.rpt_household_net_worth \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  ytd_net_worth_change,\n  yoy_net_worth_change_percent,\n  monthly_mortgage_principal_reduction,\n  estimated_months_expenses_covered\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1107,7 +1107,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  financial_advice as \"Financial Advice\",\n  wealth_milestone as \"Wealth Milestone\",\n  annual_progress_assessment as \"Annual Progress\",\n  net_worth_trend_direction as \"Trend Direction\"\nFROM reporting.rpt_household_net_worth \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  financial_advice as \"Financial Advice\",\n  wealth_milestone as \"Wealth Milestone\",\n  annual_progress_assessment as \"Annual Progress\",\n  net_worth_trend_direction as \"Trend Direction\"\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1135,7 +1135,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Household Net Worth Analysis",
+  "title": "Household Net Worth Analysis (Most Recent Complete Month)",
   "uid": "household_net_worth",
   "version": 1,
   "weekStart": ""

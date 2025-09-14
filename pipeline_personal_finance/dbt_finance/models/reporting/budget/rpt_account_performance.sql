@@ -8,7 +8,19 @@
   )
 }}
 
-WITH monthly_account_activity AS (
+WITH known_flags AS (
+  SELECT DISTINCT
+    LOWER(account_name) AS account_name_lower,
+    -- Parse booleans from seed reliably
+    CASE WHEN LOWER(TRIM(COALESCE(is_asset::text, 'false'))) IN ('true','t','1','yes','y') THEN TRUE ELSE FALSE END       AS is_asset,
+    CASE WHEN LOWER(TRIM(COALESCE(is_liquid_asset::text, 'false'))) IN ('true','t','1','yes','y') THEN TRUE ELSE FALSE END AS is_liquid_asset,
+    CASE WHEN LOWER(TRIM(COALESCE(is_loan::text, 'false'))) IN ('true','t','1','yes','y') THEN TRUE ELSE FALSE END         AS is_loan,
+    CASE WHEN LOWER(TRIM(COALESCE(is_homeloan::text, 'false'))) IN ('true','t','1','yes','y') THEN TRUE ELSE FALSE END     AS is_homeloan,
+    CASE WHEN LOWER(TRIM(COALESCE(is_debt::text, 'false'))) IN ('true','t','1','yes','y') THEN TRUE ELSE FALSE END         AS is_debt
+  FROM {{ ref('known_values') }}
+),
+
+monthly_account_activity AS (
   SELECT 
     ft.transaction_year,
     ft.transaction_month,
@@ -20,6 +32,12 @@ WITH monthly_account_activity AS (
     da.account_category,
     da.is_liability,
     da.is_transactional,
+    -- Prefer seed flags where available, fallback to dimension heuristics
+    COALESCE(k.is_asset, da.is_asset) AS is_asset,
+    COALESCE(k.is_liquid_asset, da.is_liquid_asset) AS is_liquid_asset,
+    COALESCE(k.is_loan, FALSE) AS is_loan,
+    COALESCE(k.is_homeloan, da.is_mortgage) AS is_homeloan,
+    COALESCE(k.is_debt, da.is_liability) AS is_debt,
     da.is_mortgage,
     
     -- Transaction activity
@@ -41,6 +59,8 @@ WITH monthly_account_activity AS (
   FROM {{ ref('fct_transactions_enhanced') }} ft
   LEFT JOIN {{ ref('dim_accounts_enhanced') }} da
     ON ft.account_key = da.account_key
+  LEFT JOIN known_flags k
+    ON LOWER(da.account_name) = k.account_name_lower
   GROUP BY 
     ft.transaction_year,
     ft.transaction_month,
@@ -50,6 +70,11 @@ WITH monthly_account_activity AS (
     da.account_category,
     da.is_liability,
     da.is_transactional,
+    COALESCE(k.is_asset, da.is_asset),
+    COALESCE(k.is_liquid_asset, da.is_liquid_asset),
+    COALESCE(k.is_loan, FALSE),
+    COALESCE(k.is_homeloan, da.is_mortgage),
+    COALESCE(k.is_debt, da.is_liability),
     da.is_mortgage
 ),
 
@@ -99,7 +124,7 @@ account_trends AS (
     
     -- Account utilization (for credit accounts)
     CASE 
-      WHEN account_type IN ('Bills Account', 'Everyday Account') AND end_of_month_balance > 0
+      WHEN COALESCE(is_liquid_asset, is_transactional) AND end_of_month_balance > 0
       THEN (total_debits / NULLIF(end_of_month_balance, 0))
       ELSE NULL
     END AS account_utilization_ratio
@@ -181,7 +206,7 @@ final_insights AS (
     CASE 
       WHEN account_health_score < 40 THEN TRUE
       WHEN is_liability AND mom_balance_change_percent > 0.10 THEN TRUE
-      WHEN NOT is_liability AND end_of_month_balance < 100 AND account_type != 'Home Loan' THEN TRUE
+      WHEN NOT is_liability AND end_of_month_balance < 100 AND NOT is_mortgage THEN TRUE
       ELSE FALSE
     END AS needs_attention_flag,
     
@@ -189,7 +214,7 @@ final_insights AS (
     CASE 
       WHEN is_mortgage AND mom_balance_change > 0 THEN 'Consider extra payments to reduce mortgage'
       WHEN is_liability AND mom_balance_change > 0 THEN 'Focus on paying down this debt'
-      WHEN NOT is_liability AND end_of_month_balance < 500 AND account_type != 'Home Loan' THEN 'Consider building emergency fund'
+      WHEN NOT is_liability AND end_of_month_balance < 500 AND NOT is_mortgage THEN 'Consider building emergency fund'
       WHEN account_health_score > 80 THEN 'Account performing well'
       ELSE 'Monitor account performance'
     END AS suggested_action

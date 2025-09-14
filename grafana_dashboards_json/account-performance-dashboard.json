@@ -355,7 +355,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month,\n  AVG(net_position) as net_position\nFROM reporting.viz_net_position_after_homeloan \nWHERE year_month >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year') AND net_position <> 0\nGROUP BY year_month\nORDER BY year_month;",
+          "rawSql": "SELECT \n  year_month,\n  net_position\nFROM reporting.viz_net_position_after_homeloan \nWHERE year_month >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\nORDER BY year_month;",
           "refId": "A"
         }
       ],
@@ -476,7 +476,9 @@
       "id": 4,
       "options": {
         "legend": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "displayMode": "table",
           "placement": "right",
           "showLegend": true,
@@ -601,7 +603,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month,\n  \"INTEREST\" as interest_amount\nFROM reporting.viz_interest_payments \nWHERE TO_DATE(year_month, 'Mon-YYYY') >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\nORDER BY TO_DATE(year_month, 'Mon-YYYY');",
+          "rawSql": "SELECT \n  year_month_date as time,\n  \"INTEREST\" as interest_amount\nFROM reporting.viz_interest_payments \nWHERE year_month_date >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\nORDER BY year_month_date;",
           "refId": "A"
         }
       ],
@@ -731,7 +733,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT DISTINCT\n  account_name,\n  account_type,\n  bank_name,\n  account_category,\n  is_liability,\n  is_transactional,\n  is_mortgage\nFROM reporting.rpt_account_performance \nWHERE budget_year_month = (\n  SELECT MAX(budget_year_month) FROM reporting.rpt_account_performance\n)\nORDER BY bank_name, account_name;",
+          "rawSql": "SELECT DISTINCT\n  account_name AS \"Account Name\",\n  account_type AS \"Account Type\",\n  bank_name AS \"Bank Name\",\n  account_category AS \"Account Category\",\n  is_liability AS \"Liability\",\n  is_transactional AS \"Transactional\",\n  is_asset AS \"Asset\",\n  is_liquid_asset AS \"Liquid Asset\",\n  is_loan AS \"Loan\",\n  is_homeloan AS \"Home Loan\",\n  is_debt AS \"Debt\"\nFROM reporting.rpt_account_performance \nWHERE budget_year_month = (\n  SELECT MAX(budget_year_month) FROM reporting.rpt_account_performance\n)\nORDER BY bank_name, account_name;",
           "refId": "A"
         }
       ],

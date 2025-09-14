@@ -27,7 +27,7 @@ WITH monthly_savings_components AS (
     CASE 
       WHEN da.account_type = 'Offset' AND ft.transaction_amount > 0 
            AND NOT ft.is_income_transaction AND NOT ft.is_internal_transfer THEN 'Offset_Savings'
-      WHEN da.account_type IN ('Bills Account', 'Everyday Account') AND ft.transaction_amount > 0 
+      WHEN da.is_liquid_asset AND da.account_type <> 'Offset' AND ft.transaction_amount > 0 
            AND NOT ft.is_income_transaction AND NOT ft.is_internal_transfer THEN 'Cash_Savings'
       WHEN ft.is_income_transaction THEN 'Income'
       WHEN da.is_mortgage AND ft.transaction_amount < 0 THEN 'Mortgage_Payment'

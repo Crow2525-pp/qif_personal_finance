@@ -19,6 +19,7 @@ WITH monthly_account_balances AS (
     da.account_type,
     da.account_category,
     da.is_liability,
+    da.is_liquid_asset,
     da.is_mortgage,
     
     -- Get end of month balance for each account
@@ -37,6 +38,7 @@ WITH monthly_account_balances AS (
     da.account_type,
     da.account_category,
     da.is_liability,
+    da.is_liquid_asset,
     da.is_mortgage
 ),
 
@@ -66,7 +68,7 @@ monthly_net_worth_calculation AS (
     
     -- Breakdown by account categories
     SUM(CASE 
-      WHEN account_type IN ('Bills Account', 'Everyday Account', 'Offset') THEN end_of_month_balance 
+      WHEN COALESCE(is_liquid_asset, FALSE) THEN end_of_month_balance 
       ELSE 0 
     END) AS liquid_assets,
     

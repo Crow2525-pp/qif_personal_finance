@@ -496,40 +496,86 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Monthly expense matrix (Year x Month) with heatmap cell coloring",
+      "description": "Monthly expense matrix with heatmap cell coloring",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
-          "custom": { "cellOptions": { "type": "heatmap" } },
-          "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null } ] }
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "cellOptions": {
+              "type": "heatmap"
+            },
+            "align": "auto"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
         },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "year" },
-            "properties": [ { "id": "custom.cellOptions", "value": { "type": "auto" } } ]
+            "matcher": {
+              "id": "byName",
+              "options": "Month"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "auto"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Month"
+              }
+            ]
           }
         ]
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
       "id": 6,
       "options": {
         "cellHeight": "sm",
-        "footer": { "show": false, "fields": "", "reducer": ["sum"], "countRows": false },
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
         "showHeader": true
       },
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "postgres", "uid": "PCC52D03280B7034C" },
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT * FROM reporting.viz_heatmap ORDER BY year;",
+          "rawSql": "WITH tidy AS (\n  SELECT period_date, year, month_label, amount\n  FROM reporting.viz_expense_heatmap_tidy\n)\nSELECT\n  month_label AS \"Month\",\n  SUM(amount) FILTER (WHERE year = 2021) AS \"2021\",\n  SUM(amount) FILTER (WHERE year = 2022) AS \"2022\",\n  SUM(amount) FILTER (WHERE year = 2023) AS \"2023\",\n  SUM(amount) FILTER (WHERE year = 2024) AS \"2024\",\n  SUM(amount) FILTER (WHERE year = 2025) AS \"2025\"\nFROM tidy\nGROUP BY month_label, EXTRACT(MONTH FROM period_date)\nORDER BY EXTRACT(MONTH FROM period_date);",
           "refId": "A"
         }
       ],
-      "title": "Expense Heatmap (Year x Month)",
-      "type": "table"
+      "title": "Expense Heatmap (Month x Year)",
+      "type": "table",
+      "transformations": []
     },
     {
       "datasource": {

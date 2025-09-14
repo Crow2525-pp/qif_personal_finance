@@ -27,7 +27,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Current month cash flow efficiency score (1-100)",
+      "description": "Most recent complete month cash flow efficiency score (1-100)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -137,7 +137,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT cash_flow_efficiency_score\nFROM reporting.rpt_cash_flow_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT cash_flow_efficiency_score\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -241,7 +241,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT cash_flow_status_rank\nFROM reporting.rpt_cash_flow_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT cash_flow_status_rank\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -331,7 +331,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  CASE \n    WHEN cash_flow_trend = 'Declining' THEN 1\n    WHEN cash_flow_trend = 'Stable' THEN 2\n    WHEN cash_flow_trend = 'Improving' THEN 3\n    ELSE 2\n  END as trend_rank\nFROM reporting.rpt_cash_flow_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  CASE \n    WHEN cash_flow_trend = 'Declining' THEN 1\n    WHEN cash_flow_trend = 'Stable' THEN 2\n    WHEN cash_flow_trend = 'Improving' THEN 3\n    ELSE 2\n  END as trend_rank\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -343,7 +343,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Current month inflows, outflows, and net cash flow",
+      "description": "MOST RECENT COMPLETE MONTH (August 2025): Inflows, outflows, and net cash flow data excludes current incomplete month for accurate quarterly review",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -473,11 +473,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_inflows,\n  total_outflows,\n  net_cash_flow\nFROM reporting.rpt_cash_flow_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_inflows,\n  total_outflows,\n  net_cash_flow\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
-      "title": "Current Month Cash Flow",
+      "title": "Latest Complete Month Cash Flow (Aug 2025)",
       "type": "stat"
     },
     {
@@ -613,7 +613,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  CONCAT(budget_year_month, '-01')::timestamp as time,\n  net_cash_flow,\n  rolling_3m_avg_net_flow\nFROM reporting.rpt_cash_flow_analysis \nORDER BY transaction_year, transaction_month;",
+          "rawSql": "SELECT \n  CONCAT(budget_year_month, '-01')::timestamp as time,\n  net_cash_flow,\n  rolling_3m_avg_net_flow\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n  AND budget_year_month >= TO_CHAR(CURRENT_DATE - INTERVAL '18 months', 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
           "refId": "A"
         }
       ],
@@ -761,7 +761,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  CONCAT(budget_year_month, '-01')::timestamp as time,\n  operating_cash_flow,\n  financing_cash_flow,\n  investing_cash_flow\nFROM reporting.rpt_cash_flow_analysis \nORDER BY transaction_year, transaction_month;",
+          "rawSql": "SELECT \n  CONCAT(budget_year_month, '-01')::timestamp as time,\n  operating_cash_flow,\n  financing_cash_flow,\n  investing_cash_flow\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n  AND budget_year_month >= TO_CHAR(CURRENT_DATE - INTERVAL '18 months', 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
           "refId": "A"
         }
       ],
@@ -927,7 +927,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  cash_flow_margin_percent,\n  outflow_to_inflow_ratio,\n  mom_inflow_change_percent,\n  mom_outflow_change_percent\nFROM reporting.rpt_cash_flow_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  cash_flow_margin_percent,\n  outflow_to_inflow_ratio,\n  mom_inflow_change_percent,\n  mom_outflow_change_percent\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1069,7 +1069,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  ytd_inflows,\n  ytd_outflows,\n  ytd_net_cash_flow\nFROM reporting.rpt_cash_flow_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  ytd_inflows,\n  ytd_outflows,\n  ytd_net_cash_flow\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1136,7 +1136,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  cash_flow_recommendation as \"Cash Flow Recommendation\",\n  CASE \n    WHEN forecasted_next_month_net_flow > 0 \n    THEN 'Positive: $' || ROUND(forecasted_next_month_net_flow, 0)\n    ELSE 'Negative: $' || ROUND(ABS(forecasted_next_month_net_flow), 0)\n  END as \"Forecasted Next Month\",\n  CASE \n    WHEN days_expenses_covered IS NOT NULL \n    THEN ROUND(days_expenses_covered, 1) || ' days'\n    ELSE 'N/A'\n  END as \"Days Expenses Covered\"\nFROM reporting.rpt_cash_flow_analysis \nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  cash_flow_recommendation as \"Cash Flow Recommendation\",\n  CASE \n    WHEN forecasted_next_month_net_flow > 0 \n    THEN 'Positive: $' || ROUND(forecasted_next_month_net_flow, 0)\n    ELSE 'Negative: $' || ROUND(ABS(forecasted_next_month_net_flow), 0)\n  END as \"Forecasted Next Month\",\n  CASE \n    WHEN days_expenses_covered IS NOT NULL \n    THEN ROUND(days_expenses_covered, 1) || ' days'\n    ELSE 'N/A'\n  END as \"Days Expenses Covered\"\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1162,7 +1162,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Cash Flow Analysis",
+  "title": "Cash Flow Analysis (Most Recent Complete Month)",
   "uid": "cash_flow_analysis",
   "version": 1,
   "weekStart": ""

@@ -69,6 +69,12 @@ models:
       - name: is_mortgage
         data_type: boolean
         description: "Whether this account is a mortgage account"
+      - name: is_asset
+        data_type: boolean
+        description: "Whether this account is an asset (from seed or heuristic)"
+      - name: is_liquid_asset
+        data_type: boolean
+        description: "Whether this account is a liquid asset (from seed or heuristic)"
       - name: created_at
         data_type: timestamp
         description: "Timestamp when record was created"
