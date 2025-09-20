@@ -35,15 +35,17 @@ WITH outflows_base AS (
     END AS flow_type,
     
     -- Expense categorization for analysis
-    CASE 
+    CASE
       WHEN dc.level_1_category IN ('Food & Drink') THEN 'Food & Dining'
       WHEN dc.level_1_category IN ('Household & Services') THEN 'Household & Utilities'
-      WHEN dc.level_1_category IN ('Transportation') THEN 'Transportation'
+      WHEN dc.level_1_category IN ('Transportation', 'Transport') THEN 'Transportation'
       WHEN dc.level_1_category IN ('Family & Kids') THEN 'Family & Kids'
       WHEN dc.level_1_category IN ('Mortgage') THEN 'Housing & Mortgage'
-      WHEN dc.level_1_category IN ('Shopping') THEN 'Shopping & Retail'
-      WHEN dc.level_1_category IN ('Health & Fitness') THEN 'Health & Wellness'
-      WHEN dc.level_1_category IN ('Entertainment') THEN 'Entertainment'
+      WHEN dc.level_1_category IN ('Shopping', 'Online Shopping') THEN 'Shopping & Retail'
+      WHEN dc.level_1_category IN ('Health & Fitness', 'Health & Beauty') THEN 'Health & Wellness'
+      WHEN dc.level_1_category IN ('Entertainment', 'Leisure') THEN 'Entertainment'
+      WHEN dc.level_1_category IN ('Travel') THEN 'Travel'
+      WHEN dc.level_1_category IN ('Gifts & Charity') THEN 'Gifts & Charity'
       WHEN dc.level_1_category LIKE '%Investment%' THEN 'Investments'
       WHEN dc.level_1_category LIKE '%Insurance%' THEN 'Insurance'
       WHEN dc.level_1_category LIKE '%Tax%' THEN 'Taxes'

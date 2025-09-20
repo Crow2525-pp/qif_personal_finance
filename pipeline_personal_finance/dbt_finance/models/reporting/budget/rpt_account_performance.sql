@@ -43,8 +43,8 @@ monthly_account_activity AS (
     -- Transaction activity
     COUNT(*) AS total_transactions,
     SUM(ft.transaction_amount) AS net_activity,
-    SUM(CASE WHEN ft.transaction_amount > 0 THEN ft.transaction_amount ELSE 0 END) AS total_credits,
-    SUM(CASE WHEN ft.transaction_amount < 0 THEN ABS(ft.transaction_amount) ELSE 0 END) AS total_debits,
+    CAST(SUM(CASE WHEN ft.transaction_amount > 0 THEN ft.transaction_amount ELSE 0 END) AS DECIMAL(15,2)) AS total_credits,
+    CAST(SUM(CASE WHEN ft.transaction_amount < 0 THEN ABS(ft.transaction_amount) ELSE 0 END) AS DECIMAL(15,2)) AS total_debits,
     COUNT(CASE WHEN ft.transaction_amount > 0 THEN 1 END) AS credit_transaction_count,
     COUNT(CASE WHEN ft.transaction_amount < 0 THEN 1 END) AS debit_transaction_count,
     
@@ -82,10 +82,10 @@ account_trends AS (
   SELECT 
     *,
     -- Month-over-month balance change
-    end_of_month_balance - LAG(end_of_month_balance) OVER (
-      PARTITION BY account_name 
+    CAST(end_of_month_balance - LAG(end_of_month_balance) OVER (
+      PARTITION BY account_name
       ORDER BY transaction_year, transaction_month
-    ) AS mom_balance_change,
+    ) AS DECIMAL(15,2)) AS mom_balance_change,
     
     -- Percentage balance change
     CASE 

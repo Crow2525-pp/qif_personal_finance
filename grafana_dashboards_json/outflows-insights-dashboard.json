@@ -24,6 +24,26 @@
   "panels": [
     {
       "datasource": {
+        "type": "text",
+        "uid": "-- Text --"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "options": {
+        "content": "# 💸 Outflows Insights Dashboard - Spending Analysis\n\n**What This Dashboard Shows:** Deep analysis of spending patterns with categorization and trend detection for optimization opportunities.\n\n**Key Metrics Explained:**\n• **Monthly Outflow Trends:** Track spending with month-over-month and year-over-year changes\n• **Category Analysis:** Detailed breakdown across all spending areas\n• **Large Transactions:** Identify unusual high-value purchases\n• **Uncategorized Items:** Should be <10% for accurate reporting - these distort analysis\n\n**How to Use:** Focus on largest categories first. Investigate unexpected increases. Categorize unknown transactions for better insights.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.0.0",
+      "title": "Dashboard Instructions",
+      "type": "text"
+    },
+    {
+      "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
@@ -77,7 +97,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 8
       },
       "id": 1,
       "options": {
@@ -167,7 +187,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 4
+        "y": 12
       },
       "id": 2,
       "options": {
@@ -233,7 +253,7 @@
         "h": 8,
         "w": 6,
         "x": 12,
-        "y": 4
+        "y": 12
       },
       "id": 3,
       "options": {
@@ -300,7 +320,7 @@
         "h": 8,
         "w": 6,
         "x": 18,
-        "y": 4
+        "y": 12
       },
       "id": 4,
       "options": {
@@ -357,7 +377,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 12
+        "y": 20
       },
       "id": 5,
       "options": {
@@ -376,7 +396,7 @@
             "lastNotNull"
           ],
           "fields": "",
-          "values": false
+          "values": true
         },
         "tooltip": {
           "mode": "single",
@@ -457,7 +477,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 12
+        "y": 20
       },
       "id": 6,
       "options": {
@@ -546,7 +566,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 28
       },
       "id": 7,
       "options": {
@@ -672,7 +692,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 36
       },
       "id": 8,
       "options": {
@@ -739,7 +759,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 36
+        "y": 44
       },
       "id": 9,
       "options": {
@@ -829,7 +849,7 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 36
+        "y": 44
       },
       "id": 10,
       "options": {
@@ -889,6 +909,38 @@
           }
         },
         "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "period_start"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Month"
+              },
+              {
+                "id": "unit",
+                "value": "time: YYYY-MM"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "account_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Account"
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
           {
             "matcher": {
               "id": "byName",
@@ -967,7 +1019,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 52
       },
       "id": 11,
       "options": {
@@ -992,11 +1044,106 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    total_amount_abs,\n    txn_count,\n    sample_memo,\n    suggested_category,\n    suggested_subcategory,\n    confidence\nFROM reporting.viz_high_value_uncategorized_by_period\nWHERE period_type = 'month'\n  AND period_start >= CURRENT_DATE - INTERVAL '6 months'\n  AND total_amount_abs > 100\nORDER BY period_start DESC, total_amount_abs DESC\nLIMIT 20;",
+          "rawSql": "SELECT \n    DATE_TRUNC('month', ft.transaction_date)::date AS period_start,\n    da.account_name,\n    SUM(ABS(ft.transaction_amount)) as total_amount_abs,\n    COUNT(*) as txn_count,\n    MIN(COALESCE(ft.transaction_description, ft.transaction_memo)) as sample_memo,\n    NULL as suggested_category,\n    NULL as suggested_subcategory,\n    NULL as confidence\nFROM reporting.fct_transactions_enhanced ft\nLEFT JOIN reporting.dim_categories_enhanced dc ON ft.category_key = dc.category_key\nLEFT JOIN reporting.dim_accounts_enhanced da ON ft.account_key = da.account_key\nWHERE dc.category = 'Uncategorized'\n  AND ft.transaction_amount < 0\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\n  AND ft.transaction_date >= CURRENT_DATE - INTERVAL '6 months'\n  AND COALESCE(ft.transaction_description, ft.transaction_memo) IS NOT NULL\nGROUP BY DATE_TRUNC('month', ft.transaction_date), da.account_name, \n         UPPER(REGEXP_REPLACE(REGEXP_REPLACE(REGEXP_REPLACE(REGEXP_REPLACE(\n         COALESCE(ft.transaction_description, ft.transaction_memo), \n         'Receipt\\\\s+[0-9]+', ' ', 'gi'), 'Date\\\\s+\\\\d{2}\\\\s+[A-Za-z]{3}\\\\s+\\\\d{4}', ' ', 'gi'), \n         'Card\\\\s+[\\\\dx]+' , ' ', 'gi'), '[^A-Za-z]+' , ' ', 'g'))\nHAVING SUM(ABS(ft.transaction_amount)) > 20\nORDER BY period_start DESC, total_amount_abs DESC\nLIMIT 50;",
           "refId": "A"
         }
       ],
-      "title": "High-Value Uncategorized Transactions (Last 6 Months)",
+      "title": "Uncategorized Transactions >$20 (Last 6 Months)",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "month" },
+            "properties": [
+              { "id": "displayName", "value": "Month" },
+              { "id": "custom.width", "value": 120 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "account_name" },
+            "properties": [
+              { "id": "displayName", "value": "Account" },
+              { "id": "custom.width", "value": 150 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "amount" },
+            "properties": [
+              { "id": "unit", "value": "currencyUSD" },
+              { "id": "displayName", "value": "Amount" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "count" },
+            "properties": [ { "id": "displayName", "value": "Count" } ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "example_transaction" },
+            "properties": [
+              { "id": "displayName", "value": "Example Transaction" },
+              { "id": "custom.width", "value": 320 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "suggested_category" },
+            "properties": [ { "id": "displayName", "value": "Suggested Category" } ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "suggested_subcategory" },
+            "properties": [ { "id": "displayName", "value": "Suggested Subcategory" } ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "confidence" },
+            "properties": [
+              { "id": "unit", "value": "percentunit" },
+              { "id": "displayName", "value": "Confidence" }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 60 },
+      "id": 12,
+      "options": { "cellHeight": "sm", "showHeader": true },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "PCC52D03280B7034C" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT month, account_name, amount, count, example_transaction, suggested_category, suggested_subcategory, confidence FROM reporting.viz_uncategorized_missing_example_top5 ORDER BY amount DESC;",
+          "refId": "A"
+        }
+      ],
+      "title": "Top 5 Uncategorized Without Example (Monthly)",
       "type": "table"
     }
   ],

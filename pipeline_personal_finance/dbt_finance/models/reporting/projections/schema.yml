@@ -1,0 +1,76 @@
+version: 2
+
+models:
+  - name: base_historical_trends
+    description: "Historical monthly financial trends used for projection modeling"
+    columns:
+      - name: month
+        description: "Month of the historical data"
+      - name: qbe_salary
+        description: "Stephanie's QBE salary income for the month"
+      - name: education_salary
+        description: "Stephanie's education/teaching income for the month"
+      - name: phil_payments
+        description: "Phil's monthly financial contributions"
+      - name: total_income
+        description: "Total household income for the month"
+      - name: total_expenses
+        description: "Total household expenses for the month"
+      - name: net_flow
+        description: "Net cash flow (income - expenses)"
+      - name: income_growth_rate
+        description: "Year-over-year income growth rate"
+      - name: expense_growth_rate
+        description: "Year-over-year expense growth rate"
+
+  - name: projection_parameters
+    description: "Configurable parameters for financial projections including work scenarios"
+    columns:
+      - name: scenario
+        description: "Work scenario: 'full_time' or 'part_time'"
+      - name: work_factor
+        description: "Multiplier for salary based on work arrangement (1.0 = full time, 0.6 = 3 days/week)"
+      - name: projection_month
+        description: "Month number in the 12-month projection period"
+      - name: projection_date
+        description: "Calendar date for the projection"
+      - name: base_monthly_income
+        description: "Base monthly income before growth adjustments"
+      - name: projected_monthly_income
+        description: "Projected monthly income with growth applied"
+
+  - name: fct_financial_projections
+    description: "Main financial projections fact table with income, expense, and savings projections"
+    columns:
+      - name: scenario
+        description: "Work scenario: 'full_time' or 'part_time'"
+      - name: projection_date
+        description: "Calendar date for the projection"
+      - name: total_projected_income
+        description: "Total projected monthly income including salary, bonuses, and other income"
+      - name: projected_monthly_expenses
+        description: "Projected monthly expenses based on historical trends"
+      - name: projected_net_flow
+        description: "Projected monthly net cash flow"
+      - name: cumulative_net_flow
+        description: "Cumulative net cash flow from start of projection period"
+      - name: projected_savings_rate
+        description: "Projected monthly savings rate as percentage of income"
+      - name: emergency_fund_months
+        description: "Number of months of expenses covered by cumulative savings"
+
+  - name: viz_yoy_projection_comparison
+    description: "Year-over-year comparison view for projections vs historical actuals"
+    columns:
+      - name: scenario
+        description: "Work scenario: 'full_time' or 'part_time'"
+      - name: month
+        description: "Projection month"
+      - name: yoy_income_growth
+        description: "Year-over-year income growth rate compared to same month previous year"
+      - name: yoy_expense_growth
+        description: "Year-over-year expense growth rate compared to same month previous year"
+      - name: part_time_opportunity_cost
+        description: "Income difference between full-time and part-time scenarios"
+      - name: quarterly_projected_net_flow
+        description: "Quarterly aggregate of projected net cash flow"

@@ -24,6 +24,26 @@
   "panels": [
     {
       "datasource": {
+        "type": "text",
+        "uid": "-- Text --"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "options": {
+        "content": "# 🏠 Household Net Worth Dashboard - Wealth Tracking\n\n**What This Dashboard Shows:** Tracks wealth accumulation and net worth progression over time with health scoring and milestone tracking.\n\n**Key Metrics Explained:**\n• **Net Worth Health Score:** Classification from critical to excellent based on assets vs liabilities\n• **Assets vs Liabilities:** Breakdown with liquidity analysis showing readily accessible funds\n• **Debt-to-Asset Ratio:** Lower percentages indicate stronger financial position\n• **Monthly Progress:** Consistent increases indicate successful wealth building\n\n**How to Use:** Track wealth building progress with milestone goals. Focus on increasing assets and reducing debt-to-asset ratios over time.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.0.0",
+      "title": "Dashboard Instructions",
+      "type": "text"
+    },
+    {
+      "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
@@ -63,7 +83,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 0
+        "y": 8
       },
       "id": 1,
       "options": {
@@ -275,7 +295,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 0
+        "y": 8
       },
       "id": 2,
       "options": {
@@ -401,7 +421,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 0
+        "y": 8
       },
       "id": 3,
       "options": {
@@ -542,7 +562,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 8
+        "y": 16
       },
       "id": 4,
       "options": {
@@ -690,7 +710,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 16
       },
       "id": 5,
       "options": {
@@ -863,7 +883,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 24
       },
       "id": 6,
       "options": {
@@ -1011,7 +1031,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 24
       },
       "id": 7,
       "options": {
@@ -1082,7 +1102,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 22
+        "y": 30
       },
       "id": 8,
       "options": {

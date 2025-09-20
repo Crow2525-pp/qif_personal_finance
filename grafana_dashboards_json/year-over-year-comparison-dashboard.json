@@ -24,6 +24,26 @@
   "panels": [
     {
       "datasource": {
+        "type": "text",
+        "uid": "-- Text --"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "options": {
+        "content": "# 📈 Year-over-Year Comparison Dashboard - Annual Progress Tracking\n\n**What This Dashboard Shows:** Annual financial performance assessment with multi-year trends and comprehensive benchmarking.\n\n**Key Metrics Explained:**\n• **Annual Progress Score:** Financial improvement measurement year-over-year\n• **YoY Changes:** Income, expenses, net worth, and savings rate annual comparisons\n• **Performance Classification:** Tier-based assessment of financial trajectory\n• **Trend Analysis:** Multi-year patterns showing long-term financial health\n\n**How to Use:** Annual trends show long-term financial trajectory. Focus on areas with declining year-over-year performance for improvement.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.0.0",
+      "title": "Dashboard Instructions",
+      "type": "text"
+    },
+    {
+      "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
@@ -61,7 +81,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 0
+        "y": 8
       },
       "id": 1,
       "options": {
@@ -128,7 +148,7 @@
         "h": 1,
         "w": 16,
         "x": 8,
-        "y": 0
+        "y": 8
       },
       "id": 2,
       "options": {
@@ -312,7 +332,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 8
+        "y": 16
       },
       "id": 3,
       "options": {
@@ -383,7 +403,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 16
       },
       "id": 4,
       "fieldConfig": {
@@ -581,7 +601,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 24
       },
       "id": 5,
       "options": {
@@ -714,7 +734,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 24
       },
       "id": 6,
       "options": {
@@ -849,7 +869,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 24
+        "y": 32
       },
       "id": 7,
       "options": {
@@ -882,7 +902,7 @@
           "refId": "A"
         }
       ],
-      "title": "Current Year Savings Breakdown",
+      "title": "Latest Complete Year Savings Breakdown",
       "type": "stat"
     },
     {
@@ -1015,7 +1035,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 24
+        "y": 32
       },
       "id": 8,
       "options": {
@@ -1130,7 +1150,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 30
+        "y": 38
       },
       "id": 9,
       "options": {
@@ -1297,7 +1317,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 30
+        "y": 38
       },
       "id": 10,
       "options": {
@@ -1399,7 +1419,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 46
       },
       "id": 11,
       "options": {

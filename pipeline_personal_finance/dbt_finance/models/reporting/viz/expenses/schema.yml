@@ -31,3 +31,21 @@ models:
       - name: rank_by_last_month_spend
         description: Rank by last month spending (1 = highest)
 
+  - name: viz_recent_uncategorized_for_review
+    description: View showing recent uncategorized transactions grouped by pattern for manual categorization
+    columns:
+      - name: time
+        description: Month start timestamp for Grafana time series
+      - name: year_month
+        description: Year-month in YYYY-MM format
+      - name: total_amount
+        description: Total amount for this pattern group
+      - name: transaction_count
+        description: Number of transactions in this pattern group
+      - name: original_memo
+        description: Original transaction memo for categorization
+      - name: suggested_category_hint
+        description: AI-suggested category based on memo pattern
+      - name: priority_label
+        description: Priority level for manual review based on amount
+

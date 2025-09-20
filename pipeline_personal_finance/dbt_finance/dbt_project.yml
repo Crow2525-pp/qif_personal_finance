@@ -43,6 +43,9 @@ models:
       enabled: true
       +schema: reporting
       +materialized: table
+      projections:
+        +schema: reporting
+        +materialized: table
 
 seeds:
   schema: landing

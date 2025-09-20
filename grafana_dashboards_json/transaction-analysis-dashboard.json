@@ -24,6 +24,26 @@
   "panels": [
     {
       "datasource": {
+        "type": "text",
+        "uid": "-- Text --"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "options": {
+        "content": "# 📋 Transaction Analysis Dashboard - Transaction Pattern Recognition\n\n**What This Dashboard Shows:** Detailed transaction-level analysis with activity patterns and data quality management.\n\n**Key Metrics Explained:**\n• **Transaction Activity:** Volume and value analysis by account and transaction type\n• **Top Expenses:** Largest individual transactions requiring review\n• **Uncategorized Transactions:** High-value items needing categorization for accurate reporting\n• **Activity Patterns:** Frequency and timing patterns across accounts\n\n**How to Use:** Focus on high-value uncategorized items first as they distort category analysis. Monitor transaction patterns for unusual activity.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.0.0",
+      "title": "Dashboard Instructions",
+      "type": "text"
+    },
+    {
+      "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
@@ -82,7 +102,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 0
+        "y": 8
       },
       "id": 1,
       "options": {
@@ -218,7 +238,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 0
+        "y": 8
       },
       "id": 2,
       "options": {
@@ -351,7 +371,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 8
+        "y": 16
       },
       "id": 3,
       "options": {
@@ -459,7 +479,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 24
       },
       "id": 5,
       "options": {
@@ -544,7 +564,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 24
       },
       "id": 6,
       "options": {
@@ -653,7 +673,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 24
+        "y": 32
       },
       "id": 7,
       "options": {

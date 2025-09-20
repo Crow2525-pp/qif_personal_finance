@@ -300,3 +300,84 @@ models:
       - name: created_at
         data_type: timestamp
         description: "Timestamp when record was created"
+
+  - name: rpt_outflows_reconciliation_tests
+    description: "Per-period reconciliation checks comparing viz outflows to fact aggregates with pass/fail."
+    columns:
+      - name: period_date
+        data_type: date
+        description: "Month (first day) the test applies to"
+      - name: test_name
+        data_type: text
+        description: "Identifier for the reconciliation check"
+      - name: left_value
+        data_type: numeric
+        description: "Value from viz_detailed_outflows_breakdown"
+      - name: right_value
+        data_type: numeric
+        description: "Reference value from fact tables"
+      - name: delta
+        data_type: numeric
+        description: "Difference left - right"
+      - name: pass
+        data_type: boolean
+        description: "True when within tolerance"
+      - name: notes
+        data_type: text
+        description: "Short description of what is compared"
+      - name: tested_at
+        data_type: timestamp
+        description: "Timestamp when the row was evaluated"
+
+  - name: rpt_outflows_reconciliation_summary
+    description: "Summary of reconciliation results per period with overall PASS/FAIL flag."
+    columns:
+      - name: period_date
+        data_type: date
+        description: "Month (first day) being summarized"
+      - name: passed
+        data_type: bigint
+        description: "Number of passing checks"
+      - name: failed
+        data_type: bigint
+        description: "Number of failing checks"
+      - name: total
+        data_type: bigint
+        description: "Total checks for the period"
+      - name: status
+        data_type: text
+        description: "PASS if no failures, else FAIL"
+      - name: is_latest
+        data_type: boolean
+        description: "True for latest month"
+      - name: summarized_at
+        data_type: timestamp
+        description: "Timestamp when summary was computed"
+
+  - name: viz_uncategorized_missing_example_top5
+    description: "Top 5 high-value uncategorized groups (monthly) where no example transaction text is present."
+    columns:
+      - name: month
+        data_type: text
+        description: "YYYY-MM month label"
+      - name: account_name
+        data_type: text
+        description: "Account associated with the group"
+      - name: amount
+        data_type: numeric
+        description: "Total absolute outflows for the group"
+      - name: count
+        data_type: bigint
+        description: "Number of transactions in the group"
+      - name: example_transaction
+        data_type: text
+        description: "Example transaction text (expected missing for this view)"
+      - name: suggested_category
+        data_type: text
+        description: "Suggested category based on memo similarity"
+      - name: suggested_subcategory
+        data_type: text
+        description: "Suggested subcategory"
+      - name: confidence
+        data_type: numeric
+        description: "Confidence score for the suggestion"

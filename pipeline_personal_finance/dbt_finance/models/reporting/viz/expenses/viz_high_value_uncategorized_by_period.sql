@@ -24,6 +24,7 @@ uncategorized_norm AS (
     transaction_date,
     amount_abs,
     transaction_memo,
+    transaction_description,
     -- Normalize using description if present, else memo; strip receipts/dates/cards and numbers
     UPPER(
       REGEXP_REPLACE(
@@ -47,7 +48,8 @@ uncategorized_period_agg AS (
          (DATE_TRUNC('month', transaction_date))::date AS period_start,
          account_key,
          memo_norm,
-         MIN(transaction_memo) AS sample_memo,
+         -- Use description if present, else memo for example text
+         MIN(COALESCE(transaction_description, transaction_memo)) AS sample_memo,
          COUNT(*) AS txn_count,
          SUM(amount_abs) AS total_amount_abs
   FROM uncategorized_norm
@@ -57,7 +59,7 @@ uncategorized_period_agg AS (
          (DATE_TRUNC('quarter', transaction_date))::date AS period_start,
          account_key,
          memo_norm,
-         MIN(transaction_memo) AS sample_memo,
+         MIN(COALESCE(transaction_description, transaction_memo)) AS sample_memo,
          COUNT(*) AS txn_count,
          SUM(amount_abs) AS total_amount_abs
   FROM uncategorized_norm
@@ -67,7 +69,7 @@ uncategorized_period_agg AS (
          (DATE_TRUNC('year', transaction_date))::date AS period_start,
          account_key,
          memo_norm,
-         MIN(transaction_memo) AS sample_memo,
+         MIN(COALESCE(transaction_description, transaction_memo)) AS sample_memo,
          COUNT(*) AS txn_count,
          SUM(amount_abs) AS total_amount_abs
   FROM uncategorized_norm

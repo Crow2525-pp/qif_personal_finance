@@ -1,0 +1,205 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": { "type": "text", "uid": "-- Text --" },
+      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "options": {
+        "content": "# 🔎 Outflows Reconciliation Dashboard\\n\\nThis dashboard validates that visualization outputs reconcile to fact tables. It summarizes pass/fail checks and highlights discrepancies and missing example transactions.",
+        "mode": "markdown"
+      },
+      "title": "Dashboard Overview",
+      "type": "text"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "PCC52D03280B7034C" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [ { "color": "green" }, { "color": "red", "value": 1 } ] }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 4 },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "/^failed$/", "values": false },
+        "text": {},
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "PCC52D03280B7034C" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT failed FROM reporting.rpt_outflows_reconciliation_summary WHERE is_latest = true ORDER BY period_date DESC LIMIT 1;",
+          "refId": "A"
+        }
+      ],
+      "title": "Failed Checks (Latest)",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "PCC52D03280B7034C" },
+      "fieldConfig": { "defaults": { "mappings": [], "thresholds": { "mode": "absolute", "steps": [ { "color": "green" } ] } }, "overrides": [] },
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 4 },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "/^status$/", "values": false },
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "PCC52D03280B7034C" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT status FROM reporting.rpt_outflows_reconciliation_summary WHERE is_latest = true ORDER BY period_date DESC LIMIT 1;",
+          "refId": "A"
+        }
+      ],
+      "title": "Overall Status (Latest)",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "PCC52D03280B7034C" },
+      "fieldConfig": {
+        "defaults": { "custom": { "align": "auto", "cellOptions": { "type": "auto" } }, "mappings": [] },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "period_date" }, "properties": [ { "id": "unit", "value": "time: YYYY-MM" }, { "id": "custom.width", "value": 140 } ] },
+          { "matcher": { "id": "byName", "options": "status" }, "properties": [ { "id": "custom.width", "value": 100 } ] },
+          { "matcher": { "id": "byName", "options": "passed" }, "properties": [ { "id": "custom.width", "value": 90 } ] },
+          { "matcher": { "id": "byName", "options": "failed" }, "properties": [ { "id": "custom.width", "value": 90 } ] }
+        ]
+      },
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 4 },
+      "id": 3,
+      "options": { "cellHeight": "sm", "showHeader": true },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "PCC52D03280B7034C" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT period_date, status, passed, failed, total FROM reporting.rpt_outflows_reconciliation_summary WHERE is_latest = true ORDER BY period_date DESC LIMIT 1;",
+          "refId": "A"
+        }
+      ],
+      "title": "Latest Reconciliation Summary",
+      "type": "table"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "PCC52D03280B7034C" },
+      "fieldConfig": {
+        "defaults": { "custom": { "align": "auto", "cellOptions": { "type": "auto" } }, "mappings": [] },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "period_date" }, "properties": [ { "id": "unit", "value": "time: YYYY-MM" } ] },
+          { "matcher": { "id": "byName", "options": "left_value" }, "properties": [ { "id": "unit", "value": "currencyUSD" } ] },
+          { "matcher": { "id": "byName", "options": "right_value" }, "properties": [ { "id": "unit", "value": "currencyUSD" } ] },
+          { "matcher": { "id": "byName", "options": "delta" }, "properties": [ { "id": "unit", "value": "currencyUSD" } ] }
+        ]
+      },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 8 },
+      "id": 4,
+      "options": { "cellHeight": "sm", "showHeader": true },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "PCC52D03280B7034C" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH latest AS (SELECT MAX(period_date) AS p FROM reporting.rpt_outflows_reconciliation_tests) SELECT period_date, test_name, left_value, right_value, delta, pass, notes FROM reporting.rpt_outflows_reconciliation_tests WHERE period_date = (SELECT p FROM latest) ORDER BY test_name;",
+          "refId": "A"
+        }
+      ],
+      "title": "Reconciliation Checks (Latest Month)",
+      "type": "table"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "PCC52D03280B7034C" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 18 },
+      "id": 5,
+      "options": { "legend": { "displayMode": "list", "showLegend": true }, "tooltip": { "mode": "single" } },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "PCC52D03280B7034C" },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT period_date AS time, failed FROM reporting.rpt_outflows_reconciliation_summary WHERE period_date >= (DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '12 months') ORDER BY period_date;",
+          "refId": "A"
+        }
+      ],
+      "title": "Failed Checks Over Time (12M)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "PCC52D03280B7034C" },
+      "fieldConfig": {
+        "defaults": { "custom": { "align": "auto", "cellOptions": { "type": "auto" } }, "mappings": [] },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "month" }, "properties": [ { "id": "custom.width", "value": 100 } ] },
+          { "matcher": { "id": "byName", "options": "account_name" }, "properties": [ { "id": "custom.width", "value": 160 } ] },
+          { "matcher": { "id": "byName", "options": "amount" }, "properties": [ { "id": "unit", "value": "currencyUSD" } ] },
+          { "matcher": { "id": "byName", "options": "confidence" }, "properties": [ { "id": "unit", "value": "percentunit" } ] }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
+      "id": 6,
+      "options": { "cellHeight": "sm", "showHeader": true },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "PCC52D03280B7034C" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT month, account_name, amount, count, example_transaction, suggested_category, suggested_subcategory, confidence FROM reporting.viz_uncategorized_missing_example_top5 ORDER BY amount DESC;",
+          "refId": "A"
+        }
+      ],
+      "title": "Top 5 Uncategorized Without Example (High Value)",
+      "type": "table"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 38,
+  "tags": ["outflows", "reconciliation", "quality"],
+  "templating": { "list": [] },
+  "time": { "from": "now-12M", "to": "now" },
+  "timezone": "Australia/Melbourne",
+  "title": "Outflows Reconciliation Dashboard",
+  "uid": "outflows_reconciliation",
+  "version": 0,
+  "weekStart": ""
+}
+

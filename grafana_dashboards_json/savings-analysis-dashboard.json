@@ -24,10 +24,30 @@
   "panels": [
     {
       "datasource": {
+        "type": "text",
+        "uid": "-- Text --"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "options": {
+        "content": "# 💎 Savings Analysis Dashboard - Wealth Building Progress\n\n**What This Dashboard Shows:** Comprehensive savings performance tracking with goal progression and optimization guidance.\n\n**Key Metrics Explained:**\n• **Savings Health Score (1-100):** Performance tier from critical to excellent\n• **Traditional vs Total Savings:** Cash savings vs all wealth building (including offset, investments, mortgage principal)\n• **3-Month Rolling Average:** Smooths out monthly variations for trend analysis\n• **Goal Tracking:** Progress toward savings targets with projections\n\n**How to Use:** Total savings include all wealth building activities. Consistent monthly progress indicates strong financial habits.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.0.0",
+      "title": "Dashboard Instructions",
+      "type": "text"
+    },
+    {
+      "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Current savings health score (1-100)",
+      "description": "Last complete month savings health score (1-100)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -61,7 +81,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 0
+        "y": 8
       },
       "id": 1,
       "options": {
@@ -98,7 +118,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Current total and traditional savings rates",
+      "description": "Last complete month total and traditional savings rates",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -132,7 +152,7 @@
         "h": 8,
         "w": 6,
         "x": 6,
-        "y": 0
+        "y": 8
       },
       "id": 2,
       "options": {
@@ -161,7 +181,7 @@
           "refId": "A"
         }
       ],
-      "title": "Current Savings Rates",
+      "title": "Last Month Savings Rates",
       "type": "gauge"
     },
     {
@@ -199,7 +219,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 0
+        "y": 8
       },
       "id": 3,
       "options": {
@@ -347,7 +367,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 8
+        "y": 16
       },
       "id": 4,
       "options": {
@@ -371,7 +391,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  total_savings_rate_percent,\n  traditional_savings_rate_percent,\n  rolling_3m_avg_savings_rate\nFROM reporting.rpt_savings_analysis \nORDER BY transaction_year, transaction_month;",
+          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  total_savings_rate_percent,\n  traditional_savings_rate_percent,\n  rolling_3m_avg_savings_rate\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
           "refId": "A"
         }
       ],
@@ -514,7 +534,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 16
       },
       "id": 5,
       "options": {
@@ -538,7 +558,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  cash_savings,\n  offset_savings,\n  investment_contributions,\n  estimated_mortgage_principal_payment\nFROM reporting.rpt_savings_analysis \nORDER BY transaction_year, transaction_month;",
+          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  cash_savings,\n  offset_savings,\n  investment_contributions,\n  estimated_mortgage_principal_payment\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
           "refId": "A"
         }
       ],
@@ -550,7 +570,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Current month savings breakdown by type",
+      "description": "Last complete month savings breakdown by type",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -651,7 +671,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 24
       },
       "id": 6,
       "options": {
@@ -684,7 +704,7 @@
           "refId": "A"
         }
       ],
-      "title": "Current Month Savings Breakdown",
+      "title": "Last Month Savings Breakdown",
       "type": "stat"
     },
     {
@@ -807,7 +827,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 24
       },
       "id": 7,
       "options": {
@@ -939,7 +959,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 22
+        "y": 30
       },
       "id": 8,
       "options": {
@@ -1053,7 +1073,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 22
+        "y": 30
       },
       "id": 9,
       "options": {
@@ -1124,7 +1144,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 36
       },
       "id": 10,
       "options": {

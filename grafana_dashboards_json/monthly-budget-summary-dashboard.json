@@ -24,6 +24,26 @@
   "panels": [
     {
       "datasource": {
+        "type": "text",
+        "uid": "-- Text --"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "options": {
+        "content": "# 📅 Monthly Budget Summary Dashboard - Budget Performance\n\n**What This Dashboard Shows:** Monthly budget performance with income vs expenses analysis and savings rate tracking.\n\n**Key Metrics Explained:**\n• **Income vs Expenses:** Complete monthly financial picture with net cash flow\n• **Savings Rate:** Percentage of income saved. Target 15-20% for strong financial health\n• **Expense Ratios:** Keep total expenses below 85% of income for sustainability\n• **Category Breakdown:** Major expense areas (mortgage, household, food, family)\n\n**How to Use:** Expense ratios above 90% leave little room for unexpected costs. Monitor savings rates monthly for consistency.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.0.0",
+      "title": "Dashboard Instructions",
+      "type": "text"
+    },
+    {
+      "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
@@ -128,7 +148,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 0
+        "y": 8
       },
       "id": 1,
       "options": {
@@ -161,7 +181,7 @@
           "refId": "A"
         }
       ],
-      "title": "Current Month Summary",
+      "title": "Last Complete Month Summary",
       "type": "stat"
     },
     {
@@ -169,7 +189,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Savings rate and expense ratio for current month",
+      "description": "Savings rate and expense ratio for last complete month",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -236,7 +256,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 0
+        "y": 8
       },
       "id": 2,
       "options": {
@@ -418,7 +438,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 8
+        "y": 16
       },
       "id": 3,
       "options": {
@@ -442,7 +462,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  total_income,\n  total_expenses,\n  rolling_3m_avg_income,\n  rolling_3m_avg_expenses\nFROM reporting.rpt_monthly_budget_summary \nORDER BY budget_year, budget_month;",
+          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  total_income,\n  total_expenses,\n  rolling_3m_avg_income,\n  rolling_3m_avg_expenses\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\nORDER BY budget_year, budget_month;",
           "refId": "A"
         }
       ],
@@ -555,7 +575,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 24
       },
       "id": 4,
       "options": {
@@ -588,7 +608,7 @@
           "refId": "A"
         }
       ],
-      "title": "Current Month Expense Categories",
+      "title": "Last Complete Month Expense Categories",
       "type": "stat"
     },
     {
@@ -673,7 +693,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 24
       },
       "id": 5,
       "options": {
@@ -815,7 +835,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 22
+        "y": 30
       },
       "id": 6,
       "options": {
@@ -930,7 +950,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 22
+        "y": 30
       },
       "id": 7,
       "options": {
@@ -954,7 +974,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  net_cash_flow\nFROM reporting.rpt_monthly_budget_summary \nORDER BY budget_year, budget_month;",
+          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  net_cash_flow\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\nORDER BY budget_year, budget_month;",
           "refId": "A"
         }
       ],
@@ -1032,7 +1052,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 30
+        "y": 38
       },
       "id": 8,
       "options": {

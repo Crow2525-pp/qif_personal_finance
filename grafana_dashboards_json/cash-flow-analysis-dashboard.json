@@ -24,6 +24,26 @@
   "panels": [
     {
       "datasource": {
+        "type": "text",
+        "uid": "-- Text --"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "options": {
+        "content": "# 💰 Cash Flow Analysis Dashboard - Financial Health Assessment\n\n**What This Dashboard Shows:** Comprehensive monthly cash flow health assessment with AI-driven recommendations for optimization.\n\n**Key Metrics Explained:**\n• **Cash Flow Efficiency Score (1-100):** Overall cash flow health. Scores below 50 indicate stress - review expense categories\n• **Status Ranking (1-5):** Performance tier from critical (1) to excellent (5)\n• **Flow Categories:** Operating (day-to-day), Financing (loans/investments), Investing (asset purchases)\n• **Rolling Averages:** 3-month trends smooth out monthly variations\n\n**How to Use:** Focus on efficiency scores first. Red indicators require immediate attention. Use AI recommendations to identify optimization opportunities.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.0.0",
+      "title": "Dashboard Instructions",
+      "type": "text"
+    },
+    {
+      "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
@@ -112,7 +132,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 0
+        "y": 8
       },
       "id": 1,
       "options": {
@@ -216,7 +236,7 @@
         "h": 8,
         "w": 6,
         "x": 6,
-        "y": 0
+        "y": 8
       },
       "id": 2,
       "options": {
@@ -306,7 +326,7 @@
         "h": 8,
         "w": 6,
         "x": 12,
-        "y": 0
+        "y": 8
       },
       "id": 9,
       "options": {
@@ -444,7 +464,7 @@
         "h": 8,
         "w": 6,
         "x": 18,
-        "y": 0
+        "y": 8
       },
       "id": 3,
       "options": {
@@ -589,7 +609,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 8
+        "y": 16
       },
       "id": 4,
       "options": {
@@ -737,7 +757,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 16
       },
       "id": 5,
       "options": {
@@ -876,7 +896,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "MoM Inflow Change"
+                "value": "MoM Inflow Change (Last vs Prior)"
               }
             ]
           },
@@ -888,7 +908,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "MoM Outflow Change"
+                "value": "MoM Outflow Change (Last vs Prior)"
               }
             ]
           }
@@ -898,7 +918,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 24
       },
       "id": 6,
       "options": {
@@ -1040,7 +1060,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 24
       },
       "id": 7,
       "options": {
@@ -1111,7 +1131,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 22
+        "y": 30
       },
       "id": 8,
       "options": {

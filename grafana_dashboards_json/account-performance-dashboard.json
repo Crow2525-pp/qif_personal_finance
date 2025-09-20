@@ -24,6 +24,26 @@
   "panels": [
     {
       "datasource": {
+        "type": "text",
+        "uid": "-- Text --"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "options": {
+        "content": "# 💳 Account Performance Dashboard - Account Health Monitoring\n\n**What This Dashboard Shows:** Individual bank account balances, performance metrics, and mortgage loan details to track account health and mortgage paydown progress.\n\n**Key Metrics Explained:**\n• **Account Balance Trends:** Track balances across all accounts (Bendigo Offset, ING Bills, Bendigo Home Loan, ING Countdown)\n• **Net Position:** Your total position after offset account benefits against home loan\n• **Month-over-Month Changes:** Identify unusual balance fluctuations requiring attention\n• **Mortgage Tracking:** Monitor interest payments and principal reduction progress\n\n**How to Use:** Monitor offset account efficiency - every dollar in offset saves mortgage interest. Look for consistent balance growth in offset accounts and declining home loan balances over time.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.0.0",
+      "title": "Dashboard Instructions",
+      "type": "text"
+    },
+    {
+      "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
@@ -82,7 +102,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 8
       },
       "id": 1,
       "options": {
@@ -106,7 +126,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month,\n  bendigo_offset,\n  ing_billsbillsbills,\n  bendigo_homeloan,\n  ing_countdown\nFROM reporting.viz_balance_by_year_month \nWHERE period_date >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\nORDER BY period_date;",
+          "rawSql": "SELECT \n  year_month,\n  bendigo_offset,\n  ing_billsbillsbills,\n  bendigo_homeloan,\n  ing_countdown\nFROM reporting.viz_balance_by_year_month \nWHERE period_date >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\n  AND period_date < DATE_TRUNC('month', CURRENT_DATE)\nORDER BY period_date;",
           "refId": "A"
         }
       ],
@@ -132,7 +152,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Current account balances",
+      "description": "Last complete month account balances",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -231,7 +251,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 8
+        "y": 16
       },
       "id": 2,
       "options": {
@@ -260,11 +280,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  bendigo_offset,\n  ing_billsbillsbills,\n  bendigo_homeloan,\n  ing_countdown\nFROM reporting.viz_balance_by_year_month \nORDER BY period_date DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  bendigo_offset,\n  ing_billsbillsbills,\n  bendigo_homeloan,\n  ing_countdown\nFROM reporting.viz_balance_by_year_month \nWHERE period_date = (\n  SELECT MAX(period_date) FROM reporting.viz_balance_by_year_month \n  WHERE period_date < DATE_TRUNC('month', CURRENT_DATE)\n)\nLIMIT 1;",
           "refId": "A"
         }
       ],
-      "title": "Current Account Balances",
+      "title": "Last Month Account Balances",
       "type": "stat"
     },
     {
@@ -331,7 +351,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 16
       },
       "id": 3,
       "options": {
@@ -355,7 +375,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month,\n  net_position\nFROM reporting.viz_net_position_after_homeloan \nWHERE year_month >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\nORDER BY year_month;",
+          "rawSql": "SELECT \n  year_month,\n  net_position\nFROM reporting.viz_net_position_after_homeloan \nWHERE year_month >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\n  AND year_month < DATE_TRUNC('month', CURRENT_DATE)\nORDER BY year_month;",
           "refId": "A"
         }
       ],
@@ -471,7 +491,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 24
       },
       "id": 4,
       "options": {
@@ -498,7 +518,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month,\n  \"bendigo_offset_MoM\" as bendigo_offset,\n  \"ing_billsbillsbills_MoM\" as ing_bills,\n  \"bendigo_homeloan_MoM\" as bendigo_loan,\n  \"ing_countdown_MoM\" as ing_countdown\nFROM reporting.viz_mom_differences \nWHERE period_date >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\nORDER BY period_date;",
+          "rawSql": "SELECT \n  year_month,\n  \"bendigo_offset_MoM\" as bendigo_offset,\n  \"ing_billsbillsbills_MoM\" as ing_bills,\n  \"bendigo_homeloan_MoM\" as bendigo_loan,\n  \"ing_countdown_MoM\" as ing_countdown\nFROM reporting.viz_mom_differences \nWHERE period_date >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\n  AND period_date < DATE_TRUNC('month', CURRENT_DATE)\nORDER BY period_date;",
           "refId": "A"
         }
       ],
@@ -537,7 +557,7 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 20,
+            "fillOpacity": 0,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -579,7 +599,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 24
       },
       "id": 5,
       "options": {
@@ -616,6 +636,185 @@
               {
                 "destinationType": "time",
                 "targetField": "year_month"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Monthly payment ($3,410), interest added to loan balance, and net principal reduction (payment - interest). Shows actual loan balance reduction each month.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_charges_added"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Interest & Fees Added to Loan"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "monthly_payment"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Monthly Payment"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 4
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "net_principal_reduction"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Net Principal Reduction"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  DATE_TRUNC('month', t.date) as time,\n  CASE WHEN COUNT(CASE WHEN t.amount > 0 THEN 1 END) > 0 THEN 3410.00 ELSE 0 END as monthly_payment,\n  SUM(CASE WHEN t.amount < 0 THEN ABS(t.amount) ELSE 0 END) as total_charges_added,\n  CASE WHEN COUNT(CASE WHEN t.amount > 0 THEN 1 END) > 0 THEN 3410.00 ELSE 0 END - SUM(CASE WHEN t.amount < 0 THEN ABS(t.amount) ELSE 0 END) as net_principal_reduction\nFROM reporting.reporting__fact_transactions t \nJOIN reporting.dim_account a ON t.account_foreign_key = a.origin_key \nWHERE a.account_name = 'homeloan' \n  AND a.bank_name = 'bendigo'\n  AND DATE_TRUNC('month', t.date) < DATE_TRUNC('month', CURRENT_DATE)\nGROUP BY DATE_TRUNC('month', t.date) \nORDER BY time;",
+          "refId": "A"
+        }
+      ],
+      "title": "Mortgage Payment vs Interest & Principal Reduction",
+      "transformations": [
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "time",
+                "targetField": "time"
               }
             ],
             "fields": {}
@@ -708,9 +907,9 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 24
+        "y": 32
       },
-      "id": 6,
+      "id": 8,
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -733,7 +932,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT DISTINCT\n  account_name AS \"Account Name\",\n  account_type AS \"Account Type\",\n  bank_name AS \"Bank Name\",\n  account_category AS \"Account Category\",\n  is_liability AS \"Liability\",\n  is_transactional AS \"Transactional\",\n  is_asset AS \"Asset\",\n  is_liquid_asset AS \"Liquid Asset\",\n  is_loan AS \"Loan\",\n  is_homeloan AS \"Home Loan\",\n  is_debt AS \"Debt\"\nFROM reporting.rpt_account_performance \nWHERE budget_year_month = (\n  SELECT MAX(budget_year_month) FROM reporting.rpt_account_performance\n)\nORDER BY bank_name, account_name;",
+          "rawSql": "SELECT DISTINCT\n  account_name AS \"Account Name\",\n  account_type AS \"Account Type\",\n  bank_name AS \"Bank Name\",\n  account_category AS \"Account Category\",\n  is_liability AS \"Liability\",\n  is_transactional AS \"Transactional\",\n  is_asset AS \"Asset\",\n  is_liquid_asset AS \"Liquid Asset\",\n  is_loan AS \"Loan\",\n  is_homeloan AS \"Home Loan\",\n  is_debt AS \"Debt\"\nFROM reporting.rpt_account_performance \nWHERE budget_year_month = (\n  SELECT MAX(budget_year_month) FROM reporting.rpt_account_performance\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n)\nORDER BY bank_name, account_name;",
           "refId": "A"
         }
       ],

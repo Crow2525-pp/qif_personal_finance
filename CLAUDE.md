@@ -104,6 +104,19 @@ dbt commands should be executed within the containerized environment or by acces
 - **transformation**: Business logic applied (categorization, balance adjustments)
 - **reporting**: Final models for visualization
 
+## Grafana Dashboards
+
+### Currency Formatting
+- **Important**: Currency formatting should use USD ($) instead of AUD (A$) in Grafana dashboards
+- When creating or updating dashboard visualizations, ensure currency fields display as USD format
+- This applies to all financial metrics including income, expenses, balances, and projections
+
+### Pie Chart Configuration
+- **Important**: For pie charts, always set "Show values" to display "All values" instead of just calculations
+- In the dashboard JSON, add `"displayLabels": ["name", "value"]` to the options section
+- Update legend values to `"values": ["value"]` to show actual values in the legend
+- This ensures pie charts display actual values on each segment, not just percentages or calculations
+
 ## Testing
 
 Test files located in `dagster_finance_tests/` directory. Testing infrastructure is minimal and requires expansion for comprehensive coverage.
