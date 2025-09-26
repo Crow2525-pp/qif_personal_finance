@@ -102,6 +102,8 @@ monthly_summary AS (
     SUM(CASE WHEN expense_group = 'Family & Kids' THEN outflow_amount ELSE 0 END) AS family_kids,
     SUM(CASE WHEN expense_group = 'Health & Wellness' THEN outflow_amount ELSE 0 END) AS health_wellness,
     SUM(CASE WHEN expense_group = 'Entertainment' THEN outflow_amount ELSE 0 END) AS entertainment,
+    SUM(CASE WHEN expense_group = 'Travel' THEN outflow_amount ELSE 0 END) AS travel,
+    SUM(CASE WHEN expense_group = 'Gifts & Charity' THEN outflow_amount ELSE 0 END) AS gifts_charity,
     SUM(CASE WHEN expense_group = 'Insurance' THEN outflow_amount ELSE 0 END) AS insurance,
     SUM(CASE WHEN expense_group = 'Investments' THEN outflow_amount ELSE 0 END) AS investments,
     SUM(CASE WHEN expense_group = 'Taxes' THEN outflow_amount ELSE 0 END) AS taxes,

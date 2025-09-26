@@ -168,4 +168,5 @@ SELECT
   report_generated_at
   
 FROM final_metrics
+WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') < date_trunc('month', CURRENT_DATE)
 ORDER BY budget_year DESC, budget_month DESC

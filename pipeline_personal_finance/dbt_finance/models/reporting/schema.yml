@@ -381,3 +381,170 @@ models:
       - name: confidence
         data_type: numeric
         description: "Confidence score for the suggestion"
+
+  - name: rpt_financials_reconciliation_tests
+    description: "Cross-dashboard reconciliation checks (budget, cash flow, executive, income/expense, outflows)."
+    columns:
+      - name: period_date
+        data_type: date
+      - name: domain
+        data_type: text
+        description: "Test domain: Outflows, Budget, CashFlow, Executive, IncomeExpense"
+      - name: test_name
+        data_type: text
+      - name: left_value
+        data_type: numeric
+      - name: right_value
+        data_type: numeric
+      - name: delta
+        data_type: numeric
+      - name: pass
+        data_type: boolean
+      - name: notes
+        data_type: text
+
+  - name: rpt_financials_reconciliation_summary
+    description: "Summary of reconciliation results across all domains per period."
+    columns:
+      - name: period_date
+        data_type: date
+      - name: passed
+        data_type: bigint
+      - name: failed
+        data_type: bigint
+      - name: total
+        data_type: bigint
+      - name: status
+        data_type: text
+
+  - name: viz_grocery_spending_analysis
+    description: "Monthly grocery spending analysis by store (Coles, Woolworths, Gaskos) with transaction counts and percentages"
+    columns:
+      - name: year_month
+        data_type: timestamp with time zone
+        description: "Month of the transactions"
+      - name: grocery_store
+        data_type: text
+        description: "Grocery store name (Coles, Woolworths, Gaskos)"
+      - name: monthly_spend
+        data_type: numeric
+        description: "Total spending for the month at this store (positive)"
+      - name: transaction_count
+        data_type: bigint
+        description: "Number of transactions at this store"
+      - name: avg_transaction_size
+        data_type: numeric
+        description: "Average transaction amount for this store"
+      - name: total_monthly_spend
+        data_type: numeric
+        description: "Total grocery spending across all stores for the month"
+      - name: total_transaction_count
+        data_type: bigint
+        description: "Total transaction count across all stores"
+      - name: percentage_of_total
+        data_type: numeric
+        description: "Store's percentage share of total monthly grocery spending"
+
+  - name: viz_grocery_insights
+    description: "Grocery spending insights with growth trends and store rankings"
+    columns:
+      - name: grocery_store
+        data_type: text
+        description: "Grocery store name"
+      - name: year_month
+        data_type: timestamp with time zone
+        description: "Month of analysis"
+      - name: monthly_spend
+        data_type: numeric
+        description: "Monthly spending amount"
+      - name: same_month_last_year
+        data_type: numeric
+        description: "Spending for same month in previous year"
+      - name: yoy_growth_percent
+        data_type: numeric
+        description: "Year-over-year growth percentage"
+      - name: previous_month_spend
+        data_type: numeric
+        description: "Previous month's spending"
+      - name: mom_growth_percent
+        data_type: numeric
+        description: "Month-over-month growth percentage"
+      - name: spending_rank
+        data_type: bigint
+        description: "Store ranking by spending for the month"
+      - name: store_category
+        data_type: text
+        description: "Store category (Primary Store, Secondary Store, Other Store)"
+      - name: percentage_of_total
+        data_type: numeric
+        description: "Store's percentage share of total monthly spending"
+      - name: yoy_trend_category
+        data_type: text
+        description: "Year-over-year trend category (High Change, Moderate Change, Stable, No Historical Data)"
+      - name: mom_trend_category
+        data_type: text
+        description: "Month-over-month trend category (High Volatility, Moderate Volatility, Stable, No Previous Month)"
+
+  - name: viz_grocery_monthly_summary
+    description: "Monthly grocery spending summary with totals and growth metrics for dashboard"
+    columns:
+      - name: year_month
+        data_type: timestamp with time zone
+        description: "Month of the summary"
+      - name: coles_spend
+        data_type: numeric
+        description: "Total spending at Coles for the month"
+      - name: woolworths_spend
+        data_type: numeric
+        description: "Total spending at Woolworths for the month"
+      - name: gaskos_spend
+        data_type: numeric
+        description: "Total spending at Gaskos for the month"
+      - name: total_grocery_spend
+        data_type: numeric
+        description: "Total grocery spending across all stores"
+      - name: coles_transactions
+        data_type: bigint
+        description: "Number of Coles transactions"
+      - name: woolworths_transactions
+        data_type: bigint
+        description: "Number of Woolworths transactions"
+      - name: gaskos_transactions
+        data_type: bigint
+        description: "Number of Gaskos transactions"
+      - name: total_transactions
+        data_type: bigint
+        description: "Total grocery transactions"
+      - name: previous_month_total
+        data_type: numeric
+        description: "Previous month's total grocery spending"
+      - name: same_month_last_year_total
+        data_type: numeric
+        description: "Total grocery spending for same month last year"
+      - name: mom_growth_percent
+        data_type: numeric
+        description: "Month-over-month growth percentage"
+      - name: yoy_growth_percent
+        data_type: numeric
+        description: "Year-over-year growth percentage"
+      - name: coles_percentage
+        data_type: numeric
+        description: "Coles percentage of total monthly spending"
+      - name: woolworths_percentage
+        data_type: numeric
+        description: "Woolworths percentage of total monthly spending"
+      - name: gaskos_percentage
+        data_type: numeric
+        description: "Gaskos percentage of total monthly spending"
+      - name: coles_avg_transaction
+        data_type: numeric
+        description: "Average Coles transaction size"
+      - name: woolworths_avg_transaction
+        data_type: numeric
+        description: "Average Woolworths transaction size"
+      - name: gaskos_avg_transaction
+        data_type: numeric
+        description: "Average Gaskos transaction size"
+      - name: total_avg_transaction
+        data_type: numeric
+        description: "Average transaction size across all stores"

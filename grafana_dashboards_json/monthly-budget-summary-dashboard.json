@@ -189,15 +189,15 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Savings rate and expense ratio for last complete month",
+      "description": "Savings rate and expense ratio for last complete month (scaled 0–100%, negatives allowed)",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
           "mappings": [],
-          "max": 100,
-          "min": 0,
+          "max": 1,
+          "min": -1,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -215,7 +215,7 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "percentunit"
         },
         "overrides": [
           {

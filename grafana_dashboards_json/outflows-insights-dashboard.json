@@ -246,7 +246,7 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "percentunit"
         }
       },
       "gridPos": {
@@ -313,7 +313,7 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "percentunit"
         }
       },
       "gridPos": {
@@ -470,7 +470,7 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "percentunit"
         }
       },
       "gridPos": {
@@ -752,7 +752,7 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "percentunit"
         }
       },
       "gridPos": {
@@ -1044,7 +1044,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    DATE_TRUNC('month', ft.transaction_date)::date AS period_start,\n    da.account_name,\n    SUM(ABS(ft.transaction_amount)) as total_amount_abs,\n    COUNT(*) as txn_count,\n    MIN(COALESCE(ft.transaction_description, ft.transaction_memo)) as sample_memo,\n    NULL as suggested_category,\n    NULL as suggested_subcategory,\n    NULL as confidence\nFROM reporting.fct_transactions_enhanced ft\nLEFT JOIN reporting.dim_categories_enhanced dc ON ft.category_key = dc.category_key\nLEFT JOIN reporting.dim_accounts_enhanced da ON ft.account_key = da.account_key\nWHERE dc.category = 'Uncategorized'\n  AND ft.transaction_amount < 0\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\n  AND ft.transaction_date >= CURRENT_DATE - INTERVAL '6 months'\n  AND COALESCE(ft.transaction_description, ft.transaction_memo) IS NOT NULL\nGROUP BY DATE_TRUNC('month', ft.transaction_date), da.account_name, \n         UPPER(REGEXP_REPLACE(REGEXP_REPLACE(REGEXP_REPLACE(REGEXP_REPLACE(\n         COALESCE(ft.transaction_description, ft.transaction_memo), \n         'Receipt\\\\s+[0-9]+', ' ', 'gi'), 'Date\\\\s+\\\\d{2}\\\\s+[A-Za-z]{3}\\\\s+\\\\d{4}', ' ', 'gi'), \n         'Card\\\\s+[\\\\dx]+' , ' ', 'gi'), '[^A-Za-z]+' , ' ', 'g'))\nHAVING SUM(ABS(ft.transaction_amount)) > 20\nORDER BY period_start DESC, total_amount_abs DESC\nLIMIT 50;",
+          "rawSql": "SELECT \n  hvu.period_start,\n  hvu.account_name,\n  hvu.total_amount_abs,\n  hvu.txn_count,\n  hvu.sample_memo AS sample_memo,\n  hvu.suggested_category,\n  hvu.suggested_subcategory,\n  hvu.confidence\nFROM reporting.viz_high_value_uncategorized_by_period hvu\nWHERE hvu.period_type = 'month'\n  AND hvu.period_start >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '6 months'\nORDER BY hvu.period_start DESC, hvu.total_amount_abs DESC\nLIMIT 50;",
           "refId": "A"
         }
       ],

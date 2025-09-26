@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# 💰 Cash Flow Analysis Dashboard - Financial Health Assessment\n\n**What This Dashboard Shows:** Comprehensive monthly cash flow health assessment with AI-driven recommendations for optimization.\n\n**Key Metrics Explained:**\n• **Cash Flow Efficiency Score (1-100):** Overall cash flow health. Scores below 50 indicate stress - review expense categories\n• **Status Ranking (1-5):** Performance tier from critical (1) to excellent (5)\n• **Flow Categories:** Operating (day-to-day), Financing (loans/investments), Investing (asset purchases)\n• **Rolling Averages:** 3-month trends smooth out monthly variations\n\n**How to Use:** Focus on efficiency scores first. Red indicators require immediate attention. Use AI recommendations to identify optimization opportunities.",
+        "content": "# 💰 Cash Flow Analysis Dashboard - Financial Health Assessment\n\n**What This Dashboard Shows:** Comprehensive cash flow health with trend-aware metrics and recommendations.\n\n**Key Metrics Explained:**\n• **Cash Flow Efficiency Score (1-100):** Overall cash flow health (higher is better).\n• **Status Ranking (1-5):** Combined state + trend (1=critical … 5=excellent).\n• **Rolling Averages:** Gauges use the last 3 complete months to avoid one-off spikes.\n• **Cash Flow Margin (%):** (Net Cash Flow / Total Inflows) — the share of your inflows you retain after outflows. Positive = surplus; <0% = deficit. 10%+ is typically healthy.\n• **Outflow-to-Inflow Ratio (%):** (Total Outflows / Total Inflows) — how much of your inflows are consumed by spending. Lower is better; >100% indicates overspending.\n\n**Flow Category Definitions**\n• **Operating:** Day-to-day household activity — salary/wages and core living expenses (Food & Drink, Household & Services, Family & Kids, other routine bills). Operating Cash Flow = operating inflows − operating outflows.\n• **Financing:** Debt and funding flows — mortgage/home-loan repayments, other loan servicing, and internal transfers between your own accounts.\n• **Investing:** Buying/selling investments or contributing to investment accounts (e.g., brokerage, super, ETFs). Identified via Investment categories or accounts named with ‘invest’.\n\n**How to Use:** Focus on 3‑month gauges for trend, then drill into the latest month and categories. Red indicates persistent stress; look for high outflow-to-inflow ratio and declining trend.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -47,7 +47,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Most recent complete month cash flow efficiency score (1-100)",
+      "description": "3-month average cash flow efficiency score (1-100), smoothing month-to-month volatility",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -157,7 +157,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT cash_flow_efficiency_score\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "WITH last3 AS (\n  SELECT cash_flow_efficiency_score\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n  ORDER BY transaction_year DESC, transaction_month DESC\n  LIMIT 3\n)\nSELECT ROUND(AVG(cash_flow_efficiency_score)) AS cash_flow_efficiency_score FROM last3;",
           "refId": "A"
         }
       ],
@@ -169,7 +169,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Current cash flow status ranking (1-5 scale)",
+      "description": "3-month average status rank (1 worst .. 5 best)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -261,7 +261,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT cash_flow_status_rank\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "WITH last3 AS (\n  SELECT cash_flow_status_rank\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n  ORDER BY transaction_year DESC, transaction_month DESC\n  LIMIT 3\n)\nSELECT ROUND(AVG(cash_flow_status_rank)) AS cash_flow_status_rank FROM last3;",
           "refId": "A"
         }
       ],
@@ -273,7 +273,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Current cash flow trend direction (1-3 scale)",
+      "description": "3-month average trend rank (1 Declining, 2 Stable, 3 Improving)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -351,7 +351,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  CASE \n    WHEN cash_flow_trend = 'Declining' THEN 1\n    WHEN cash_flow_trend = 'Stable' THEN 2\n    WHEN cash_flow_trend = 'Improving' THEN 3\n    ELSE 2\n  END as trend_rank\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "WITH last3 AS (\n  SELECT CASE \n           WHEN cash_flow_trend = 'Declining' THEN 1\n           WHEN cash_flow_trend = 'Stable' THEN 2\n           WHEN cash_flow_trend = 'Improving' THEN 3\n           ELSE 2\n         END as trend_rank\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n  ORDER BY transaction_year DESC, transaction_month DESC\n  LIMIT 3\n)\nSELECT ROUND(AVG(trend_rank)) AS trend_rank FROM last3;",
           "refId": "A"
         }
       ],
@@ -363,7 +363,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "MOST RECENT COMPLETE MONTH (August 2025): Inflows, outflows, and net cash flow data excludes current incomplete month for accurate quarterly review",
+      "description": "MOST RECENT COMPLETE MONTH: Inflows, outflows, and net cash flow data excludes current incomplete month for accurate analysis. Updated with corrected categorizations.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -497,7 +497,7 @@
           "refId": "A"
         }
       ],
-      "title": "Latest Complete Month Cash Flow (Aug 2025)",
+      "title": "Latest Complete Month Cash Flow",
       "type": "stat"
     },
     {
@@ -1160,7 +1160,704 @@
           "refId": "A"
         }
       ],
-      "title": "Cash Flow Recommendations & Forecast",
+  "title": "Cash Flow Recommendations & Forecast",
+  "type": "table"
+},
+ {
+   "datasource": {
+     "type": "postgres",
+     "uid": "PCC52D03280B7034C"
+   },
+   "description": "Net, inflow and outflow across the most recent twelve months of available data (internal transfers excluded).",
+   "fieldConfig": {
+     "defaults": {
+       "color": {
+         "mode": "palette-classic"
+       },
+       "custom": {
+         "axisCenteredZero": true,
+         "axisColorMode": "text",
+         "axisLabel": "",
+         "axisPlacement": "auto",
+         "barAlignment": 0,
+         "drawStyle": "line",
+         "fillOpacity": 20,
+         "gradientMode": "opacity",
+         "hideFrom": {
+           "legend": false,
+           "tooltip": false,
+           "vis": false
+         },
+         "lineInterpolation": "linear",
+         "lineWidth": 2,
+         "pointSize": 4,
+         "scaleDistribution": {
+           "type": "linear"
+         },
+         "showPoints": "auto",
+         "spanNulls": false,
+         "stacking": {
+           "group": "A",
+           "mode": "none"
+         },
+         "thresholdsStyle": {
+           "mode": "off"
+         }
+       },
+       "mappings": [],
+       "thresholds": {
+         "mode": "absolute",
+         "steps": [
+           {
+             "color": "green",
+             "value": null
+           }
+         ]
+       },
+       "unit": "currencyUSD"
+     },
+     "overrides": [
+       {
+         "matcher": {
+           "id": "byName",
+           "options": "inflow"
+         },
+         "properties": [
+           {
+             "id": "displayName",
+             "value": "Inflow"
+           },
+           {
+             "id": "color",
+             "value": {
+               "fixedColor": "#4caf50",
+               "mode": "fixed"
+             }
+           },
+           {
+             "id": "custom.drawStyle",
+             "value": "bars"
+           },
+           {
+             "id": "custom.fillOpacity",
+             "value": 80
+           }
+         ]
+       },
+       {
+         "matcher": {
+           "id": "byName",
+           "options": "outflow"
+         },
+         "properties": [
+           {
+             "id": "displayName",
+             "value": "Outflow"
+           },
+           {
+             "id": "color",
+             "value": {
+               "fixedColor": "#f44336",
+               "mode": "fixed"
+             }
+           },
+           {
+             "id": "custom.drawStyle",
+             "value": "bars"
+           },
+           {
+             "id": "custom.fillOpacity",
+             "value": 80
+           }
+         ]
+       },
+       {
+         "matcher": {
+           "id": "byName",
+           "options": "net"
+         },
+         "properties": [
+           {
+             "id": "displayName",
+             "value": "Net"
+           },
+           {
+             "id": "color",
+             "value": {
+               "fixedColor": "#2196f3",
+               "mode": "fixed"
+             }
+           }
+         ]
+       }
+     ]
+   },
+   "gridPos": {
+     "h": 10,
+     "w": 12,
+     "x": 0,
+     "y": 36
+   },
+   "id": 210,
+   "options": {
+     "legend": {
+       "calcs": [],
+       "displayMode": "list",
+       "placement": "bottom",
+       "showLegend": true
+     },
+     "tooltip": {
+       "mode": "single",
+       "sort": "none"
+     }
+   },
+   "pluginVersion": "10.0.0",
+   "targets": [
+     {
+       "datasource": {
+         "type": "postgres",
+         "uid": "PCC52D03280B7034C"
+       },
+       "editorMode": "code",
+       "format": "table",
+       "rawQuery": true,
+       "rawSql": "WITH months AS (\n  SELECT DISTINCT DATE_TRUNC('month', transaction_date)::date AS period_date\n  FROM reporting.fct_transactions_enhanced\n  WHERE COALESCE(is_internal_transfer, false) = false\n), latest AS (\n  SELECT MAX(period_date) AS latest_month FROM months\n), windowed AS (\n  SELECT\n    DATE_TRUNC('month', f.transaction_date)::date AS period_date,\n    SUM(CASE WHEN f.transaction_amount > 0 THEN f.transaction_amount ELSE 0 END) AS inflow,\n    SUM(CASE WHEN f.transaction_amount < 0 THEN f.transaction_amount ELSE 0 END) AS outflow,\n    SUM(f.transaction_amount) AS net\n  FROM reporting.fct_transactions_enhanced f\n  CROSS JOIN latest\n  WHERE COALESCE(f.is_internal_transfer, false) = false\n    AND DATE_TRUNC('month', f.transaction_date)::date BETWEEN (latest_month - INTERVAL '11 months') AND latest_month\n  GROUP BY 1\n)\nSELECT\n  period_date::timestamp AS time,\n  inflow,\n  outflow,\n  net\nFROM windowed\nORDER BY period_date;",
+       "refId": "A"
+     }
+   ],
+   "title": "Last 12 Months Cashflow Trend",
+   "type": "timeseries"
+ },
+ {
+   "datasource": {
+     "type": "postgres",
+     "uid": "PCC52D03280B7034C"
+   },
+   "description": "Account-level inflow, outflow and net position for the latest three months (internal transfers excluded).",
+   "fieldConfig": {
+     "defaults": {
+       "color": {
+         "mode": "thresholds"
+       },
+       "custom": {
+         "align": "auto",
+         "cellOptions": {
+           "type": "auto"
+         },
+         "inspect": false
+       },
+       "mappings": [],
+       "thresholds": {
+         "mode": "absolute",
+         "steps": [
+           {
+             "color": "green",
+             "value": null
+           }
+         ]
+       }
+     },
+     "overrides": []
+   },
+   "gridPos": {
+     "h": 10,
+     "w": 12,
+     "x": 12,
+     "y": 36
+   },
+   "id": 211,
+   "options": {
+     "cellHeight": "sm",
+     "footer": {
+       "countRows": false,
+       "fields": "",
+       "reducer": [
+         "sum"
+       ],
+       "show": false
+     },
+     "showHeader": true,
+     "sortBy": [
+       {
+         "desc": true,
+         "displayName": "Net"
+       }
+     ]
+   },
+   "pluginVersion": "10.0.0",
+   "targets": [
+     {
+       "datasource": {
+         "type": "postgres",
+         "uid": "PCC52D03280B7034C"
+       },
+       "editorMode": "code",
+       "format": "table",
+       "rawQuery": true,
+       "rawSql": "WITH monthly AS (\n  SELECT\n    DATE_TRUNC('month', f.transaction_date)::date AS period_date,\n    f.account_key,\n    SUM(CASE WHEN f.transaction_amount > 0 THEN f.transaction_amount ELSE 0 END) AS inflow,\n    SUM(CASE WHEN f.transaction_amount < 0 THEN f.transaction_amount ELSE 0 END) AS outflow,\n    SUM(f.transaction_amount) AS net,\n    COUNT(*) AS transactions\n  FROM reporting.fct_transactions_enhanced f\n  WHERE COALESCE(f.is_internal_transfer, false) = false\n  GROUP BY 1, 2\n), latest AS (\n  SELECT MAX(period_date) AS latest_month FROM monthly\n), windowed AS (\n  SELECT m.*\n  FROM monthly m\n  CROSS JOIN latest\n  WHERE m.period_date BETWEEN (latest_month - INTERVAL '2 months') AND latest_month\n)\nSELECT\n  TO_CHAR(w.period_date, 'YYYY-MM') AS \"Month\",\n  COALESCE(a.bank_name, 'Unknown') AS \"Bank\",\n  COALESCE(INITCAP(REPLACE(a.account_name, '_', ' ')), INITCAP(REPLACE(w.account_key, '_', ' '))) AS \"Account\",\n  ROUND(w.inflow, 2) AS \"Inflow\",\n  ROUND(w.outflow, 2) AS \"Outflow\",\n  ROUND(w.net, 2) AS \"Net\",\n  w.transactions AS \"Transactions\"\nFROM windowed w\nLEFT JOIN reporting.dim_accounts_enhanced a ON a.account_key = w.account_key\nORDER BY w.period_date DESC, \"Net\" DESC;",
+       "refId": "A"
+     }
+   ],
+   "title": "Last 3 Months Net by Account",
+   "type": "table"
+ },
+ {
+  "datasource": {
+    "type": "postgres",
+    "uid": "PCC52D03280B7034C"
+      },
+      "description": "**CURRENT MONTH OUTFLOW BREAKDOWN & RISK ANALYSIS**\n\n**What This Shows:** Complete breakdown of spending by category for the most recent complete month.\n\n**Column Definitions:**\n• **Current Month ($):** Total amount spent in this category THIS MONTH (sum of all transactions)\n• **# Transactions:** Number of individual transactions in this category this month\n• **Largest Transaction ($):** Single biggest transaction amount within this category this month\n• **% of Total:** This category's share of total monthly outflows\n• **% Change vs Historical:** How much this month's total differs from the 6-month average (>100% = significantly above normal)\n• **Risk Flag:** Automated assessment based on spending patterns\n\n**Risk Flag Meanings:**\n🔴 **High Uncategorized Spending:** >$500 in uncategorized transactions (needs review)\n🔴 **Significantly Above Historical Average:** >200% of normal spending for this category\n🟠 **Contains Large Transaction:** Includes transaction >$1,000\n🟢 **Normal:** Spending within expected ranges\n\n**Example:** If 'Food & Drink' shows $1,065 with 29 transactions, that's $1,065 TOTAL spent across 29 separate purchases this month.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Risk Flag"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "High Uncategorized Spending": {
+                        "color": "red",
+                        "index": 0
+                      },
+                      "Significantly Above Historical Average": {
+                        "color": "orange",
+                        "index": 1
+                      },
+                      "Contains Large Transaction": {
+                        "color": "yellow",
+                        "index": 2
+                      },
+                      "Normal": {
+                        "color": "green",
+                        "index": 3
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "unit",
+                "value": "string"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "% Change vs Historical"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 50
+                    },
+                    {
+                      "color": "orange",
+                      "value": 100
+                    },
+                    {
+                      "color": "red",
+                      "value": 200
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "% of Total"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "# Transactions"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 46
+      },
+      "id": 200,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  category as \"Category\",\n  subcategory as \"Subcategory\",\n  current_month_outflows as \"Current Month ($)\",\n  transaction_count as \"# Transactions\",\n  largest_transaction as \"Largest Transaction ($)\",\n  pct_of_total_outflows as \"% of Total\",\n  pct_change_vs_historical as \"% Change vs Historical\",\n  risk_flag as \"Risk Flag\"\nFROM reporting.rpt_current_month_outflow_analysis\nORDER BY current_month_outflows DESC\nLIMIT 15;",
+          "refId": "A"
+        }
+      ],
+      "title": "💸 Current Month Outflow Breakdown & Risk Analysis",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "**MONTH-OVER-MONTH VARIANCE ANALYSIS**\n\n**What This Shows:** How spending in each category changed compared to last month and recent trends.\n\n**Column Definitions:**\n• **Current Month ($):** Total spent in this category this month (same as above panel)\n• **MoM Variance ($):** Dollar change vs last month (positive = spent more, negative = spent less)\n• **MoM % Change:** Percentage change vs last month (e.g., +50% = spent 50% more than last month)\n• **vs 3-Month Avg ($):** Dollar difference vs rolling 3-month average\n• **Spending Flag:** Alert level based on variance patterns\n\n**Spending Flag Meanings:**\n🔴 **High vs Average:** Current month >150% of 3-month rolling average\n🟠 **High vs Prior Month:** Current month >200% of last month\n🔴 **High Uncategorized:** >$1,000 in uncategorized spending\n🟢 **Normal:** Spending within normal variance ranges\n\n**How to Read:** If 'Entertainment' shows MoM Variance of +$932 (+458%), you spent $932 MORE this month than last month (458% increase).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "MoM % Change"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 25
+                    },
+                    {
+                      "color": "orange",
+                      "value": 50
+                    },
+                    {
+                      "color": "red",
+                      "value": 100
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Spending Flag"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "High vs Average": {
+                        "color": "red",
+                        "index": 0
+                      },
+                      "High vs Prior Month": {
+                        "color": "orange",
+                        "index": 1
+                      },
+                      "High Uncategorized": {
+                        "color": "red",
+                        "index": 2
+                      },
+                      "Normal": {
+                        "color": "green",
+                        "index": 3
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "unit",
+                "value": "string"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 58
+      },
+      "id": 201,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  category as \"Category\",\n  subcategory as \"Subcategory\",\n  total_outflows as \"Current Month ($)\",\n  mom_variance as \"MoM Variance ($)\",\n  mom_pct_change as \"MoM % Change\",\n  rolling_avg_variance as \"vs 3-Month Avg ($)\",\n  spending_flag as \"Spending Flag\"\nFROM reporting.rpt_cash_flow_drivers_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_cash_flow_drivers_analysis)\n  AND total_outflows > 100\nORDER BY ABS(mom_variance) DESC\nLIMIT 12;",
+          "refId": "A"
+        }
+      ],
+      "title": "📈 Month-over-Month Variance Analysis",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "High-risk transactions and spending patterns requiring attention",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Risk Level"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "HIGH": {
+                        "color": "red",
+                        "index": 0
+                      },
+                      "MEDIUM": {
+                        "color": "orange",
+                        "index": 1
+                      },
+                      "LOW": {
+                        "color": "yellow",
+                        "index": 2
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "unit",
+                "value": "string"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 68
+      },
+      "id": 202,
+      "description": "**Shows monthly spending categories with unusual risk patterns** - All amounts are TOTAL MONTHLY spending by category/subcategory, not individual transactions.\n\n**Risk Level Definitions:**\n• **HIGH:** Categories requiring immediate attention (Uncategorized >$500 OR spending >200% of historical average)\n• **MEDIUM:** Contains large transactions (>$1000) or single transaction >$1000 total\n• **LOW:** Normal variations within expected ranges\n\n**Column Explanations:**\n• **Amount ($):** Total monthly outflows for this category (e.g., $225 = spent $225 total in this category this month)\n• **Risk Description:** Specific reason for flagging (e.g., 'Significantly Above Historical Average')\n• **Details:** Memo from largest transaction in the category for context\n\n**Example:** If 'Zona' shows $225 with HIGH risk, this means you spent $225 total on Zona-related transactions this month, which is significantly higher than your historical monthly average for this category.",
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  category as \"Category\",\n  subcategory as \"Subcategory\",\n  current_month_outflows as \"Amount ($)\",\n  CASE \n    WHEN risk_flag = 'High Uncategorized Spending' THEN 'HIGH'\n    WHEN risk_flag = 'Significantly Above Historical Average' THEN 'HIGH'\n    WHEN risk_flag = 'Contains Large Transaction' THEN 'MEDIUM'\n    WHEN risk_flag = 'Single Large Transaction' THEN 'MEDIUM'\n    ELSE 'LOW'\n  END as \"Risk Level\",\n  risk_flag as \"Risk Description\",\n  largest_transaction_memo as \"Details\"\nFROM reporting.rpt_current_month_outflow_analysis\nWHERE risk_flag != 'Normal'\nORDER BY \n  CASE \n    WHEN risk_flag = 'High Uncategorized Spending' THEN 1\n    WHEN risk_flag = 'Significantly Above Historical Average' THEN 2\n    WHEN risk_flag = 'Contains Large Transaction' THEN 3\n    ELSE 4\n  END,\n  current_month_outflows DESC;",
+          "refId": "A"
+        }
+      ],
+      "title": "🚨 Spending Risk Alerts & Large Transactions",
       "type": "table"
     }
   ],

@@ -67,3 +67,54 @@ seeds:
         description: Order in which to display categories.
         tests:
           - not_null
+
+  - name: property_assets
+    description: Seed data for property/real estate assets with purchase info and appreciation rates.
+    docs:
+      show: true
+      node_color: "#10b981"
+    columns:
+      - name: asset_id
+        description: Unique identifier for the asset (e.g., ppor)
+        tests: [not_null, unique]
+      - name: asset_name
+        description: Short name to use as account_name in reporting (e.g., PPOR_Property)
+        tests: [not_null]
+      - name: display_name
+        description: Human-readable display name
+      - name: asset_type
+        description: Asset type such as Property
+      - name: purchase_date
+        description: Date the asset was purchased (YYYY-MM-DD)
+        tests: [not_null]
+      - name: purchase_price
+        description: Purchase price in currency units
+        tests: [not_null]
+      - name: appreciation_rate_low
+        description: Lower bound annual appreciation rate (e.g., 0.04)
+      - name: appreciation_rate_high
+        description: Upper bound annual appreciation rate (e.g., 0.07)
+      - name: currency_code
+        description: Currency code (e.g., AUD)
+      - name: notes
+        description: Freeform notes about the asset
+
+  - name: property_valuation_overrides
+    description: Optional overrides for property market values by date; latest on/after month is used.
+    docs:
+      show: true
+      node_color: "#10b981"
+    columns:
+      - name: asset_id
+        description: Links to property_assets.asset_id
+        tests: [not_null]
+      - name: valuation_date
+        description: Date of the valuation (YYYY-MM-DD)
+        tests: [not_null]
+      - name: market_value
+        description: Valuation amount in currency units
+        tests: [not_null]
+      - name: currency_code
+        description: Currency code (e.g., AUD)
+      - name: notes
+        description: Freeform notes

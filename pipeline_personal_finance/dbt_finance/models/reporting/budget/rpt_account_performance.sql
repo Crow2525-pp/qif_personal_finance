@@ -223,4 +223,5 @@ final_insights AS (
 )
 
 SELECT * FROM final_insights
+WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') < date_trunc('month', CURRENT_DATE)
 ORDER BY transaction_year DESC, transaction_month DESC, account_health_score ASC

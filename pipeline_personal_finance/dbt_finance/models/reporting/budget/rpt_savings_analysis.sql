@@ -26,12 +26,12 @@ WITH monthly_savings_components AS (
     -- Classify savings types
     CASE 
       WHEN da.account_type = 'Offset' AND ft.transaction_amount > 0 
-           AND NOT ft.is_income_transaction AND NOT ft.is_internal_transfer THEN 'Offset_Savings'
+           AND NOT ft.is_income_transaction AND NOT ft.is_internal_transfer THEN 'Internal_Transfer'
       WHEN da.is_liquid_asset AND da.account_type <> 'Offset' AND ft.transaction_amount > 0 
            AND NOT ft.is_income_transaction AND NOT ft.is_internal_transfer THEN 'Cash_Savings'
       WHEN ft.is_income_transaction THEN 'Income'
       WHEN da.is_mortgage AND ft.transaction_amount < 0 THEN 'Mortgage_Payment'
-      WHEN dc.level_1_category LIKE '%Investment%' OR da.account_name LIKE '%invest%' THEN 'Investment'
+      WHEN (dc.level_1_category ILIKE '%Investment%' OR da.account_name ILIKE '%Vanguard%' OR ft.transaction_memo ILIKE '%Vanguard%' OR ft.transaction_description ILIKE '%Vanguard%') THEN 'Investment'
       WHEN NOT ft.is_internal_transfer AND NOT ft.is_income_transaction AND ft.transaction_amount < 0 THEN 'Expense'
       ELSE 'Other'
     END AS transaction_classification
@@ -99,7 +99,7 @@ savings_metrics AS (
   SELECT 
     *,
     -- Total savings calculations
-    offset_savings + cash_savings + investment_contributions + estimated_mortgage_principal_payment AS total_savings,
+    total_income - total_expenses AS total_savings,
     
     -- Net worth change (approximation based on cash flow)
     total_income - total_expenses AS net_cash_flow,
@@ -111,10 +111,10 @@ savings_metrics AS (
       ELSE 0 
     END AS traditional_savings_rate_percent,
     
-    -- Total savings rate (ratio, including mortgage principal as forced savings)
+    -- Total savings rate (actual cash flow savings)
     CASE 
       WHEN total_income > 0 
-      THEN ((offset_savings + cash_savings + investment_contributions + estimated_mortgage_principal_payment) / total_income)
+      THEN ((total_income - total_expenses) / total_income)
       ELSE 0 
     END AS total_savings_rate_percent,
     
@@ -302,4 +302,5 @@ final_insights AS (
 )
 
 SELECT * FROM final_insights
+WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') < date_trunc('month', CURRENT_DATE)
 ORDER BY transaction_year DESC, transaction_month DESC

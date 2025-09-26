@@ -111,11 +111,33 @@ dbt commands should be executed within the containerized environment or by acces
 - When creating or updating dashboard visualizations, ensure currency fields display as USD format
 - This applies to all financial metrics including income, expenses, balances, and projections
 
+### Percentage Formatting Standards
+- **Critical**: Always maintain consistency between SQL data format and Grafana display units
+- **percentunit in Grafana**: Expects 0-1 ratio values (e.g., 0.25 for 25%)
+  - SQL should provide values as decimals (not multiplied by 100)
+  - Example: `savings_rate` = 0.25 (not 25.0)
+- **percent in Grafana**: Expects 0-100 percentage values (e.g., 25 for 25%)
+  - SQL should provide values already multiplied by 100
+  - Example: `savings_rate_pct` = 25.0 (not 0.25)
+- **Field Naming Convention**:
+  - `field_name` = 0-1 ratio for percentunit display
+  - `field_name_pct` = 0-100 percentage for percent display
+- **Never** multiply by 100 in SQL for percentunit fields - this causes display errors like -8660%
+
 ### Pie Chart Configuration
 - **Important**: For pie charts, always set "Show values" to display "All values" instead of just calculations
 - In the dashboard JSON, add `"displayLabels": ["name", "value"]` to the options section
 - Update legend values to `"values": ["value"]` to show actual values in the legend
 - This ensures pie charts display actual values on each segment, not just percentages or calculations
+
+### Bar/Stat/Gauge Panels
+- For bar gauges with multiple metrics, set Value option to “All values” (JSON: `options.reduceOptions.values = true`) so each metric is displayed.
+- Use horizontal orientation for readability and keep height compact on full‑width rows.
+- Choose percent units based on the data shape:
+  - Ratio 0–1 → `percentunit` (set min/max to `-1..1` if negatives are possible).
+  - Percent 0–100 → `percent` (set min/max to `-100..100` if negatives are possible).
+
+More detailed guidance lives in `grafana_dashboards_json/README.md`.
 
 ## Testing
 

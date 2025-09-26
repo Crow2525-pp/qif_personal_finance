@@ -1,4 +1,4 @@
-.PHONY: help setup up down logs clean restart rebuild lint lint-fix test dagster-ui grafana-ui status
+.PHONY: help setup up down logs clean restart rebuild lint lint-fix test dagster-ui grafana-ui status dbt-deps dbt-compile dbt-build dbt-test
 
 # Default target
 help:
@@ -15,6 +15,10 @@ help:
 	@echo "  dagster-ui  - Open Dagster UI in browser"
 	@echo "  grafana-ui  - Open Grafana UI in browser"
 	@echo "  status      - Show status of all services"
+	@echo "  dbt-deps    - Install dbt packages"
+	@echo "  dbt-compile - Compile dbt project (syntax check)"
+	@echo "  dbt-build   - Build dbt models (incl. tests)"
+	@echo "  dbt-test    - Run dbt tests only"
 
 # Setup environment
 setup:
@@ -79,3 +83,16 @@ grafana-ui:
 # Show service status
 status:
 	docker-compose ps
+
+# dbt helpers (run from finance dbt dir)
+dbt-deps:
+	cd pipeline_personal_finance/dbt_finance && DBT_PROFILES_DIR=. dbt deps
+
+dbt-compile:
+	cd pipeline_personal_finance/dbt_finance && DBT_PROFILES_DIR=. dbt compile
+
+dbt-build:
+	cd pipeline_personal_finance/dbt_finance && DBT_PROFILES_DIR=. dbt build
+
+dbt-test:
+	cd pipeline_personal_finance/dbt_finance && DBT_PROFILES_DIR=. dbt test

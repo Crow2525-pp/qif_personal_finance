@@ -8,7 +8,7 @@
   )
 }}
 
-WITH monthly_account_balances AS (
+WITH base_monthly_account_balances AS (
   SELECT 
     ft.transaction_year,
     ft.transaction_month,
@@ -42,6 +42,26 @@ WITH monthly_account_balances AS (
     da.is_mortgage
 ),
 
+monthly_account_balances AS (
+  SELECT * FROM base_monthly_account_balances
+  UNION ALL
+  SELECT
+    transaction_year,
+    transaction_month,
+    budget_year_month,
+    account_name,
+    bank_name,
+    account_type,
+    account_category,
+    is_liability,
+    is_liquid_asset,
+    is_mortgage,
+    end_of_month_balance,
+    month_start_date,
+    month_end_date
+  FROM {{ ref('int_property_assets_monthly') }}
+),
+
 monthly_net_worth_calculation AS (
   SELECT 
     budget_year_month,
@@ -53,6 +73,14 @@ monthly_net_worth_calculation AS (
       WHEN NOT is_liability THEN end_of_month_balance 
       ELSE 0 
     END) AS total_assets,
+    SUM(CASE 
+      WHEN account_type = 'Property' THEN end_of_month_balance
+      ELSE 0
+    END) AS property_assets,
+    SUM(CASE 
+      WHEN NOT is_liability AND account_type <> 'Property' THEN end_of_month_balance
+      ELSE 0
+    END) AS non_property_assets,
     
     -- Liability values (negative balances for liabilities, show as positive for readability)
     SUM(CASE 
@@ -254,4 +282,5 @@ final_insights AS (
 )
 
 SELECT * FROM final_insights
+WHERE period_end_date < date_trunc('month', CURRENT_DATE)
 ORDER BY transaction_year DESC, transaction_month DESC

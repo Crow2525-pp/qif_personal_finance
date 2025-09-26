@@ -36,6 +36,8 @@ viz_monthly AS (
         vdob.family_kids,
         vdob.health_wellness,
         vdob.entertainment,
+        vdob.travel,
+        vdob.gifts_charity,
         vdob.insurance,
         vdob.investments,
         vdob.taxes,
@@ -80,6 +82,8 @@ category_sum AS (
             COALESCE(family_kids, 0) +
             COALESCE(health_wellness, 0) +
             COALESCE(entertainment, 0) +
+            COALESCE(travel, 0) +
+            COALESCE(gifts_charity, 0) +
             COALESCE(insurance, 0) +
             COALESCE(investments, 0) +
             COALESCE(taxes, 0) +

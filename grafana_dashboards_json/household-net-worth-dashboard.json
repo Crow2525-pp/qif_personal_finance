@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# 🏠 Household Net Worth Dashboard - Wealth Tracking\n\n**What This Dashboard Shows:** Tracks wealth accumulation and net worth progression over time with health scoring and milestone tracking.\n\n**Key Metrics Explained:**\n• **Net Worth Health Score:** Classification from critical to excellent based on assets vs liabilities\n• **Assets vs Liabilities:** Breakdown with liquidity analysis showing readily accessible funds\n• **Debt-to-Asset Ratio:** Lower percentages indicate stronger financial position\n• **Monthly Progress:** Consistent increases indicate successful wealth building\n\n**How to Use:** Track wealth building progress with milestone goals. Focus on increasing assets and reducing debt-to-asset ratios over time.",
+        "content": "# \ud83c\udfe0 Household Net Worth Dashboard - Wealth Tracking\n\n**What This Dashboard Shows:** Tracks wealth accumulation and net worth progression over time with health scoring and milestone tracking.\n\n**Key Metrics Explained:**\n\u2022 **Net Worth Health Score:** Classification from critical to excellent based on assets vs liabilities\n\u2022 **Assets vs Liabilities:** Breakdown with liquidity analysis showing readily accessible funds\n\u2022 **Debt-to-Asset Ratio:** Lower percentages indicate stronger financial position\n\u2022 **Monthly Progress:** Consistent increases indicate successful wealth building\n\n**How to Use:** Track wealth building progress with milestone goals. Focus on increasing assets and reducing debt-to-asset ratios over time.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -414,6 +414,44 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "property_assets"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Property Assets"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#DAA520",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "non_property_assets"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Other Assets"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#2E8B57",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
@@ -450,7 +488,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_assets,\n  total_liabilities,\n  liquid_assets\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_assets,\n  total_liabilities,\n  liquid_assets,\n  property_assets,\n  non_property_assets\nFROM reporting.rpt_household_net_worth \nWHERE period_end_date < date_trunc('month', CURRENT_DATE)\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -550,7 +588,10 @@
               {
                 "id": "custom.lineStyle",
                 "value": {
-                  "dash": [10, 10],
+                  "dash": [
+                    10,
+                    10
+                  ],
                   "fill": "dash"
                 }
               }
@@ -703,6 +744,44 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "property_assets"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Property Assets"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#DAA520",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "non_property_assets"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Other Assets"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#2E8B57",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
@@ -734,7 +813,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  total_assets,\n  total_liabilities,\n  liquid_assets\nFROM reporting.rpt_household_net_worth \nORDER BY transaction_year, transaction_month;",
+          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  total_assets,\n  total_liabilities,\n  liquid_assets,\n  property_assets,\n  non_property_assets\nFROM reporting.rpt_household_net_worth \nWHERE period_end_date < date_trunc('month', CURRENT_DATE)\nORDER BY transaction_year, transaction_month;",
           "refId": "A"
         }
       ],

@@ -1,6 +1,6 @@
 {{
   config(
-    materialized='table',
+    materialized='view',
     indexes=[
       {'columns': ['dashboard_month'], 'unique': true}
     ]
@@ -106,11 +106,12 @@ top_spending_categories AS (
 account_alerts AS (
   SELECT 
     COUNT(*) AS accounts_needing_attention,
-    STRING_AGG(account_name, ', ') AS accounts_with_issues
+    STRING_AGG(account_name, ', ' ORDER BY account_name) AS accounts_with_issues
   FROM {{ ref('rpt_account_performance') }} ap
   CROSS JOIN latest_period lp
   WHERE ap.budget_year_month = lp.latest_month
     AND ap.needs_attention_flag = TRUE
+    AND COALESCE(ap.is_mortgage, FALSE) = FALSE
 ),
 
 executive_summary AS (
@@ -136,8 +137,8 @@ executive_summary AS (
     cnw.net_worth_health_score,
     
     -- SAVINGS PERFORMANCE
-    ROUND(cs.total_savings, 0) AS monthly_total_savings,
-    ROUND(cs.total_savings_rate_percent, 3) AS comprehensive_savings_rate, -- ratio 0-1
+    ROUND(cms.net_cash_flow, 0) AS monthly_total_savings,
+    ROUND(cs.total_savings_rate_percent, 3) AS comprehensive_savings_rate, -- ratio 0-1 (includes investments)
     ROUND(cs.traditional_savings_rate_percent, 3) AS traditional_savings_rate, -- ratio 0-1
     -- percent-scaled versions (0-100) for Grafana display
     ROUND((cs.total_savings_rate_percent * 100)::numeric, 1) AS comprehensive_savings_rate_pct,
@@ -145,6 +146,10 @@ executive_summary AS (
     ROUND(cs.ytd_total_savings, 0) AS ytd_total_savings,
     cs.savings_performance_tier,
     cs.savings_health_score,
+
+    -- Use actual monthly cash flow savings rate for executive dashboard display
+    ROUND(cms.savings_rate_percent, 3) AS monthly_cash_flow_savings_rate, -- ratio 0-1 (actual cash flow)
+    ROUND((cms.savings_rate_percent * 100)::numeric, 1) AS monthly_cash_flow_savings_rate_pct,
     
     -- CASH FLOW HEALTH
     ccf.cash_flow_status,
@@ -177,14 +182,14 @@ executive_summary AS (
     
     -- KEY ALERTS AND RECOMMENDATIONS
     COALESCE(aa.accounts_needing_attention, 0) AS accounts_needing_attention,
-    aa.accounts_with_issues,
+    COALESCE(aa.accounts_with_issues, '') AS accounts_with_issues,
     
     -- TOP PRIORITIES (Most Important Recommendations)
     CASE 
       WHEN cs.savings_health_score < 40 THEN cs.savings_recommendation
       WHEN cnw.net_worth_health_score < 40 THEN cnw.net_worth_advice  
       WHEN ccf.cash_flow_efficiency_score < 40 THEN ccf.cash_flow_recommendation
-      WHEN aa.accounts_needing_attention > 0 THEN 'Review accounts flagged for attention: ' || aa.accounts_with_issues
+      WHEN aa.accounts_needing_attention > 0 AND COALESCE(aa.accounts_with_issues, '') <> '' THEN 'Review accounts flagged for attention: ' || aa.accounts_with_issues
       ELSE 'Continue current financial strategy - performance is good'
     END AS priority_recommendation,
     
@@ -195,13 +200,13 @@ executive_summary AS (
     -- FORECASTING
     ROUND(ccf.forecasted_next_month_net_flow, 0) AS forecasted_next_month_cash_flow,
     
-    -- BENCHMARKING
-    CASE 
-      WHEN cms.savings_rate_percent >= 0.20 THEN 'Excellent (Top 10%)'
-      WHEN cms.savings_rate_percent >= 0.15 THEN 'Very Good (Top 25%)'
-      WHEN cms.savings_rate_percent >= 0.10 THEN 'Good (Average)'
-      WHEN cms.savings_rate_percent >= 0.05 THEN 'Below Average'
-      ELSE 'Needs Improvement'
+    -- BENCHMARKING (use actual monthly cash flow savings rate for executive view)
+    CASE
+      WHEN cms.savings_rate_percent >= 0.30 THEN 'Exceptional Performance'
+      WHEN cms.savings_rate_percent >= 0.20 THEN 'Above Average'
+      WHEN cms.savings_rate_percent >= 0.15 THEN 'Average Performance'
+      WHEN cms.savings_rate_percent >= 0.10 THEN 'Needs Improvement'
+      ELSE 'Critical Improvement Needed'
     END AS savings_rate_benchmark,
     
     CASE 
@@ -258,13 +263,13 @@ final_dashboard AS (
       ELSE 'Critical Attention Required'
     END AS overall_financial_health_rating,
     
-    -- Monthly performance vs. goals
-    CASE 
-      WHEN monthly_savings_rate_percent >= 0.15 AND cash_flow_score >= 70 AND monthly_net_worth_change > 0 
+    -- Monthly performance vs. goals (use actual cash flow savings rate)
+    CASE
+      WHEN monthly_cash_flow_savings_rate >= 0.15 AND cash_flow_score >= 70 AND monthly_net_worth_change > 0
       THEN 'Exceeding Financial Goals'
-      WHEN monthly_savings_rate_percent >= 0.10 AND cash_flow_score >= 60 AND monthly_net_worth_change >= 0 
+      WHEN monthly_cash_flow_savings_rate >= 0.10 AND cash_flow_score >= 60 AND monthly_net_worth_change >= 0
       THEN 'Meeting Financial Goals'
-      WHEN monthly_savings_rate_percent >= 0.05 AND cash_flow_score >= 50 
+      WHEN monthly_cash_flow_savings_rate >= 0.05 AND cash_flow_score >= 50
       THEN 'Progressing Toward Goals'
       ELSE 'Below Financial Goals'
     END AS monthly_goal_achievement,
@@ -273,9 +278,9 @@ final_dashboard AS (
     CASE 
       WHEN overall_financial_health_score < 50 THEN 
         ARRAY[priority_recommendation, 'Review budget and reduce expenses', 'Consider financial planning consultation']
-      WHEN accounts_needing_attention > 0 THEN
+      WHEN accounts_needing_attention > 0 AND COALESCE(accounts_with_issues, '') <> '' THEN
         ARRAY[priority_recommendation, 'Review account performance', 'Optimize account allocation']
-      WHEN monthly_savings_rate_percent < 0.15 THEN
+      WHEN monthly_cash_flow_savings_rate < 0.15 THEN
         ARRAY['Increase savings rate to 15%', priority_recommendation, 'Automate savings transfers']
       ELSE 
         ARRAY[priority_recommendation, 'Review investment allocation', 'Consider tax optimization']

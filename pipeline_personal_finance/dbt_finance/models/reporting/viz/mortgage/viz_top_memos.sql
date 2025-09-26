@@ -7,6 +7,7 @@ WITH filtered_data AS (
     LEFT JOIN {{ ref('dim_categories_enhanced') }} AS dc
       ON ft.category_key = dc.category_key
     WHERE ft.transaction_date >= (DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year'))::date
+      AND ft.transaction_date < DATE_TRUNC('month', CURRENT_DATE)
     GROUP BY 1, 2
 )
 SELECT 

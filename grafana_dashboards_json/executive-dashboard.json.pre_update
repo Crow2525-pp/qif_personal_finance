@@ -1,0 +1,1413 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "text"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "options": {
+        "content": "# 📊 Executive Dashboard - Financial Health Overview\n\n**What This Dashboard Shows:** High-level performance across savings, expense control, net worth, and cash flow. Scores summarize multiple inputs for quick decisions.\n\n**Metric Definitions**\n• **Savings Rate (Monthly, %):** Net cash flow divided by income for the latest month. Negative means expenses exceeded income.\n• **Savings Rate (3M Avg, %):** Rolling 3-month average of the monthly savings rate to smooth volatility.\n• **Savings Rate (YTD, %):** Year‑to‑date net cash flow divided by YTD income.\n• **Savings Tier Score (0‑100):** A bucketed score based on savings benchmarks (e.g., 30%+ → 100, 20–29% → 85, 15–19% → 70, 10–14% → 55, 5–9% → 40, 1–4% → 25, 0%/negative → 10). This is a score, not a percentage.\n• **Expense to Income (%, lower is better):** Monthly expenses divided by income.\n• **Net Worth Health (0‑100):** Composite based on leverage, trend, and buffer; higher is healthier.\n• **Cash Flow Status (0‑100):** Discrete score derived from current cash‑flow state (Strong Positive → 100 … Critical → 20).\n\n**Why Rate vs Score Can Differ**\n• A negative monthly savings rate (e.g., −11.3%) indicates a deficit in the latest month.\n• The Savings Tier Score is a benchmarked score (0‑100); it is not the same as the monthly rate and can differ due to smoothing/tiers.\n\n**How to Use:** Prioritize the lowest scores first. Confirm trends over 3+ months before acting. Green is healthy, yellow needs monitoring, red requires attention.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.0.0",
+      "title": "Dashboard Instructions",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 20,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": false
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT CONCAT('📊 Financial Summary for ', dashboard_month, ' | Overall Health: ', overall_financial_health_rating, ' | Next Month Forecast: $', ROUND(forecasted_next_month_cash_flow, 0)::text) as summary FROM reporting.rpt_executive_dashboard ORDER BY dashboard_year DESC, dashboard_month_num DESC LIMIT 1",
+          "refId": "A"
+        }
+      ],
+      "title": "Executive Summary Header",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Your savings performance across different time horizons. Monthly Rate: current month savings rate. 3M Average: rolling 3-month average for trend smoothing. YTD Rate: year-to-date savings performance. Target: 20%+ is excellent.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic-by-name"
+          },
+          "custom": {
+            "displayMode": "basic",
+            "minVizHeight": 10,
+            "minVizWidth": 0,
+            "orientation": "horizontal",
+            "showUnfilled": true,
+            "width": 0.6
+          },
+          "mappings": [],
+          "max": 1,
+          "min": -1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#8B0000",
+                "value": null
+              },
+              {
+                "color": "#CD853F",
+                "value": 0.10
+              },
+              {
+                "color": "#DAA520",
+                "value": 0.20
+              },
+              {
+                "color": "#32CD32",
+                "value": 0.30
+              }
+            ]
+          },
+          "unit": "percentunit",
+          "links": [
+            {
+              "title": "View Savings Analysis Details",
+              "url": "/d/savings_analysis",
+              "targetBlank": true
+            },
+            {
+              "title": "View Expense Performance Details",
+              "url": "/d/expense_performance",
+              "targetBlank": true
+            },
+            {
+              "title": "View Cash Flow Analysis",
+              "url": "/d/cash_flow_analysis",
+              "targetBlank": true
+            }
+          ]
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Savings Rate (Monthly)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FF6B35",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Savings Rate (3M Avg)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#F7931E",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Savings Rate (YTD)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FFD23F",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Expense Ratio (%)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#66BB6A",
+                  "mode": "fixed"
+                }
+              },
+              { "id": "max", "value": 1.5 },
+              { "id": "min", "value": 0 }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "id": 3,
+      "description": "**Savings & Expense Performance Metrics** - Key rates and ratios for financial health assessment.\n\n**Metric Sources & Drivers:**\n• **Savings Rates:** Calculated from monthly budget summary (income - expenses). View detailed savings analysis and goal tracking in the [Savings Analysis Dashboard](d/savings_analysis)\n• **Expense Ratio:** Total outflows ÷ total inflows from cash flow analysis. View detailed expense breakdown and spending patterns in the [Expense Performance Dashboard](d/expense_performance) or [Cash Flow Analysis Dashboard](d/cash_flow_analysis)\n\n**Performance Ratings:**\n• **Savings Performance Score:** Based on benchmarks (30%+ = Excellent, 20-29% = Above Average, 15-19% = Good, 10-14% = Fair, 5-9% = Below Average, <5% = Needs Improvement)\n• **Expense Control:** Lower expense ratios indicate better spending control (target <80-90%)\n\n**Click the dashboard links above to see detailed drivers and trends behind these ratings.**",
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true,
+        "orientation": "horizontal"
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH latest_data AS (\n  SELECT *\n  FROM reporting.rpt_executive_dashboard \n  ORDER BY dashboard_year DESC, dashboard_month_num DESC \n  LIMIT 1\n)\nSELECT 'Savings Rate (Monthly)' as metric_label, monthly_savings_rate_percent as value FROM latest_data\nUNION ALL\nSELECT 'Savings Rate (3M Avg)', three_month_avg_savings_rate FROM latest_data\nUNION ALL\nSELECT 'Savings Rate (YTD)', ytd_savings_rate FROM latest_data\nUNION ALL\nSELECT 'Expense Ratio (%)', expense_to_income_ratio FROM latest_data",
+          "refId": "A"
+        }
+      ],
+      "title": "Savings & Expense Performance",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "metric_label": 0,
+              "value": 1
+            },
+            "renameByName": {}
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "metric_label": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "value": {
+                "aggregations": [
+                  "lastNotNull"
+                ],
+                "operation": "aggregate"
+              }
+            }
+          }
+        }
+      ],
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Expense Control Score (100 - expense ratio). Measures how well you control spending relative to income. Higher scores indicate better expense discipline. 80+ Excellent control, 60-79 Good, 40-59 Fair, <40 Needs attention.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic-by-name"
+          },
+          "custom": {
+            "displayMode": "basic",
+            "minVizHeight": 10,
+            "minVizWidth": 0,
+            "orientation": "vertical",
+            "showUnfilled": true,
+            "width": 0.8
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#00FF00",
+                "value": null
+              },
+              {
+                "color": "#32CD32",
+                "value": 60
+              },
+              {
+                "color": "#FFD700",
+                "value": 80
+              },
+              {
+                "color": "#FF4500",
+                "value": 90
+              },
+              {
+                "color": "#8B0000",
+                "value": 100
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Expense to Income"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#EE4B6A",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Key monthly financial figures: Income (total monthly earnings), Expenses (total monthly spending), Net Cash Flow (income minus expenses), Monthly Savings (amount saved), Net Worth (total assets minus debts), Liquid Assets (readily available cash/investments).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#B7950B",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD",
+          "links": [
+            {
+              "title": "View Monthly Budget Summary",
+              "url": "/d/monthly_budget_summary",
+              "targetBlank": true
+            },
+            {
+              "title": "View Cash Flow Analysis",
+              "url": "/d/cash_flow_analysis",
+              "targetBlank": true
+            },
+            {
+              "title": "View Net Worth Details",
+              "url": "/d/household_net_worth",
+              "targetBlank": true
+            }
+          ]
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "monthly_income"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Monthly Income"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#32CD32",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "monthly_expenses"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Monthly Expenses"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#DC143C",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "monthly_net_cash_flow"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Net Cash Flow"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#8B0000",
+                      "value": null
+                    },
+                    {
+                      "color": "#FFD700",
+                      "value": -1000
+                    },
+                    {
+                      "color": "#32CD32",
+                      "value": 0
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "monthly_total_savings"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Monthly Savings"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#4169E1",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "current_net_worth"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Net Worth"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#8B0000",
+                      "value": null
+                    },
+                    {
+                      "color": "#FFD700",
+                      "value": -100000
+                    },
+                    {
+                      "color": "#32CD32",
+                      "value": 0
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "liquid_assets"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Liquid Assets"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00CED1",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 18
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  monthly_income,\n  monthly_expenses,\n  monthly_net_cash_flow,\n  monthly_total_savings,\n  current_net_worth,\n  liquid_assets\nFROM reporting.rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
+          "refId": "A"
+        }
+      ],
+      "title": "Financial Snapshot (Current Month)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Performance ratings and benchmarks: Financial Health (overall rating: Excellent/Good/Fair/Poor/Critical), Goal Status (monthly goal achievement), Savings Benchmark (performance vs standards), Net Worth Status (wealth building progress phase).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic-by-name"
+          },
+          "custom": {
+            "displayMode": "basic",
+            "minVizHeight": 10,
+            "minVizWidth": 150,
+            "orientation": "horizontal",
+            "showUnfilled": true,
+            "width": 0.6
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#8B0000",
+                "value": null
+              },
+              {
+                "color": "#FF4500",
+                "value": 25
+              },
+              {
+                "color": "#FFD700",
+                "value": 50
+              },
+              {
+                "color": "#32CD32",
+                "value": 75
+              },
+              {
+                "color": "#00FF00",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Financial Health"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#32CD32",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Goal Achievement"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#4169E1",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Savings Performance"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FFD700",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Net Worth Progress"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FF6347",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 6,
+      "description": "**Performance Overview Scores (0-100)** - Composite financial health ratings across key areas.\n\n**Score Sources & Detailed Drivers:**\n• **Financial Health:** Weighted combination (Net Worth 30% + Savings 30% + Cash Flow 40%)\n• **Savings Performance:** Based on `savings_rate_benchmark` from monthly savings rate vs targets. See detailed analysis: [Savings Analysis Dashboard](d/savings_analysis)\n• **Net Worth Progress:** Based on `net_worth_benchmark` (wealth milestones and asset growth). View trends and projections in net worth tracking\n\n**Score Calculation Logic:**\n• **Savings:** 30%+ = 100pts, 20-29% = 80pts, 15-19% = 60pts, 10-14% = 40pts, <10% = 20pts\n• **Net Worth:** High Net Worth (>500k) = 100pts, Building Wealth (>100k) = 80pts, Positive = 60pts, Rebuilding = 40pts\n• **Click dashboard links above for detailed breakdowns and improvement recommendations**",
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "unit": "short",
+          "links": [
+            {
+              "title": "View Savings Analysis Details",
+              "url": "/d/savings_analysis",
+              "targetBlank": true
+            },
+            {
+              "title": "View Net Worth Dashboard",
+              "url": "/d/household_net_worth",
+              "targetBlank": true
+            },
+            {
+              "title": "View Account Performance",
+              "url": "/d/account_performance_dashboard",
+              "targetBlank": true
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "green",
+                "value": 70
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH latest_data AS (\n  SELECT *\n  FROM reporting.rpt_executive_dashboard \n  ORDER BY dashboard_year DESC, dashboard_month_num DESC \n  LIMIT 1\n)\nSELECT\n  COALESCE((SELECT overall_financial_health_score FROM latest_data), 0)::double precision AS \"Financial Health\",\n  COALESCE((SELECT CASE \n             WHEN monthly_savings_rate_percent >= 0.30 THEN 100\n             WHEN monthly_savings_rate_percent >= 0.20 THEN 80\n             WHEN monthly_savings_rate_percent >= 0.15 THEN 60\n             WHEN monthly_savings_rate_percent >= 0.10 THEN 40\n             ELSE 20\n           END FROM latest_data), 0)::double precision AS \"Savings Performance\",\n  COALESCE((SELECT CASE net_worth_benchmark\n             WHEN 'High Net Worth' THEN 100\n             WHEN 'Building Wealth' THEN 80\n             WHEN 'Positive Net Worth' THEN 60\n             WHEN 'Rebuilding Phase' THEN 40\n             ELSE 20\n           END FROM latest_data), 0)::double precision AS \"Net Worth Progress\";",
+          "refId": "A"
+        }
+      ],
+      "title": "Performance Overview",
+      "transformations": [],
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "AI-generated recommendations and action items",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#B7950B",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 46
+      },
+      "id": 7,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  priority_recommendation as \"Priority Recommendation\",\n  accounts_with_issues as \"Accounts Needing Attention\"\nFROM reporting.rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
+          "refId": "A"
+        }
+      ],
+      "title": "AI Financial Insights",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Breakdown of your financial position: Total Assets (all owned assets), Total Liabilities (all debts), Net Worth (assets minus liabilities), Debt-to-Asset Ratio (debt percentage - lower is better).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#B7950B",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD",
+          "links": [
+            {
+              "title": "View Net Worth Details",
+              "url": "/d/household_net_worth",
+              "targetBlank": true
+            },
+            {
+              "title": "View Account Performance",
+              "url": "/d/account_performance_dashboard",
+              "targetBlank": true
+            }
+          ]
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_assets"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total Assets"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#32CD32",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_liabilities"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total Liabilities"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#DC143C",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "current_net_worth"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Net Worth"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#8B0000",
+                      "value": null
+                    },
+                    {
+                      "color": "#FFD700",
+                      "value": -100000
+                    },
+                    {
+                      "color": "#32CD32",
+                      "value": 0
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "debt_to_asset_ratio_percent"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Debt-to-Asset Ratio"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#32CD32",
+                      "value": null
+                    },
+                    {
+                      "color": "#FFD700",
+                      "value": 30
+                    },
+                    {
+                      "color": "#FF4500",
+                      "value": 50
+                    },
+                    {
+                      "color": "#8B0000",
+                      "value": 80
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  total_assets,\n  total_liabilities,\n  current_net_worth,\n  debt_to_asset_ratio_percent\nFROM reporting.rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
+          "refId": "A"
+        }
+      ],
+      "title": "Asset & Liability Position",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Cash flow comparison: Current Month (latest monthly performance), 3-Month Average (smoothed trend), Forecast Next Month (projected cash flow). Positive values indicate surplus, negative indicate deficit.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#8B0000",
+                "value": null
+              },
+              {
+                "color": "#FFD700",
+                "value": -5000
+              },
+              {
+                "color": "#32CD32",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "currencyUSD",
+          "links": [
+            {
+              "title": "View Cash Flow Analysis",
+              "url": "/d/cash_flow_analysis",
+              "targetBlank": true
+            },
+            {
+              "title": "View Monthly Budget Summary",
+              "url": "/d/monthly_budget_summary",
+              "targetBlank": true
+            }
+          ]
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "monthly_net_cash_flow"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Current Month"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "three_month_avg_cash_flow"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "3-Month Average"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#4169E1",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "forecasted_next_month_cash_flow"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Forecast Next Month"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FF6347",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "id": 9,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  monthly_net_cash_flow,\n  (three_month_avg_income - three_month_avg_expenses) as three_month_avg_cash_flow,\n  forecasted_next_month_cash_flow\nFROM reporting.rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1;",
+          "refId": "A"
+        }
+      ],
+      "title": "Cash Flow Trends (Current Month)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Additional performance indicators: Current Savings Tier (performance category), Net Worth Health Score (0-100), Accounts Needing Attention (count of problematic accounts), Cash Flow Status (current trend assessment).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic-by-name"
+          },
+          "custom": {
+            "displayMode": "basic",
+            "minVizHeight": 10,
+            "minVizWidth": 0,
+            "orientation": "horizontal",
+            "showUnfilled": true,
+            "width": 0.6
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#8B0000",
+                "value": null
+              },
+              {
+                "color": "#FF4500",
+                "value": 25
+              },
+              {
+                "color": "#FFD700",
+                "value": 50
+              },
+              {
+                "color": "#32CD32",
+                "value": 75
+              },
+              {
+                "color": "#00FF00",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "short",
+          "links": [
+            {
+              "title": "View Savings Analysis",
+              "url": "/d/savings_analysis",
+              "targetBlank": true
+            },
+            {
+              "title": "View Net Worth Dashboard",
+              "url": "/d/household_net_worth",
+              "targetBlank": true
+            },
+            {
+              "title": "View Account Performance",
+              "url": "/d/account_performance_dashboard",
+              "targetBlank": true
+            },
+            {
+              "title": "View Cash Flow Analysis",
+              "url": "/d/cash_flow_analysis",
+              "targetBlank": true
+            }
+          ]
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Savings Tier Score"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FFD700",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Net Worth Health"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#32CD32",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Account Health"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FF6347",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cash Flow Status"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#4169E1",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 36
+      },
+      "id": 10,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH latest_data AS (\n  SELECT *\n  FROM reporting.rpt_executive_dashboard \n  ORDER BY dashboard_year DESC, dashboard_month_num DESC \n  LIMIT 1\n)\nSELECT\n  CASE current_savings_tier\n    WHEN 'Exceptional Saver (30%+)' THEN 100\n    WHEN 'Strong Saver (20-29%)' THEN 85\n    WHEN 'Good Saver (15-19%)' THEN 70\n    WHEN 'Average Saver (10-14%)' THEN 55\n    WHEN 'Low Saver (5-9%)' THEN 40\n    WHEN 'Minimal Saver (1-4%)' THEN 25\n    WHEN 'Non-Saver (0%)' THEN 10\n    ELSE 0\n  END::double precision AS \"Savings Tier Score\",\n  COALESCE(net_worth_health_score, 0)::double precision AS \"Net Worth Health\",\n  CASE \n    WHEN accounts_needing_attention = 0 THEN 100\n    WHEN accounts_needing_attention = 1 THEN 70\n    WHEN accounts_needing_attention = 2 THEN 40\n    ELSE 20\n  END::double precision AS \"Account Health\",\n  CASE cash_flow_status\n    WHEN 'Strong Positive' THEN 100\n    WHEN 'Positive' THEN 80\n    WHEN 'Neutral' THEN 60\n    WHEN 'Negative' THEN 40\n    WHEN 'Critical' THEN 20\n    ELSE 0\n  END::double precision AS \"Cash Flow Status\"\nFROM latest_data;",
+          "refId": "A"
+        }
+      ],
+      "title": "Additional Performance Metrics",
+      "transformations": [],
+      "type": "bargauge"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": [
+    "executive",
+    "overview",
+    "personal-finance",
+    "dashboard"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1y",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Executive Financial Overview (Most Recent Complete Month)",
+  "uid": "executive_dashboard",
+  "version": 2,
+  "weekStart": ""
+}
