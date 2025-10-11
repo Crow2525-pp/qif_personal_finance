@@ -32,4 +32,5 @@ SELECT
     income,
     expense
 FROM income_expense
+WHERE TO_DATE(year_month || '-01', 'YYYY-MM-DD') < DATE_TRUNC('month', CURRENT_DATE)
 ORDER BY period_date

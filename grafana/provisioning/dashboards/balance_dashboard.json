@@ -24,8 +24,8 @@
   "panels": [
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "description": "",
       "fieldConfig": {
@@ -106,8 +106,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -138,8 +138,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -221,8 +221,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -250,8 +250,8 @@
         },
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -283,8 +283,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "description": "Excluding Shares",
       "fieldConfig": {
@@ -393,8 +393,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -440,8 +440,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "description": "",
       "fieldConfig": {
@@ -525,8 +525,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -554,8 +554,8 @@
         },
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -587,8 +587,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "description": "",
       "fieldConfig": {
@@ -672,8 +672,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -761,8 +761,8 @@
           ]
         },
         "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "fdu7k0ncc3g1sd"
+          "type": "postgres",
+          "uid": "PCC52D03280B7034C"
         },
         "definition": "select distinct account_name from reporting__fresh_table\n",
         "hide": 0,
@@ -789,8 +789,8 @@
           ]
         },
         "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "fdu7k0ncc3g1sd"
+          "type": "postgres",
+          "uid": "PCC52D03280B7034C"
         },
         "definition": "select distinct subcategory from reporting.reporting__fact_transactions \norder by subcategory",
         "hide": 0,
@@ -817,8 +817,8 @@
           ]
         },
         "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "fdu7k0ncc3g1sd"
+          "type": "postgres",
+          "uid": "PCC52D03280B7034C"
         },
         "definition": "select distinct category from reporting.reporting__fact_transactions \norder by category",
         "hide": 0,
@@ -884,8 +884,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "description": "",
       "fieldConfig": {
@@ -970,8 +970,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -1008,8 +1008,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "description": "Excluding Shares",
       "fieldConfig": {
@@ -1118,8 +1118,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -1165,8 +1165,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "description": "",
       "fieldConfig": {
@@ -1250,8 +1250,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -1341,8 +1341,8 @@
           ]
         },
         "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "fdu7k0ncc3g1sd"
+          "type": "postgres",
+          "uid": "PCC52D03280B7034C"
         },
         "definition": "select distinct origin_key from dim_account",
         "description": "Concatenation of Bank Name and Account Name",
@@ -1366,8 +1366,8 @@
           "value": "adelaide"
         },
         "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "fdu7k0ncc3g1sd"
+          "type": "postgres",
+          "uid": "PCC52D03280B7034C"
         },
         "definition": "select distinct bank_name from reporting.dim_account",
         "hide": 0,
@@ -1394,8 +1394,8 @@
           ]
         },
         "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "fdu7k0ncc3g1sd"
+          "type": "postgres",
+          "uid": "PCC52D03280B7034C"
         },
         "definition": "select distinct account_name from reporting.dim_account\n",
         "hide": 0,

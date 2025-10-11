@@ -36,8 +36,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -106,8 +106,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -138,8 +138,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -219,8 +219,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -264,8 +264,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "description": "",
       "fieldConfig": {
@@ -346,8 +346,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -378,8 +378,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -458,8 +458,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -490,8 +490,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -570,8 +570,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -612,8 +612,8 @@
       "panels": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "fieldConfig": {
             "defaults": {
@@ -666,8 +666,8 @@
           "targets": [
             {
               "datasource": {
-                "type": "grafana-postgresql-datasource",
-                "uid": "fdu7k0ncc3g1sd"
+                "type": "postgres",
+                "uid": "PCC52D03280B7034C"
               },
               "editorMode": "code",
               "format": "table",
@@ -717,8 +717,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -797,8 +797,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -845,8 +845,8 @@
           ]
         },
         "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "fdu7k0ncc3g1sd"
+          "type": "postgres",
+          "uid": "PCC52D03280B7034C"
         },
         "definition": "select distinct amount_type from reporting.reporting__fact_transactions",
         "hide": 0,
@@ -873,8 +873,8 @@
           ]
         },
         "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "fdu7k0ncc3g1sd"
+          "type": "postgres",
+          "uid": "PCC52D03280B7034C"
         },
         "definition": "select distinct origin_key from reporting.dim_account",
         "description": "concatentation of Bank and Account Name",
@@ -902,8 +902,8 @@
           ]
         },
         "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "fdu7k0ncc3g1sd"
+          "type": "postgres",
+          "uid": "PCC52D03280B7034C"
         },
         "definition": "select distinct account_name from reporting.dim_account",
         "hide": 0,
@@ -930,8 +930,8 @@
           ]
         },
         "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "fdu7k0ncc3g1sd"
+          "type": "postgres",
+          "uid": "PCC52D03280B7034C"
         },
         "definition": "select distinct bank_name from reporting.dim_account",
         "hide": 0,
@@ -958,8 +958,8 @@
           ]
         },
         "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "fdu7k0ncc3g1sd"
+          "type": "postgres",
+          "uid": "PCC52D03280B7034C"
         },
         "definition": "select distinct category from reporting.dim_category",
         "hide": 0,
@@ -986,8 +986,8 @@
           ]
         },
         "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "fdu7k0ncc3g1sd"
+          "type": "postgres",
+          "uid": "PCC52D03280B7034C"
         },
         "definition": "select distinct subcategory from reporting.dim_category",
         "hide": 0,
@@ -1014,8 +1014,8 @@
           ]
         },
         "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "fdu7k0ncc3g1sd"
+          "type": "postgres",
+          "uid": "PCC52D03280B7034C"
         },
         "definition": "select distinct store from reporting.dim_category",
         "hide": 0,
@@ -1042,8 +1042,8 @@
           ]
         },
         "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "fdu7k0ncc3g1sd"
+          "type": "postgres",
+          "uid": "PCC52D03280B7034C"
         },
         "definition": "select distinct internal_indicator from reporting.dim_category",
         "description": "Internal transfers - or interbank transfers.  These represent duplicated values when doing calculations so are mainly removed..   We are only really concerned with External Transactions.  Money going in or our, not between our banks.",

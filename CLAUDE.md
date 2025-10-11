@@ -128,6 +128,7 @@ dbt commands should be executed within the containerized environment or by acces
 - **Important**: For pie charts, always set "Show values" to display "All values" instead of just calculations
 - In the dashboard JSON, add `"displayLabels": ["name", "value"]` to the options section
 - Update legend values to `"values": ["value"]` to show actual values in the legend
+- **Critical**: Set `"reduceOptions.values": true` to display actual values on pie chart segments
 - This ensures pie charts display actual values on each segment, not just percentages or calculations
 
 ### Bar/Stat/Gauge Panels
