@@ -1,0 +1,98 @@
+================================================================================
+FY25 TAX DEDUCTIBLE EXPENSES REPORT
+Financial Year 2025: July 1, 2024 - June 30, 2025
+Work From Home: 3 days per week (42.86% deductible for utilities)
+================================================================================
+
+SUMMARY BY CATEGORY
+-------------------
+Category                                  Count   Actual Amount   Potential Deduction
+Electricity (WFH 3 days/week)                 2      $500.00            $214.30
+Books/Amazon (Review for Work Related)        3      $133.43            $133.43
+Phone/Mobile (WFH 3 days/week)                1       $80.00             $34.29
+------------------------------------------------------------------------------------
+TOTAL ALL CATEGORIES                          6      $713.43            $382.02
+------------------------------------------------------------------------------------
+
+DETAILED TRANSACTION BREAKDOWN
+------------------------------
+
+ELECTRICITY (WFH 3 days/week)
+  Date: 2024-08-31
+  Amount: $250.00 | WFH Deduction (42.86%): $107.15
+  Memo: Shares and globird - Internal Transfer - Receipt 641541 Savings Maximiser 0041301817
+
+  Date: 2024-08-06
+  Amount: $250.00 | WFH Deduction (42.86%): $107.15
+  Memo: Globird - Internal Transfer - Receipt 312602 Savings Maximiser 0041301817
+
+BOOKS/AMAZON (Review for Work Related)
+  Date: 2025-06-27
+  Amount: $17.75 | Potential Deduction: $17.75
+  Memo: AMAZON MARKETPLACE AU - Visa Refund - Receipt 198411 In SYDNEY SOUTH Date 25 Jun 2025 Card 462263xxxxxx3514
+  Note: Review if work/education related
+
+  Date: 2024-11-22
+  Amount: $79.09 | Potential Deduction: $79.09
+  Memo: AMAZON MARKETPLACE AU - Visa Refund - Receipt 195067 In SYDNEY SOUTH Date 20 Nov 2024 Card 462263xxxxxx3514
+  Note: Review if work/education related
+
+  Date: 2024-07-31
+  Amount: $36.59 | Potential Deduction: $36.59
+  Memo: AMAZON AU - Visa Refund - Receipt 136060 In SYDNEY SOUTH Date 29 Jul 2024 Card 462263xxxxxx9745
+  Note: Review if work/education related
+
+PHONE/MOBILE (WFH 3 days/week)
+  Date: 2025-03-18
+  Amount: $80.00 | WFH Deduction (42.86%): $34.29
+  Memo: Phil headphones - Internal Transfer - Receipt 661268 Savings Maximiser 0041301817
+
+ITEMS NOT FOUND
+---------------
+The following expense categories were searched but no matching transactions were found:
+
+1. GAS/NATURAL GAS
+   - Searched for: gas, agl, origin, powershop, red energy, simply energy
+   - Result: No transactions found
+
+2. INTERNET (Debit Expenses)
+   - Searched for: internet, nbn, broadband, superloop, aussie broadband, telstra, optus
+   - Result: Only credits/refunds found (Superloop credits totaling $363.60)
+   - Note: Internet may be paid through a different account or method
+
+3. AI SUBSCRIPTIONS
+   - Searched for: chatgpt, openai, claude, anthropic, gpt
+   - Result: No transactions found
+   - Note: These subscriptions may be billed to a different payment method or account
+
+ADDITIONAL NOTES
+----------------
+- Solar Credits: 7 transactions totaling $204.19 (credits, not deductible expenses)
+- Internet Credits: 5 Superloop credits totaling $363.60 (refunds, not expenses)
+- Amazon purchases need individual review to confirm they are work-related books
+- The "Phil headphones" transaction is categorized as Phone/Mobile but appears to be headphones
+
+ATO GUIDANCE FOR WFH DEDUCTIONS (FY25)
+--------------------------------------
+For the 2024-25 financial year, you can claim:
+- Fixed rate method: 67 cents per hour for all running expenses
+- Actual cost method: Calculate actual expenses including portion of utilities
+  * For 3 days/week WFH = 3/7 days = 42.86% of running costs
+  * Must keep records of actual expenses and usage
+
+RECOMMENDED ACTIONS
+-------------------
+1. Review Amazon purchases to identify which items are work-related books
+2. Check other bank accounts/credit cards for:
+   - Internet payment transactions (Superloop or other providers)
+   - AI subscription payments (ChatGPT, Claude Code)
+   - Gas/Natural gas bills
+3. Verify the "Phil headphones" transaction classification
+4. Consider using the ATO's fixed rate method (67c/hour) vs actual cost method
+5. Keep detailed records of WFH hours for the tax year
+
+================================================================================
+Report Generated: 2025-10-28
+SQL Query Files: fy25_tax_deductible_expenses.sql, fy25_tax_deductible_summary.sql
+CSV Export Files: fy25_tax_deductible_expenses_detailed.csv, fy25_tax_deductible_summary.csv
+================================================================================

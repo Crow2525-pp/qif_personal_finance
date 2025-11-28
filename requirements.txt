@@ -6,3 +6,4 @@ duckdb==1.0.0
 dagster-graphql==1.7.10
 dagster-webserver==1.7.10
 dagster-docker==0.23.10
+requests>=2.32.0
