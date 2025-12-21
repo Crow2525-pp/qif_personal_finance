@@ -151,7 +151,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT COALESCE(yoy_growth_percent, 0) as \"Total YoY Growth %\", COALESCE(mom_growth_percent, 0) as \"Month-over-Month %\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= NOW() - INTERVAL '1 month' ORDER BY year_month DESC LIMIT 1",
+          "rawSql": "SELECT COALESCE(yoy_growth_percent, 0) as \"Total YoY Growth %\", COALESCE(mom_growth_percent, 0) as \"Month-over-Month %\" FROM reporting.viz_grocery_monthly_summary ORDER BY year_month DESC LIMIT 1",
           "refId": "A"
         }
       ],

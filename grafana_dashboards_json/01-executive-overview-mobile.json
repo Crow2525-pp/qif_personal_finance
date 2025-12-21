@@ -20,18 +20,18 @@
   "panels": [
     {
       "datasource": {
-        "type": "text",
-        "uid": "-- Text --"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "gridPos": {
-        "h": 2,
+        "h": 4,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# 📱 Executive Overview\n\nKey financial metrics and health indicators at a glance. Optimized for mobile viewing.",
+        "content": "# \ud83d\udcf1 Executive Overview\n\nKey financial metrics and health indicators at a glance. Optimized for mobile viewing.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -39,8 +39,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -92,8 +92,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -107,8 +107,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -172,8 +172,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -187,8 +187,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -261,8 +261,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "format": "time_series",
           "group": [],
@@ -277,8 +277,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -329,8 +329,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -344,8 +344,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -396,8 +396,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
           "format": "table",
@@ -411,18 +411,18 @@
     },
     {
       "datasource": {
-        "type": "text",
-        "uid": "-- Text --"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "gridPos": {
-        "h": 2,
+        "h": 4,
         "w": 24,
         "x": 0,
         "y": 24
       },
       "id": 102,
       "options": {
-        "content": "## 🔍 Data Quality & Reconciliation\n\nFinancial data validation and reconciliation status across all reporting domains.",
+        "content": "## \ud83d\udd0d Data Quality & Reconciliation\n\nFinancial data validation and reconciliation status across all reporting domains.",
         "mode": "markdown"
       },
       "title": "Reconciliation Status",
@@ -430,8 +430,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -481,8 +481,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "format": "table",
           "rawQuery": true,
@@ -495,8 +495,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -509,7 +509,7 @@
                 "ALL_PASS": {
                   "color": "green",
                   "index": 0,
-                  "text": "✅ ALL PASS"
+                  "text": "\u2705 ALL PASS"
                 }
               },
               "type": "value"
@@ -519,7 +519,7 @@
                 "SOME_FAIL": {
                   "color": "red",
                   "index": 1,
-                  "text": "❌ SOME FAIL"
+                  "text": "\u274c SOME FAIL"
                 }
               },
               "type": "value"
@@ -562,8 +562,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "format": "table",
           "rawQuery": true,
@@ -576,8 +576,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -659,8 +659,8 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "format": "table",
           "rawQuery": true,
@@ -673,8 +673,8 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "fdu7k0ncc3g1sd"
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
@@ -738,12 +738,12 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "fdu7k0ncc3g1sd"
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
           },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT month, account_name, amount, count, example_transaction, suggested_category, suggested_subcategory, confidence FROM reporting.viz_uncategorized_missing_example_top5 ORDER BY amount DESC;",
+          "rawSql": "WITH data AS (\n  SELECT month, account_name, amount, count, example_transaction, suggested_category, suggested_subcategory, confidence\n  FROM reporting.viz_uncategorized_missing_example_top5\n  ORDER BY amount DESC\n)\nSELECT * FROM data\nUNION ALL\nSELECT 'N/A', 'None', 0, 0, 'No uncategorized transactions'::text, 'N/A', 'N/A', 0\nWHERE NOT EXISTS (SELECT 1 FROM data);",
           "refId": "A"
         }
       ],
@@ -766,7 +766,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "📱 Executive Overview",
+  "title": "\ud83d\udcf1 Executive Overview",
   "uid": "exec-mobile-overview",
   "version": 1,
   "weekStart": ""

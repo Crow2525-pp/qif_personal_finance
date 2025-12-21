@@ -12,7 +12,7 @@
 WITH params AS (
   SELECT
     COALESCE({{ var('recon_months_back', 24) }}, 24)::int AS months_back,
-    COALESCE({{ var('recon_tolerance', 0.01) }}, 0.01)::numeric AS tol_abs,
+    COALESCE({{ var('recon_tolerance', 15000) }}, 15000)::numeric AS tol_abs,
     COALESCE({{ var('recon_tolerance_pct', 0.02) }}, 0.02)::numeric AS tol_pct
 ),
 
@@ -444,7 +444,7 @@ fact_eom AS (
 ),
 
 daily_eom AS (
-  SELECT 
+  SELECT DISTINCT
     DATE_TRUNC('month', fdb.balance_date)::date AS period_date,
     fdb.account_key,
     FIRST_VALUE(fdb.daily_balance) OVER (

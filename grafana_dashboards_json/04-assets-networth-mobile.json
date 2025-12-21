@@ -28,14 +28,14 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 2,
+        "h": 4,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# 💎 Assets & Net Worth\n\nTrack account balances, net worth trends, and asset allocation in mobile-optimized format.",
+        "content": "# \ud83d\udc8e Assets & Net Worth\n\nTrack account balances, net worth trends, and asset allocation in mobile-optimized format.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -526,7 +526,9 @@
           "displayMode": "list",
           "placement": "right",
           "showLegend": true,
-          "values": ["value"]
+          "values": [
+            "value"
+          ]
         }
       },
       "targets": [
@@ -629,7 +631,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "💎 Assets & Net Worth",
+  "title": "\ud83d\udc8e Assets & Net Worth",
   "uid": "assets-networth-mobile",
   "version": 1,
   "weekStart": ""

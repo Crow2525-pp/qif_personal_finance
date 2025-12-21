@@ -1139,7 +1139,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT month, account_name, amount, count, example_transaction, suggested_category, suggested_subcategory, confidence FROM reporting.viz_uncategorized_missing_example_top5 ORDER BY amount DESC;",
+          "rawSql": "WITH data AS (\n  SELECT month, account_name, amount, count, example_transaction, suggested_category, suggested_subcategory, confidence\n  FROM reporting.viz_uncategorized_missing_example_top5\n  ORDER BY amount DESC\n)\nSELECT * FROM data\nUNION ALL\nSELECT 'N/A', 'None', 0, 0, 'No uncategorized transactions'::text, 'N/A', 'N/A', 0\nWHERE NOT EXISTS (SELECT 1 FROM data);",
           "refId": "A"
         }
       ],

@@ -28,14 +28,14 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 2,
+        "h": 4,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# 📊 Savings & Performance\n\nTrack savings rates, efficiency metrics, and financial performance with mobile-optimized layouts.",
+        "content": "# \ud83d\udcca Savings & Performance\n\nTrack savings rates, efficiency metrics, and financial performance with mobile-optimized layouts.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -511,7 +511,9 @@
           "displayMode": "list",
           "placement": "right",
           "showLegend": true,
-          "values": ["value"]
+          "values": [
+            "value"
+          ]
         }
       },
       "targets": [
@@ -523,7 +525,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    'Cash Savings' as savings_type,\n    cash_savings as value\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis)\nAND cash_savings > 0\nUNION ALL\nSELECT \n    'Investment Contributions',\n    investment_contributions as value\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis)\nAND investment_contributions > 0\nUNION ALL\nSELECT \n    'Offset Savings',\n    offset_savings as value\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis)\nAND offset_savings > 0;",
+          "rawSql": "WITH latest AS (\n    SELECT budget_year_month, cash_savings, investment_contributions, offset_savings\n    FROM reporting.rpt_savings_analysis\n    ORDER BY budget_year_month DESC\n    LIMIT 1\n), unpivot AS (\n    SELECT 'Cash Savings' AS savings_type, cash_savings AS value FROM latest\n    UNION ALL\n    SELECT 'Investment Contributions', investment_contributions FROM latest\n    UNION ALL\n    SELECT 'Offset Savings', offset_savings FROM latest\n)\nSELECT savings_type, value\nFROM unpivot\nWHERE value IS NOT NULL\n  AND value >= 0\nUNION ALL\nSELECT 'No savings recorded', 0\nWHERE NOT EXISTS (SELECT 1 FROM unpivot WHERE value IS NOT NULL AND value >= 0 AND value <> 0);",
           "refId": "A"
         }
       ],
@@ -741,7 +743,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "📊 Savings & Performance",
+  "title": "\ud83d\udcca Savings & Performance",
   "uid": "savings-performance-mobile",
   "version": 1,
   "weekStart": ""

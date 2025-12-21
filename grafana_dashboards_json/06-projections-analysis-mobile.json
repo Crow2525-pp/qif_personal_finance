@@ -28,14 +28,14 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 2,
+        "h": 4,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# 🔮 Projections & Analysis\n\nFinancial forecasts, year-over-year comparisons, and analytical insights in mobile-friendly format.",
+        "content": "# \ud83d\udd2e Projections & Analysis\n\nFinancial forecasts, year-over-year comparisons, and analytical insights in mobile-friendly format.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -635,7 +635,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "🔮 Projections & Analysis",
+  "title": "\ud83d\udd2e Projections & Analysis",
   "uid": "projections-analysis-mobile",
   "version": 1,
   "weekStart": ""

@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import os
+import re
 import sys
 from typing import Dict, Iterable, List, Tuple
 
@@ -155,6 +156,58 @@ def result_has_values(result: Dict, min_rows: int) -> Tuple[bool, str]:
     return False, f"empty ({rows} rows)"
 
 
+def _quote_sql_value(value) -> str:
+    """Return a SQL-safe literal for simple substitutions."""
+    if value is None:
+        return "NULL"
+    if isinstance(value, (int, float)):
+        return str(value)
+    return "'" + str(value).replace("'", "''") + "'"
+
+
+def render_sql(raw_sql: str, scoped_vars: Dict) -> str:
+    """
+    Apply a lightweight variable substitution so API checks behave like Grafana.
+
+    Supports $var, ${var}, and ${var:csv}. Lists are joined with commas.
+    """
+    raw_sql_text = raw_sql
+
+    def render_value(var_name: str, fmt: str | None) -> str:
+        entry = scoped_vars.get(var_name, {}) or {}
+        value = entry.get("value")
+
+        values = value if isinstance(value, list) else [value]
+        return values
+
+    pattern = re.compile(
+        r"\$\{(?P<var>[A-Za-z0-9_]+)(?::(?P<fmt>[A-Za-z0-9_]+))?\}|\$(?P<plain>[A-Za-z0-9_]+)"
+    )
+
+    def replacer(match: re.Match) -> str:
+        var = match.group("var") or match.group("plain")
+        fmt = match.group("fmt")
+        values = render_value(var, fmt)
+        start, end = match.start(), match.end()
+        before = raw_sql_text[start - 1 : start] if start > 0 else ""
+        after = raw_sql_text[end : end + 1]
+        in_quotes = before == "'" and after == "'"
+
+        # Flatten values
+        values_list = values if isinstance(values, list) else [values]
+        if fmt == "csv":
+            if in_quotes:
+                return ",".join("" if v is None else str(v) for v in values_list)
+            return ",".join(_quote_sql_value(v) for v in values_list if v is not None)
+
+        if in_quotes:
+            return "" if values_list[0] is None else str(values_list[0])
+
+        return ",".join(_quote_sql_value(v) for v in values_list if v is not None)
+
+    return pattern.sub(replacer, raw_sql)
+
+
 def resolve_variable_options(
     client: GrafanaClient,
     var_def: Dict,
@@ -263,9 +316,10 @@ def check_dashboard(
             ref_id = target.get("refId", "A")
 
             try:
+                rendered_sql = render_sql(raw_sql, scoped_vars)
                 query_response = client.query(
                     datasources[ds_uid],
-                    raw_sql,
+                    rendered_sql,
                     time_from=time_from,
                     time_to=time_to,
                     scoped_vars=scoped_vars,
@@ -297,6 +351,61 @@ def check_dashboard(
             failing_panels.append(status)
 
     return ok_panels, failing_panels
+
+
+def lint_dashboard_titles(
+    dashboard: Dict,
+    max_chars_per_col: int,
+    min_chars: int,
+    text_chars_per_col: float,
+    text_height_slack: int,
+) -> List[Dict]:
+    """Heuristic lint: flag titles that likely overflow their panel width."""
+    issues: List[Dict] = []
+
+    for panel in flatten_panels(dashboard.get("panels", [])):
+        title = panel.get("title") or ""
+        if not title:
+            continue
+
+        grid = panel.get("gridPos") or {}
+        width = grid.get("w", 24)
+        height = grid.get("h", 1)
+
+        # Title width heuristic
+        allowed = max(min_chars, width * max_chars_per_col)
+        if len(title) > allowed:
+            issues.append(
+                {
+                    "panel_id": panel.get("id"),
+                    "panel_title": title,
+                    "width": width,
+                    "title_len": len(title),
+                    "allowed": allowed,
+                }
+            )
+
+        # Text panel content height heuristic
+        if panel.get("type") == "text":
+            content = (panel.get("options") or {}).get("content", "")
+            if isinstance(content, str) and content.strip():
+                chars_per_row = max(1, int(width * text_chars_per_col))
+                est_lines = (len(content) // chars_per_row) + 1
+                allowed_lines = height + text_height_slack
+                if est_lines > allowed_lines:
+                    issues.append(
+                        {
+                            "panel_id": panel.get("id"),
+                            "panel_title": title,
+                            "width": width,
+                            "height": height,
+                            "content_len": len(content),
+                            "est_lines": est_lines,
+                            "allowed_lines": allowed_lines,
+                            "message": "text likely overflows box",
+                        }
+                    )
+    return issues
 
 
 def parse_args() -> argparse.Namespace:
@@ -341,6 +450,35 @@ def parse_args() -> argparse.Namespace:
         default=1,
         help="Minimum number of rows/points expected for a panel.",
     )
+    parser.add_argument(
+        "--no-lint",
+        action="store_true",
+        help="Skip layout linting (e.g., long titles vs. panel width).",
+    )
+    parser.add_argument(
+        "--lint-max-chars-per-col",
+        type=int,
+        default=5,
+        help="Heuristic: max characters per grid column before flagging a title (default: 5).",
+    )
+    parser.add_argument(
+        "--lint-min-chars",
+        type=int,
+        default=20,
+        help="Minimum title length threshold even for small panels (default: 20).",
+    )
+    parser.add_argument(
+        "--lint-text-chars-per-col",
+        type=float,
+        default=1.5,
+        help="Heuristic chars per grid column for text panels (default: 1.5).",
+    )
+    parser.add_argument(
+        "--lint-text-height-slack",
+        type=int,
+        default=0,
+        help="Extra grid rows tolerated for text panels before flagging (default: 0).",
+    )
     return parser.parse_args()
 
 
@@ -377,6 +515,7 @@ def main() -> int:
         return 1
 
     total_failures = 0
+    total_lint = 0
     for dash in dashboards:
         ok_panels, failing_panels = check_dashboard(
             client,
@@ -387,9 +526,20 @@ def main() -> int:
             min_rows=args.min_rows,
         )
 
+        lint_issues: List[Dict] = []
+        if not args.no_lint:
+            lint_issues = lint_dashboard_titles(
+                client.dashboard(dash["uid"]),
+                max_chars_per_col=args.lint_max_chars_per_col,
+                min_chars=args.lint_min_chars,
+                text_chars_per_col=args.lint_text_chars_per_col,
+                text_height_slack=args.lint_text_height_slack,
+            )
+
         print(
             f"\nDashboard '{dash.get('title')}' ({dash.get('uid')}): "
-            f"{len(ok_panels)} panels OK, {len(failing_panels)} failing"
+            f"{len(ok_panels)} panels OK, {len(failing_panels)} failing, "
+            f"{len(lint_issues)} lint warnings"
         )
         for panel in failing_panels:
             total_failures += 1
@@ -397,12 +547,26 @@ def main() -> int:
                 f"  - Panel {panel['panel_id']} '{panel['panel_title']}': "
                 f"{panel['messages']}"
             )
+        for issue in lint_issues:
+            total_lint += 1
+            title_len = issue.get("title_len") or issue.get("content_len")
+            allowed = issue.get("allowed") or issue.get("allowed_lines")
+            extra = ""
+            if issue.get("message"):
+                extra = f" ({issue['message']})"
+            print(
+                f"  - LINT Panel {issue.get('panel_id')} '{issue.get('panel_title')}' "
+                f"len={title_len} allowed~{allowed} (w={issue.get('width')}, h={issue.get('height')}){extra}"
+            )
 
-    if total_failures:
-        print(f"\nFAIL: {total_failures} panels returned no data or errors.")
+    if total_failures or total_lint:
+        print(
+            f"\nFAIL: {total_failures} panels returned no data or errors; "
+            f"{total_lint} lint warnings."
+        )
         return 2
 
-    print("\nAll panels returned data.")
+    print("\nAll panels returned data (no lint warnings).")
     return 0
 
 

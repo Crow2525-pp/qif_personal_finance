@@ -28,14 +28,14 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 2,
+        "h": 4,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# 💰 Cash Flow & Budget\n\nTrack income, expenses, and budget performance with mobile-optimized vertical layouts.",
+        "content": "# \ud83d\udcb0 Cash Flow & Budget\n\nTrack income, expenses, and budget performance with mobile-optimized vertical layouts.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -616,7 +616,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "💰 Cash Flow & Budget",
+  "title": "\ud83d\udcb0 Cash Flow & Budget",
   "uid": "cashflow-budget-mobile",
   "version": 1,
   "weekStart": ""
