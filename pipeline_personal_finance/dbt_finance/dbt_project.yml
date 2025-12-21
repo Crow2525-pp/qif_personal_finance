@@ -43,6 +43,9 @@ models:
       enabled: true
       +schema: reporting
       +materialized: table
+      projections:
+        +schema: reporting
+        +materialized: table
 
 seeds:
   schema: landing
@@ -57,3 +60,9 @@ seeds:
         account_name: text
         category: text
         subcategory: text
+
+vars:
+  # Defaults for suggestion models
+  high_value_threshold: 200               # lower than 1000 to surface more groups
+  suggestion_confidence_min: 0.4          # allow medium-confidence suggestions
+  suggestion_support_min: 1               # accept suggestions seen once

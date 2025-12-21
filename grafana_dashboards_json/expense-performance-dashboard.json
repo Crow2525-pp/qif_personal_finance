@@ -1,0 +1,572 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "text",
+        "uid": "-- Text --"
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "options": {
+        "content": "# \ud83d\udcb8 Expense Performance Dashboard - Spending Control Analysis\n\n**What This Dashboard Shows:** Detailed breakdown of expense performance drivers that feed into Executive Dashboard ratings.\n\n**Key Metrics Explained:**\n\u2022 **Expense-to-Income Ratio:** Primary driver of expense performance rating (lower is better, target <80-90%)\n\u2022 **Category Breakdown:** Which spending categories are driving expense levels\n\u2022 **Trend Analysis:** Month-over-month and historical expense patterns\n\u2022 **Efficiency Metrics:** How well spending aligns with income and financial goals\n\n**Rating Logic:** Expense performance in Executive Dashboard is calculated as (Total Outflows \u00f7 Total Inflows) \u00d7 100. Lower ratios indicate better expense control.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.0.0",
+      "title": "Dashboard Instructions",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Current month expense-to-income ratio - primary driver of executive dashboard expense performance rating",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "orange",
+                "value": 90
+              },
+              {
+                "color": "red",
+                "value": 100
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT expense_to_income_ratio_pct as \"Expense to Income Ratio (%)\"\nFROM reporting.rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1",
+          "refId": "A"
+        }
+      ],
+      "title": "Current Expense-to-Income Ratio",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Trending expense ratios over time to show improvement or deterioration patterns",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Target (80%)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "dash"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "WITH expense_trends AS (\n  SELECT \n    to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS time,\n    expense_ratio_percent AS \"Expense Ratio (%)\",\n    0.80 AS \"Target (80%)\"\n  FROM reporting.rpt_monthly_budget_summary \n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') < date_trunc('month', CURRENT_DATE)\n    AND to_date(budget_year_month || '-01', 'YYYY-MM-DD') >= date_trunc('month', CURRENT_DATE) - INTERVAL '12 months'\n  ORDER BY time\n)\nSELECT * FROM expense_trends",
+          "refId": "A"
+        }
+      ],
+      "title": "Expense Ratio Trend (12 Months)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Top spending categories driving current month expenses - shows what's behind the expense ratio",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Monthly Amount ($)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "% of Total Expenses"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "id": 3,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH latest_month AS (\n  SELECT MAX(budget_year_month) as latest_month\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\ncategory_expenses AS (\n  SELECT \n    ct.level_1_category as \"Category\",\n    ct.monthly_spending as \"Monthly Amount ($)\",\n    ct.percent_of_total_monthly_spending as \"% of Total Expenses\",\n    ct.spending_trend_category as \"Trend\"\n  FROM reporting.rpt_category_spending_trends ct\n  CROSS JOIN latest_month lm\n  WHERE ct.budget_year_month = lm.latest_month\n    AND ct.monthly_spending > 0\n  ORDER BY ct.monthly_spending DESC\n  LIMIT 10\n)\nSELECT * FROM category_expenses",
+          "refId": "A"
+        }
+      ],
+      "title": "Top Expense Categories (Current Month)",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Month-over-month expense changes to identify spending pattern changes",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Current Month ($)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Previous Month ($)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Change ($)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-GrYlRd"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Change (%)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "id": 4,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH monthly_expenses AS (\n  SELECT \n    budget_year_month,\n    total_expenses\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month >= TO_CHAR(CURRENT_DATE - INTERVAL '2 months', 'YYYY-MM')\n    AND budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n  ORDER BY budget_year_month DESC\n  LIMIT 2\n),\nexpense_comparison AS (\n  SELECT \n    (ARRAY_AGG(total_expenses ORDER BY budget_year_month DESC))[1] as current_month,\n    (ARRAY_AGG(total_expenses ORDER BY budget_year_month DESC))[2] as previous_month,\n    (ARRAY_AGG(budget_year_month ORDER BY budget_year_month DESC))[1] as current_period,\n    (ARRAY_AGG(budget_year_month ORDER BY budget_year_month DESC))[2] as previous_period\n  FROM monthly_expenses\n)\nSELECT \n  'Total Monthly Expenses' as \"Category\",\n  current_month as \"Current Month ($)\",\n  previous_month as \"Previous Month ($)\",\n  (current_month - previous_month) as \"Change ($)\",\n  CASE \n    WHEN previous_month > 0 THEN ((current_month - previous_month) / previous_month) * 100\n    ELSE 0\n  END as \"Change (%)\",\n  current_period as \"Current Period\",\n  previous_period as \"Previous Period\"\nFROM expense_comparison",
+          "refId": "A"
+        }
+      ],
+      "title": "Monthly Expense Change Analysis",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Expense efficiency metrics and performance indicators that drive executive dashboard ratings",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Current Value"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Performance Rating"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 30
+      },
+      "id": 5,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH latest_data AS (\n  SELECT *\n  FROM reporting.rpt_executive_dashboard \n  ORDER BY dashboard_year DESC, dashboard_month_num DESC \n  LIMIT 1\n)\nSELECT \n  'Expense-to-Income Ratio' as \"Efficiency Metric\",\n  ROUND(expense_to_income_ratio_pct, 1) as \"Current Value\",\n  '%' as \"Unit\",\n  CASE \n    WHEN expense_to_income_ratio_pct <= 70 THEN 'Excellent'\n    WHEN expense_to_income_ratio_pct <= 80 THEN 'Good'\n    WHEN expense_to_income_ratio_pct <= 90 THEN 'Fair'\n    WHEN expense_to_income_ratio_pct <= 100 THEN 'Poor'\n    ELSE 'Critical'\n  END as \"Performance Rating\",\n  'Lower is better. Target <80%' as \"Notes\"\nFROM latest_data\nUNION ALL\nSELECT \n  'Monthly Savings Rate',\n  ROUND(monthly_savings_rate_percent_pct, 1),\n  '%',\n  CASE \n    WHEN monthly_savings_rate_percent_pct >= 20 THEN 'Excellent'\n    WHEN monthly_savings_rate_percent_pct >= 15 THEN 'Good'\n    WHEN monthly_savings_rate_percent_pct >= 10 THEN 'Fair'\n    WHEN monthly_savings_rate_percent_pct >= 5 THEN 'Poor'\n    ELSE 'Critical'\n  END,\n  'Higher is better. Target >15%'\nFROM latest_data\nUNION ALL\nSELECT \n  'Cash Flow Score',\n  cash_flow_score,\n  'pts',\n  CASE \n    WHEN cash_flow_score >= 80 THEN 'Excellent'\n    WHEN cash_flow_score >= 70 THEN 'Good'\n    WHEN cash_flow_score >= 60 THEN 'Fair'\n    WHEN cash_flow_score >= 50 THEN 'Poor'\n    ELSE 'Critical'\n  END,\n  'Composite efficiency score'\nFROM latest_data",
+          "refId": "A"
+        }
+      ],
+      "title": "Expense Performance Metrics Summary",
+      "type": "table"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": [
+    "expense",
+    "performance",
+    "spending",
+    "analysis"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1y",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Expense Performance Analysis",
+  "uid": "expense_performance",
+  "version": 1,
+  "weekStart": ""
+}

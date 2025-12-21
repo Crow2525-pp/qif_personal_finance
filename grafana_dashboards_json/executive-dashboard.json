@@ -1,0 +1,1777 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 3
+      },
+      "id": 20,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": false
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nprevious_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n  WHERE month_date < (SELECT month_date FROM selected_period)\n),\ncurrent_budget AS (\n  SELECT *, to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\ncurrent_cf AS (\n  SELECT forecasted_next_month_net_flow\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\ncurrent_scores AS (\n  SELECT\n    CASE\n      WHEN cb.savings_rate_percent >= 0.30 THEN 'Excellent'\n      WHEN cb.savings_rate_percent >= 0.20 THEN 'Strong'\n      WHEN cb.savings_rate_percent >= 0.15 THEN 'Good'\n      WHEN cb.savings_rate_percent >= 0.10 THEN 'Fair'\n      ELSE 'Needs Attention'\n    END AS savings_rating\n  FROM current_budget cb\n),\nsummary AS (\n  SELECT\n    to_char((SELECT month_date FROM selected_period), 'Mon YYYY') AS month_label,\n    CASE\n      WHEN cb.net_cash_flow >= 0 THEN 'Positive'\n      ELSE 'Negative'\n    END AS health_rating,\n    COALESCE(ccf.forecasted_next_month_net_flow, 0) AS forecast_value\n  FROM current_budget cb\n  LEFT JOIN current_cf ccf ON TRUE\n)\nSELECT CONCAT('\ud83d\udcca Financial Summary for ', summary.month_label,\n              ' | Net Cash Flow: ', summary.health_rating,\n              ' | Next Month Forecast: $', ROUND(summary.forecast_value)::text) AS summary\nFROM summary;",
+          "refId": "A"
+        }
+      ],
+      "title": "Executive Summary",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Overall financial health scoreboard. Each bar reflects raw ratios from the selected month: savings performance is net cash flow \u00f7 income, cash-flow status comes from the cash-flow analysis state machine, and net-worth progress tracks the wealth milestone. The composite score weights net worth 30%, savings 30%, and cash flow 40%.",
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "unit": "short",
+          "links": [
+            {
+              "title": "View Savings Analysis Details",
+              "url": "/d/savings_analysis",
+              "targetBlank": true
+            },
+            {
+              "title": "View Net Worth Dashboard",
+              "url": "/d/household_net_worth",
+              "targetBlank": true
+            },
+            {
+              "title": "View Account Performance",
+              "url": "/d/account_performance_dashboard",
+              "targetBlank": true
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "green",
+                "value": 70
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Financial Health"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#32CD32",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Financial Health"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Savings Performance"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FFD700",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Net Worth Progress"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FF6347",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cash Flow Status"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#1E90FF",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 3,
+        "w": 12,
+        "h": 5
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nprevious_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n  WHERE month_date < (SELECT month_date FROM selected_period)\n),\ncurrent_budget AS (\n  SELECT *, to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\ncurrent_cf AS (\n  SELECT *, to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\ncurrent_nw AS (\n  SELECT *, to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_household_net_worth\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\nscores AS (\n  SELECT\n    CASE\n      WHEN cb.savings_rate_percent >= 0.30 THEN 100\n      WHEN cb.savings_rate_percent >= 0.20 THEN 80\n      WHEN cb.savings_rate_percent >= 0.15 THEN 60\n      WHEN cb.savings_rate_percent >= 0.10 THEN 40\n      WHEN cb.savings_rate_percent >= 0.05 THEN 25\n      ELSE 10\n    END AS savings_score,\n    CASE coalesce(cnw.wealth_milestone, '')\n      WHEN 'High Net Worth' THEN 100\n      WHEN 'Building Wealth' THEN 80\n      WHEN 'Positive Net Worth' THEN 60\n      WHEN 'Rebuilding Phase' THEN 40\n      WHEN 'Starting Out' THEN 25\n      ELSE 40\n    END AS net_worth_score,\n    CASE coalesce(ccf.cash_flow_status, '')\n      WHEN 'Strong Positive' THEN 100\n      WHEN 'Positive' THEN 80\n      WHEN 'Neutral' THEN 60\n      WHEN 'Negative' THEN 40\n      WHEN 'Critical' THEN 20\n      ELSE 40\n    END AS cash_flow_score\n  FROM current_budget cb\n  LEFT JOIN current_cf ccf ON TRUE\n  LEFT JOIN current_nw cnw ON TRUE\n),\ncombined AS (\n  SELECT\n    ROUND(0.3 * COALESCE(net_worth_score, 0) + 0.3 * COALESCE(savings_score, 0) + 0.4 * COALESCE(cash_flow_score, 0)) AS financial_health,\n    savings_score,\n    net_worth_score,\n    cash_flow_score\n  FROM scores\n)\nSELECT financial_health AS \"Financial Health\",\n       savings_score AS \"Savings Performance\",\n       net_worth_score AS \"Net Worth Progress\",\n       cash_flow_score AS \"Cash Flow Status\"\nFROM combined;",
+          "refId": "A"
+        }
+      ],
+      "title": "Financial Health Scores",
+      "transformations": [],
+      "type": "bargauge"
+    },
+    {
+      "id": 11,
+      "title": "Key Executive KPIs",
+      "type": "table",
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 3,
+        "w": 12,
+        "h": 5
+      },
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "left"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "metric"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Metric"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "current_value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Current ($)"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "previous_value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Previous ($)"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "delta_value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "\u0394 ($)"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "delta_ratio"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "\u0394 Ratio"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nprevious_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n  WHERE month_date < (SELECT month_date FROM selected_period)\n),\ncurrent_budget AS (\n  SELECT net_cash_flow\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\nprevious_budget AS (\n  SELECT net_cash_flow\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM previous_period)\n),\ncurrent_cf AS (\n  SELECT forecasted_next_month_net_flow\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\nprevious_cf AS (\n  SELECT forecasted_next_month_net_flow\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM previous_period)\n)\nSELECT 'Net Cash Flow' AS metric,\n       cb.net_cash_flow AS current_value,\n       COALESCE(pb.net_cash_flow, cb.net_cash_flow) AS previous_value,\n       cb.net_cash_flow - COALESCE(pb.net_cash_flow, 0) AS delta_value,\n       CASE WHEN COALESCE(pb.net_cash_flow, 0) = 0 THEN NULL\n            ELSE (cb.net_cash_flow - COALESCE(pb.net_cash_flow, 0)) / NULLIF(ABS(pb.net_cash_flow), 0)\n       END AS delta_ratio\nFROM current_budget cb LEFT JOIN previous_budget pb ON TRUE\nUNION ALL\nSELECT 'Forecast (Next Month)' AS metric,\n       ccf.forecasted_next_month_net_flow,\n       COALESCE(pcf.forecasted_next_month_net_flow, ccf.forecasted_next_month_net_flow),\n       ccf.forecasted_next_month_net_flow - COALESCE(pcf.forecasted_next_month_net_flow, 0),\n       CASE WHEN COALESCE(pcf.forecasted_next_month_net_flow, 0) = 0 THEN NULL\n            ELSE (ccf.forecasted_next_month_net_flow - COALESCE(pcf.forecasted_next_month_net_flow, 0)) / NULLIF(ABS(pcf.forecasted_next_month_net_flow), 0)\n       END\nFROM current_cf ccf LEFT JOIN previous_cf pcf ON TRUE;",
+          "refId": "A"
+        }
+      ],
+      "description": "Cash-oriented KPIs with raw values; \u0394 Ratio shows change vs the previous month."
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Savings and expense ratios for the selected month. Savings rate values are raw ratios (0\u20131) of net cash flow to income across the monthly, 3\u2011month rolling, and year\u2011to\u2011date views. Expense ratio is total outflows divided by inflows; lower numbers signal tighter expense control.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic-by-name"
+          },
+          "custom": {
+            "displayMode": "basic",
+            "minVizHeight": 10,
+            "minVizWidth": 0,
+            "orientation": "horizontal",
+            "showUnfilled": true,
+            "width": 0.6
+          },
+          "mappings": [],
+          "max": 1,
+          "min": -1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#8B0000",
+                "value": null
+              },
+              {
+                "color": "#CD853F",
+                "value": 0.1
+              },
+              {
+                "color": "#DAA520",
+                "value": 0.2
+              },
+              {
+                "color": "#32CD32",
+                "value": 0.3
+              }
+            ]
+          },
+          "unit": "percentunit",
+          "links": [
+            {
+              "title": "View Savings Analysis Details",
+              "url": "/d/savings_analysis",
+              "targetBlank": true
+            },
+            {
+              "title": "View Expense Performance Details",
+              "url": "/d/expense_performance",
+              "targetBlank": true
+            },
+            {
+              "title": "View Cash Flow Analysis",
+              "url": "/d/cash_flow_analysis",
+              "targetBlank": true
+            }
+          ]
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Savings Rate (Monthly)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FF6B35",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Savings Rate (3M Avg)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#F7931E",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Savings Rate (YTD)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FFD23F",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Expense Ratio (%)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#66BB6A",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "max",
+                "value": 1.5
+              },
+              {
+                "id": "min",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 6
+      },
+      "id": 3,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true,
+        "orientation": "horizontal"
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nprevious_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n  WHERE month_date < (SELECT month_date FROM selected_period)\n),\nrolling AS (\n  SELECT to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date,\n         savings_rate_percent,\n         AVG(savings_rate_percent) OVER (ORDER BY to_date(budget_year_month || '-01', 'YYYY-MM-DD') ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS savings_rate_3m\n  FROM reporting.rpt_monthly_budget_summary\n),\ncurrent_budget AS (\n  SELECT *\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\ncurrent_roll AS (\n  SELECT *\n  FROM rolling\n  WHERE month_date = (SELECT month_date FROM selected_period)\n),\ncurrent_cf AS (\n  SELECT *\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n)\nSELECT 'Savings Rate (Monthly)' AS metric_label, current_budget.savings_rate_percent AS value FROM current_budget\nUNION ALL\nSELECT 'Savings Rate (3M Avg)', COALESCE(current_roll.savings_rate_3m, current_budget.savings_rate_percent) FROM current_budget LEFT JOIN current_roll ON TRUE\nUNION ALL\nSELECT 'Savings Rate (YTD)', CASE WHEN current_budget.ytd_income = 0 THEN 0 ELSE current_budget.ytd_net_cash_flow / current_budget.ytd_income END FROM current_budget\nUNION ALL\nSELECT 'Expense Ratio (%)', current_cf.outflow_to_inflow_ratio FROM current_cf;",
+          "refId": "A"
+        }
+      ],
+      "title": "Savings & Expense Performance",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "metric_label": 0,
+              "value": 1
+            },
+            "renameByName": {}
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "metric_label": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "value": {
+                "aggregations": [
+                  "lastNotNull"
+                ],
+                "operation": "aggregate"
+              }
+            }
+          }
+        }
+      ],
+      "type": "bargauge"
+    },
+    {
+      "id": 102,
+      "title": "Health & Risk KPIs",
+      "type": "table",
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 5
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nprevious_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n  WHERE month_date < (SELECT month_date FROM selected_period)\n),\ncurrent_nw AS (\n  SELECT net_worth_health_score\n  FROM reporting.rpt_household_net_worth\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\nprevious_nw AS (\n  SELECT net_worth_health_score\n  FROM reporting.rpt_household_net_worth\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM previous_period)\n),\ncurrent_alerts AS (\n  SELECT COALESCE(COUNT(*) FILTER (WHERE needs_attention_flag), 0) AS accounts_at_risk\n  FROM reporting.rpt_account_performance\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\nprevious_alerts AS (\n  SELECT COALESCE(COUNT(*) FILTER (WHERE needs_attention_flag), 0) AS accounts_at_risk\n  FROM reporting.rpt_account_performance\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM previous_period)\n)\nSELECT 'Net Worth Health Score' AS metric,\n       cnw.net_worth_health_score AS current_value,\n       COALESCE(pnw.net_worth_health_score, cnw.net_worth_health_score) AS previous_value,\n       cnw.net_worth_health_score - COALESCE(pnw.net_worth_health_score, 0) AS delta_value,\n       CASE WHEN COALESCE(pnw.net_worth_health_score, 0) = 0 THEN NULL\n            ELSE (cnw.net_worth_health_score - COALESCE(pnw.net_worth_health_score, 0)) / NULLIF(ABS(pnw.net_worth_health_score), 0)\n       END AS delta_ratio\nFROM current_nw cnw LEFT JOIN previous_nw pnw ON TRUE\nUNION ALL\nSELECT 'Accounts At Risk' AS metric,\n       ca.accounts_at_risk::double precision,\n       COALESCE(pa.accounts_at_risk, ca.accounts_at_risk)::double precision,\n       (ca.accounts_at_risk - COALESCE(pa.accounts_at_risk, 0))::double precision,\n       CASE WHEN COALESCE(pa.accounts_at_risk, 0) = 0 THEN NULL\n            ELSE (ca.accounts_at_risk - COALESCE(pa.accounts_at_risk, 0))::double precision / NULLIF(ABS(pa.accounts_at_risk)::double precision, 0)\n       END\nFROM current_alerts ca LEFT JOIN previous_alerts pa ON TRUE;",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "left"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "metric"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Metric"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "current_value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Current"
+              },
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "previous_value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Previous"
+              },
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "delta_value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "\u0394"
+              },
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "delta_ratio"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "\u0394 Ratio"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          }
+        ]
+      },
+      "description": "Score and risk KPIs expressed as raw values; \u0394 Ratio captures relative change where applicable."
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Expense Control Score translates your outflow-to-inflow ratio into a 0-100 scale. Scores above 80 mean expenses are \u226490% of income (strong control). 55\u201370 means you\u2019re spending roughly 100\u2013110% of income (monitor closely). A 10 indicates expenses exceed 150% of income\u2014an immediate signal that cash burn is unsustainable.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic-by-name"
+          },
+          "custom": {
+            "displayMode": "basic",
+            "minVizHeight": 10,
+            "minVizWidth": 0,
+            "orientation": "horizontal",
+            "showUnfilled": true,
+            "width": 0.8
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#8B0000",
+                "value": 0
+              },
+              {
+                "color": "#FF4500",
+                "value": 30
+              },
+              {
+                "color": "#FFD700",
+                "value": 60
+              },
+              {
+                "color": "#32CD32",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Expense Control Score"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#EE4B6A",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "id": 12,
+      "title": "Expense Control Score",
+      "type": "bargauge",
+      "gridPos": {
+        "x": 12,
+        "y": 13,
+        "w": 12,
+        "h": 5
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true,
+        "orientation": "horizontal"
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "metric_label": 0,
+              "value": 1
+            },
+            "renameByName": {
+              "metric_label": "Metric",
+              "value": "Value"
+            }
+          }
+        }
+      ],
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nprevious_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n  WHERE month_date < (SELECT month_date FROM selected_period)\n),\ncurrent_cf AS (\n  SELECT outflow_to_inflow_ratio\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n)\nSELECT 'Expense Control Score' AS metric_label,\n       CASE\n         WHEN current_cf.outflow_to_inflow_ratio <= 0.80 THEN 95\n         WHEN current_cf.outflow_to_inflow_ratio <= 0.90 THEN 85\n         WHEN current_cf.outflow_to_inflow_ratio <= 1.00 THEN 70\n         WHEN current_cf.outflow_to_inflow_ratio <= 1.10 THEN 55\n         WHEN current_cf.outflow_to_inflow_ratio <= 1.25 THEN 40\n         WHEN current_cf.outflow_to_inflow_ratio <= 1.50 THEN 25\n         ELSE 10\n       END AS value\nFROM current_cf;",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Key monthly financial figures: Income (total monthly earnings), Expenses (total monthly spending), Net Cash Flow (income minus expenses), Monthly Savings (amount saved), Net Worth (total assets minus debts), Liquid Assets (readily available cash/investments).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#B7950B",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD",
+          "links": [
+            {
+              "title": "View Monthly Budget Summary",
+              "url": "/d/monthly_budget_summary",
+              "targetBlank": true
+            },
+            {
+              "title": "View Cash Flow Analysis",
+              "url": "/d/cash_flow_analysis",
+              "targetBlank": true
+            },
+            {
+              "title": "View Net Worth Details",
+              "url": "/d/household_net_worth",
+              "targetBlank": true
+            }
+          ]
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "monthly_income"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Monthly Income"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#32CD32",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "monthly_expenses"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Monthly Expenses"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#DC143C",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "monthly_net_cash_flow"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Net Cash Flow"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#8B0000",
+                      "value": null
+                    },
+                    {
+                      "color": "#FFD700",
+                      "value": -1000
+                    },
+                    {
+                      "color": "#32CD32",
+                      "value": 0
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "monthly_total_savings"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Monthly Savings"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#4169E1",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "current_net_worth"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Net Worth"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#8B0000",
+                      "value": null
+                    },
+                    {
+                      "color": "#FFD700",
+                      "value": -100000
+                    },
+                    {
+                      "color": "#32CD32",
+                      "value": 0
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "liquid_assets"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Liquid Assets"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00CED1",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 14,
+        "w": 12,
+        "h": 7
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nprevious_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n  WHERE month_date < (SELECT month_date FROM selected_period)\n),\ncurrent_budget AS (\n  SELECT *, to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\ncurrent_nw AS (\n  SELECT *, to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_household_net_worth\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n)\nSELECT\n  ROUND(cb.total_income, 2) AS monthly_income,\n  ROUND(cb.total_expenses, 2) AS monthly_expenses,\n  ROUND(cb.net_cash_flow, 2) AS monthly_net_cash_flow,\n  ROUND(cb.total_income - cb.total_expenses, 2) AS monthly_total_savings,\n  ROUND(cnw.net_worth, 2) AS current_net_worth,\n  ROUND(cnw.liquid_assets, 2) AS liquid_assets\nFROM current_budget cb\nLEFT JOIN current_nw cnw ON TRUE;",
+          "refId": "A"
+        }
+      ],
+      "title": "Monthly Financial Snapshot",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Monthly net cash flow, 3-month rolling average, and next-month forecast through the selected period.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#8B0000",
+                "value": null
+              },
+              {
+                "color": "#FFD700",
+                "value": -5000
+              },
+              {
+                "color": "#32CD32",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "currencyUSD",
+          "links": [
+            {
+              "title": "View Cash Flow Analysis",
+              "url": "/d/cash_flow_analysis",
+              "targetBlank": true
+            },
+            {
+              "title": "View Monthly Budget Summary",
+              "url": "/d/monthly_budget_summary",
+              "targetBlank": true
+            }
+          ],
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "spanNulls": true
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Net Cash Flow"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#32CD32",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "3-Month Avg"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#4169E1",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Forecast Next Month"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FF6347",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 18,
+        "w": 12,
+        "h": 7
+      },
+      "id": 9,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        },
+        "showPoints": "never"
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nprevious_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n  WHERE month_date < (SELECT month_date FROM selected_period)\n),\ncash_history AS (\n  SELECT to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date,\n         net_cash_flow\n  FROM reporting.rpt_monthly_budget_summary\n),\ncash_with_avg AS (\n  SELECT month_date,\n         net_cash_flow,\n         AVG(net_cash_flow) OVER (ORDER BY month_date ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS avg_3m\n  FROM cash_history\n),\nforecast_history AS (\n  SELECT to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date,\n         forecasted_next_month_net_flow\n  FROM reporting.rpt_cash_flow_analysis\n),\nwindowed AS (\n  SELECT c.month_date,\n         c.net_cash_flow,\n         c.avg_3m,\n         f.forecasted_next_month_net_flow,\n         ROW_NUMBER() OVER (ORDER BY c.month_date DESC) AS rn\n  FROM cash_with_avg c\n  LEFT JOIN forecast_history f ON f.month_date = c.month_date\n  WHERE c.month_date <= (SELECT month_date FROM selected_period)\n)\nSELECT month_date AS \"time\",\n       net_cash_flow AS \"Net Cash Flow\",\n       avg_3m AS \"3-Month Avg\",\n       forecasted_next_month_net_flow AS \"Forecast Next Month\"\nFROM windowed\nWHERE rn <= 12\nORDER BY month_date;",
+          "refId": "A"
+        }
+      ],
+      "title": "Cash Flow Trend (12 Months)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Breakdown of your financial position: Total Assets (all owned assets), Total Liabilities (all debts), Net Worth (assets minus liabilities), Debt-to-Asset Ratio (debt percentage - lower is better).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#B7950B",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD",
+          "links": [
+            {
+              "title": "View Net Worth Details",
+              "url": "/d/household_net_worth",
+              "targetBlank": true
+            },
+            {
+              "title": "View Account Performance",
+              "url": "/d/account_performance_dashboard",
+              "targetBlank": true
+            }
+          ]
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_assets"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total Assets"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#32CD32",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_liabilities"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total Liabilities"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#DC143C",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "current_net_worth"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Net Worth"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#8B0000",
+                      "value": null
+                    },
+                    {
+                      "color": "#FFD700",
+                      "value": -100000
+                    },
+                    {
+                      "color": "#32CD32",
+                      "value": 0
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "debt_to_asset_ratio_percent"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Debt-to-Asset Ratio"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#32CD32",
+                      "value": null
+                    },
+                    {
+                      "color": "#FFD700",
+                      "value": 30
+                    },
+                    {
+                      "color": "#FF4500",
+                      "value": 50
+                    },
+                    {
+                      "color": "#8B0000",
+                      "value": 80
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 21,
+        "w": 12,
+        "h": 7
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nprevious_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n  WHERE month_date < (SELECT month_date FROM selected_period)\n),\ncurrent_nw AS (\n  SELECT *, to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_household_net_worth\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n)\nSELECT\n  ROUND(total_assets, 2) AS total_assets,\n  ROUND(total_liabilities, 2) AS total_liabilities,\n  ROUND(net_worth, 2) AS current_net_worth,\n  ROUND(debt_to_asset_ratio * 100, 1) AS debt_to_asset_ratio_percent\nFROM current_nw;",
+          "refId": "A"
+        }
+      ],
+      "title": "Asset & Liability Snapshot",
+      "type": "stat"
+    },
+    {
+      "id": 13,
+      "title": "Month-over-Month Cash Changes",
+      "type": "table",
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 25,
+        "w": 12,
+        "h": 6
+      },
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "left"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "current_value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Current ($)"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "previous_value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Previous ($)"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "delta_value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "\u0394 ($)"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "delta_ratio"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "\u0394 Ratio"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "metric"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Metric"
+              }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nprevious_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n  WHERE month_date < (SELECT month_date FROM selected_period)\n),\ncurrent_budget AS (\n  SELECT *, to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\nprevious_budget AS (\n  SELECT *, to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM previous_period)\n),\ncurrent_nw AS (\n  SELECT *, to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_household_net_worth\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\nprevious_nw AS (\n  SELECT *, to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_household_net_worth\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM previous_period)\n)\nSELECT 'Net Cash Flow' AS metric,\n       cb.net_cash_flow AS current_value,\n       COALESCE(pb.net_cash_flow, cb.net_cash_flow) AS previous_value,\n       cb.net_cash_flow - COALESCE(pb.net_cash_flow, 0) AS delta_value,\n       CASE WHEN COALESCE(pb.net_cash_flow, 0) = 0 THEN NULL\n            ELSE (cb.net_cash_flow - COALESCE(pb.net_cash_flow, 0)) / NULLIF(ABS(pb.net_cash_flow), 0)\n       END AS delta_ratio\nFROM current_budget cb LEFT JOIN previous_budget pb ON TRUE\nUNION ALL\nSELECT 'Net Worth',\n       cnw.net_worth,\n       COALESCE(pnw.net_worth, cnw.net_worth),\n       cnw.net_worth - COALESCE(pnw.net_worth, 0),\n       CASE WHEN COALESCE(pnw.net_worth, 0) = 0 THEN NULL\n            ELSE (cnw.net_worth - COALESCE(pnw.net_worth, 0)) / NULLIF(ABS(pnw.net_worth), 0)\n       END\nFROM current_nw cnw LEFT JOIN previous_nw pnw ON TRUE\nUNION ALL\nSELECT 'Liquid Assets',\n       cnw.liquid_assets,\n       COALESCE(pnw.liquid_assets, cnw.liquid_assets),\n       cnw.liquid_assets - COALESCE(pnw.liquid_assets, 0),\n       CASE WHEN COALESCE(pnw.liquid_assets, 0) = 0 THEN NULL\n            ELSE (cnw.liquid_assets - COALESCE(pnw.liquid_assets, 0)) / NULLIF(ABS(pnw.liquid_assets), 0)\n       END\nFROM current_nw cnw LEFT JOIN previous_nw pnw ON TRUE;",
+          "refId": "A"
+        }
+      ],
+      "description": "Cash-based month-over-month changes for the selected period. \u0394 Ratio shows the percent change relative to the previous month when available."
+    },
+    {
+      "id": 101,
+      "title": "Month-over-Month Rate Changes",
+      "type": "table",
+      "gridPos": {
+        "x": 12,
+        "y": 31,
+        "w": 12,
+        "h": 5
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nprevious_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n  WHERE month_date < (SELECT month_date FROM selected_period)\n),\ncurrent_budget AS (\n  SELECT *, to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\nprevious_budget AS (\n  SELECT *, to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM previous_period)\n),\ncurrent_cf AS (\n  SELECT *, to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\nprevious_cf AS (\n  SELECT *, to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM previous_period)\n)\nSELECT 'Savings Rate' AS metric,\n       cb.savings_rate_percent AS current_value,\n       COALESCE(pb.savings_rate_percent, cb.savings_rate_percent) AS previous_value,\n       cb.savings_rate_percent - COALESCE(pb.savings_rate_percent, 0) AS delta_value\nFROM current_budget cb LEFT JOIN previous_budget pb ON TRUE\nUNION ALL\nSELECT 'Expense Ratio' AS metric,\n       ccf.outflow_to_inflow_ratio,\n       COALESCE(pcf.outflow_to_inflow_ratio, ccf.outflow_to_inflow_ratio),\n       ccf.outflow_to_inflow_ratio - COALESCE(pcf.outflow_to_inflow_ratio, 0)\nFROM current_cf ccf LEFT JOIN previous_cf pcf ON TRUE;",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "left"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "metric"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Metric"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "current_value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Current"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "previous_value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Previous"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "delta_value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "\u0394"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          }
+        ]
+      },
+      "description": "Rate metrics expressed as raw ratios (0-1). Grafana formatting applies the percent view."
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "AI-generated recommendations and action items",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#B7950B",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 36,
+        "w": 24,
+        "h": 6
+      },
+      "id": 7,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nprevious_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n  WHERE month_date < (SELECT month_date FROM selected_period)\n),\nexec_view AS (\n  SELECT *\n  FROM reporting.rpt_executive_dashboard\n  WHERE dashboard_month = (SELECT month_key FROM selected_key)\n)\nSELECT COALESCE(ev.priority_recommendation, 'No recommendation available for this period.') AS \"Priority Recommendation\",\n       COALESCE(ev.accounts_with_issues, 'None flagged') AS \"Accounts Needing Attention\"\nFROM exec_view ev\nUNION ALL\nSELECT 'No recommendation available for this period.' AS \"Priority Recommendation\", 'None flagged' AS \"Accounts Needing Attention\"\nWHERE NOT EXISTS (SELECT 1 FROM exec_view);",
+          "refId": "A"
+        }
+      ],
+      "title": "AI Financial Insights",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Additional performance indicators: Current Savings Tier (performance category), Net Worth Health Score (0-100), Accounts Needing Attention (count of problematic accounts), Cash Flow Status (current trend assessment).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "left"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#1E90FF",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 42,
+        "w": 24,
+        "h": 6
+      },
+      "id": 10,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nprevious_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n  WHERE month_date < (SELECT month_date FROM selected_period)\n),\ncurrent_budget AS (\n  SELECT *, to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\ncurrent_cf AS (\n  SELECT *, to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\ncurrent_nw AS (\n  SELECT *, to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_household_net_worth\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\naccount_alerts AS (\n  SELECT COALESCE(COUNT(*) FILTER (WHERE needs_attention_flag), 0) AS accounts_needing_attention\n  FROM reporting.rpt_account_performance\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\nexec_view AS (\n  SELECT *\n  FROM reporting.rpt_executive_dashboard\n  WHERE dashboard_month = (SELECT month_key FROM selected_key)\n)\nSELECT 'Overall Rating' AS metric, COALESCE(ev.overall_financial_health_rating, 'n/a') AS status, 'Composite of savings, cash flow, and net worth signals.' AS detail\nFROM exec_view ev\nUNION ALL\nSELECT 'Savings Tier', COALESCE(ev.current_savings_tier, 'n/a'), 'Benchmark category for latest savings rate.'\nFROM exec_view ev\nUNION ALL\nSELECT 'Cash Flow Status', COALESCE(ccf.cash_flow_status, 'n/a'), 'Health of current month cash flow vs historical pattern.'\nFROM current_cf ccf\nUNION ALL\nSELECT 'Net Worth Phase', COALESCE(cnw.wealth_milestone, 'n/a'), 'Stage of wealth-building progress based on assets and liabilities.'\nFROM current_nw cnw\nUNION ALL\nSELECT 'Accounts Requiring Attention', COALESCE(CAST(aa.accounts_needing_attention AS TEXT), '0'), 'Number of accounts flagged for manual review.'\nFROM account_alerts aa;",
+          "refId": "A"
+        }
+      ],
+      "title": "Status Highlights",
+      "transformations": [],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "text"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 48,
+        "w": 24,
+        "h": 5
+      },
+      "id": 100,
+      "options": {
+        "content": "### How to Read\n- Use the month selector to compare any historical period; \"Latest\" always reflects the newest closed month.\n- Rates are returned as true ratios (0\u20131); keep formatting adjustments in Grafana rather than multiplying by 100 in SQL.\n- Start with low scores or large negative deltas, then drill into linked dashboards for root-cause detail.\n- Forecasts are forward-looking cash expectations; plan around the trajectory, not a single month.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.0.0",
+      "title": "How to Read This Dashboard",
+      "type": "text"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": [
+    "executive",
+    "overview",
+    "personal-finance",
+    "dashboard"
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "dashboard_period",
+        "label": "Month",
+        "type": "query",
+        "hide": 0,
+        "datasource": {
+          "type": "postgres",
+          "uid": "PCC52D03280B7034C"
+        },
+        "definition": "SELECT month_key FROM (\n  SELECT 'Latest' AS month_key, 0 AS sort_order\n  UNION ALL\n  SELECT DISTINCT budget_year_month AS month_key, 1 AS sort_order\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n) ordered\nORDER BY sort_order, month_key DESC;",
+        "query": "SELECT month_key FROM (\n  SELECT 'Latest' AS month_key, 0 AS sort_order\n  UNION ALL\n  SELECT DISTINCT budget_year_month AS month_key, 1 AS sort_order\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n) ordered\nORDER BY sort_order, month_key DESC;",
+        "refresh": 1,
+        "sort": 1,
+        "current": {
+          "text": "Latest",
+          "value": "Latest",
+          "selected": true
+        },
+        "options": [],
+        "includeAll": false,
+        "multi": false,
+        "regex": "",
+        "skipUrlSync": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1y",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Executive Financial Overview (Most Recent Complete Month)",
+  "uid": "executive_dashboard",
+  "version": 2,
+  "weekStart": ""
+}

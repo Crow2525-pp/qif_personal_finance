@@ -14,7 +14,6 @@ services:
       - "3000"
       - --workspace
       - "${DAGSTER_HOME}/workspace.yaml"
-    container_name: dagster_webserver
     expose:
       - "3000"
     ports:
@@ -57,7 +56,6 @@ services:
     #   - "4000"
     # ports:
     #   - "4000:4000"
-    container_name: dagster_daemon
     restart: on-failure
     environment:
       DAGSTER_POSTGRES_HOST: ${DAGSTER_POSTGRES_HOST}
@@ -80,13 +78,15 @@ services:
       - .env
 
   pipeline_personal_finance:
-    container_name: pipeline_personal_finance
     build:
       context: .
       dockerfile: pipeline_personal_finance/dockerfile
       args:
         - DAGSTER_APP=${DAGSTER_APP}
     image: pipeline_personal_finance
+    command: ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "pipeline_personal_finance"]
+    expose:
+      - "4000"
     environment:
       TIMEZONE: Australia/Melbourne
       DAGSTER_CURRENT_IMAGE: pipeline_personal_finance
@@ -100,6 +100,7 @@ services:
       DAGSTER_DEPLOYMENT: ${DAGSTER_DEPLOYMENT}
     volumes:
       - /tmp/dagster-data:/tmp/dagster-data
+      - ./pipeline_personal_finance/qif_files:/opt/dagster/app/pipeline_personal_finance/qif_files
     networks:
       - dagster_network
     # ports:
@@ -130,7 +131,6 @@ services:
       dockerfile: dockerfile
     shm_size: 128mb
     restart: on-failure
-    container_name: dagster_postgres
     environment:
       POSTGRES_USER: ${DAGSTER_POSTGRES_USER}
       POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD}
@@ -147,7 +147,28 @@ services:
     env_file:
       - .env
 
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GRAFANA_PASSWORD=${GRAFANA_PASSWORD}
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana_dashboards_json:/var/lib/grafana/dashboards
+    networks:
+      - dagster_network
+    depends_on:
+      - dagster_postgres
+    env_file:
+      - .env
+
+volumes:
+  grafana-storage:
+
 networks:
   dagster_network:
     driver: bridge
-    name: dagster_network

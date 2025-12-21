@@ -1,54 +1,120 @@
-# seeds/seeds.yml
-
 version: 2
 
 seeds:
   - name: known_values
-    description: "Contains known account balances and dates for balance adjustments."
+    description: Contains known account balances and dates for balance adjustments.
     docs:
       show: true
-      node_color: "#34d399" # A shade of green
-    # config:
-    #   deliminter: "," 
-    # +quote_columns: false
-    # +column_types:
-    #   account_name: varchar(50)
-    #   specific_date: date
-    #   account_balance: float
-
+      node_color: "#34d399"
     columns:
-    - name: "account_name"
-      description: "The name of the account."
-      tests:
-        - unique
-        - not_null
-    - name: specific_date
-      description: "The specific date for the known balance."
-      tests:
-        - not_null
-    - name: account_balance
-      description: "The known balance of the account on the specific date."
-      tests:
-        - not_null
+      - name: account_name
+        description: The name of the account.
+        tests:
+          - unique
+          - not_null
+      - name: specific_date
+        description: The specific date for the known balance.
+        tests:
+          - not_null
+      - name: account_balance
+        description: The known balance of the account on the specific date.
+        tests:
+          - not_null
+      - name: is_asset
+        description: True if the account represents an asset (e.g., checking, savings, offset).
+      - name: is_liquid_asset
+        description: True if the asset is liquid and readily accessible.
+      - name: is_loan
+        description: True if the account is a liability/loan account.
+      - name: is_homeloan
+        description: True if the loan is specifically a home loan / mortgage.
+      - name: is_debt
+        description: True if the account is a debt (usually synonymous with loan).
 
   - name: banking_categories
-    description: "list of transaction descriptions and their categories.  Nulls are wildcards in their searches."
+    description: list of transaction descriptions and their categories. Nulls are wildcards in their searches.
     docs:
       show: true
-      node_color: "#34d399" # A shade of green
+      node_color: "#34d399"
     columns:
       - name: transaction_description
-        description: "Describes the nature of the transaction.  If null then wildcard."
+        description: Describes the nature of the transaction. If null then wildcard.
       - name: transaction_type
-        description: "Categorizes the transaction by type, such as 'credit', 'debit', etc.  If null then wildcard."
+        description: Categorizes the transaction by type, such as credit, debit, etc. If null then wildcard.
       - name: sender
-        description: "Indicates the recipient or destination account of the transaction.  If null then wildcard."
+        description: Indicates the recipient or destination account of the transaction. If null then wildcard.
       - name: account_name
-        description: "Identifies the account from which the transaction originated. "
+        description: Identifies the account from which the transaction originated.
         tests:
           - not_null
       - name: category
-        description: "General classification of the transaction, such as 'rent', 'salary', 'utilities', etc."
+        description: General classification of the transaction, such as rent, salary, utilities, etc.
       - name: subcategory
-        description: "More specific classification within a broader category, such as 'electricity' within 'utilities'."
+        description: More specific classification within a broader category, such as electricity within utilities.
 
+  - name: categories_allowed
+    description: Display-allowed level_1 categories and their order for viz.
+    docs:
+      show: true
+      node_color: "#3b82f6"
+    columns:
+      - name: category
+        description: Canonical Level 1 category name.
+        tests:
+          - not_null
+          - unique
+      - name: display_order
+        description: Order in which to display categories.
+        tests:
+          - not_null
+
+  - name: property_assets
+    description: Seed data for property/real estate assets with purchase info and appreciation rates.
+    docs:
+      show: true
+      node_color: "#10b981"
+    columns:
+      - name: asset_id
+        description: Unique identifier for the asset (e.g., ppor)
+        tests: [not_null, unique]
+      - name: asset_name
+        description: Short name to use as account_name in reporting (e.g., PPOR_Property)
+        tests: [not_null]
+      - name: display_name
+        description: Human-readable display name
+      - name: asset_type
+        description: Asset type such as Property
+      - name: purchase_date
+        description: Date the asset was purchased (YYYY-MM-DD)
+        tests: [not_null]
+      - name: purchase_price
+        description: Purchase price in currency units
+        tests: [not_null]
+      - name: appreciation_rate_low
+        description: Lower bound annual appreciation rate (e.g., 0.04)
+      - name: appreciation_rate_high
+        description: Upper bound annual appreciation rate (e.g., 0.07)
+      - name: currency_code
+        description: Currency code (e.g., AUD)
+      - name: notes
+        description: Freeform notes about the asset
+
+  - name: property_valuation_overrides
+    description: Optional overrides for property market values by date; latest on/after month is used.
+    docs:
+      show: true
+      node_color: "#10b981"
+    columns:
+      - name: asset_id
+        description: Links to property_assets.asset_id
+        tests: [not_null]
+      - name: valuation_date
+        description: Date of the valuation (YYYY-MM-DD)
+        tests: [not_null]
+      - name: market_value
+        description: Valuation amount in currency units
+        tests: [not_null]
+      - name: currency_code
+        description: Currency code (e.g., AUD)
+      - name: notes
+        description: Freeform notes

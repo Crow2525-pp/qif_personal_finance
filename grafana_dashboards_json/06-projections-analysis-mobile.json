@@ -1,0 +1,642 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "text",
+        "uid": "-- Text --"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "options": {
+        "content": "# \ud83d\udd2e Projections & Analysis\n\nFinancial forecasts, year-over-year comparisons, and analytical insights in mobile-friendly format.",
+        "mode": "markdown"
+      },
+      "title": "Dashboard Guide",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 30,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Full-time Net Flow"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Part-time Net Flow"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 2
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT \n    projection_date as time,\n    CASE \n        WHEN scenario = 'full_time' THEN projected_net_flow \n        ELSE NULL \n    END as \"Full-time Net Flow\",\n    CASE \n        WHEN scenario = 'part_time' THEN projected_net_flow \n        ELSE NULL \n    END as \"Part-time Net Flow\"\nFROM reporting.fct_financial_projections\nWHERE projection_date >= CURRENT_DATE\nORDER BY projection_date\nLIMIT 12;",
+          "refId": "A"
+        }
+      ],
+      "title": "12-Month Financial Projections: Full-time vs Part-time Scenarios",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "align": "center",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Savings Rate"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "id": 2,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n    CASE \n        WHEN scenario = 'full_time' THEN 'Full-time Scenario'\n        WHEN scenario = 'part_time' THEN 'Part-time Scenario'\n        ELSE 'Other Scenario'\n    END as \"Scenario\",\n    AVG(total_projected_income) as \"Avg Monthly Income\",\n    AVG(projected_net_flow) as \"Avg Net Flow\",\n    AVG(projected_savings_rate) as \"Avg Savings Rate\"\nFROM reporting.fct_financial_projections\nWHERE projection_date >= CURRENT_DATE\nAND projection_date <= CURRENT_DATE + INTERVAL '12 months'\nGROUP BY scenario\nORDER BY scenario DESC;",
+          "refId": "A"
+        }
+      ],
+      "title": "12-Month Average Projections by Scenario",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "red",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH full_time_income AS (\n    SELECT projection_date, total_projected_income as full_income\n    FROM reporting.fct_financial_projections WHERE scenario = 'full_time'\n    AND projection_date >= CURRENT_DATE\n    AND projection_date <= CURRENT_DATE + INTERVAL '12 months'\n),\npart_time_income AS (\n    SELECT projection_date, total_projected_income as part_income\n    FROM reporting.fct_financial_projections WHERE scenario = 'part_time'\n    AND projection_date >= CURRENT_DATE\n    AND projection_date <= CURRENT_DATE + INTERVAL '12 months'\n)\nSELECT \n    COALESCE(SUM(ft.full_income - pt.part_income), 0) as \"Part-time Opportunity Cost (12 Months)\"\nFROM full_time_income ft\nFULL OUTER JOIN part_time_income pt ON ft.projection_date = pt.projection_date;",
+          "refId": "A"
+        }
+      ],
+      "title": "12-Month Part-time Opportunity Cost",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Current Year"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Previous Year"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "WITH current_year_data AS (\n    SELECT \n        TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n        total_savings_rate_percent as \"Current Year\"\n    FROM reporting.rpt_savings_analysis\n    WHERE SUBSTRING(budget_year_month, 1, 4) = TO_CHAR(CURRENT_DATE, 'YYYY')\n),\nprevious_year_data AS (\n    SELECT \n        TO_TIMESTAMP((TO_CHAR(TO_DATE(budget_year_month, 'YYYY-MM') + INTERVAL '1 year', 'YYYY-MM') || '-01'), 'YYYY-MM-DD')::date as time,\n        total_savings_rate_percent as \"Previous Year\"\n    FROM reporting.rpt_savings_analysis\n    WHERE SUBSTRING(budget_year_month, 1, 4) = TO_CHAR(CURRENT_DATE - INTERVAL '1 year', 'YYYY')\n)\nSELECT \n    COALESCE(cy.time, py.time) as time,\n    cy.\"Current Year\",\n    py.\"Previous Year\"\nFROM current_year_data cy\nFULL OUTER JOIN previous_year_data py ON cy.time = py.time\nORDER BY time;",
+          "refId": "A"
+        }
+      ],
+      "title": "Year-over-Year Savings Rate Comparison",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "align": "center",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "YoY Change %"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": -0.05
+                    },
+                    {
+                      "color": "green",
+                      "value": 0.05
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "id": 5,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n    'Total Income' as \"Financial Metric\",\n    annual_income as \"Current YTD\",\n    prev_year_income as \"Previous YTD\",\n    yoy_income_change_percent as \"YoY Change %\"\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year = EXTRACT(YEAR FROM CURRENT_DATE)\nUNION ALL\nSELECT \n    'Total Expenses',\n    annual_expenses,\n    prev_year_expenses,\n    yoy_expense_change_percent\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year = EXTRACT(YEAR FROM CURRENT_DATE)\nUNION ALL\nSELECT \n    'Net Cash Flow',\n    annual_net_cash_flow,\n    prev_year_income - prev_year_expenses,\n    CASE WHEN (prev_year_income - prev_year_expenses) != 0 THEN \n        (annual_net_cash_flow - (prev_year_income - prev_year_expenses)) / ABS(prev_year_income - prev_year_expenses)\n        ELSE NULL END\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year = EXTRACT(YEAR FROM CURRENT_DATE)\nUNION ALL\nSELECT \n    'Avg Savings Rate',\n    avg_savings_rate_percent,\n    prev_year_savings_rate,\n    yoy_savings_rate_change\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year = EXTRACT(YEAR FROM CURRENT_DATE);",
+          "refId": "A"
+        }
+      ],
+      "title": "Year-to-Date Performance vs Previous Year (Same Period)",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 42
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT \n    TO_TIMESTAMP(comparison_year || '-12-31', 'YYYY-MM-DD')::date as time,\n    annual_income as \"Annual Income\",\n    annual_expenses as \"Annual Expenses\",\n    annual_net_cash_flow as \"Annual Net Flow\"\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year >= EXTRACT(YEAR FROM CURRENT_DATE) - 4\nORDER BY comparison_year;",
+          "refId": "A"
+        }
+      ],
+      "title": "4-Year Annual Financial Comparison",
+      "type": "timeseries"
+    }
+  ],
+  "schemaVersion": 38,
+  "tags": [
+    "mobile",
+    "projections",
+    "analysis"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-4y",
+    "to": "now+1y"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "\ud83d\udd2e Projections & Analysis",
+  "uid": "projections-analysis-mobile",
+  "version": 1,
+  "weekStart": ""
+}

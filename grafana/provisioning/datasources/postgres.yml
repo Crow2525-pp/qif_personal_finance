@@ -1,0 +1,22 @@
+apiVersion: 1
+
+datasources:
+  - name: PostgreSQL
+    type: postgres
+    uid: PCC52D03280B7034C
+    url: dagster_postgres:5432
+    database: personal_finance
+    user: grafanareader
+    secureJsonData:
+      password: ${GRAFANA_PASSWORD}
+    jsonData:
+      sslmode: disable
+      maxOpenConns: 100
+      maxIdleConns: 100
+      maxIdleConnsAuto: true
+      connMaxLifetime: 14400
+      postgresVersion: 1200
+      timescaledb: false
+      searchPath: "reporting,staging,landing,public"
+    isDefault: true
+    editable: true

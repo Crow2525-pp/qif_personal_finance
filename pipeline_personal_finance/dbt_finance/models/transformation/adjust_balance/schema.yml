@@ -1,7 +1,7 @@
 version: 2
 models:
-  - name: transformation__Adel_Homeloan_adjst_bal
-    description: adjusts the balance based on known values provided in the seed tables.
+  - name: int_adel_homeloan_adjst_bal
+    description: Adjusts the balance based on known values provided in the seed tables.
     columns:
       - name: receipt
         data_type: text
@@ -15,7 +15,7 @@ models:
         data_type: text
       - name: recipient
         data_type: text
-      - name: amount
+      - name: transaction_amount
         data_type: double precision
       - name: line_number
         data_type: bigint
@@ -26,7 +26,7 @@ models:
           - not_null
       - name: account_name
         data_type: text
-      - name: date
+      - name: transaction_date
         data_type: date
       - name: memo
         data_type: text
@@ -34,23 +34,23 @@ models:
         data_type: text
       - name: transaction_type
         data_type: text
-      - name: current_date
+      - name: etl_date
         data_type: date
-      - name: current_time
+      - name: etl_time
         data_type: time with time zone
-      - name: balance
+      - name: transaction_balance
         data_type: numeric
-      - name: adjusted_balance
+      - name: adjusted_transaction_balance
         data_type: numeric
         tests:
           - accepted_values:
-              values: [-564089.65]
+              values: [ -564089.65 ]
               config:
-                where: "date = '2023-06-24' and account_name = 'Adelaide_Homeloan'"
+                where: "transaction_date = '2023-06-24' and account_name = 'Adelaide_Homeloan'"
 
-  - name: transformation__Adel_Offset_adjst_bal
+  - name: int_adel_offset_adjst_bal
     columns:
-      - name: date
+      - name: transaction_date
         data_type: date
       - name: memo
         data_type: text
@@ -70,7 +70,7 @@ models:
         data_type: text
       - name: transaction_type
         data_type: text
-      - name: amount
+      - name: transaction_amount
         data_type: double precision
       - name: line_number
         data_type: bigint
@@ -79,71 +79,25 @@ models:
         tests:
           - unique
           - not_null
-      - name: current_date
+      - name: etl_date
         data_type: date
-      - name: current_time
+      - name: etl_time
         data_type: time with time zone
       - name: account_name
         data_type: text
-      - name: balance
+      - name: transaction_balance
         data_type: numeric
-      - name: adjusted_balance
-        data_type: numeric
-        tests:
-          - accepted_values:
-              values: [106130.73]
-              config:
-                where: "date = '2023-06-19' and account_name = 'Adelaide_Offset'"
-  - name: transformation__Ben_Homeloan_adjst_bal
-    columns:
-      - name: date
-        data_type: date
-      - name: memo
-        data_type: text
-      - name: receipt
-        data_type: text
-      - name: location
-        data_type: text
-      - name: description_date
-        data_type: text
-      - name: card_no
-        data_type: text
-      - name: sender
-        data_type: text
-      - name: recipient
-        data_type: text
-      - name: transaction_description
-        data_type: text
-      - name: transaction_type
-        data_type: text
-      - name: amount
-        data_type: double precision
-      - name: line_number
-        data_type: bigint
-      - name: primary_key
-        data_type: bigint
-        tests:
-          - unique
-          - not_null
-      - name: current_date
-        data_type: date
-      - name: current_time
-        data_type: time with time zone
-      - name: account_name
-        data_type: text
-      - name: balance
-        data_type: numeric
-      - name: adjusted_balance
+      - name: adjusted_transaction_balance
         data_type: numeric
         tests:
           - accepted_values:
-              values: [0]
+              values: [ 106130.73 ]
               config:
-                where: "date = '2024-03-15' and account_name = 'Bendigo_Bank_Homeloan'"
+                where: "transaction_date = '2023-06-19' and account_name = 'Adelaide_Offset'"
 
-  - name: transformation__Ben_Offset_adjst_bal
+  - name: int_ben_homeloan_adjst_bal
     columns:
-      - name: date
+      - name: transaction_date
         data_type: date
       - name: memo
         data_type: text
@@ -163,7 +117,7 @@ models:
         data_type: text
       - name: transaction_type
         data_type: text
-      - name: amount
+      - name: transaction_amount
         data_type: double precision
       - name: line_number
         data_type: bigint
@@ -172,25 +126,72 @@ models:
         tests:
           - unique
           - not_null
-      - name: current_date
+      - name: etl_date
         data_type: date
-      - name: current_time
+      - name: etl_time
         data_type: time with time zone
       - name: account_name
         data_type: text
-      - name: balance
+      - name: transaction_balance
         data_type: numeric
-      - name: adjusted_balance
+      - name: adjusted_transaction_balance
         data_type: numeric
         tests:
           - accepted_values:
-              values: [0]
+              values: [ 0 ]
               config:
-                where: "date = '2024-01-04' and account_name = 'Bendigo_Bank_Offset'"
+                where: "transaction_date = '2024-03-15' and account_name = 'Bendigo_Bank_Homeloan'"
 
-  - name: transformation__ING_bills_adjst_bal
+  - name: int_ben_offset_adjst_bal
     columns:
-      - name: date
+      - name: transaction_date
+        data_type: date
+      - name: memo
+        data_type: text
+      - name: receipt
+        data_type: text
+      - name: location
+        data_type: text
+      - name: description_date
+        data_type: text
+      - name: card_no
+        data_type: text
+      - name: sender
+        data_type: text
+      - name: recipient
+        data_type: text
+      - name: transaction_description
+        data_type: text
+      - name: transaction_type
+        data_type: text
+      - name: transaction_amount
+        data_type: double precision
+      - name: line_number
+        data_type: bigint
+      - name: primary_key
+        data_type: bigint
+        tests:
+          - unique
+          - not_null
+      - name: etl_date
+        data_type: date
+      - name: etl_time
+        data_type: time with time zone
+      - name: account_name
+        data_type: text
+      - name: transaction_balance
+        data_type: numeric
+      - name: adjusted_transaction_balance
+        data_type: numeric
+        tests:
+          - accepted_values:
+              values: [ 0 ]
+              config:
+                where: "transaction_date = '2024-01-04' and account_name = 'Bendigo_Bank_Offset'"
+
+  - name: int_ing_bills_adjst_bal
+    columns:
+      - name: transaction_date
         data_type: date
       - name: transaction_description
         data_type: text
@@ -210,7 +211,7 @@ models:
         data_type: text
       - name: recipient
         data_type: text
-      - name: amount
+      - name: transaction_amount
         data_type: double precision
       - name: line_number
         data_type: bigint
@@ -219,64 +220,18 @@ models:
         tests:
           - unique
           - not_null
-      - name: current_date
+      - name: etl_date
         data_type: date
-      - name: current_time
+      - name: etl_time
         data_type: time with time zone
       - name: account_name
         data_type: text
-      - name: balance
+      - name: transaction_balance
         data_type: numeric
-      - name: adjusted_balance
-        data_type: numeric
-        tests:
-          - accepted_values:
-              values: [1071.94]
-              config:
-                where: "date = '2023-10-21' and account_name = 'ING_billsbillsbills'"
-  - name: transformation__ING_countdown_adjst_bal
-    columns:
-      - name: receipt
-        data_type: text
-      - name: description_date
-        data_type: text
-      - name: amount
-        data_type: double precision
-      - name: line_number
-        data_type: bigint
-      - name: primary_key
-        data_type: bigint
-        tests:
-          - unique
-          - not_null
-      - name: account_name
-        data_type: text
-      - name: date
-        data_type: date
-      - name: transaction_description
-        data_type: text
-      - name: transaction_type
-        data_type: text
-      - name: memo
-        data_type: text
-      - name: location
-        data_type: text
-      - name: card_no
-        data_type: text
-      - name: sender
-        data_type: text
-      - name: recipient
-        data_type: text
-      - name: current_date
-        data_type: date
-      - name: current_time
-        data_type: time with time zone
-      - name: balance
-        data_type: numeric
-      - name: adjusted_balance
+      - name: adjusted_transaction_balance
         data_type: numeric
         tests:
           - accepted_values:
-              values: [1772.88]
+              values: [ 1071.94 ]
               config:
-                where: "date = '2023-09-06' and account_name = 'ING_countdown'"
+                where: "transaction_date = '2023-10-21' and account_name = 'ING_billsbillsbills'"

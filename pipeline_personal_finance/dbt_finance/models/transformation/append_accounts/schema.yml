@@ -1,0 +1,43 @@
+models:
+  - name: int_append_accounts
+    columns:
+      - name: _dbt_source_relation
+        data_type: text
+      - name: receipt
+        data_type: text
+      - name: location
+        data_type: text
+      - name: description_date
+        data_type: text
+      - name: card_no
+        data_type: text
+      - name: sender
+        data_type: text
+      - name: recipient
+        data_type: text
+      - name: transaction_amount
+        data_type: double precision
+      - name: line_number
+        data_type: bigint
+      - name: primary_key
+        data_type: text
+      - name: account_name
+        data_type: text
+      - name: transaction_date
+        data_type: date
+      - name: memo
+        data_type: text
+      - name: transaction_description
+        data_type: text
+      - name: transaction_type
+        data_type: text
+      - name: etl_date
+        data_type: date
+      - name: etl_time
+        data_type: time with time zone
+      - name: transaction_balance
+        data_type: numeric
+      - name: adjusted_transaction_balance
+        data_type: numeric
+      - name: unadjusted_balance
+        data_type: numeric

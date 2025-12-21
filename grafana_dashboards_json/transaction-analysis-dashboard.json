@@ -1,0 +1,731 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "text",
+        "uid": "-- Text --"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "options": {
+        "content": "# \ud83d\udccb Transaction Analysis Dashboard\n\n**Purpose**: Identify spending patterns, recurring merchants, and transactions that need categorisation.\n\n**Workflow**\n1. Check the KPI row to understand overall activity for the last 12 closed months.\n2. Use the inflow/outflow trend to confirm monthly cash movement.\n3. Review top spending categories and drill into large uncategorised items.\n4. Inspect recurring merchants for unexpected subscriptions or fees.\n5. Use the account summary to see where activity concentrates.\n\n_All panels exclude internal transfers and the current, incomplete month._",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.0.0",
+      "title": "Dashboard Instructions",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "id": 1,
+      "title": "Transactions Overview (Last 12 Closed Months)",
+      "type": "stat",
+      "pluginVersion": "10.0.0",
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_transactions"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Transactions"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_inflow"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total Inflow"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_outflow"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total Outflow"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "net_amount"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Net Amount"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "avg_transaction"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Avg Transaction"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "distinct_merchants"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Distinct Descriptions"
+              }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  COUNT(*) AS total_transactions,\n  SUM(CASE WHEN transaction_amount > 0 THEN transaction_amount ELSE 0 END) AS total_inflow,\n  SUM(CASE WHEN transaction_amount < 0 THEN -transaction_amount ELSE 0 END) AS total_outflow,\n  SUM(transaction_amount) AS net_amount,\n  AVG(ABS(transaction_amount)) AS avg_transaction,\n  COUNT(DISTINCT COALESCE(NULLIF(transaction_memo, ''), transaction_description)) AS distinct_merchants\nFROM reporting.fct_transactions_enhanced\nWHERE transaction_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '12 months'\n  AND transaction_date < date_trunc('month', CURRENT_DATE)\n  AND NOT COALESCE(is_internal_transfer, FALSE);",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 10
+      },
+      "id": 2,
+      "title": "Monthly Inflows vs Outflows",
+      "type": "timeseries",
+      "pluginVersion": "10.0.0",
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none"
+            }
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "inflow"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Inflow"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#2f87d0",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "outflow"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Outflow"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#d64e4e",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "net"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Net"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#6ac36a",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date_trunc('month', transaction_date) AS time,\n  SUM(CASE WHEN transaction_amount > 0 THEN transaction_amount ELSE 0 END) AS inflow,\n  SUM(CASE WHEN transaction_amount < 0 THEN -transaction_amount ELSE 0 END) AS outflow,\n  SUM(transaction_amount) AS net\nFROM reporting.fct_transactions_enhanced\nWHERE transaction_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '12 months'\n  AND transaction_date < date_trunc('month', CURRENT_DATE)\n  AND NOT COALESCE(is_internal_transfer, FALSE)\nGROUP BY 1\nORDER BY 1;",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 10
+      },
+      "id": 3,
+      "title": "Top Spending Categories",
+      "type": "table",
+      "pluginVersion": "10.0.0",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "txn_count"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Transactions"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_amount"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "avg_amount"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Average"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  COALESCE(NULLIF(dc.level_1_category, 'Uncategorized'), 'Uncategorised') AS category,\n  COUNT(*) FILTER (WHERE ft.transaction_amount < 0) AS txn_count,\n  SUM(CASE WHEN ft.transaction_amount < 0 THEN -ft.transaction_amount ELSE 0 END) AS total_amount,\n  AVG(CASE WHEN ft.transaction_amount < 0 THEN -ft.transaction_amount END) AS avg_amount\nFROM reporting.fct_transactions_enhanced ft\nLEFT JOIN reporting.dim_categories_enhanced dc ON ft.category_key = dc.category_key\nWHERE ft.transaction_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '12 months'\n  AND ft.transaction_date < date_trunc('month', CURRENT_DATE)\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\nGROUP BY 1\nHAVING SUM(CASE WHEN ft.transaction_amount < 0 THEN -ft.transaction_amount ELSE 0 END) > 0\nORDER BY total_amount DESC\nLIMIT 12;",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 18
+      },
+      "id": 4,
+      "title": "High Value Needs Review",
+      "type": "table",
+      "pluginVersion": "10.0.0",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "amount"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "displayName",
+                "value": "Amount"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "transaction_date"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Date"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "account_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Account"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "level_1_category"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Category"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  ft.transaction_date::date,\n  da.account_name,\n  -ft.transaction_amount AS amount,\n  COALESCE(NULLIF(dc.level_1_category, 'Uncategorized'), 'Uncategorised') AS level_1_category,\n  ft.transaction_description,\n  ft.transaction_memo\nFROM reporting.fct_transactions_enhanced ft\nLEFT JOIN reporting.dim_categories_enhanced dc ON ft.category_key = dc.category_key\nLEFT JOIN reporting.dim_accounts_enhanced da ON ft.account_key = da.account_key\nWHERE ft.transaction_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '12 months'\n  AND ft.transaction_date < date_trunc('month', CURRENT_DATE)\n  AND ft.transaction_amount < 0\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\nORDER BY -ft.transaction_amount DESC\nLIMIT 25;",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 18
+      },
+      "id": 5,
+      "title": "Recurring Merchants (6 Months)",
+      "type": "table",
+      "pluginVersion": "10.0.0",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_amount"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "displayName",
+                "value": "Total"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "txn_count"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Transactions"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "first_seen"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "First Seen"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "last_seen"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Last Seen"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  COALESCE(NULLIF(transaction_memo, ''), transaction_description) AS merchant,\n  COUNT(*) AS txn_count,\n  SUM(CASE WHEN transaction_amount < 0 THEN -transaction_amount ELSE 0 END) AS total_amount,\n  MIN(transaction_date)::date AS first_seen,\n  MAX(transaction_date)::date AS last_seen\nFROM reporting.fct_transactions_enhanced\nWHERE transaction_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '6 months'\n  AND transaction_date < date_trunc('month', CURRENT_DATE)\n  AND transaction_amount < 0\n  AND NOT COALESCE(is_internal_transfer, FALSE)\nGROUP BY 1\nHAVING COUNT(*) >= 5\nORDER BY MAX(transaction_date) DESC\nLIMIT 25;",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "id": 6,
+      "title": "Transactions by Account",
+      "type": "table",
+      "pluginVersion": "10.0.0",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "txn_count"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Transactions"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_amount"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total Movement"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "net_amount"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Net"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "average_amount"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Average"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  da.account_name,\n  COUNT(*) AS txn_count,\n  SUM(ABS(ft.transaction_amount)) AS total_amount,\n  SUM(ft.transaction_amount) AS net_amount,\n  AVG(ABS(ft.transaction_amount)) AS average_amount\nFROM reporting.fct_transactions_enhanced ft\nLEFT JOIN reporting.dim_accounts_enhanced da ON ft.account_key = da.account_key\nWHERE ft.transaction_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '12 months'\n  AND ft.transaction_date < date_trunc('month', CURRENT_DATE)\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\nGROUP BY da.account_name\nORDER BY SUM(ABS(ft.transaction_amount)) DESC;",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": [
+    "transactions",
+    "analysis",
+    "personal-finance"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1y",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Transaction Analysis",
+  "uid": "transaction_analysis_dashboard",
+  "version": 1,
+  "weekStart": ""
+}

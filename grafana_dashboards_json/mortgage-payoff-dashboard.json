@@ -1,0 +1,502 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "text",
+        "uid": "-- Text --"
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "options": {
+        "content": "# \ud83c\udfe0 Mortgage Payoff Analysis\n\nTrack your mortgage payoff progress and projected timeline based on current payment patterns.",
+        "mode": "markdown"
+      },
+      "title": "Dashboard Guide",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 3
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  year_month as time,\n  ABS(net_position) as \"Remaining Mortgage Balance\"\nFROM reporting.viz_net_position_after_homeloan\nWHERE net_position < 0\nORDER BY year_month",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Mortgage Balance Over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 3
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
+          "unit": "short",
+          "decimals": 2
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 11
+      },
+      "id": 2,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "text": {}
+      },
+      "pluginVersion": "8.5.0",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH latest_balance AS (\n  SELECT year_month, ABS(COALESCE(adelaide_homeloan, 0) + COALESCE(bendigo_homeloan, 0)) AS balance\n  FROM reporting.viz_balance_by_year_month\n  WHERE adelaide_homeloan IS NOT NULL OR bendigo_homeloan IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 1\n),\nmonthly_reductions AS (\n  SELECT COALESCE(\"adelaide_homeloan_MoM\", 0) + COALESCE(\"bendigo_homeloan_MoM\", 0) AS reduction\n  FROM reporting.viz_mom_differences\n  WHERE COALESCE(\"adelaide_homeloan_MoM\", 0) + COALESCE(\"bendigo_homeloan_MoM\", 0) IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 12\n),\nagg AS (\n  SELECT (SELECT balance FROM latest_balance) AS current_balance,\n         GREATEST(AVG(reduction), 0) AS avg_monthly_reduction\n  FROM monthly_reductions\n)\nSELECT CASE WHEN avg_monthly_reduction > 0 THEN (current_balance / avg_monthly_reduction) / 12 ELSE NULL END AS \"Years to Payoff\"\nFROM agg;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Years Until Mortgage Paid Off",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 11
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.5.0",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH latest_balance AS (\n  SELECT year_month, ABS(COALESCE(adelaide_homeloan, 0) + COALESCE(bendigo_homeloan, 0)) AS balance\n  FROM reporting.viz_balance_by_year_month\n  WHERE adelaide_homeloan IS NOT NULL OR bendigo_homeloan IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 1\n),\nmonthly_reductions AS (\n  SELECT COALESCE(\"adelaide_homeloan_MoM\", 0) + COALESCE(\"bendigo_homeloan_MoM\", 0) AS reduction\n  FROM reporting.viz_mom_differences\n  WHERE COALESCE(\"adelaide_homeloan_MoM\", 0) + COALESCE(\"bendigo_homeloan_MoM\", 0) IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 12\n),\nagg AS (\n  SELECT (SELECT balance FROM latest_balance) AS current_balance,\n         GREATEST(AVG(reduction), 0) AS avg_monthly_reduction\n  FROM monthly_reductions\n)\nSELECT current_balance AS \"Current Balance\" FROM agg;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Current Mortgage Balance",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 0,
+        "y": 19
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.5.0",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH latest_balance AS (\n  SELECT year_month, ABS(COALESCE(adelaide_homeloan, 0) + COALESCE(bendigo_homeloan, 0)) AS balance\n  FROM reporting.viz_balance_by_year_month\n  WHERE adelaide_homeloan IS NOT NULL OR bendigo_homeloan IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 1\n),\nmonthly_reductions AS (\n  SELECT COALESCE(\"adelaide_homeloan_MoM\", 0) + COALESCE(\"bendigo_homeloan_MoM\", 0) AS reduction\n  FROM reporting.viz_mom_differences\n  WHERE COALESCE(\"adelaide_homeloan_MoM\", 0) + COALESCE(\"bendigo_homeloan_MoM\", 0) IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 12\n),\nagg AS (\n  SELECT (SELECT balance FROM latest_balance) AS current_balance,\n         GREATEST(AVG(reduction), 0) AS avg_monthly_reduction\n  FROM monthly_reductions\n)\nSELECT avg_monthly_reduction AS \"Average Monthly Reduction\" FROM agg;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Average Monthly Reduction",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 19
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.5.0",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH latest_balance AS (\n  SELECT year_month, ABS(COALESCE(adelaide_homeloan, 0) + COALESCE(bendigo_homeloan, 0)) AS balance\n  FROM reporting.viz_balance_by_year_month\n  WHERE adelaide_homeloan IS NOT NULL OR bendigo_homeloan IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 1\n),\nmonthly_reductions AS (\n  SELECT COALESCE(\"adelaide_homeloan_MoM\", 0) + COALESCE(\"bendigo_homeloan_MoM\", 0) AS reduction\n  FROM reporting.viz_mom_differences\n  WHERE COALESCE(\"adelaide_homeloan_MoM\", 0) + COALESCE(\"bendigo_homeloan_MoM\", 0) IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 12\n),\nagg AS (\n  SELECT (SELECT balance FROM latest_balance) AS current_balance,\n         GREATEST(AVG(reduction), 0) AS avg_monthly_reduction\n  FROM monthly_reductions\n)\nSELECT CASE\n         WHEN avg_monthly_reduction > 0 THEN EXTRACT(YEAR FROM CURRENT_DATE + make_interval(months => CEIL(current_balance / avg_monthly_reduction)::int))\n         ELSE NULL\n       END AS \"Estimated Payoff Year\"\nFROM agg;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Estimated Payoff Year",
+      "type": "stat"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": [
+    "mortgage",
+    "home-loan",
+    "payoff"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-5y",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Mortgage Payoff Dashboard",
+  "uid": "mortgage-payoff",
+  "version": 1,
+  "weekStart": ""
+}

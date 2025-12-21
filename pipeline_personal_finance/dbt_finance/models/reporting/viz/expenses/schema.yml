@@ -1,0 +1,51 @@
+version: 2
+
+models:
+  - name: viz_current_month_expense_categories
+    description: Per-category spend for the last complete month with MoM and prior-quarter comparisons.
+    columns:
+      - name: category
+        description: Level 1 category
+      - name: period_date
+        description: Last complete month date (month start)
+      - name: year_month
+        description: Last complete month in YYYY-MM
+      - name: last_month_amount
+        description: Total spending for the last complete month
+      - name: prev_month_amount
+        description: Total spending for the month prior to last complete month
+      - name: mom_change
+        description: Absolute month-over-month change
+      - name: mom_change_pct
+        description: Percent month-over-month change
+      - name: last_qtr_avg
+        description: Average monthly spending across the most recent quarter (3 months)
+      - name: prev_qtr_avg
+        description: Average monthly spending across the prior quarter
+      - name: vs_prev_qtr_avg_change
+        description: Absolute change vs previous quarter average
+      - name: vs_prev_qtr_avg_change_pct
+        description: Percent change vs previous quarter average
+      - name: last_month_share
+        description: Share of last month spend across categories
+      - name: rank_by_last_month_spend
+        description: Rank by last month spending (1 = highest)
+
+  - name: viz_recent_uncategorized_for_review
+    description: View showing recent uncategorized transactions grouped by pattern for manual categorization
+    columns:
+      - name: time
+        description: Month start timestamp for Grafana time series
+      - name: year_month
+        description: Year-month in YYYY-MM format
+      - name: total_amount
+        description: Total amount for this pattern group
+      - name: transaction_count
+        description: Number of transactions in this pattern group
+      - name: original_memo
+        description: Original transaction memo for categorization
+      - name: suggested_category_hint
+        description: AI-suggested category based on memo pattern
+      - name: priority_label
+        description: Priority level for manual review based on amount
+

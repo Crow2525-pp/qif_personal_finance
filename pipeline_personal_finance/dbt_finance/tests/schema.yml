@@ -1,0 +1,57 @@
+version: 2
+
+tests:
+  - name: test_foreign_key_constraints
+    description: >
+      Validates that all foreign key relationships maintain referential integrity.
+      This test checks for orphaned records in fact tables where the foreign key
+      references a non-existent record in the dimension table.
+      
+      Tested relationships:
+      - fct_transactions_enhanced.account_key → dim_accounts_enhanced.account_key
+      - fct_transactions_enhanced.category_key → dim_categories_enhanced.category_key  
+      - fct_daily_balances.account_key → dim_accounts_enhanced.account_key
+    tags: ['referential_integrity', 'foreign_keys', 'critical']
+
+  - name: test_constraint_existence  
+    description: >
+      Verifies that all expected foreign key constraints actually exist in the
+      database schema. This ensures that the constraint setup process has
+      completed successfully and the database is enforcing referential integrity
+      at the constraint level.
+      
+      Expected constraints:
+      - fk_fact_transactions_account
+      - fk_fact_transactions_category
+      - fk_fct_daily_balances_account
+    tags: ['schema_validation', 'foreign_keys', 'infrastructure']
+
+  - name: test_balance_continuity
+    description: >
+      Tests that account balances are continuous with no gaps in running 
+      balance calculations. Validates the balance adjustment logic.
+    tags: ['data_quality', 'balance_validation']
+
+  - name: test_no_duplicate_transactions
+    description: >  
+      Ensures there are no duplicate transactions across all staging models.
+      Critical for maintaining data integrity in financial calculations.
+    tags: ['data_quality', 'duplicates', 'critical']
+
+  - name: test_category_completeness
+    description: >
+      Validates that all transactions have been categorized or flagged as 
+      uncategorized. Ensures comprehensive transaction classification.
+    tags: ['data_quality', 'categorization']
+
+  - name: test_account_dimension_integrity
+    description: >
+      Tests that all accounts referenced in fact tables exist in the account
+      dimension with proper metadata and relationships.
+    tags: ['referential_integrity', 'dimensions']
+
+  - name: test_date_range_validity
+    description: >
+      Validates that all transaction dates fall within reasonable bounds,
+      preventing future dates or dates that are too far in the past.
+    tags: ['data_quality', 'date_validation']

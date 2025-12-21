@@ -16,7 +16,7 @@ with subquery as (
             end
         ) as account_name,
         cast(date as date) as date
-    from {{ ref('reporting__fact_transactions') }}
+from {{ ref('fct_transactions') }}
 ),
 
 final as (

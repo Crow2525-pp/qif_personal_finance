@@ -9,3 +9,29 @@
 4. run docker-compose up -d and then goto localhost:3000
 5. reload the definitions and then run the asset.
 6. [TBC]
+
+# Deployment (Remote Server)
+For remote server deployment using git-based workflow:
+- **Local Development**: Work on your local machine, push to GitHub
+- **Remote Deployment**: Server pulls updates and rebuilds containers
+- See [deploy/README.md](deploy/README.md) for complete setup and workflow instructions
+
+Quick deploy on server:
+```bash
+cd /docker/appdata/qif_personal_finance
+./deploy/portainer-deploy.sh
+```
+
+# Checking Grafana dashboards for data
+If dashboards render with empty panels, run the helper script to confirm every SQL panel in Grafana returns rows.
+
+1. Ensure Grafana is running (default http://localhost:3001 from `docker-compose.yml`).
+2. Create a Grafana API token with at least `Viewer` access, or use your admin credentials.
+3. Install dependencies: `pip install -r requirements.txt`
+4. Run the checker (defaults to the last 365 days of data):
+   - Using a token: `GRAFANA_URL=http://localhost:3001 GRAFANA_TOKEN=YOUR_TOKEN python scripts/check_grafana_dashboards.py --days 180`
+   - Using user/pass: `GRAFANA_USER=admin GRAFANA_PASSWORD=... python scripts/check_grafana_dashboards.py --dashboard balance_dashboard`
+
+The script queries every panel in each dashboard and reports panels that return no rows or SQL errors. It exits non-zero when a panel fails, so it can be wired into a post-provisioning step or CI job. Use `--dashboard` to limit the check to specific dashboard titles or UIDs.
+
+Layout linting (titles vs. panel width) is included by default to catch headings that likely overflow their bounding boxes. If you want to skip that check, add `--no-lint`. You can also tune the heuristic with `--lint-max-chars-per-col` (default 5) and `--lint-min-chars` (default 20).

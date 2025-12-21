@@ -9,11 +9,13 @@ dependencies = [
     "dagster-dbt>=0.24.13",
     "dagster-webserver>=1.8.13",
     "dbt>=1.0.0.38.23",
+    "dbt-postgres>=1.9.0",
 ]
 
 [dependency-groups]
 dev = [
     "sqlfluff>=3.3.0",
+    "sqlfluff-templater-dbt>=3.3.0",
 ]
 
 [tool.uv.workspace]

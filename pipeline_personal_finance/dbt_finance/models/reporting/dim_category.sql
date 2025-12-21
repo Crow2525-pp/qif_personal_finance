@@ -1,26 +1,15 @@
 select
-    transaction_description,
-    transaction_type,
-    sender,
-    recipient,
-    account_name,
-    category,
-    subcategory,
-    store,
-    internal_indicator,
+  distinct
     {{ dbt_utils.generate_surrogate_key([
       'category',
       'subcategory',
-      'store']) }} as category_foreign_key,
-    {{ dbt_utils.generate_surrogate_key(['transaction_description', 
-      'transaction_type',
-      'sender',
-      'recipient',
-      'account_name',
-      'category',
-      'subcategory',
-      'store',
-      'internal_indicator']) }} as origin_key
+      'store']) }} as origin_key,
+    category,
+    subcategory,
+    store,
+    internal_indicator
+
 from {{ ref('banking_categories') }}
 
 -- TODO: replace category with category_name.
+-- TODO: origin_key should be the primary key/merged key, but it seems like foreign key might be the origin-key
