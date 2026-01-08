@@ -1,10 +1,5 @@
 FROM postgres:16
 
-# Copy the custom entrypoint script
-COPY custom_entrypoint.sh /docker-entrypoint-initdb.d/
-
-# Make sure the script is executable
-RUN chmod +x  /docker-entrypoint-initdb.d/custom_entrypoint.sh
-
-# Default command to be executed
-CMD ["postgres"]
+# Copy initialization scripts
+# Scripts in /docker-entrypoint-initdb.d/ run once on first container start
+COPY init/ /docker-entrypoint-initdb.d/
