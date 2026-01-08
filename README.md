@@ -4,7 +4,7 @@
 
 # Installation
 1. ensure that docker is installed and running (windows)
-2. replace sample.env with a .env and update with your own credentials
+2. copy .env.template to .env and update with your own credentials
 3. download qif files from bank and add them in pipeline_personal_finance\qif_files
 4. run docker-compose up -d and then goto localhost:3000
 5. reload the definitions and then run the asset.
@@ -14,12 +14,12 @@
 For remote server deployment using git-based workflow:
 - **Local Development**: Work on your local machine, push to GitHub
 - **Remote Deployment**: Server pulls updates and rebuilds containers
-- See [deploy/README.md](deploy/README.md) for complete setup and workflow instructions
+- See [scripts/DEPLOY.md](scripts/DEPLOY.md) for complete setup and workflow instructions
 
 Quick deploy on server:
 ```bash
 cd /docker/appdata/qif_personal_finance
-./deploy/portainer-deploy.sh
+./scripts/portainer-deploy.sh
 ```
 
 # Checking Grafana dashboards for data
@@ -27,7 +27,7 @@ If dashboards render with empty panels, run the helper script to confirm every S
 
 1. Ensure Grafana is running (default http://localhost:3001 from `docker-compose.yml`).
 2. Create a Grafana API token with at least `Viewer` access, or use your admin credentials.
-3. Install dependencies: `pip install -r requirements.txt`
+3. Install dependencies: `uv sync`
 4. Run the checker (defaults to the last 365 days of data):
    - Using a token: `GRAFANA_URL=http://localhost:3001 GRAFANA_TOKEN=YOUR_TOKEN python scripts/check_grafana_dashboards.py --days 180`
    - Using user/pass: `GRAFANA_USER=admin GRAFANA_PASSWORD=... python scripts/check_grafana_dashboards.py --dashboard balance_dashboard`
