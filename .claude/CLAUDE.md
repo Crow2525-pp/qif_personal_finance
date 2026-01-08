@@ -13,7 +13,7 @@ This is a personal finance data pipeline that processes QIF (Quicken Interchange
 ### Setup and Run
 ```bash
 # Copy environment file and configure credentials
-cp sample.env .env  # Edit with your database credentials
+cp .env.template .env  # Edit with your database credentials
 
 # Start all services
 docker-compose up -d

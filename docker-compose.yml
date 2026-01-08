@@ -127,7 +127,7 @@ services:
 
   dagster_postgres:
     build:
-      context: ./postgres_custom
+      context: ./postgres
       dockerfile: dockerfile
     shm_size: 128mb
     restart: on-failure
