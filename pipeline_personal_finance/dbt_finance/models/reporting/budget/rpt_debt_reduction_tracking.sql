@@ -223,8 +223,9 @@ payoff_projections AS (
     END AS interest_to_principal_ratio,
 
     -- Payment efficiency score (higher is better, 100 = all principal, 0 = all interest)
+    -- Clamped to 0-100 to handle edge cases (negative principal or principal > total)
     CASE
-      WHEN total_payments > 0 THEN (principal_paid / total_payments) * 100
+      WHEN total_payments > 0 THEN GREATEST(0, LEAST(100, (principal_paid / total_payments) * 100))
       ELSE 0
     END AS payment_efficiency_score
 
