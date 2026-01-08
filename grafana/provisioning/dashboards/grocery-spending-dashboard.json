@@ -50,8 +50,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 24,
+        "h": 10,
+        "w": 8,
         "x": 0,
         "y": 0
       },
@@ -64,7 +64,7 @@
           ],
           "fields": ""
         },
-        "orientation": "horizontal",
+        "orientation": "vertical",
         "textMode": "auto",
         "colorMode": "background",
         "graphMode": "none",
@@ -79,12 +79,166 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  coles_spend as \"Coles\", \n  woolworths_spend as \"Woolworths\", \n  gaskos_spend as \"Gaskos\", \n  total_grocery_spend as \"Total\" \nFROM reporting.viz_grocery_monthly_summary \nWHERE year_month >= NOW() - INTERVAL '1 month' \nORDER BY year_month DESC LIMIT 1",
+          "rawSql": "SELECT ROUND(AVG(coles_spend), 2) as \"Coles Avg\", ROUND(AVG(woolworths_spend), 2) as \"Woolworths Avg\", ROUND(AVG(gaskos_spend), 2) as \"Gaskos Avg\", ROUND(AVG(total_grocery_spend), 2) as \"Total Avg\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= NOW() - INTERVAL '12 months'",
           "refId": "A"
         }
       ],
-      "title": "Current Month Grocery Spending",
+      "title": "12-Month Average Spending",
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "displayMode": "basic",
+            "orientation": "vertical"
+          },
+          "mappings": [],
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 25
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "reduceOptions": {
+          "values": true,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "vertical",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COALESCE(yoy_growth_percent, 0) as \"Total YoY Growth %\", COALESCE(mom_growth_percent, 0) as \"Month-over-Month %\" FROM reporting.viz_grocery_monthly_summary ORDER BY year_month DESC LIMIT 1",
+          "refId": "A"
+        }
+      ],
+      "title": "Growth Trends",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "bars",
+            "lineInterpolation": "linear",
+            "barAlignment": 0,
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "spanNulls": false,
+            "insertNulls": false,
+            "showPoints": "never",
+            "pointSize": 5,
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            },
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "axisCenteredZero": false,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "id": 5,
+      "options": {
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "values": [
+            "value"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT year_month as time, coles_percentage as \"Coles\", woolworths_percentage as \"Woolworths\", gaskos_percentage as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= NOW() - INTERVAL '2 month' AND year_month < NOW() - INTERVAL '1 month' ORDER BY year_month DESC LIMIT 1",
+          "refId": "A"
+        }
+      ],
+      "title": "Last Month Market Share",
+      "type": "barchart"
     },
     {
       "datasource": {
@@ -108,7 +262,7 @@
             "showPoints": "auto",
             "pointSize": 5,
             "stacking": {
-              "mode": "none",
+              "mode": "normal",
               "group": "A"
             },
             "axisPlacement": "auto",
@@ -142,10 +296,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
+        "h": 11,
         "w": 24,
         "x": 0,
-        "y": 6
+        "y": 10
       },
       "id": 2,
       "options": {
@@ -170,11 +324,284 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month as time, \n  coles_spend as \"Coles\", \n  woolworths_spend as \"Woolworths\", \n  gaskos_spend as \"Gaskos\" \nFROM reporting.viz_grocery_monthly_summary \nWHERE year_month >= NOW() - INTERVAL '18 months' \nORDER BY year_month",
+          "rawSql": "SELECT year_month as time, coles_spend as \"Coles\", woolworths_spend as \"Woolworths\", gaskos_spend as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= NOW() - INTERVAL '18 months' ORDER BY year_month",
           "refId": "A"
         }
       ],
       "title": "Monthly Grocery Spending Trends",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "barAlignment": 0,
+            "lineWidth": 2,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "spanNulls": false,
+            "insertNulls": false,
+            "showPoints": "auto",
+            "pointSize": 5,
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            },
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "axisCenteredZero": false,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
+      "id": 3,
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "values": [
+            "value"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT year_month as time, coles_spend as \"Coles\", woolworths_spend as \"Woolworths\", gaskos_spend as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= NOW() - INTERVAL '18 months' ORDER BY year_month",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Grocery Spending (Stacked)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "barAlignment": 0,
+            "lineWidth": 2,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "spanNulls": false,
+            "insertNulls": false,
+            "showPoints": "auto",
+            "pointSize": 5,
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            },
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "axisCenteredZero": false,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "id": 6,
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "values": [
+            "value"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT year_month as time, coles_spend as \"Coles\", woolworths_spend as \"Woolworths\", gaskos_spend as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= NOW() - INTERVAL '18 months' ORDER BY year_month",
+          "refId": "A"
+        }
+      ],
+      "title": "18-Month Grocery Spending Trends by Retailer (Stacked)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "barAlignment": 0,
+            "lineWidth": 2,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "spanNulls": false,
+            "insertNulls": false,
+            "showPoints": "auto",
+            "pointSize": 5,
+            "stacking": {
+              "mode": "percent",
+              "group": "A"
+            },
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "axisCenteredZero": false,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 43
+      },
+      "id": 7,
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "values": [
+            "value"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT year_month as time, coles_percentage/100 as \"Coles\", woolworths_percentage/100 as \"Woolworths\", gaskos_percentage/100 as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= NOW() - INTERVAL '18 months' ORDER BY year_month",
+          "refId": "A"
+        }
+      ],
+      "title": "18-Month Grocery Market Share Trends (100% Stacked)",
       "type": "timeseries"
     }
   ],

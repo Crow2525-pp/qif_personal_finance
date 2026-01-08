@@ -14,7 +14,7 @@ This guide explains how to work locally and deploy to your remote server via Por
 Simply SSH into your server and run:
 ```bash
 cd /docker/appdata/qif_personal_finance
-./deploy/portainer-deploy.sh
+./scripts/portainer-deploy.sh
 ```
 
 #### Option B: Automated Polling (Cron-Based)
@@ -25,7 +25,7 @@ Set up automatic checks every 15 minutes:
 crontab -e
 
 # Add this line to check for updates every 15 minutes
-*/15 * * * * /docker/appdata/qif_personal_finance/deploy/portainer-deploy.sh >> /docker/appdata/qif_personal_finance/deploy/deploy.log 2>&1
+*/15 * * * * /docker/appdata/qif_personal_finance/scripts/portainer-deploy.sh >> /docker/appdata/qif_personal_finance/scripts/deploy.log 2>&1
 ```
 
 #### Option C: Webhook-Based Deployment (Most Advanced)
@@ -51,7 +51,7 @@ cat > /etc/webhook.conf <<'EOF'
 [
   {
     "id": "qif-deploy",
-    "execute-command": "/docker/appdata/qif_personal_finance/deploy/portainer-webhook.sh",
+    "execute-command": "/docker/appdata/qif_personal_finance/scripts/portainer-webhook.sh",
     "command-working-directory": "/docker/appdata/qif_personal_finance",
     "response-message": "Deployment triggered"
   }
@@ -89,7 +89,7 @@ Choose your deployment method:
 # SSH into server one time
 ssh user@your-server
 cd /docker/appdata/qif_personal_finance
-./deploy/portainer-deploy.sh
+./scripts/portainer-deploy.sh
 ```
 
 **Automatic (if cron or webhook configured):**
@@ -109,7 +109,7 @@ cd /docker/appdata/qif_personal_finance
 
 View deployment logs:
 ```bash
-tail -f /docker/appdata/qif_personal_finance/deploy/deploy.log
+tail -f /docker/appdata/qif_personal_finance/scripts/deploy.log
 ```
 
 ## Manual Deployment Commands
@@ -141,7 +141,7 @@ Before pushing to production:
 2. Push to a feature branch first
 3. Test deployment on server from feature branch:
    ```bash
-   BRANCH=feature-branch ./deploy/portainer-deploy.sh
+   BRANCH=feature-branch ./scripts/portainer-deploy.sh
    ```
 4. Merge to main when ready
 
@@ -150,7 +150,7 @@ Before pushing to production:
 ### Deployment Failed
 ```bash
 # Check logs
-tail -n 50 /docker/appdata/qif_personal_finance/deploy/deploy.log
+tail -n 50 /docker/appdata/qif_personal_finance/scripts/deploy.log
 
 # Check Docker status
 docker-compose ps
@@ -174,7 +174,7 @@ cat ~/.ssh/id_ed25519.pub
 ### Permission Issues
 ```bash
 # Fix script permissions
-chmod +x /docker/appdata/qif_personal_finance/deploy/*.sh
+chmod +x /docker/appdata/qif_personal_finance/scripts/*.sh
 ```
 
 ## Recommended Workflow
@@ -182,7 +182,7 @@ chmod +x /docker/appdata/qif_personal_finance/deploy/*.sh
 For most use cases, I recommend:
 
 1. **Daily development**: Work locally, push to GitHub frequently
-2. **Deploy when ready**: SSH in once and run `./deploy/portainer-deploy.sh`
+2. **Deploy when ready**: SSH in once and run `./scripts/portainer-deploy.sh`
 3. **No cron needed**: Manual control prevents unexpected changes
 
 This gives you full control without dealing with SSH instability during development.
