@@ -46,7 +46,7 @@ uv run sqlfluff fix pipeline_personal_finance/dbt_finance/models/
 
 ### Data Flow
 1. **Landing Zone**: QIF files → PostgreSQL `landing` schema (raw ingestion via Dagster)
-2. **Staging Layer**: Clean and standardize data (`staging` schema via dbt)  
+2. **Staging Layer**: Clean and standardize data (`staging` schema via dbt)
 3. **Transformation Layer**: Business logic, categorization, balance adjustments (`transformation` schema)
 4. **Reporting Layer**: Fact tables and visualization views (`reporting` schema)
 
@@ -73,7 +73,7 @@ pipeline_personal_finance/       # Main pipeline
 
 ### Materializations
 - **Staging**: Tables in `staging` schema
-- **Transformation**: Tables in `transformation` schema  
+- **Transformation**: Tables in `transformation` schema
 - **Reporting**: Tables in `reporting` schema
 
 ### Key Models
@@ -132,13 +132,13 @@ dbt commands should be executed within the containerized environment or by acces
 - This ensures pie charts display actual values on each segment, not just percentages or calculations
 
 ### Bar/Stat/Gauge Panels
-- For bar gauges with multiple metrics, set Value option to “All values” (JSON: `options.reduceOptions.values = true`) so each metric is displayed.
+- For bar gauges with multiple metrics, set Value option to "All values" (JSON: `options.reduceOptions.values = true`) so each metric is displayed.
 - Use horizontal orientation for readability and keep height compact on full‑width rows.
 - Choose percent units based on the data shape:
   - Ratio 0–1 → `percentunit` (set min/max to `-1..1` if negatives are possible).
   - Percent 0–100 → `percent` (set min/max to `-100..100` if negatives are possible).
 
-More detailed guidance lives in `grafana_dashboards_json/README.md`.
+More detailed guidance lives in `grafana/provisioning/dashboards/README.md`.
 
 ## Testing
 
