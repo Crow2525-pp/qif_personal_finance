@@ -3,7 +3,7 @@
 # Default target
 help:
 	@echo "Available commands:"
-	@echo "  setup       - Copy sample.env to .env for configuration"
+	@echo "  setup       - Copy .env.template to .env for configuration"
 	@echo "  up          - Start all services with docker-compose"
 	@echo "  down        - Stop all services"
 	@echo "  logs        - Show logs from all services"
@@ -23,8 +23,8 @@ help:
 # Setup environment
 setup:
 	@if [ ! -f .env ]; then \
-		cp sample.env .env; \
-		echo "Created .env file from sample.env"; \
+		cp .env.template .env; \
+		echo "Created .env file from .env.template"; \
 		echo "Please edit .env with your credentials before running 'make up'"; \
 	else \
 		echo ".env file already exists"; \
