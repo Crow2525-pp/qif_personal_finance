@@ -14,7 +14,7 @@ WITH latest_period AS (
 ),
 
 current_month_summary AS (
-  SELECT 
+  SELECT
     ms.budget_year_month,
     ms.budget_year,
     ms.budget_month,
@@ -22,6 +22,7 @@ current_month_summary AS (
     ms.total_expenses,
     ms.net_cash_flow,
     ms.savings_rate_percent,
+    ms.expense_ratio_percent,
     ms.rolling_3m_avg_income,
     ms.rolling_3m_avg_expenses,
     ms.ytd_income,
@@ -158,8 +159,8 @@ executive_summary AS (
     ccf.cash_flow_efficiency_percentile,
     ccf.cash_flow_status_compound,
     ROUND(ccf.cash_flow_efficiency_score, 0) AS cash_flow_score,
-    ROUND(ccf.outflow_to_inflow_ratio, 1) AS expense_to_income_ratio,
-    ROUND((ccf.outflow_to_inflow_ratio * 100)::numeric, 1) AS expense_to_income_ratio_pct,
+    ROUND(cms.expense_ratio_percent, 3) AS expense_to_income_ratio,
+    ROUND((cms.expense_ratio_percent * 100)::numeric, 1) AS expense_to_income_ratio_pct,
     ROUND((ccf.cash_flow_efficiency_percentile * 100)::numeric, 1) AS cash_flow_efficiency_percentile_pct,
     
     -- PERFORMANCE SCORES (Weighted Average)
