@@ -82,7 +82,9 @@ Grafana can connect directly to the DuckDB file via the DuckDB datasource plugin
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.local.yml up grafana -d
 ```
-3) Grafana will auto-provision a `DuckDB` datasource using:
+3) Open Grafana at:
+- `http://localhost:3001`
+4) Grafana will auto-provision a `DuckDB` datasource using:
 - Path: `/var/lib/grafana/duckdb/personal_finance.duckdb`
 
 The datasource config lives here:
