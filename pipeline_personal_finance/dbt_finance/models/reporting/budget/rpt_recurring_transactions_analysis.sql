@@ -23,10 +23,10 @@ WITH transaction_base AS (
     da.account_name,
     ft.transaction_year,
     ft.transaction_month
-  FROM {{ ref('fct_transactions_enhanced') }} ft
-  LEFT JOIN {{ ref('dim_categories_enhanced') }} dc
+  FROM {{ ref('fct_transactions') }} ft
+  LEFT JOIN {{ ref('dim_categories') }} dc
     ON ft.category_key = dc.category_key
-  LEFT JOIN {{ ref('dim_accounts_enhanced') }} da
+  LEFT JOIN {{ ref('dim_accounts') }} da
     ON ft.account_key = da.account_key
   WHERE NOT COALESCE(ft.is_internal_transfer, FALSE)
     AND ft.transaction_amount < 0  -- Only expenses

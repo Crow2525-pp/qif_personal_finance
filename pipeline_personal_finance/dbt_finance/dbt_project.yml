@@ -39,6 +39,10 @@ models:
       enabled: true
       +schema: transformation
       +materialized: table
+    marts:
+      enabled: true
+      +schema: reporting
+      +materialized: table
     reporting:
       enabled: true
       +schema: reporting
@@ -46,6 +50,10 @@ models:
       projections:
         +schema: reporting
         +materialized: table
+    viz:
+      enabled: true
+      +schema: reporting
+      +materialized: table
 
 seeds:
   schema: landing

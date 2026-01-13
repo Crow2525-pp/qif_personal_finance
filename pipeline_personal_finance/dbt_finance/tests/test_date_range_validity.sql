@@ -9,7 +9,7 @@ WITH date_validation AS (
       WHEN transaction_date > CURRENT_DATE + INTERVAL '1 day' THEN 'FUTURE_DATE'
       ELSE 'VALID'
     END AS date_status
-  FROM {{ ref('fct_transactions_enhanced') }}
+  FROM {{ ref('fct_transactions') }}
 ),
 
 invalid_dates AS (

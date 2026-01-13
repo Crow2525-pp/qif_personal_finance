@@ -1,0 +1,256 @@
+version: 2
+
+models:
+  - name: dim_accounts
+    description: "Canonical account dimension with hierarchy and business flags"
+    config:
+      contract:
+        enforced: true
+    constraints:
+      - type: primary_key
+        columns: [account_key]
+      - type: check
+        expression: "account_category IN ('Asset', 'Liability', 'Unknown')"
+        name: chk_account_category_valid
+      - type: check
+        expression: "currency_code IN ('AUD', 'USD', 'EUR', 'GBP')"
+        name: chk_currency_code_valid
+      - type: check
+        expression: "total_transactions >= 0"
+        name: chk_total_transactions_non_negative
+    columns:
+      - name: account_key
+        data_type: text
+        description: "Surrogate key for the account dimension"
+      - name: account_name
+        data_type: text
+        description: "Name of the account"
+      - name: bank_name
+        data_type: text
+        description: "Bank that manages the account"
+      - name: account_type
+        data_type: text
+        description: "Type of account (Home Loan, Offset, etc.)"
+      - name: account_category
+        data_type: text
+        description: "Category of account (Asset, Liability)"
+      - name: level_1_bank
+        data_type: text
+        description: "Level 1 of account hierarchy - bank name"
+      - name: level_2_category
+        data_type: text
+        description: "Level 2 of account hierarchy - account category"
+      - name: level_3_type
+        data_type: text
+        description: "Level 3 of account hierarchy - account type"
+      - name: level_4_account
+        data_type: text
+        description: "Level 4 of account hierarchy - account name"
+      - name: account_start_date
+        data_type: date
+        description: "Date of first transaction for this account"
+      - name: account_last_transaction_date
+        data_type: date
+        description: "Date of most recent transaction"
+      - name: total_transactions
+        data_type: bigint
+        description: "Total number of transactions for this account"
+      - name: currency_code
+        data_type: text
+        description: "Currency code for the account"
+      - name: is_active
+        data_type: boolean
+        description: "Whether the account is currently active"
+      - name: is_liability
+        data_type: boolean
+        description: "Whether this account represents a liability"
+      - name: is_transactional
+        data_type: boolean
+        description: "Whether this account supports transactions"
+      - name: is_mortgage
+        data_type: boolean
+        description: "Whether this account is a mortgage account"
+      - name: is_asset
+        data_type: boolean
+        description: "Whether this account is an asset (from seed or heuristic)"
+      - name: is_liquid_asset
+        data_type: boolean
+        description: "Whether this account is a liquid asset (from seed or heuristic)"
+      - name: created_at
+        data_type: timestamp
+        description: "Timestamp when record was created"
+      - name: updated_at
+        data_type: timestamp
+        description: "Timestamp when record was last updated"
+
+  - name: dim_categories
+    description: "Canonical category dimension with hierarchy and type flags"
+    config:
+      contract:
+        enforced: true
+    constraints:
+      - type: primary_key
+        columns: [category_key]
+      - type: check
+        expression: "category_type IN ('Income', 'Expense', 'Internal Transfer', 'Financial Services', 'Uncategorized')"
+        name: chk_category_type_valid
+      - type: check
+        expression: "category_priority >= 1"
+        name: chk_category_priority_positive
+    columns:
+      - name: category_key
+        data_type: text
+        description: "Surrogate key for the category dimension"
+      - name: level_1_category
+        data_type: text
+        description: "Level 1 of category hierarchy"
+      - name: level_2_subcategory
+        data_type: text
+        description: "Level 2 of category hierarchy"
+      - name: level_3_store
+        data_type: text
+        description: "Level 3 of category hierarchy"
+      - name: category
+        data_type: text
+        description: "Original category name"
+      - name: subcategory
+        data_type: text
+        description: "Original subcategory name"
+      - name: store
+        data_type: text
+        description: "Original store name"
+      - name: internal_indicator
+        data_type: text
+        description: "Whether this is an internal or external transaction"
+      - name: category_type
+        data_type: text
+        description: "Type of category (Income, Expense, etc.)"
+      - name: is_internal_transfer
+        data_type: boolean
+        description: "Whether this represents an internal transfer"
+      - name: is_income
+        data_type: boolean
+        description: "Whether this represents income"
+      - name: is_financial_service
+        data_type: boolean
+        description: "Whether this represents a financial service"
+      - name: category_priority
+        data_type: bigint
+        description: "Priority for categorization (lower = higher priority)"
+      - name: category_description
+        data_type: text
+        description: "Description of the category"
+      - name: created_at
+        data_type: timestamp
+        description: "Timestamp when record was created"
+      - name: updated_at
+        data_type: timestamp
+        description: "Timestamp when record was last updated"
+
+  - name: fct_transactions
+    description: "Canonical transaction fact table with foreign keys to dimension tables"
+    config:
+      contract:
+        enforced: true
+    constraints:
+      - type: primary_key
+        columns: [transaction_key]
+      - type: foreign_key
+        columns: [account_key]
+        to: ref('dim_accounts')
+        to_columns: [account_key]
+      - type: foreign_key
+        columns: [category_key]
+        to: ref('dim_categories')
+        to_columns: [category_key]
+      - type: check
+        expression: "transaction_direction IN ('Debit', 'Credit', 'Zero')"
+        name: chk_transaction_direction_valid
+      - type: check
+        expression: "transaction_amount_abs >= 0"
+        name: chk_transaction_amount_abs_non_negative
+      - type: check
+        expression: "transaction_date >= '2000-01-01' AND transaction_date <= CURRENT_DATE + INTERVAL '1 day'"
+        name: chk_transaction_date_reasonable
+    columns:
+      - name: transaction_key
+        data_type: text
+        description: "Surrogate key for the transaction"
+      - name: transaction_natural_key
+        data_type: text
+        description: "Natural key from source system"
+      - name: transaction_date
+        data_type: date
+        description: "Date of the transaction"
+      - name: transaction_year
+        data_type: bigint
+        description: "Year of the transaction"
+      - name: transaction_quarter
+        data_type: bigint
+        description: "Quarter of the transaction"
+      - name: transaction_month
+        data_type: bigint
+        description: "Month of the transaction"
+      - name: transaction_day
+        data_type: bigint
+        description: "Day of the transaction"
+      - name: day_of_week
+        data_type: bigint
+        description: "Day of week (0=Sunday)"
+      - name: account_key
+        data_type: text
+        description: "Foreign key to account dimension"
+      - name: category_key
+        data_type: text
+        description: "Foreign key to category dimension"
+      - name: transaction_amount
+        data_type: numeric
+        description: "Amount of the transaction"
+      - name: account_balance
+        data_type: numeric
+        description: "Account balance after this transaction"
+      - name: transaction_direction
+        data_type: text
+        description: "Direction of transaction (Debit/Credit/Zero)"
+      - name: transaction_amount_abs
+        data_type: numeric
+        description: "Absolute value of transaction amount"
+      - name: is_income_transaction
+        data_type: boolean
+        description: "Whether this is an income transaction"
+      - name: is_internal_transfer
+        data_type: boolean
+        description: "Whether this is an internal transfer"
+      - name: is_financial_service
+        data_type: boolean
+        description: "Whether this is a financial service transaction"
+      - name: transaction_memo
+        data_type: text
+        description: "Transaction memo/description"
+      - name: transaction_type
+        data_type: text
+        description: "Type of transaction"
+      - name: transaction_description
+        data_type: text
+        description: "Full transaction description"
+      - name: receipt
+        data_type: text
+        description: "Receipt information"
+      - name: location
+        data_type: text
+        description: "Transaction location"
+      - name: sender
+        data_type: text
+        description: "Transaction sender"
+      - name: recipient
+        data_type: text
+        description: "Transaction recipient"
+      - name: etl_date
+        data_type: text
+        description: "ETL processing date"
+      - name: etl_time
+        data_type: text
+        description: "ETL processing time"
+      - name: fact_created_at
+        data_type: timestamp
+        description: "Timestamp when fact record was created"

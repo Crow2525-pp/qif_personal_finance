@@ -3,12 +3,12 @@
 {{
     config(
       target_schema='snapshots',
-      unique_key='surrogate_key',
+      unique_key='account_key',
       strategy='timestamp',
-      updated_at='end_date'
+      updated_at='updated_at'
     )
 }}
 
-select * from {{ ref('dim_account') }}
+select * from {{ ref('dim_accounts') }}
 
 {% endsnapshot %}

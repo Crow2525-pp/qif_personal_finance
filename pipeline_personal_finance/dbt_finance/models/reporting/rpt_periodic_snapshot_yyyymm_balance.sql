@@ -15,8 +15,8 @@ WITH base_data AS (
         END AS amount_type,
         COALESCE(cat.internal_indicator, 'UNCATEGORISED') AS internal_indicator
     FROM {{ ref('int_categories') }} AS trans
-    LEFT JOIN {{ ref('dim_category') }} AS cat
-        ON trans.category_foreign_key = cat.origin_key
+    LEFT JOIN {{ ref('dim_categories') }} AS cat
+        ON trans.category_foreign_key = cat.category_key
 ),
 daily_aggregates AS (
     SELECT

@@ -17,8 +17,8 @@ WITH monthly_transactions AS (
     dc.level_1_category,
     {{ metric_income('ft') }}  AS income_amount,
     {{ metric_expense(false, 'ft', 'dc') }} AS expense_amount
-  FROM {{ ref('fct_transactions_enhanced') }} ft
-  LEFT JOIN {{ ref('dim_categories_enhanced') }} dc
+  FROM {{ ref('fct_transactions') }} ft
+  LEFT JOIN {{ ref('dim_categories') }} dc
     ON ft.category_key = dc.category_key
 ),
 

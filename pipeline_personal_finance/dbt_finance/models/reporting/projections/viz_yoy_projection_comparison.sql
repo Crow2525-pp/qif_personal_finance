@@ -2,13 +2,13 @@
 
 WITH historical_monthly AS (
     SELECT
-        DATE_TRUNC('month', date) as month,
-        SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END) as actual_income,
-        SUM(CASE WHEN amount < 0 THEN ABS(amount) ELSE 0 END) as actual_expenses,
-        SUM(amount) as actual_net_flow
+        DATE_TRUNC('month', transaction_date) as month,
+        SUM(CASE WHEN transaction_amount > 0 THEN transaction_amount ELSE 0 END) as actual_income,
+        SUM(CASE WHEN transaction_amount < 0 THEN ABS(transaction_amount) ELSE 0 END) as actual_expenses,
+        SUM(transaction_amount) as actual_net_flow
     FROM {{ ref('fct_transactions') }}
-    WHERE date >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '24 months')
-    GROUP BY DATE_TRUNC('month', date)
+    WHERE transaction_date >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '24 months')
+    GROUP BY DATE_TRUNC('month', transaction_date)
 ),
 
 projection_data AS (

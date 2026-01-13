@@ -8,7 +8,7 @@
       {'columns': ['account_key', 'balance_date'], 'unique': true}
     ],
     post_hook=[
-      "{{ create_fk_if_not_exists(this, 'account_key', ref('dim_accounts_enhanced'), 'account_key', 'fk_daily_balances_account') }}"
+      "{{ create_fk_if_not_exists(this, 'account_key', ref('dim_accounts'), 'account_key', 'fk_daily_balances_account') }}"
     ]
   )
 }}
@@ -22,7 +22,7 @@ WITH daily_account_activity AS (
     CAST(SUM(CASE WHEN transaction_direction = 'Debit' THEN transaction_amount_abs ELSE 0 END) AS DECIMAL(15,2)) AS total_debits,
     CAST(SUM(CASE WHEN transaction_direction = 'Credit' THEN transaction_amount_abs ELSE 0 END) AS DECIMAL(15,2)) AS total_credits,
     MAX(account_balance) AS end_of_day_balance -- Last balance of the day
-  FROM {{ ref('fct_transactions_enhanced') }}
+  FROM {{ ref('fct_transactions') }}
   {% if is_incremental() %}
     WHERE transaction_date > (SELECT MAX(balance_date) FROM {{ this }})
   {% endif %}
@@ -36,7 +36,7 @@ date_spine AS (
     dc.date AS balance_date,
     da.account_start_date,
     da.account_last_transaction_date
-  FROM {{ ref('dim_accounts_enhanced') }} da
+  FROM {{ ref('dim_accounts') }} da
   CROSS JOIN {{ ref('dim_date_calendar') }} dc
   WHERE dc.date >= da.account_start_date
     AND dc.date <= CURRENT_DATE
@@ -120,7 +120,7 @@ final_with_account AS (
     fb.is_month_end,
     fb.created_at
   FROM final_balances fb
-  JOIN {{ ref('dim_accounts_enhanced') }} da
+  JOIN {{ ref('dim_accounts') }} da
     ON fb.account_key = da.account_key
 )
 

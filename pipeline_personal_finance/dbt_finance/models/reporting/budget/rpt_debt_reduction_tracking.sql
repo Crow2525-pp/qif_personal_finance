@@ -17,7 +17,7 @@ WITH liability_accounts AS (
     account_name,
     account_type,
     is_mortgage
-  FROM {{ ref('dim_accounts_enhanced') }}
+  FROM {{ ref('dim_accounts') }}
   WHERE is_liability = TRUE
 ),
 
@@ -82,7 +82,7 @@ monthly_transactions AS (
 
     COUNT(CASE WHEN ft.transaction_amount < 0 THEN 1 END) AS payment_count
 
-  FROM {{ ref('fct_transactions_enhanced') }} ft
+  FROM {{ ref('fct_transactions') }} ft
   JOIN liability_accounts da
     ON ft.account_key = da.account_key
   WHERE NOT COALESCE(ft.is_internal_transfer, FALSE)

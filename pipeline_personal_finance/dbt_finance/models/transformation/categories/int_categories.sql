@@ -3,23 +3,20 @@ WITH transaction_data AS (
     FROM {{ ref('int_append_accounts') }}
 ),
 
+-- Get category mappings from the banking_categories seed
 category_mappings AS (
-    SELECT 
-        cat_trans.transaction_description,
-        cat_trans.transaction_type,
-        cat_trans.sender,
-        cat_trans.recipient,
-        cat_trans.account_name,
+    SELECT
+        bc.transaction_description,
+        bc.transaction_type,
+        bc.sender,
+        bc.recipient,
+        bc.account_name,
         -- mapped natural category components
-        cat_trans.category AS map_category,
-        cat_trans.subcategory AS map_subcategory,
-        cat_trans.store AS map_store,
-        cat_trans.internal_indicator AS map_internal_indicator,
-        -- link to dim_category (3-part key)
-        cat.origin_key AS dim_category_key
-    FROM {{ ref('dim_categorise_transaction') }} as cat_trans
-    LEFT JOIN {{ ref('dim_category')}} as cat
-        ON cat.origin_key = cat_trans.category_foreign_key
+        bc.category AS map_category,
+        bc.subcategory AS map_subcategory,
+        bc.store AS map_store,
+        bc.internal_indicator AS map_internal_indicator
+    FROM {{ ref('banking_categories') }} bc
 ),
 
 -- Join transactions with category mappings
@@ -91,7 +88,7 @@ ranked AS (
 
 SELECT
     {{ dbt_utils.star(from=ref('int_append_accounts')) }},
-    -- Build foreign key to dim_categories_enhanced (matches its category_key)
+    -- Build foreign key to dim_categories (matches its category_key)
     COALESCE(
       md5(
         CAST(COALESCE(matched_category, '_dbt_utils_surrogate_key_null_') AS TEXT) || '-' ||
