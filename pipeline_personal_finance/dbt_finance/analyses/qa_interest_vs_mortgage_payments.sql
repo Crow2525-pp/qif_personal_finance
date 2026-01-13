@@ -11,8 +11,8 @@ WITH mortgage_tx AS (
         ft.transaction_amount,
         {{ metric_interest_payment() }} AS interest_amount,
         {{ metric_expense() }} AS expense_amount
-    FROM {{ ref('fct_transactions_enhanced') }} ft
-    LEFT JOIN {{ ref('dim_categories_enhanced') }} dc
+    FROM {{ ref('fct_transactions') }} ft
+    LEFT JOIN {{ ref('dim_categories') }} dc
       ON ft.category_key = dc.category_key
     WHERE dc.level_1_category = 'Mortgage'
 ),

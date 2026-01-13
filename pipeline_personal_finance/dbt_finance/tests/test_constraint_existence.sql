@@ -2,13 +2,13 @@
 -- This test verifies that required FK relationships exist, independent of names.
 
 WITH expected_relationships AS (
-  SELECT 'reporting'::text AS child_schema, 'fct_transactions_enhanced'::text AS child_table,
+  SELECT 'reporting'::text AS child_schema, 'fct_transactions'::text AS child_table,
          'account_key'::text AS child_column, 'reporting'::text AS parent_schema,
-         'dim_accounts_enhanced'::text AS parent_table, 'account_key'::text AS parent_column
+         'dim_accounts'::text AS parent_table, 'account_key'::text AS parent_column
   UNION ALL
-  SELECT 'reporting','fct_transactions_enhanced','category_key','reporting','dim_categories_enhanced','category_key'
+  SELECT 'reporting','fct_transactions','category_key','reporting','dim_categories','category_key'
   UNION ALL
-  SELECT 'reporting','fct_daily_balances','account_key','reporting','dim_accounts_enhanced','account_key'
+  SELECT 'reporting','fct_daily_balances','account_key','reporting','dim_accounts','account_key'
 ),
 
 fk_catalog AS (

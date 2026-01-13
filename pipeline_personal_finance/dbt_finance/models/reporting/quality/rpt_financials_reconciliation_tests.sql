@@ -182,7 +182,7 @@ ft_monthly AS (
     SUM(CASE WHEN ft.is_income_transaction THEN ABS(ft.transaction_amount) ELSE 0 END)::numeric AS ft_income,
     SUM(CASE WHEN ft.transaction_amount < 0 AND NOT COALESCE(ft.is_internal_transfer, FALSE) AND NOT COALESCE(ft.is_financial_service, FALSE)
              THEN ABS(ft.transaction_amount) ELSE 0 END)::numeric AS ft_expenses
-  FROM {{ ref('fct_transactions_enhanced') }} ft
+  FROM {{ ref('fct_transactions') }} ft
   GROUP BY 1
 ),
 
@@ -416,7 +416,7 @@ fact_abs_consistency AS (
   SELECT 
     DATE_TRUNC('month', transaction_date)::date AS period_date,
     COUNT(*) FILTER (WHERE transaction_amount_abs <> ABS(transaction_amount)::numeric) AS violations
-  FROM {{ ref('fct_transactions_enhanced') }}
+  FROM {{ ref('fct_transactions') }}
   GROUP BY 1
 ),
 
@@ -439,7 +439,7 @@ fact_eom AS (
     DATE_TRUNC('month', ft.transaction_date)::date AS period_date,
     ft.account_key,
     MAX(ft.account_balance)::numeric AS eom_balance
-  FROM {{ ref('fct_transactions_enhanced') }} ft
+  FROM {{ ref('fct_transactions') }} ft
   GROUP BY 1,2
 ),
 
@@ -588,8 +588,8 @@ income_uncat AS (
     DATE_TRUNC('month', ft.transaction_date)::date AS period_date,
     SUM(CASE WHEN ft.is_income_transaction THEN ABS(ft.transaction_amount) ELSE 0 END)::numeric AS income_total,
     SUM(CASE WHEN ft.is_income_transaction AND dc.level_1_category = 'Uncategorized' THEN ABS(ft.transaction_amount) ELSE 0 END)::numeric AS income_uncat
-  FROM {{ ref('fct_transactions_enhanced') }} ft
-  LEFT JOIN {{ ref('dim_categories_enhanced') }} dc ON ft.category_key = dc.category_key
+  FROM {{ ref('fct_transactions') }} ft
+  LEFT JOIN {{ ref('dim_categories') }} dc ON ft.category_key = dc.category_key
   GROUP BY 1
 ),
 

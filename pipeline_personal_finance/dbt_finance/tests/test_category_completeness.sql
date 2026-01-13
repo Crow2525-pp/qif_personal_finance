@@ -11,8 +11,8 @@ WITH transaction_categorization AS (
       WHEN dc.category = 'Uncategorized' THEN 'UNCATEGORIZED'
       ELSE 'CATEGORIZED'
     END AS categorization_status
-  FROM {{ ref('fct_transactions_enhanced') }} ft
-  LEFT JOIN {{ ref('dim_categories_enhanced') }} dc
+  FROM {{ ref('fct_transactions') }} ft
+  LEFT JOIN {{ ref('dim_categories') }} dc
     ON ft.category_key = dc.category_key
 ),
 

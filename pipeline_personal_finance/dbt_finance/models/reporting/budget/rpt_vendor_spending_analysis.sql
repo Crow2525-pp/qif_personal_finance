@@ -28,10 +28,10 @@ WITH transaction_vendors AS (
     dc.level_3_store AS store,
     da.account_name,
     ABS(ft.transaction_amount) AS transaction_amount
-  FROM {{ ref('fct_transactions_enhanced') }} ft
-  LEFT JOIN {{ ref('dim_categories_enhanced') }} dc
+  FROM {{ ref('fct_transactions') }} ft
+  LEFT JOIN {{ ref('dim_categories') }} dc
     ON ft.category_key = dc.category_key
-  LEFT JOIN {{ ref('dim_accounts_enhanced') }} da
+  LEFT JOIN {{ ref('dim_accounts') }} da
     ON ft.account_key = da.account_key
   WHERE ft.transaction_amount < 0  -- Only expenses
     AND NOT COALESCE(ft.is_internal_transfer, FALSE)

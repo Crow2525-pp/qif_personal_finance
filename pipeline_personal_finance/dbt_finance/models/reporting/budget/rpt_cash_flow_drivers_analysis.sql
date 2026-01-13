@@ -17,8 +17,8 @@ WITH monthly_category_outflows AS (
     AVG(ABS(t.transaction_amount)) as avg_transaction_amount,
     MAX(ABS(t.transaction_amount)) as max_transaction_amount,
     MIN(ABS(t.transaction_amount)) as min_transaction_amount
-  FROM {{ ref('fct_transactions_enhanced') }} t
-  JOIN {{ ref('dim_categories_enhanced') }} c ON t.category_key = c.category_key
+  FROM {{ ref('fct_transactions') }} t
+  JOIN {{ ref('dim_categories') }} c ON t.category_key = c.category_key
   WHERE t.transaction_amount < 0
     AND c.is_internal_transfer = false
   GROUP BY

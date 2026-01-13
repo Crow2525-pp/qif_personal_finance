@@ -51,7 +51,7 @@ fact_monthly_outflows AS (
         DATE_TRUNC('month', ft.transaction_date)::date AS period_date,
         SUM(ABS(ft.transaction_amount))::numeric AS total_outflows_fact,
         COUNT(*) AS total_transactions_fact
-    FROM {{ ref('fct_transactions_enhanced') }} ft
+    FROM {{ ref('fct_transactions') }} ft
     WHERE ft.transaction_amount < 0
       AND NOT COALESCE(ft.is_internal_transfer, FALSE)
     GROUP BY 1
@@ -61,8 +61,8 @@ fact_uncategorized AS (
     SELECT 
         DATE_TRUNC('month', ft.transaction_date)::date AS period_date,
         SUM(ABS(ft.transaction_amount))::numeric AS uncategorized_fact
-    FROM {{ ref('fct_transactions_enhanced') }} ft
-    JOIN {{ ref('dim_categories_enhanced') }} dc
+    FROM {{ ref('fct_transactions') }} ft
+    JOIN {{ ref('dim_categories') }} dc
       ON ft.category_key = dc.category_key
     WHERE ft.transaction_amount < 0
       AND NOT COALESCE(ft.is_internal_transfer, FALSE)

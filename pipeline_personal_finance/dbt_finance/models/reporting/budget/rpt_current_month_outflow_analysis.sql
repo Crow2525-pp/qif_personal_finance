@@ -19,8 +19,8 @@ current_month_outflows AS (
     MAX(ABS(t.transaction_amount)) as largest_transaction,
     -- Get the memo of the largest transaction
     (ARRAY_AGG(t.transaction_memo ORDER BY ABS(t.transaction_amount) DESC))[1] as largest_transaction_memo
-  FROM {{ ref('fct_transactions_enhanced') }} t
-  JOIN {{ ref('dim_categories_enhanced') }} c ON t.category_key = c.category_key
+  FROM {{ ref('fct_transactions') }} t
+  JOIN {{ ref('dim_categories') }} c ON t.category_key = c.category_key
   CROSS JOIN current_month_base cmb
   WHERE DATE_TRUNC('month', t.transaction_date) = cmb.analysis_month
     AND t.transaction_amount < 0
@@ -34,8 +34,8 @@ historical_averages AS (
     c.subcategory,
     AVG(ABS(t.transaction_amount)) as historical_avg_monthly,
     COUNT(DISTINCT DATE_TRUNC('month', t.transaction_date)) as months_of_data
-  FROM {{ ref('fct_transactions_enhanced') }} t
-  JOIN {{ ref('dim_categories_enhanced') }} c ON t.category_key = c.category_key
+  FROM {{ ref('fct_transactions') }} t
+  JOIN {{ ref('dim_categories') }} c ON t.category_key = c.category_key
   CROSS JOIN current_month_base cmb
   WHERE DATE_TRUNC('month', t.transaction_date) < cmb.analysis_month
     AND DATE_TRUNC('month', t.transaction_date) >= cmb.analysis_month - INTERVAL '6 months'

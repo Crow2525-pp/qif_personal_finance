@@ -2,31 +2,31 @@
 
 WITH monthly_aggregates AS (
     SELECT
-        DATE_TRUNC('month', t.date) as month,
-        EXTRACT(year FROM t.date) as year,
-        EXTRACT(month FROM t.date) as month_num,
+        DATE_TRUNC('month', t.transaction_date) as month,
+        EXTRACT(year FROM t.transaction_date) as year,
+        EXTRACT(month FROM t.transaction_date) as month_num,
 
         -- Income breakdowns
-        SUM(CASE WHEN t.memo LIKE '%QBE MANAGEMENT%' THEN t.amount ELSE 0 END) as qbe_salary,
-        SUM(CASE WHEN t.memo LIKE '%DEPARTMENT OF ED%' THEN t.amount ELSE 0 END) as education_salary,
-        SUM(CASE WHEN t.memo LIKE '%Phil pay Stephanie%' THEN t.amount ELSE 0 END) as phil_payments,
-        SUM(CASE WHEN t.amount > 0 THEN t.amount ELSE 0 END) as total_income,
+        SUM(CASE WHEN t.transaction_memo LIKE '%QBE MANAGEMENT%' THEN t.transaction_amount ELSE 0 END) as qbe_salary,
+        SUM(CASE WHEN t.transaction_memo LIKE '%DEPARTMENT OF ED%' THEN t.transaction_amount ELSE 0 END) as education_salary,
+        SUM(CASE WHEN t.transaction_memo LIKE '%Phil pay Stephanie%' THEN t.transaction_amount ELSE 0 END) as phil_payments,
+        SUM(CASE WHEN t.transaction_amount > 0 THEN t.transaction_amount ELSE 0 END) as total_income,
 
         -- Expense breakdown
-        SUM(CASE WHEN t.amount < 0 THEN ABS(t.amount) ELSE 0 END) as total_expenses,
-        SUM(t.amount) as net_flow,
+        SUM(CASE WHEN t.transaction_amount < 0 THEN ABS(t.transaction_amount) ELSE 0 END) as total_expenses,
+        SUM(t.transaction_amount) as net_flow,
 
         -- Transaction counts
-        COUNT(CASE WHEN t.amount > 0 THEN 1 END) as income_transactions,
-        COUNT(CASE WHEN t.amount < 0 THEN 1 END) as expense_transactions
+        COUNT(CASE WHEN t.transaction_amount > 0 THEN 1 END) as income_transactions,
+        COUNT(CASE WHEN t.transaction_amount < 0 THEN 1 END) as expense_transactions
 
     FROM {{ ref('fct_transactions') }} t
-    WHERE t.date >= '2022-01-01'
-        AND t.date < DATE_TRUNC('month', CURRENT_DATE)  -- Only complete months
+    WHERE t.transaction_date >= '2022-01-01'
+        AND t.transaction_date < DATE_TRUNC('month', CURRENT_DATE)  -- Only complete months
     GROUP BY
-        DATE_TRUNC('month', t.date),
-        EXTRACT(year FROM t.date),
-        EXTRACT(month FROM t.date)
+        DATE_TRUNC('month', t.transaction_date),
+        EXTRACT(year FROM t.transaction_date),
+        EXTRACT(month FROM t.transaction_date)
 ),
 
 yearly_trends AS (

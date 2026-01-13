@@ -13,13 +13,13 @@
 
 WITH
   ft AS (
-    SELECT * FROM {{ ref('fct_transactions_enhanced') }}
+    SELECT * FROM {{ ref('fct_transactions') }}
   ),
   dc AS (
-    SELECT * FROM {{ ref('dim_categories_enhanced') }}
+    SELECT * FROM {{ ref('dim_categories') }}
   ),
   da AS (
-    SELECT * FROM {{ ref('dim_accounts_enhanced') }}
+    SELECT * FROM {{ ref('dim_accounts') }}
   ),
 
   -- Uncategorized side

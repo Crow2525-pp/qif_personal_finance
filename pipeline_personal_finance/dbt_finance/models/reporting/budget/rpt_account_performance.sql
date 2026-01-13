@@ -56,8 +56,8 @@ monthly_account_activity AS (
     AVG(ft.transaction_amount) AS avg_transaction_amount,
     STDDEV(ft.transaction_amount) AS transaction_volatility
     
-  FROM {{ ref('fct_transactions_enhanced') }} ft
-  LEFT JOIN {{ ref('dim_accounts_enhanced') }} da
+  FROM {{ ref('fct_transactions') }} ft
+  LEFT JOIN {{ ref('dim_accounts') }} da
     ON ft.account_key = da.account_key
   LEFT JOIN known_flags k
     ON LOWER(da.account_name) = k.account_name_lower
