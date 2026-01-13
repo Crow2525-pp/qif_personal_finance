@@ -245,6 +245,17 @@ final_scorecard AS (
     END AS overall_health_rating,
 
     -- Identify strengths (scores >= 80)
+    {% if target.type == 'duckdb' %}
+    list_filter([
+      CASE WHEN savings_score >= 80 THEN 'Savings' END,
+      CASE WHEN net_worth_score >= 80 THEN 'Net Worth' END,
+      CASE WHEN cash_flow_score >= 80 THEN 'Cash Flow' END,
+      CASE WHEN emergency_fund_score >= 80 THEN 'Emergency Fund' END,
+      CASE WHEN income_stability_score >= 80 THEN 'Income Stability' END,
+      CASE WHEN debt_management_score >= 80 THEN 'Debt Management' END,
+      CASE WHEN spending_control_score >= 80 THEN 'Spending Control' END
+    ], x -> x IS NOT NULL) AS financial_strengths,
+    {% else %}
     ARRAY_REMOVE(ARRAY[
       CASE WHEN savings_score >= 80 THEN 'Savings' END,
       CASE WHEN net_worth_score >= 80 THEN 'Net Worth' END,
@@ -254,8 +265,20 @@ final_scorecard AS (
       CASE WHEN debt_management_score >= 80 THEN 'Debt Management' END,
       CASE WHEN spending_control_score >= 80 THEN 'Spending Control' END
     ], NULL) AS financial_strengths,
+    {% endif %}
 
     -- Identify areas needing attention (scores < 60)
+    {% if target.type == 'duckdb' %}
+    list_filter([
+      CASE WHEN savings_score < 60 THEN 'Savings' END,
+      CASE WHEN net_worth_score < 60 THEN 'Net Worth' END,
+      CASE WHEN cash_flow_score < 60 THEN 'Cash Flow' END,
+      CASE WHEN emergency_fund_score < 60 THEN 'Emergency Fund' END,
+      CASE WHEN income_stability_score < 60 THEN 'Income Stability' END,
+      CASE WHEN debt_management_score < 60 THEN 'Debt Management' END,
+      CASE WHEN spending_control_score < 60 THEN 'Spending Control' END
+    ], x -> x IS NOT NULL) AS areas_needing_attention,
+    {% else %}
     ARRAY_REMOVE(ARRAY[
       CASE WHEN savings_score < 60 THEN 'Savings' END,
       CASE WHEN net_worth_score < 60 THEN 'Net Worth' END,
@@ -265,6 +288,7 @@ final_scorecard AS (
       CASE WHEN debt_management_score < 60 THEN 'Debt Management' END,
       CASE WHEN spending_control_score < 60 THEN 'Spending Control' END
     ], NULL) AS areas_needing_attention,
+    {% endif %}
 
     -- Top priority for improvement (lowest score)
     CASE

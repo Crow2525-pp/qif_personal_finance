@@ -48,7 +48,11 @@ monthly_projections AS (
         monthly_phil_base as base_monthly_income,
 
         -- Project forward 12 months
-        generate_series(1, 12) as projection_month
+        {% if target.type == 'duckdb' %}
+        UNNEST(range(1, 13)) AS projection_month
+        {% else %}
+        generate_series(1, 12) AS projection_month
+        {% endif %}
 
     FROM base_assumptions bp
 )

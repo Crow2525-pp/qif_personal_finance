@@ -6,33 +6,32 @@ WITH original_transactions AS (
 patch_transactions AS (
   SELECT
     -- Standardized transaction identifiers  
-    primary_key,
-    CAST(date AS DATE) AS transaction_date,
+    {{ dbt_utils.generate_surrogate_key([
+      'date',
+      'amount',
+      'line_number',
+      'memo',
+      'bank_name',
+      'account_name'
+    ]) }} AS primary_key,
+    '' AS receipt,
+    '' AS location,
+    '' AS description_date, 
+    '' AS card_no,
+    'BANK_MORTGAGE' AS sender,
+    'YOU' AS recipient,
     CAST(amount AS FLOAT) AS transaction_amount,
     line_number,
-    
-    -- Account information
     'bendigo_homeloan' AS account_name,
-    
-    -- Memo and extracted details
+    CAST(date AS DATE) AS transaction_date,
     memo,
-    '' AS transaction_description,
+    memo AS transaction_description,
     CASE 
       WHEN memo = 'INTEREST' THEN 'INTEREST'
       WHEN memo = 'MONTHLY SERVICE FEE' THEN 'MONTHLY SERVICE FEE'  
       WHEN memo = 'TRANSFER 00538977991401' THEN 'TRANSFER'
       ELSE ''
     END AS transaction_type,
-    
-    -- Placeholder fields for consistency
-    '' AS receipt,
-    '' AS location,
-    '' AS description_date, 
-    '' AS card_no,
-    '' AS sender,
-    '' AS recipient,
-    
-    -- ETL metadata
     CURRENT_DATE AS etl_date,
     CURRENT_TIME AS etl_time
   

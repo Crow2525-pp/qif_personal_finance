@@ -6,6 +6,9 @@ Try running the following commands:
 - dbt run
 - dbt test
 
+### Local development
+- See `pipeline_personal_finance/dbt_finance/LOCAL_DEV.md` for DuckDB + Grafana local workflows.
+
 
 ### Resources:
 - Learn more about dbt [in the docs](https://docs.getdbt.com/docs/introduction)

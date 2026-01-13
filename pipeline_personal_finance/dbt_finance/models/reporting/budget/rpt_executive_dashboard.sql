@@ -239,6 +239,18 @@ executive_summary AS (
 -- Add top spending categories as JSON for dashboard flexibility
 top_categories_json AS (
   SELECT 
+    {% if target.type == 'duckdb' %}
+    to_json(
+      list(
+        json_object(
+          'category', level_1_category,
+          'amount', monthly_spending,
+          'percent', percent_of_total_monthly_spending,
+          'trend', spending_trend_category
+        )
+      )
+    ) AS top_spending_categories_json
+    {% else %}
     JSON_AGG(
       JSON_BUILD_OBJECT(
         'category', level_1_category,
@@ -247,6 +259,7 @@ top_categories_json AS (
         'trend', spending_trend_category
       ) ORDER BY spending_rank
     ) AS top_spending_categories_json
+    {% endif %}
   FROM top_spending_categories
 ),
 

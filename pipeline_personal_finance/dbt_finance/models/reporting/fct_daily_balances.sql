@@ -1,6 +1,11 @@
+{%
+  set enforce_contract = target.type != 'duckdb'
+%}
 {{
   config(
     materialized='incremental',
+    contract={'enforced': enforce_contract},
+    constraints=[] if not enforce_contract else none,
     unique_key=['account_key', 'balance_date'],
     on_schema_change='append_new_columns',
     indexes=[

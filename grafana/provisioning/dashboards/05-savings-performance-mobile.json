@@ -525,7 +525,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest AS (\n    SELECT budget_year_month, cash_savings, investment_contributions, offset_savings\n    FROM reporting.rpt_savings_analysis\n    ORDER BY budget_year_month DESC\n    LIMIT 1\n), unpivot AS (\n    SELECT 'Cash Savings' AS savings_type, cash_savings AS value FROM latest\n    UNION ALL\n    SELECT 'Investment Contributions', investment_contributions FROM latest\n    UNION ALL\n    SELECT 'Offset Savings', offset_savings FROM latest\n)\nSELECT savings_type, value\nFROM unpivot\nWHERE value IS NOT NULL\n  AND value >= 0\nUNION ALL\nSELECT 'No savings recorded', 0\nWHERE NOT EXISTS (SELECT 1 FROM unpivot WHERE value IS NOT NULL AND value >= 0 AND value <> 0);",
+          "rawSql": "WITH latest AS (\n    SELECT budget_year_month, cash_savings, investment_contributions, offset_savings\n    FROM reporting.rpt_savings_analysis\n    ORDER BY budget_year_month DESC\n    LIMIT 1\n), unpivoted AS (\n    SELECT 'Cash Savings' AS savings_type, cash_savings AS value FROM latest\n    UNION ALL\n    SELECT 'Investment Contributions', investment_contributions FROM latest\n    UNION ALL\n    SELECT 'Offset Savings', offset_savings FROM latest\n)\nSELECT savings_type, value\nFROM unpivoted\nWHERE value IS NOT NULL\n  AND value >= 0\nUNION ALL\nSELECT 'No savings recorded', 0\nWHERE NOT EXISTS (SELECT 1 FROM unpivoted WHERE value IS NOT NULL AND value >= 0 AND value <> 0);",
           "refId": "A"
         }
       ],

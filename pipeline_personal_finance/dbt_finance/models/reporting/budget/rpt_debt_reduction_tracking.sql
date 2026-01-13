@@ -1,8 +1,11 @@
+{%
+  set unique_period = target.type != 'duckdb'
+%}
 {{
   config(
     materialized='table',
     indexes=[
-      {'columns': ['period_month'], 'unique': true},
+      {'columns': ['period_month'], 'unique': unique_period},
       {'columns': ['account_name'], 'unique': false}
     ]
   )

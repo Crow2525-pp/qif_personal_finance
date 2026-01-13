@@ -1,6 +1,11 @@
+{%
+  set enforce_contract = target.type != 'duckdb'
+%}
 {{
   config(
     materialized='table',
+    contract={'enforced': enforce_contract},
+    constraints=[] if not enforce_contract else none,
     indexes=[
       {'columns': ['transaction_date'], 'unique': false},
       {'columns': ['account_key'], 'unique': false},
@@ -46,8 +51,8 @@ fact_base AS (
     ) AS category_key,
 
     -- Transaction measures
-    ROUND(ct.transaction_amount::NUMERIC, 2) AS transaction_amount,
-    ROUND(ct.adjusted_transaction_balance::NUMERIC, 2) AS account_balance,
+    CAST(ROUND(ct.transaction_amount::NUMERIC, 2) AS DECIMAL(18,3)) AS transaction_amount,
+    CAST(ROUND(ct.adjusted_transaction_balance::NUMERIC, 2) AS DECIMAL(18,3)) AS account_balance,
 
     -- Transaction attributes
     CASE
@@ -56,7 +61,7 @@ fact_base AS (
       ELSE 'Zero'
     END AS transaction_direction,
 
-    ABS(ROUND(ct.transaction_amount::NUMERIC, 2)) AS transaction_amount_abs,
+    CAST(ABS(ROUND(ct.transaction_amount::NUMERIC, 2)) AS DECIMAL(18,3)) AS transaction_amount_abs,
 
     -- Categorization flags
     COALESCE(dc.is_income, FALSE) AS is_income_transaction,

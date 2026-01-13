@@ -155,8 +155,10 @@ services:
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
       - GRAFANA_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_INSTALL_PLUGINS=marcusolsson-duckdb-datasource
     volumes:
       - grafana-storage:/var/lib/grafana
+      - ./pipeline_personal_finance/dbt_finance/duckdb:/var/lib/grafana/duckdb
       - ./grafana/provisioning:/etc/grafana/provisioning
     networks:
       - dagster_network

@@ -130,14 +130,22 @@ WITH
   un_tokens AS (
     SELECT u.memo_norm AS un_memo_norm, tok AS token
     FROM (SELECT DISTINCT memo_norm FROM uncat_norm) u
+    {% if target.type == 'duckdb' %}
+    CROSS JOIN UNNEST(regexp_split_to_array(u.memo_norm, '\\s+')) AS tok(tok)
+    {% else %}
     CROSS JOIN LATERAL regexp_split_to_table(u.memo_norm, '\\s+') AS tok
+    {% endif %}
     WHERE length(tok) >= 3 AND tok ~ '[A-Z]+' AND tok NOT IN (SELECT sw FROM stopwords)
   ),
 
   ca_tokens AS (
     SELECT c.memo_norm AS ca_memo_norm, tok AS token
     FROM (SELECT DISTINCT memo_norm FROM cat_base) c
+    {% if target.type == 'duckdb' %}
+    CROSS JOIN UNNEST(regexp_split_to_array(c.memo_norm, '\\s+')) AS tok(tok)
+    {% else %}
     CROSS JOIN LATERAL regexp_split_to_table(c.memo_norm, '\\s+') AS tok
+    {% endif %}
     WHERE length(tok) >= 3 AND tok ~ '[A-Z]+' AND tok NOT IN (SELECT sw FROM stopwords)
   ),
 

@@ -118,10 +118,10 @@ ie_tests AS (
 cf AS (
   SELECT 
     to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS period_date,
-    net_cash_flow::numeric,
+    net_cash_flow::numeric AS net_cash_flow,
     (operating_inflows - operating_outflows)::numeric AS operating_cash_flow,
-    financing_cash_flow::numeric,
-    investing_cash_flow::numeric
+    financing_cash_flow::numeric AS financing_cash_flow,
+    investing_cash_flow::numeric AS investing_cash_flow
   FROM {{ ref('rpt_cash_flow_analysis') }}
   WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') IN (SELECT period_date FROM periods)
 ),
@@ -308,9 +308,9 @@ cashflow_ratio_tests AS (
   FROM (
     SELECT 
       to_date(budget_year_month || '-01','YYYY-MM-DD') AS period_date,
-      total_inflows::numeric,
-      total_outflows::numeric,
-      outflow_to_inflow_ratio::numeric
+      total_inflows::numeric AS total_inflows,
+      total_outflows::numeric AS total_outflows,
+      outflow_to_inflow_ratio::numeric AS outflow_to_inflow_ratio
     FROM {{ ref('rpt_cash_flow_analysis') }}
   ) cf
   UNION ALL
@@ -326,9 +326,9 @@ cashflow_ratio_tests AS (
   FROM (
     SELECT 
       to_date(budget_year_month || '-01','YYYY-MM-DD') AS period_date,
-      total_inflows::numeric,
-      net_cash_flow::numeric,
-      cash_flow_margin_percent::numeric
+      total_inflows::numeric AS total_inflows,
+      net_cash_flow::numeric AS net_cash_flow,
+      cash_flow_margin_percent::numeric AS cash_flow_margin_percent
     FROM {{ ref('rpt_cash_flow_analysis') }}
   ) cf
 ),
@@ -337,9 +337,9 @@ cashflow_ratio_tests AS (
 networth_base AS (
   SELECT 
     to_date(budget_year_month || '-01','YYYY-MM-DD') AS period_date,
-    total_assets::numeric,
-    total_liabilities::numeric,
-    net_worth::numeric
+    total_assets::numeric AS total_assets,
+    total_liabilities::numeric AS total_liabilities,
+    net_worth::numeric AS net_worth
   FROM {{ ref('rpt_household_net_worth') }}
 ),
 

@@ -14,8 +14,8 @@ WITH props AS (
     asset_name,
     display_name,
     asset_type,
-    purchase_date::date,
-    purchase_price::numeric,
+    purchase_date::date AS purchase_date,
+    purchase_price::numeric AS purchase_price,
     COALESCE(appreciation_rate_low::numeric, 0.0)  AS rate_low,
     COALESCE(appreciation_rate_high::numeric, 0.0) AS rate_high,
     CASE 
@@ -40,13 +40,25 @@ series AS (
     p.rate_high,
     p.rate_mid,
     -- monthly series from purchase month to current month
+    {% if target.type == 'duckdb' %}
+    gs.month_start AS month_start
+    {% else %}
     gs::date AS month_start
+    {% endif %}
   FROM props p
+  {% if target.type == 'duckdb' %}
+  CROSS JOIN generate_series(
+    date_trunc('month', p.purchase_date),
+    date_trunc('month', current_date) - interval '1 month',
+    interval '1 month'
+  ) AS gs(month_start)
+  {% else %}
   CROSS JOIN LATERAL generate_series(
     date_trunc('month', p.purchase_date),
     date_trunc('month', current_date) - interval '1 month',
     interval '1 month'
   ) AS gs
+  {% endif %}
 ),
 
 valuations AS (

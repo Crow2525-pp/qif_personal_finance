@@ -157,7 +157,11 @@ uncat_tokens AS (
     u.memo_norm AS uncat_memo_norm,
     tok AS token
   FROM hvu_memos u
+  {% if target.type == 'duckdb' %}
+  CROSS JOIN UNNEST(regexp_split_to_array(u.memo_norm, '\\s+')) AS tok(tok)
+  {% else %}
   CROSS JOIN LATERAL regexp_split_to_table(u.memo_norm, '\\s+') AS tok
+  {% endif %}
   WHERE length(tok) >= 3
     AND tok ~ '[A-Z]+'
     AND tok NOT IN (SELECT sw FROM stopwords)
@@ -168,7 +172,11 @@ cat_tokens AS (
     cb.memo_norm AS cat_memo_norm,
     tok AS token
   FROM categorized_base cb
+  {% if target.type == 'duckdb' %}
+  CROSS JOIN UNNEST(regexp_split_to_array(cb.memo_norm, '\\s+')) AS tok(tok)
+  {% else %}
   CROSS JOIN LATERAL regexp_split_to_table(cb.memo_norm, '\\s+') AS tok
+  {% endif %}
   WHERE length(tok) >= 3
     AND tok ~ '[A-Z]+'
     AND tok NOT IN (SELECT sw FROM stopwords)

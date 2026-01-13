@@ -1,0 +1,11 @@
+apiVersion: 1
+
+datasources:
+  - name: DuckDB
+    type: marcusolsson-duckdb-datasource
+    uid: PCC52D03280B7034C
+    access: proxy
+    jsonData:
+      path: /var/lib/grafana/duckdb/personal_finance.duckdb
+    isDefault: true
+    editable: true

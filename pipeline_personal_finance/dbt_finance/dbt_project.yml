@@ -58,6 +58,8 @@ models:
 seeds:
   schema: landing
   personal_finance:
+    local:
+      +enabled: "{{ target.name == 'local_duckdb' }}"
     banking_categories:
       +column_types:
         origin_key: int
@@ -74,3 +76,33 @@ vars:
   high_value_threshold: 200               # lower than 1000 to surface more groups
   suggestion_confidence_min: 0.4          # allow medium-confidence suggestions
   suggestion_support_min: 1               # accept suggestions seen once
+
+on-run-start:
+  - >
+      {% if target.type == 'duckdb' %}
+      CREATE OR REPLACE MACRO to_char(val, fmt) AS (
+        CASE
+          WHEN fmt = 'YYYY-MM' THEN strftime(CAST(val AS TIMESTAMP), '%Y-%m')
+          WHEN fmt = 'YYYY-MM-DD' THEN strftime(CAST(val AS TIMESTAMP), '%Y-%m-%d')
+          WHEN fmt = 'YYYY' THEN strftime(CAST(val AS TIMESTAMP), '%Y')
+          WHEN fmt LIKE 'FM%' THEN CAST(val AS VARCHAR)
+          ELSE CAST(val AS VARCHAR)
+        END
+      );
+      CREATE OR REPLACE MACRO to_date(val, fmt) AS (
+        CASE
+          WHEN fmt = 'YYYY-MM' THEN CAST(strptime(val, '%Y-%m') AS DATE)
+          WHEN fmt = 'YYYY-MM-DD' THEN CAST(strptime(val, '%Y-%m-%d') AS DATE)
+          WHEN fmt = 'YYYY' THEN CAST(strptime(val, '%Y') AS DATE)
+          ELSE CAST(strptime(val, '%Y-%m-%d') AS DATE)
+        END
+      );
+      CREATE OR REPLACE MACRO to_timestamp(val, fmt) AS (
+        CASE
+          WHEN fmt = 'YYYY-MM' THEN strptime(val || '-01', '%Y-%m-%d')
+          WHEN fmt = 'YYYY-MM-DD' THEN strptime(val, '%Y-%m-%d')
+          WHEN fmt = 'YYYY' THEN strptime(val || '-01-01', '%Y-%m-%d')
+          ELSE strptime(val, '%Y-%m-%d')
+        END
+      );
+      {% endif %}

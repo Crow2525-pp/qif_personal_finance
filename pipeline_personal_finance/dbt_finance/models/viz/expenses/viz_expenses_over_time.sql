@@ -43,7 +43,11 @@ rolling_totals AS (
 )
 
 SELECT
+    {% if target.type == 'duckdb' %}
+    CAST(to_date("Year Month" || '-01', 'YYYY-MM-DD') AS TIMESTAMP) AS date,
+    {% else %}
     to_timestamp("Year Month" || '-01', 'YYYY-MM-DD') AS date,
+    {% endif %}
     "Month LY", "Month TY", "R12M TY", "R12M LY"
 FROM rolling_totals
 WHERE "Month LY" IS NOT NULL
