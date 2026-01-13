@@ -5,6 +5,16 @@ param(
 
 $ErrorActionPreference = "Stop"
 $env:DBT_PROFILES_DIR = $ProfilesDir
+$duckdbPath = Join-Path $ProjectDir "duckdb/personal_finance.duckdb"
+$duckdbWalPath = "${duckdbPath}.wal"
+
+if (Test-Path $duckdbPath) {
+    Remove-Item $duckdbPath -Force
+}
+
+if (Test-Path $duckdbWalPath) {
+    Remove-Item $duckdbWalPath -Force
+}
 
 function Invoke-Dbt {
     param([string[]]$DbtArgs)

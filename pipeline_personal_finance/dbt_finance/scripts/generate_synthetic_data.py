@@ -73,6 +73,66 @@ CATEGORY_MAPPINGS = [
         "store": "Internal",
         "internal_indicator": "Internal",
     },
+    {
+        "transaction_description": "AMAZON",
+        "transaction_type": "DEBIT",
+        "sender": "YOU",
+        "recipient": "AMAZON",
+        "category": "Shopping",
+        "subcategory": "Online Retail",
+        "store": "Amazon",
+        "internal_indicator": "External",
+    },
+    {
+        "transaction_description": "FAMILY",
+        "transaction_type": "DEBIT",
+        "sender": "YOU",
+        "recipient": "FAMILY_ACTIVITY",
+        "category": "Family & Kids",
+        "subcategory": "Activities",
+        "store": "Family",
+        "internal_indicator": "External",
+    },
+    {
+        "transaction_description": "HEALTH",
+        "transaction_type": "DEBIT",
+        "sender": "YOU",
+        "recipient": "HEALTH_SHOP",
+        "category": "Health & Beauty",
+        "subcategory": "Pharmacy",
+        "store": "Health",
+        "internal_indicator": "External",
+    },
+    {
+        "transaction_description": "LEISURE",
+        "transaction_type": "DEBIT",
+        "sender": "YOU",
+        "recipient": "LEISURE_OUTLET",
+        "category": "Leisure",
+        "subcategory": "Entertainment",
+        "store": "Leisure",
+        "internal_indicator": "External",
+    },
+    {
+        "transaction_description": "SHOPPING",
+        "transaction_type": "DEBIT",
+        "sender": "YOU",
+        "recipient": "SHOPPING_MALL",
+        "category": "Shopping",
+        "subcategory": "Retail",
+        "store": "Shopping",
+        "internal_indicator": "External",
+    },
+    {
+        "transaction_description": "TRANSPORT",
+        "transaction_type": "DEBIT",
+        "sender": "YOU",
+        "recipient": "TRANSPORT_CO",
+        "category": "Transport",
+        "subcategory": "Public Transport",
+        "store": "Transport",
+        "internal_indicator": "External",
+    },
 ]
 
 CATEGORIES_ALLOWED = [
@@ -151,19 +211,21 @@ def write_csv(path, fieldnames, rows):
 
 
 def build_transactions(months_back):
-    end_month = month_start(date.today()) - timedelta(days=1)
-    end_month = month_start(end_month)
+    today = date.today()
+    end_month = month_start(today.replace(day=1) - timedelta(days=1))
+    end_month_index = end_month.year * 12 + end_month.month
     months = list(iter_months(end_month, months_back))
     data = {}
     for account_name, table_name in ACCOUNTS:
         rows = []
         line_number = 1
         for month in months:
-            salary_date = month + timedelta(days=2)
+            salary_date = month + timedelta(days=26)
             grocery_date = month + timedelta(days=6)
             util_date = month + timedelta(days=12)
             transfer_date = month + timedelta(days=18)
             mortgage_date = month + timedelta(days=24)
+            bonus_date = month + timedelta(days=26)
 
             if account_name in ("ING_Countdown", "ING_BillsBillsBills"):
                 rows.append(
@@ -239,6 +301,123 @@ def build_transactions(months_back):
                 )
                 line_number += 1
 
+            if account_name in ("ING_Countdown", "ING_BillsBillsBills"):
+                is_recent = (month.year * 12 + month.month) >= (end_month_index - 5)
+                shopping_amount = -250 if month == end_month else -95
+                rows.append(
+                    make_txn(
+                        account_name,
+                        grocery_date + timedelta(days=2),
+                        -120,
+                        "AMAZON ORDER",
+                        "AMAZON",
+                        "DEBIT",
+                        "YOU",
+                        "AMAZON",
+                        line_number,
+                    )
+                )
+                line_number += 1
+                rows.append(
+                    make_txn(
+                        account_name,
+                        util_date + timedelta(days=1),
+                        -85,
+                        "FAMILY ACTIVITY",
+                        "FAMILY",
+                        "DEBIT",
+                        "YOU",
+                        "FAMILY_ACTIVITY",
+                        line_number,
+                    )
+                )
+                line_number += 1
+                rows.append(
+                    make_txn(
+                        account_name,
+                        util_date + timedelta(days=3),
+                        -65,
+                        "HEALTH SHOP",
+                        "HEALTH",
+                        "DEBIT",
+                        "YOU",
+                        "HEALTH_SHOP",
+                        line_number,
+                    )
+                )
+                line_number += 1
+                rows.append(
+                    make_txn(
+                        account_name,
+                        transfer_date + timedelta(days=2),
+                        -70,
+                        "LEISURE OUTING",
+                        "LEISURE",
+                        "DEBIT",
+                        "YOU",
+                        "LEISURE_OUTLET",
+                        line_number,
+                    )
+                )
+                line_number += 1
+                rows.append(
+                    make_txn(
+                        account_name,
+                        transfer_date + timedelta(days=3),
+                        shopping_amount,
+                        "SHOPPING MALL",
+                        "SHOPPING",
+                        "DEBIT",
+                        "YOU",
+                        "SHOPPING_MALL",
+                        line_number,
+                    )
+                )
+                line_number += 1
+                rows.append(
+                    make_txn(
+                        account_name,
+                        transfer_date + timedelta(days=4),
+                        -40,
+                        "TRANSPORT FARE",
+                        "TRANSPORT",
+                        "DEBIT",
+                        "YOU",
+                        "TRANSPORT_CO",
+                        line_number,
+                    )
+                )
+                line_number += 1
+                rows.append(
+                    make_txn(
+                        account_name,
+                        transfer_date + timedelta(days=5),
+                        -55,
+                        "MISC PURCHASE",
+                        "UNKNOWN",
+                        "DEBIT",
+                        "YOU",
+                        "MISC_VENDOR",
+                        line_number,
+                    )
+                )
+                line_number += 1
+                if is_recent:
+                    rows.append(
+                        make_txn(
+                            account_name,
+                            transfer_date + timedelta(days=6),
+                            -1500,
+                            "UNCAT LARGE",
+                            "UNCAT_LARGE",
+                            "UNKNOWN",
+                            "YOU",
+                            "MISC_VENDOR",
+                            line_number,
+                        )
+                    )
+                    line_number += 1
+
             if "Offset" in account_name:
                 rows.append(
                     make_txn(
@@ -249,6 +428,22 @@ def build_transactions(months_back):
                         "TRANSFER",
                         "CREDIT",
                         "TRANSFER",
+                        "YOU",
+                        line_number,
+                    )
+                )
+                line_number += 1
+
+            if account_name not in ("ING_Countdown", "ING_BillsBillsBills"):
+                rows.append(
+                    make_txn(
+                        account_name,
+                        bonus_date,
+                        4000,
+                        "PAYROLL BONUS",
+                        "PAYROLL",
+                        "CREDIT",
+                        "ACME_PAYROLL",
                         "YOU",
                         line_number,
                     )
