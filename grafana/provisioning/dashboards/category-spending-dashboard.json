@@ -496,6 +496,470 @@
       ],
       "title": "Last Month vs 3-Month Average (Top Variances)",
       "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Month-over-month variance drivers: categories with >10% change and >$100 absolute variance",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "category"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "current_month"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "prior_month"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "variance_dollars"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "variance_percent"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "id": 6,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH latest_two_months AS (\n  SELECT budget_year_month, ROW_NUMBER() OVER (ORDER BY budget_year_month DESC) as rn\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\n  GROUP BY budget_year_month\n  LIMIT 2\n),\ncurrent_month_data AS (\n  SELECT level_1_category, SUM(monthly_spending) as amount\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month = (SELECT budget_year_month FROM latest_two_months WHERE rn = 1)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n  GROUP BY level_1_category\n),\nprior_month_data AS (\n  SELECT level_1_category, SUM(monthly_spending) as amount\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month = (SELECT budget_year_month FROM latest_two_months WHERE rn = 2)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n  GROUP BY level_1_category\n)\nSELECT\n  c.level_1_category as category,\n  c.amount as current_month,\n  COALESCE(p.amount, 0) as prior_month,\n  (c.amount - COALESCE(p.amount, 0)) as variance_dollars,\n  CASE \n    WHEN COALESCE(p.amount, 0) = 0 THEN 100.0\n    ELSE ROUND((c.amount - COALESCE(p.amount, 0)) / COALESCE(p.amount, 1) * 100, 1)\n  END as variance_percent\nFROM current_month_data c\nLEFT JOIN prior_month_data p ON c.level_1_category = p.level_1_category\nWHERE ABS(c.amount - COALESCE(p.amount, 0)) >= 100\n  AND ABS(CASE WHEN COALESCE(p.amount, 0) = 0 THEN 100.0 ELSE (c.amount - COALESCE(p.amount, 0)) / COALESCE(p.amount, 1) * 100 END) >= 10\nORDER BY ABS(c.amount - COALESCE(p.amount, 0)) DESC\nLIMIT 10;",
+          "refId": "A"
+        }
+      ],
+      "title": "MoM Variance Drivers (>10% & >$100)",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Top 5 transactions for the highest variance category MoM",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "transaction_date"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "merchant"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 200
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "amount"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "id": 7,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH latest_two_months AS (\n  SELECT budget_year_month, ROW_NUMBER() OVER (ORDER BY budget_year_month DESC) as rn\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\n  GROUP BY budget_year_month\n  LIMIT 2\n),\nvariance_categories AS (\n  SELECT level_1_category, ABS(SUM(CASE WHEN budget_year_month = (SELECT budget_year_month FROM latest_two_months WHERE rn = 1) THEN monthly_spending ELSE -COALESCE(monthly_spending, 0) END)) as variance\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month IN (SELECT budget_year_month FROM latest_two_months)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n  GROUP BY level_1_category\n  ORDER BY variance DESC\n  LIMIT 1\n)\nSELECT\n  DATE(f.transaction_date) as transaction_date,\n  f.merchant_name as merchant,\n  ABS(f.amount) as amount,\n  f.category_l1 as category\nFROM transformation.fct_transactions f\nWHERE f.category_l1 = (SELECT level_1_category FROM variance_categories)\n  AND DATE_TRUNC('month', f.transaction_date) = (SELECT TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') FROM latest_two_months WHERE rn = 1)\nORDER BY ABS(f.amount) DESC\nLIMIT 5;",
+          "refId": "A"
+        }
+      ],
+      "title": "Top 5 Transactions - Highest Variance Category",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Year-over-year variance drivers: categories with >10% change and >$100 absolute variance",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "category"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "current_year"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "prior_year"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "variance_dollars"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "variance_percent"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 42
+      },
+      "id": 8,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH latest_months AS (\n  SELECT EXTRACT(YEAR FROM TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD')) as year,\n    EXTRACT(MONTH FROM TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD')) as month,\n    budget_year_month,\n    ROW_NUMBER() OVER (PARTITION BY EXTRACT(MONTH FROM TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD')) ORDER BY budget_year_month DESC) as rn\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\n  GROUP BY budget_year_month\n),\ncurrent_year_month AS (\n  SELECT level_1_category, SUM(monthly_spending) as amount\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month = (SELECT budget_year_month FROM latest_months WHERE rn = 1 LIMIT 1)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n  GROUP BY level_1_category\n),\nprior_year_month AS (\n  SELECT level_1_category, SUM(monthly_spending) as amount\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month = (SELECT budget_year_month FROM latest_months WHERE rn = 2 LIMIT 1)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n  GROUP BY level_1_category\n)\nSELECT\n  c.level_1_category as category,\n  c.amount as current_year,\n  COALESCE(p.amount, 0) as prior_year,\n  (c.amount - COALESCE(p.amount, 0)) as variance_dollars,\n  CASE \n    WHEN COALESCE(p.amount, 0) = 0 THEN 100.0\n    ELSE ROUND((c.amount - COALESCE(p.amount, 0)) / COALESCE(p.amount, 1) * 100, 1)\n  END as variance_percent\nFROM current_year_month c\nLEFT JOIN prior_year_month p ON c.level_1_category = p.level_1_category\nWHERE ABS(c.amount - COALESCE(p.amount, 0)) >= 100\n  AND ABS(CASE WHEN COALESCE(p.amount, 0) = 0 THEN 100.0 ELSE (c.amount - COALESCE(p.amount, 0)) / COALESCE(p.amount, 1) * 100 END) >= 10\nORDER BY ABS(c.amount - COALESCE(p.amount, 0)) DESC\nLIMIT 10;",
+          "refId": "A"
+        }
+      ],
+      "title": "YoY Variance Drivers (>10% & >$100)",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Top 5 transactions for the highest variance category YoY",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "transaction_date"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "merchant"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 200
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "amount"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 42
+      },
+      "id": 9,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH latest_months AS (\n  SELECT EXTRACT(YEAR FROM TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD')) as year,\n    EXTRACT(MONTH FROM TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD')) as month,\n    budget_year_month,\n    ROW_NUMBER() OVER (PARTITION BY EXTRACT(MONTH FROM TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD')) ORDER BY budget_year_month DESC) as rn\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\n  GROUP BY budget_year_month\n),\nvariance_categories AS (\n  SELECT level_1_category, \n    ABS(SUM(CASE WHEN budget_year_month = (SELECT budget_year_month FROM latest_months WHERE rn = 1 LIMIT 1) THEN monthly_spending ELSE -COALESCE(monthly_spending, 0) END)) as variance\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month IN (SELECT budget_year_month FROM latest_months WHERE rn IN (1, 2))\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n  GROUP BY level_1_category\n  ORDER BY variance DESC\n  LIMIT 1\n)\nSELECT\n  DATE(f.transaction_date) as transaction_date,\n  f.merchant_name as merchant,\n  ABS(f.amount) as amount,\n  f.category_l1 as category\nFROM transformation.fct_transactions f\nWHERE f.category_l1 = (SELECT level_1_category FROM variance_categories)\n  AND DATE_TRUNC('month', f.transaction_date) = (SELECT TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') FROM latest_months WHERE rn = 1 LIMIT 1)\nORDER BY ABS(f.amount) DESC\nLIMIT 5;",
+          "refId": "A"
+        }
+      ],
+      "title": "Top 5 Transactions - Highest Variance Category (YoY)",
+      "type": "table"
     }
   ],
   "schemaVersion": 39,
