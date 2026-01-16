@@ -1,7 +1,10 @@
 services:
   grafana:
     environment:
-      - GF_PLUGINS_PREINSTALL=motherduck-duckdb-datasource@https://github.com/motherduckdb/grafana-duckdb-datasource/releases/download/v0.4.0/motherduck-duckdb-datasource-0.4.0.zip
+      # Install DuckDB plugin from external URL (GF_INSTALL_PLUGINS supports url;plugin-id format)
+      - GF_INSTALL_PLUGINS=https://github.com/motherduckdb/grafana-duckdb-datasource/releases/download/v1.1.1/motherduck-duckdb-datasource-1.1.1.zip;motherduck-duckdb-datasource
+      # Allow unsigned plugin to load
+      - GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=motherduck-duckdb-datasource
     volumes:
       - ./pipeline_personal_finance/dbt_finance/duckdb:/var/lib/grafana/duckdb
       - ./grafana/provisioning_local/datasources:/etc/grafana/provisioning/datasources

@@ -5,11 +5,11 @@ datasources:
     type: postgres
     uid: PCC52D03280B7034C
     url: dagster_postgres:5432
-    database: personal_finance
     user: grafanareader
     secureJsonData:
-      password: ${GRAFANA_PASSWORD}
+      password: $GRAFANA_PASSWORD
     jsonData:
+      database: personal_finance
       sslmode: disable
       maxOpenConns: 100
       maxIdleConns: 100
@@ -17,6 +17,5 @@ datasources:
       connMaxLifetime: 14400
       postgresVersion: 1200
       timescaledb: false
-      searchPath: "reporting,staging,landing,public"
     isDefault: true
     editable: true
