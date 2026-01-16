@@ -292,12 +292,57 @@ final_insights AS (
     END AS estimated_years_to_50k,
     
     -- Monthly savings target to reach standard 15% rate
-    CASE 
+    CASE
       WHEN total_income > 0 AND traditional_savings_rate_percent < 0.15
       THEN (total_income * 0.15) - (cash_savings + offset_savings + investment_contributions)
       ELSE 0
-    END AS additional_monthly_savings_needed_for_15_percent
-    
+    END AS additional_monthly_savings_needed_for_15_percent,
+
+    -- Goal tracking: Monthly savings needed for specific milestones
+    -- Goal 1: 20% Savings Rate (intermediate milestone)
+    CASE
+      WHEN total_income > 0 THEN (total_income * 0.20) - (cash_savings + offset_savings + investment_contributions)
+      ELSE 0
+    END AS monthly_savings_needed_for_20_percent,
+
+    -- Goal 2: FIRE Target (25% savings rate)
+    CASE
+      WHEN total_income > 0 THEN (total_income * 0.25) - (cash_savings + offset_savings + investment_contributions)
+      ELSE 0
+    END AS monthly_savings_needed_for_fire,
+
+    -- Progress to 20% goal (percentage, 0-1 ratio)
+    CASE
+      WHEN total_income > 0 AND total_income * 0.20 > 0
+      THEN LEAST(1.0, GREATEST(0.0, ((cash_savings + offset_savings + investment_contributions) / (total_income * 0.20))))
+      ELSE 0
+    END AS progress_to_20_percent_goal,
+
+    -- Progress to 25% FIRE goal (percentage, 0-1 ratio)
+    CASE
+      WHEN total_income > 0 AND total_income * 0.25 > 0
+      THEN LEAST(1.0, GREATEST(0.0, ((cash_savings + offset_savings + investment_contributions) / (total_income * 0.25))))
+      ELSE 0
+    END AS progress_to_fire_goal,
+
+    -- Benchmark status against common targets
+    CASE
+      WHEN traditional_savings_rate_percent >= 0.25 THEN 'Exceeds FIRE Target (25%+)'
+      WHEN traditional_savings_rate_percent >= 0.20 THEN 'Meets Premium Goal (20%+)'
+      WHEN traditional_savings_rate_percent >= 0.15 THEN 'Meets Standard Target (15%+)'
+      WHEN traditional_savings_rate_percent >= 0.10 THEN 'Below Benchmark (10%)'
+      ELSE 'Critical: Plan Needed (<10%)'
+    END AS benchmark_status,
+
+    -- Action priority items (comma-separated for display)
+    CASE
+      WHEN traditional_savings_rate_percent < 0.10 THEN 'Create basic savings plan | Review all expense categories | Build emergency fund'
+      WHEN traditional_savings_rate_percent < 0.15 THEN 'Increase savings rate by 5% | Cut discretionary spending | Automate transfers'
+      WHEN traditional_savings_rate_percent < 0.20 THEN 'Boost savings toward 20% | Optimize investment allocation | Review recurring bills'
+      WHEN traditional_savings_rate_percent < 0.25 THEN 'Scale toward FIRE target | Tax-optimize investments | Increase income'
+      ELSE 'Maintain 25% rate | Evaluate wealth protection | Plan wealth distribution'
+    END AS action_priorities
+
   FROM savings_analysis
 )
 
