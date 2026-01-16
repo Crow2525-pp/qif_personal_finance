@@ -1622,7 +1622,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 36,
+        "y": 48,
         "w": 24,
         "h": 6
       },
@@ -1676,7 +1676,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 42,
+        "y": 54,
         "w": 24,
         "h": 6
       },
@@ -1705,6 +1705,187 @@
     },
     {
       "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Top 3 priority actions for this month based on cash flow, savings, and spending drivers. Click on each action to navigate to the relevant dashboard for deeper analysis.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#F2495C",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 36,
+        "w": 12,
+        "h": 6
+      },
+      "id": 103,
+      "options": {
+        "cellHeight": "md",
+        "showHeader": false,
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        }
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH latest_period AS (\n  SELECT MAX(budget_year_month) AS latest_month\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nexec_data AS (\n  SELECT top_action_items\n  FROM reporting.rpt_executive_dashboard\n  WHERE dashboard_month = (SELECT TO_CHAR(to_date(latest_month || '-01', 'YYYY-MM-DD'), 'YYYY-MM') FROM latest_period)\n)\nSELECT \n  CASE \n    WHEN top_action_items IS NOT NULL AND array_length(top_action_items, 1) >= 1 THEN top_action_items[1]\n    ELSE 'Continue financial strategy - performance is good'\n  END AS \"Action 1\",\n  CASE \n    WHEN top_action_items IS NOT NULL AND array_length(top_action_items, 1) >= 2 THEN top_action_items[2]\n    ELSE ''\n  END AS \"Action 2\",\n  CASE \n    WHEN top_action_items IS NOT NULL AND array_length(top_action_items, 1) >= 3 THEN top_action_items[3]\n    ELSE ''\n  END AS \"Action 3\"\nFROM exec_data\nUNION ALL\nSELECT 'Improve cash flow forecasting' AS \"Action 1\", 'Optimize spending patterns' AS \"Action 2\", 'Increase savings rate' AS \"Action 3\"\nWHERE NOT EXISTS (SELECT 1 FROM exec_data);",
+          "refId": "A"
+        }
+      ],
+      "title": "Top 3 Actions This Month",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {}
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Threshold-based risk alerts: Negative cash flow indicates spending exceeds income. Expense ratio >100% means unsustainable spending. Savings rate <target shows insufficient wealth building.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#6ED0E0",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Risk Level"
+            },
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "color-background"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "value"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "CRITICAL": {
+                        "color": "#8B0000",
+                        "index": 0
+                      },
+                      "HIGH": {
+                        "color": "#FF6347",
+                        "index": 1
+                      },
+                      "MEDIUM": {
+                        "color": "#FFD700",
+                        "index": 2
+                      },
+                      "LOW": {
+                        "color": "#32CD32",
+                        "index": 3
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 36,
+        "w": 12,
+        "h": 6
+      },
+      "id": 104,
+      "options": {
+        "cellHeight": "md",
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH latest_period AS (\n  SELECT MAX(budget_year_month) AS latest_month\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nexec_data AS (\n  SELECT \n    dashboard_month,\n    monthly_net_cash_flow,\n    expense_to_income_ratio_pct,\n    monthly_cash_flow_savings_rate_pct,\n    cash_flow_status,\n    overall_financial_health_score\n  FROM reporting.rpt_executive_dashboard\n  WHERE dashboard_month = (SELECT TO_CHAR(to_date(latest_month || '-01', 'YYYY-MM-DD'), 'YYYY-MM') FROM latest_period)\n),\nalerts AS (\n  SELECT \n    CASE \n      WHEN ed.monthly_net_cash_flow < 0 THEN 'Negative Cash Flow'\n      WHEN ed.expense_to_income_ratio_pct > 100 THEN 'Expense Ratio >100%'\n      WHEN ed.monthly_cash_flow_savings_rate_pct < 10 THEN 'Low Savings Rate'\n      ELSE NULL\n    END AS alert_type,\n    CASE \n      WHEN ed.monthly_net_cash_flow < 0 THEN CONCAT('Cash flow: $', ROUND(ed.monthly_net_cash_flow)::text, ' — Review spending immediately')\n      WHEN ed.expense_to_income_ratio_pct > 100 THEN CONCAT('Expenses at ', ROUND(ed.expense_to_income_ratio_pct, 1)::text, '% of income — Unsustainable')\n      WHEN ed.monthly_cash_flow_savings_rate_pct < 10 THEN CONCAT('Savings: ', ROUND(ed.monthly_cash_flow_savings_rate_pct, 1)::text, '% — Below 15% target')\n      ELSE NULL\n    END AS alert_description,\n    CASE \n      WHEN ed.monthly_net_cash_flow < -5000 THEN 'CRITICAL'\n      WHEN ed.monthly_net_cash_flow < 0 THEN 'HIGH'\n      WHEN ed.expense_to_income_ratio_pct > 110 THEN 'HIGH'\n      WHEN ed.expense_to_income_ratio_pct > 100 THEN 'MEDIUM'\n      WHEN ed.monthly_cash_flow_savings_rate_pct < 5 THEN 'HIGH'\n      WHEN ed.monthly_cash_flow_savings_rate_pct < 10 THEN 'MEDIUM'\n      ELSE 'LOW'\n    END AS risk_level,\n    CASE\n      WHEN ed.monthly_net_cash_flow < 0 THEN '/d/cash_flow_analysis'\n      WHEN ed.expense_to_income_ratio_pct > 100 THEN '/d/category_spending_analysis'\n      WHEN ed.monthly_cash_flow_savings_rate_pct < 10 THEN '/d/savings_analysis'\n      ELSE NULL\n    END AS dashboard_link\n  FROM exec_data ed\n  WHERE ed.monthly_net_cash_flow < 0 \n     OR ed.expense_to_income_ratio_pct > 100 \n     OR ed.monthly_cash_flow_savings_rate_pct < 10\n)\nSELECT \n  alert_type AS \"Alert\",\n  alert_description AS \"Details\",\n  risk_level AS \"Risk Level\"\nFROM alerts\nWHERE alert_type IS NOT NULL\nUNION ALL\nSELECT 'Status' AS \"Alert\", 'No critical thresholds breached — continue monitoring' AS \"Details\", 'LOW' AS \"Risk Level\"\nWHERE NOT EXISTS (SELECT 1 FROM alerts WHERE alert_type IS NOT NULL);",
+          "refId": "A"
+        }
+      ],
+      "title": "Risk Alerts & Thresholds",
+      "type": "table"
+    },
+    {
+      "datasource": {
         "type": "text"
       },
       "fieldConfig": {
@@ -1713,13 +1894,13 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 48,
+        "y": 42,
         "w": 24,
-        "h": 5
+        "h": 6
       },
       "id": 100,
       "options": {
-        "content": "### How to Read\n- Use the month selector to compare any historical period; \"Latest\" always reflects the newest closed month.\n- Rates are returned as true ratios (0\u20131); keep formatting adjustments in Grafana rather than multiplying by 100 in SQL.\n- Start with low scores or large negative deltas, then drill into linked dashboards for root-cause detail.\n- Forecasts are forward-looking cash expectations; plan around the trajectory, not a single month.",
+        "content": "### How to Read\n- **Top 3 Actions**: Priority items tied to cash flow, savings, and spending drivers. Click linked dashboard for detailed root-cause analysis.\n- **Risk Alerts**: Threshold-based callouts for negative cash flow, expense ratio >100%, or savings rate <10%. Review immediately when flagged.\n- **Use the month selector** to compare any historical period; \"Latest\" always reflects the newest closed month.\n- **Rates are returned as true ratios** (0–1); keep formatting adjustments in Grafana rather than multiplying by 100 in SQL.\n- **Forecasts are forward-looking** cash expectations; plan around the trajectory, not a single month.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
