@@ -1101,6 +1101,332 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "description": "Month-over-month cash flow changes with summary and links to variance drivers",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Net Flow Change ($)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": -1000
+                    },
+                    {
+                      "color": "green",
+                      "value": 0
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "id": 301,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  latest_month as \"Latest Month\",\n  prior_month as \"Prior Month\",\n  ROUND(latest_month_net_flow, 0) as \"Latest Net Flow\",\n  ROUND(prior_month_net_flow, 0) as \"Prior Net Flow\",\n  ROUND(net_flow_change_dollars, 0) as \"Net Flow Change ($)\",\n  net_flow_change_pct as \"Change %\",\n  status_change as \"Status\",\n  change_summary as \"Summary\"\nFROM reporting.rpt_mom_cash_flow_summary;",
+          "refId": "A"
+        }
+      ],
+      "title": "What Changed This Month",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Actionable cash flow recommendations linked to specific categories and top drivers",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Top Category Amount"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Primary Income"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "id": 302,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  cash_flow_recommendation as \"Recommendation\",\n  recommendation_driver as \"Action Focus\",\n  top_category_1 as \"Top Category\",\n  ROUND(top_category_1_amount, 0) as \"Top Category Amount\",\n  top_category_1_flag as \"Category Status\",\n  primary_income_source as \"Primary Income\",\n  ROUND(primary_income_amount, 0) as \"Income Amount\"\nFROM reporting.rpt_recommendation_drivers;",
+          "refId": "A"
+        }
+      ],
+      "title": "Recommendation Drivers & Action Items",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Recurring bills projected for next month with due dates and payment priority",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Monthly Cost"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Projected Impact"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Priority"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "High": {
+                        "color": "red",
+                        "index": 0
+                      },
+                      "Medium": {
+                        "color": "yellow",
+                        "index": 1
+                      },
+                      "Low": {
+                        "color": "green",
+                        "index": 2
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 35
+      },
+      "id": 303,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Days Until Due"
+          }
+        ]
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  merchant_pattern as \"Merchant/Bill\",\n  category as \"Category\",\n  subcategory as \"Subcategory\",\n  recurrence_type as \"Frequency\",\n  ROUND(estimated_monthly_cost, 2) as \"Monthly Cost\",\n  TO_CHAR(estimated_next_due_date, 'YYYY-MM-DD') as \"Est. Due Date\",\n  days_until_due as \"Days Until Due\",\n  payment_priority as \"Priority\",\n  ROUND(projected_next_month_impact, 2) as \"Projected Impact\",\n  subscription_likelihood_score as \"Confidence %\"\nFROM reporting.rpt_next_month_recurring_bills\nWHERE days_until_due >= 0\nORDER BY days_until_due ASC, estimated_monthly_cost DESC;",
+          "refId": "A"
+        }
+      ],
+      "title": "Next Month Recurring Bills & Projected Impact",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "AI-generated cash flow recommendations and insights",
       "fieldConfig": {
         "defaults": {
@@ -1131,7 +1457,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 30
+        "y": 41
       },
       "id": 8,
       "options": {
@@ -1296,7 +1622,7 @@
      "h": 10,
      "w": 12,
      "x": 0,
-     "y": 36
+     "y": 47
    },
    "id": 210,
    "options": {
@@ -1363,7 +1689,7 @@
      "h": 10,
      "w": 12,
      "x": 12,
-     "y": 36
+     "y": 47
    },
    "id": 211,
    "options": {
@@ -1552,7 +1878,7 @@
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 46
+        "y": 57
       },
       "id": 200,
       "options": {
@@ -1712,7 +2038,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 58
+        "y": 69
       },
       "id": 201,
       "options": {
@@ -1826,7 +2152,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 68
+        "y": 79
       },
       "id": 202,
       "description": "**Shows monthly spending categories with unusual risk patterns** - All amounts are TOTAL MONTHLY spending by category/subcategory, not individual transactions.\n\n**Risk Level Definitions:**\n• **HIGH:** Categories requiring immediate attention (Uncategorized >$500 OR spending >200% of historical average)\n• **MEDIUM:** Contains large transactions (>$1000) or single transaction >$1000 total\n• **LOW:** Normal variations within expected ranges\n\n**Column Explanations:**\n• **Amount ($):** Total monthly outflows for this category (e.g., $225 = spent $225 total in this category this month)\n• **Risk Description:** Specific reason for flagging (e.g., 'Significantly Above Historical Average')\n• **Details:** Memo from largest transaction in the category for context\n\n**Example:** If 'Zona' shows $225 with HIGH risk, this means you spent $225 total on Zona-related transactions this month, which is significantly higher than your historical monthly average for this category.",
