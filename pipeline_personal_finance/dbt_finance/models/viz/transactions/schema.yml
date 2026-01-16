@@ -32,3 +32,69 @@ models:
       - name: amount
         description: "Total expenses for the month"
 
+  - name: viz_transaction_anomalies
+    description: "Identifies unusually high transactions compared to 12-month baseline per merchant."
+    columns:
+      - name: transaction_date
+        description: "Date of the transaction"
+      - name: year_month
+        description: "Year-month in YYYY-MM format"
+      - name: amount_abs
+        description: "Absolute transaction amount"
+      - name: account_name
+        description: "Name of the account"
+      - name: merchant_name
+        description: "Merchant or store name"
+      - name: category_name
+        description: "Category of the transaction"
+      - name: is_anomaly
+        description: "Flag indicating if transaction is anomalous"
+      - name: variance_from_avg_pct
+        description: "Percentage variance from merchant 12-month average"
+      - name: stddev_multiplier
+        description: "Number of standard deviations above mean"
+      - name: anomaly_severity_label
+        description: "Human-readable anomaly severity label"
+
+  - name: viz_transactions_needs_review_queue
+    description: "Queue of transactions needing review: large transactions, uncategorized, or new merchants."
+    columns:
+      - name: transaction_date
+        description: "Date of the transaction"
+      - name: year_month
+        description: "Year-month in YYYY-MM format"
+      - name: amount_abs
+        description: "Absolute transaction amount"
+      - name: account_name
+        description: "Name of the account"
+      - name: merchant_name
+        description: "Merchant or store name"
+      - name: category_name
+        description: "Category of the transaction"
+      - name: primary_review_reason
+        description: "Why transaction needs review (LARGE_TRANSACTION, UNCATEGORIZED, NEW_MERCHANT)"
+      - name: is_new_merchant
+        description: "Flag indicating if merchant is new (first occurrence)"
+      - name: review_priority
+        description: "Numeric priority for review (1=highest)"
+      - name: priority_label
+        description: "Human-readable priority label"
+      - name: queue_status
+        description: "Status in review queue (RECENT, CURRENT_MONTH, OLDER)"
+
+  - name: viz_transaction_filter_options
+    description: "Provides distinct filter options for transaction dashboards (accounts, merchants, categories)."
+    columns:
+      - name: filter_type
+        description: "Type of filter (account, merchant, category)"
+      - name: filter_value
+        description: "The filter value (e.g., account name, merchant name)"
+      - name: filter_group
+        description: "Grouping for the filter (e.g., bank name, category)"
+      - name: transaction_count
+        description: "Number of transactions matching this filter"
+      - name: filter_detail
+        description: "Additional detail about the filter"
+      - name: filter_rank
+        description: "Rank of filter by transaction count within type"
+
