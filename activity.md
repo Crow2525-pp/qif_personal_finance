@@ -85,3 +85,80 @@
 1. Pull latest main on production server
 2. Restart Grafana container: `docker compose restart grafana`
 3. Verify dashboards display data correctly
+
+---
+
+### Local DuckDB Grafana Plugin Fix
+
+**Task**: Validate local development environment works with Playwright.
+
+**Actions performed**:
+
+1. **Identified DuckDB plugin version issue**
+   - docker-compose.local.yml referenced non-existent v1.1.1
+   - Latest available version is v0.4.0
+   - Fixed URL: `https://github.com/motherduckdb/grafana-duckdb-datasource/releases/download/v0.4.0/motherduck-duckdb-datasource-0.4.0.zip`
+
+2. **Identified glibc compatibility issue**
+   - DuckDB plugin requires glibc 2.35+ (Ubuntu 22.04+)
+   - Default Grafana image is Alpine-based (uses musl libc)
+   - Fix: Added `image: grafana/grafana:latest-ubuntu` to docker-compose.local.yml
+
+3. **Validated DuckDB connection**
+   - Datasource test: "Data source is working"
+   - Successfully queried `personal_finance.reporting.fct_transactions` table
+   - Data displayed correctly in Grafana Explore
+
+**Known Limitation**:
+- Tables with JSON columns (e.g., `rpt_executive_dashboard.top_spending_categories_json`) fail with:
+  ```
+  sql: Scan error on column index 54, name "top_spending_categories_json": unsupported Scan
+  ```
+- This is a DuckDB Grafana plugin limitation, not a data issue
+
+**Files modified**:
+- `docker-compose.local.yml` (plugin version + Ubuntu image)
+
+**Screenshots**:
+- `screenshots/local-duckdb-grafana-data.png` - Shows transaction data in Grafana Explore
+
+**PR Created**: https://github.com/Crow2525-pp/qif_personal_finance/pull/9
+
+---
+
+### Dashboard Query Format Incompatibility Investigation
+
+**Task**: Investigate why dashboards show "No data" when DuckDB datasource is working.
+
+**Actions performed**:
+
+1. **Verified DuckDB data is accessible**
+   - Navigated to Grafana Explore at localhost:3001
+   - DuckDB datasource test: "Data source is working"
+   - Found 96 tables available in the database
+   - Successfully queried `personal_finance.reporting.fct_transactions` - DATA DISPLAYS CORRECTLY
+
+2. **Investigated dashboard "No data" issue**
+   - Opened Executive Financial Overview dashboard
+   - All panels show "No data" with error indicators
+   - Console errors: 400 (Bad Request) and 404 (Not Found)
+
+3. **Root cause identified**
+   - Error: `"error unmarshaling query JSON to the Query Model: json: cannot unmarshal string into Go struct field Query.format of type sqlutil.FormatQueryOption"`
+   - **The dashboards were designed for PostgreSQL** but the local datasource is DuckDB
+   - The query format structure differs between PostgreSQL and DuckDB Grafana plugins
+   - Using the same UID (`PCC52D03280B7034C`) doesn't make queries compatible
+
+**Key Finding**:
+- **Data IS in the database** - verified via Grafana Explore with raw SQL queries
+- **Dashboards fail due to query format incompatibility**, not missing data
+- The PostgreSQL plugin query format (stored in dashboard JSON) is incompatible with DuckDB plugin
+
+**Screenshots**:
+- `screenshots/local-duckdb-grafana-data.png` - Shows DuckDB Explore with transaction data
+- `screenshots/grafana-dashboard-review.png` - Shows Executive dashboard panels
+
+**Recommendations for local dashboard testing**:
+1. **Option A**: Run PostgreSQL locally alongside DuckDB for dashboard testing
+2. **Option B**: Create local-specific dashboard JSON files with DuckDB-compatible queries
+3. **Option C**: Use Grafana Explore for ad-hoc data validation (works with raw SQL)
