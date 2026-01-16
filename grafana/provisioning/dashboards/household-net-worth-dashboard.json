@@ -1151,6 +1151,183 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "description": "Asset allocation trends broken down by account type over time",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "id": 9,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  property_assets,\n  liquid_assets,\n  (total_assets - property_assets - liquid_assets) as other_assets\nFROM reporting.rpt_household_net_worth\nWHERE period_end_date < date_trunc('month', CURRENT_DATE)\nORDER BY transaction_year, transaction_month;",
+          "refId": "A"
+        }
+      ],
+      "title": "Asset Allocation Trends by Type",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Net worth change drivers showing which account movements contributed most to monthly changes",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "account_change_pct"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "id": 10,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Change"
+          }
+        ]
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH account_changes AS (\n  SELECT\n    b.account_name,\n    b.account_type,\n    b.is_liability,\n    (b.end_of_month_balance - COALESCE(LAG(b.end_of_month_balance) OVER (PARTITION BY b.account_key ORDER BY b.transaction_year, b.transaction_month), 0)) as monthly_change\n  FROM (\n    SELECT \n      ft.transaction_year,\n      ft.transaction_month,\n      ft.account_key,\n      da.account_name,\n      da.account_type,\n      da.is_liability,\n      MAX(ft.account_balance) AS end_of_month_balance\n    FROM reporting.fct_transactions ft\n    LEFT JOIN reporting.dim_accounts da\n      ON ft.account_key = da.account_key\n    WHERE ft.transaction_year = EXTRACT(YEAR FROM CURRENT_DATE)\n      AND ft.transaction_month = EXTRACT(MONTH FROM CURRENT_DATE) - 1\n      OR (ft.transaction_year = EXTRACT(YEAR FROM CURRENT_DATE) - 1 AND EXTRACT(MONTH FROM CURRENT_DATE) = 1 AND ft.transaction_month = 12)\n    GROUP BY ft.transaction_year, ft.transaction_month, ft.account_key, da.account_name, da.account_type, da.is_liability\n  ) b\n  WHERE ft.transaction_year >= EXTRACT(YEAR FROM CURRENT_DATE) - 1\n)\nSELECT\n  account_name as \"Account\",\n  account_type as \"Type\",\n  CASE WHEN is_liability THEN 'Liability' ELSE 'Asset' END as \"Category\",\n  ROUND(CAST(ABS(monthly_change) as numeric), 2) as \"Change\",\n  CASE\n    WHEN monthly_change > 0 AND is_liability THEN 'Increase (Worse)'\n    WHEN monthly_change < 0 AND is_liability THEN 'Decrease (Better)'\n    WHEN monthly_change > 0 AND NOT is_liability THEN 'Increase (Better)'\n    WHEN monthly_change < 0 AND NOT is_liability THEN 'Decrease (Worse)'\n    ELSE 'Stable'\n  END as \"Impact\"\nFROM account_changes\nWHERE ABS(monthly_change) > 100\nORDER BY ABS(monthly_change) DESC\nLIMIT 10;",
+          "refId": "A"
+        }
+      ],
+      "title": "Net Worth Change Drivers (Top Account Movements)",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "Financial advice and wealth milestone tracking",
       "fieldConfig": {
         "defaults": {
@@ -1181,7 +1358,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 30
+        "y": 38
       },
       "id": 8,
       "options": {
