@@ -476,6 +476,109 @@
       ],
       "title": "Estimated Payoff Year",
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Mortgage payoff sensitivity analysis: impact of extra payments on payoff timeline",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "Extra Monthly Payment",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH latest_mortgage AS (\n  SELECT\n    outstanding_debt_balance,\n    avg_3month_principal,\n    estimated_annual_interest_rate_pct\n  FROM reporting.rpt_debt_reduction_tracking\n  WHERE is_mortgage = TRUE\n  ORDER BY period_month DESC\n  LIMIT 1\n),\nsensitivity_scenarios AS (\n  SELECT\n    0 AS extra_payment,\n    CASE\n      WHEN lm.avg_3month_principal > 0 THEN\n        CEIL(lm.outstanding_debt_balance / lm.avg_3month_principal) / 12\n      ELSE NULL\n    END AS years_to_payoff\n  FROM latest_mortgage lm\n  UNION ALL\n  SELECT\n    100 AS extra_payment,\n    CASE\n      WHEN (lm.avg_3month_principal + 100) > 0 THEN\n        CEIL(lm.outstanding_debt_balance / (lm.avg_3month_principal + 100)) / 12\n      ELSE NULL\n    END AS years_to_payoff\n  FROM latest_mortgage lm\n  UNION ALL\n  SELECT\n    250 AS extra_payment,\n    CASE\n      WHEN (lm.avg_3month_principal + 250) > 0 THEN\n        CEIL(lm.outstanding_debt_balance / (lm.avg_3month_principal + 250)) / 12\n      ELSE NULL\n    END AS years_to_payoff\n  FROM latest_mortgage lm\n  UNION ALL\n  SELECT\n    500 AS extra_payment,\n    CASE\n      WHEN (lm.avg_3month_principal + 500) > 0 THEN\n        CEIL(lm.outstanding_debt_balance / (lm.avg_3month_principal + 500)) / 12\n      ELSE NULL\n    END AS years_to_payoff\n  FROM latest_mortgage lm\n  UNION ALL\n  SELECT\n    1000 AS extra_payment,\n    CASE\n      WHEN (lm.avg_3month_principal + 1000) > 0 THEN\n        CEIL(lm.outstanding_debt_balance / (lm.avg_3month_principal + 1000)) / 12\n      ELSE NULL\n    END AS years_to_payoff\n  FROM latest_mortgage lm\n)\nSELECT\n  extra_payment,\n  COALESCE(ROUND(years_to_payoff::numeric, 1), 0) AS \"Years to Payoff\"\nFROM sensitivity_scenarios\nWHERE years_to_payoff IS NOT NULL OR extra_payment = 0\nORDER BY extra_payment;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Debt Payoff Sensitivity (Extra Payments vs Payoff Timeline)",
+      "type": "barchart"
     }
   ],
   "refresh": "",
