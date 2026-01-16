@@ -14,25 +14,25 @@ WITH account_metadata AS (
     account_name,
     LOWER(account_name) AS account_name_lower,
     CASE
-      WHEN account_name_lower LIKE '%adelaide%' THEN 'Adelaide Bank'
-      WHEN account_name_lower LIKE '%bendigo%' THEN 'Bendigo Bank'
-      WHEN account_name_lower LIKE '%ing%' THEN 'ING Australia'
+      WHEN LOWER(account_name) LIKE '%adelaide%' THEN 'Adelaide Bank'
+      WHEN LOWER(account_name) LIKE '%bendigo%' THEN 'Bendigo Bank'
+      WHEN LOWER(account_name) LIKE '%ing%' THEN 'ING Australia'
       ELSE 'Unknown'
     END AS bank_name,
 
     CASE
-      WHEN account_name_lower LIKE '%homeloan%' THEN 'Home Loan'
-      WHEN account_name_lower LIKE '%offset%' THEN 'Offset'
-      WHEN account_name_lower LIKE '%billsbillsbills%' THEN 'Bills Account'
-      WHEN account_name_lower LIKE '%countdown%' THEN 'Everyday Account'
+      WHEN LOWER(account_name) LIKE '%homeloan%' THEN 'Home Loan'
+      WHEN LOWER(account_name) LIKE '%offset%' THEN 'Offset'
+      WHEN LOWER(account_name) LIKE '%billsbillsbills%' THEN 'Bills Account'
+      WHEN LOWER(account_name) LIKE '%countdown%' THEN 'Everyday Account'
       ELSE 'Unknown'
     END AS account_type,
 
     CASE
-      WHEN account_name_lower LIKE '%homeloan%' THEN 'Liability'
-      WHEN account_name_lower LIKE '%offset%' THEN 'Asset'
-      WHEN account_name_lower LIKE '%billsbillsbills%' THEN 'Asset'
-      WHEN account_name_lower LIKE '%countdown%' THEN 'Asset'
+      WHEN LOWER(account_name) LIKE '%homeloan%' THEN 'Liability'
+      WHEN LOWER(account_name) LIKE '%offset%' THEN 'Asset'
+      WHEN LOWER(account_name) LIKE '%billsbillsbills%' THEN 'Asset'
+      WHEN LOWER(account_name) LIKE '%countdown%' THEN 'Asset'
       ELSE 'Unknown'
     END AS account_category,
 
