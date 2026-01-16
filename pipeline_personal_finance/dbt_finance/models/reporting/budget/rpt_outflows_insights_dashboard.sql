@@ -97,6 +97,136 @@ high_value_uncategorized AS (
     AND hvu.period_start IN (SELECT period_date FROM six_month_periods)
 ),
 
+merchant_spending_current AS (
+  -- Get top merchants for current month
+  SELECT
+    vsa.vendor_name,
+    vsa.category,
+    vsa.spending_tier,
+    vsa.total_lifetime_spend,
+    vsa.spend_last_12_months,
+    vsa.spend_last_90_days,
+    vsa.appears_subscription_like,
+    vsa.days_since_last_transaction,
+    vsa.vendor_relationship_status,
+    vsa.average_transaction_amount,
+    vsa.spending_consistency_score,
+    vsa.avg_transactions_per_month,
+    ROW_NUMBER() OVER (ORDER BY vsa.spend_last_12_months DESC) AS merchant_spend_rank
+  FROM {{ ref('rpt_vendor_spending_analysis') }} vsa
+  WHERE spend_last_90_days > 0
+  LIMIT 20
+),
+
+merchant_monthly_trends AS (
+  -- Calculate merchant-level month-over-month changes
+  SELECT
+    ft.transaction_date,
+    TO_CHAR(ft.transaction_date, 'YYYY-MM') AS merchant_period,
+    TO_DATE(TO_CHAR(ft.transaction_date, 'YYYY-MM') || '-01', 'YYYY-MM-DD') AS merchant_period_date,
+    COALESCE(
+      NULLIF(TRIM(ft.transaction_description), ''),
+      NULLIF(TRIM(ft.transaction_memo), ''),
+      'Unknown Vendor'
+    ) AS vendor_name,
+    dc.level_1_category AS category,
+    ABS(ft.transaction_amount) AS transaction_amount
+  FROM {{ ref('fct_transactions') }} ft
+  LEFT JOIN {{ ref('dim_categories') }} dc
+    ON ft.category_key = dc.category_key
+  WHERE ft.transaction_amount < 0
+    AND NOT COALESCE(ft.is_internal_transfer, FALSE)
+    AND NOT COALESCE(ft.is_financial_service, FALSE)
+    AND ft.transaction_date >= (SELECT current_period - INTERVAL '3 months' FROM latest_period)
+),
+
+merchant_monthly_agg AS (
+  SELECT
+    vendor_name,
+    category,
+    merchant_period_date,
+    SUM(transaction_amount) AS monthly_merchant_spend,
+    COUNT(*) AS monthly_transaction_count,
+    AVG(transaction_amount) AS monthly_avg_amount,
+    STDDEV(transaction_amount) AS monthly_stddev_amount
+  FROM merchant_monthly_trends
+  GROUP BY vendor_name, category, merchant_period_date
+),
+
+merchant_trends_final AS (
+  SELECT
+    vendor_name,
+    category,
+    merchant_period_date,
+    monthly_merchant_spend,
+    monthly_transaction_count,
+    monthly_avg_amount,
+    monthly_stddev_amount,
+    LAG(monthly_merchant_spend) OVER (PARTITION BY vendor_name ORDER BY merchant_period_date) AS prev_month_spend,
+    CASE
+      WHEN LAG(monthly_merchant_spend) OVER (PARTITION BY vendor_name ORDER BY merchant_period_date) > 0
+      THEN ((monthly_merchant_spend - LAG(monthly_merchant_spend) OVER (PARTITION BY vendor_name ORDER BY merchant_period_date)) /
+            LAG(monthly_merchant_spend) OVER (PARTITION BY vendor_name ORDER BY merchant_period_date)) * 100
+      ELSE NULL
+    END AS merchant_mom_change_pct,
+    -- Price change detection for repeat merchants
+    CASE
+      WHEN monthly_avg_amount > 0 AND LAG(monthly_avg_amount) OVER (PARTITION BY vendor_name ORDER BY merchant_period_date) > 0
+      THEN LAG(monthly_avg_amount) OVER (PARTITION BY vendor_name ORDER BY merchant_period_date) - monthly_avg_amount
+      ELSE NULL
+    END AS avg_charge_delta
+  FROM merchant_monthly_agg
+),
+
+top_merchants_with_trends AS (
+  SELECT
+    mtf.vendor_name,
+    mtf.category,
+    mtf.merchant_period_date,
+    mtf.monthly_merchant_spend,
+    mtf.merchant_mom_change_pct,
+    mtf.avg_charge_delta,
+    msc.merchant_spend_rank,
+    msc.spending_tier,
+    msc.appears_subscription_like,
+    msc.vendor_relationship_status,
+    msc.spending_consistency_score
+  FROM merchant_trends_final mtf
+  LEFT JOIN merchant_spending_current msc
+    ON mtf.vendor_name = msc.vendor_name
+  WHERE mtf.merchant_period_date = (SELECT current_period FROM latest_period)
+    AND msc.merchant_spend_rank <= 20
+),
+
+subscription_candidates AS (
+  -- Identify subscription-like merchants and cancellation candidates
+  SELECT
+    vsa.vendor_name,
+    vsa.category,
+    vsa.appears_subscription_like,
+    vsa.vendor_relationship_status,
+    vsa.spending_consistency_score,
+    vsa.days_since_last_transaction,
+    vsa.average_transaction_amount,
+    vsa.avg_transactions_per_month,
+    vsa.spend_last_90_days,
+    vsa.spend_last_12_months,
+    CASE
+      WHEN vsa.appears_subscription_like AND vsa.days_since_last_transaction <= 30 THEN 'Active Subscription'
+      WHEN vsa.appears_subscription_like AND vsa.days_since_last_transaction > 30 AND vsa.days_since_last_transaction <= 90 THEN 'Dormant Subscription'
+      WHEN vsa.appears_subscription_like AND vsa.days_since_last_transaction > 90 THEN 'Inactive Subscription'
+      ELSE NULL
+    END AS subscription_status,
+    CASE
+      WHEN vsa.appears_subscription_like AND vsa.days_since_last_transaction > 90
+           AND vsa.spend_last_90_days = 0 THEN TRUE
+      ELSE FALSE
+    END AS is_cancellation_candidate
+  FROM {{ ref('rpt_vendor_spending_analysis') }} vsa
+  WHERE vsa.appears_subscription_like = TRUE
+    OR (vsa.avg_transactions_per_month >= 0.8 AND vsa.spending_consistency_score > 0.85)
+),
+
 key_metrics AS (
   SELECT
     ao.period_date,
@@ -256,57 +386,119 @@ summary_stats AS (
   FROM alert_analysis aa
 )
 
-SELECT 
-  -- Period information
-  period_date,
-  year_month,
-  
-  -- Key metrics
-  total_outflows,
-  total_transactions,
-  avg_transaction_size,
-  median_transaction_size,
-  
-  -- Change metrics  
-  mom_outflows_change_pct,
-  yoy_outflows_change_pct,
-  trend_direction,
-  outflows_volatility,
-  
-  -- Category breakdown
-  food_dining,
-  food_dining_pct,
-  mom_food_change_pct,
-  housing_mortgage,
-  housing_mortgage_pct,
-  mom_housing_change_pct,
-  household_utilities,
-  household_utilities_pct,
-  mom_utilities_change_pct,
-  transportation,
-  transportation_pct,
-  shopping_retail,
-  shopping_retail_pct,
-  uncategorized,
-  uncategorized_pct,
-  mom_uncategorized_change_pct,
-  
-  -- Transaction analysis
-  large_transactions,
-  large_transaction_count,
-  large_transactions_pct,
-  recurring_expenses_pct,
-  
-  -- Insights and alerts
-  alert_level,
-  dashboard_status,
-  primary_insight,
-  recommendation,
-  spending_pattern,
-  spending_insight,
-  budget_status,
-  
-  report_generated_at
-  
-FROM summary_stats
+final_report AS (
+  SELECT
+    -- Period information
+    ss.period_date,
+    ss.year_month,
+
+    -- Key metrics
+    ss.total_outflows,
+    ss.total_transactions,
+    ss.avg_transaction_size,
+    ss.median_transaction_size,
+
+    -- Change metrics
+    ss.mom_outflows_change_pct,
+    ss.yoy_outflows_change_pct,
+    ss.trend_direction,
+    ss.outflows_volatility,
+
+    -- Category breakdown
+    ss.food_dining,
+    ss.food_dining_pct,
+    ss.mom_food_change_pct,
+    ss.housing_mortgage,
+    ss.housing_mortgage_pct,
+    ss.mom_housing_change_pct,
+    ss.household_utilities,
+    ss.household_utilities_pct,
+    ss.mom_utilities_change_pct,
+    ss.transportation,
+    ss.transportation_pct,
+    ss.shopping_retail,
+    ss.shopping_retail_pct,
+    ss.uncategorized,
+    ss.uncategorized_pct,
+    ss.mom_uncategorized_change_pct,
+
+    -- Transaction analysis
+    ss.large_transactions,
+    ss.large_transaction_count,
+    ss.large_transactions_pct,
+    ss.recurring_expenses_pct,
+
+    -- Insights and alerts
+    ss.alert_level,
+    ss.dashboard_status,
+    ss.primary_insight,
+    ss.recommendation,
+    ss.spending_pattern,
+    ss.spending_insight,
+    ss.budget_status,
+
+    -- Merchant insights - top merchants (store as JSON array for dashboard)
+    (
+      SELECT json_agg(
+        json_build_object(
+          'rank', mwt.merchant_spend_rank,
+          'merchant_name', mwt.vendor_name,
+          'category', mwt.category,
+          'monthly_spend', ROUND(mwt.monthly_merchant_spend::numeric, 2),
+          'mom_change_pct', ROUND(mwt.merchant_mom_change_pct::numeric, 2),
+          'spending_tier', mwt.spending_tier,
+          'price_change_delta', ROUND(COALESCE(mwt.avg_charge_delta, 0)::numeric, 2)
+        ) ORDER BY mwt.merchant_spend_rank
+      )
+      FROM top_merchants_with_trends mwt
+    ) AS top_merchants,
+
+    -- Subscription insights - identify recurring charges and cancellation opportunities
+    (
+      SELECT json_agg(
+        json_build_object(
+          'merchant_name', sc.vendor_name,
+          'category', sc.category,
+          'subscription_status', sc.subscription_status,
+          'is_cancellation_candidate', sc.is_cancellation_candidate,
+          'monthly_cost', ROUND(sc.average_transaction_amount::numeric, 2),
+          'annual_cost', ROUND((sc.average_transaction_amount * sc.avg_transactions_per_month * 12)::numeric, 2),
+          'consistency_score', ROUND((sc.spending_consistency_score * 100)::numeric, 1),
+          'last_transaction_days_ago', sc.days_since_last_transaction
+        ) ORDER BY sc.spend_last_12_months DESC
+      )
+      FROM subscription_candidates sc
+      WHERE ss.period_date = (SELECT current_period FROM latest_period)
+    ) AS subscription_insights,
+
+    -- Merchant price change detection (charges with significant variance)
+    (
+      SELECT json_agg(
+        json_build_object(
+          'merchant_name', mtf.vendor_name,
+          'category', mtf.category,
+          'current_avg_charge', ROUND(mtf.monthly_avg_amount::numeric, 2),
+          'previous_avg_charge', ROUND((mtf.monthly_avg_amount - mtf.avg_charge_delta)::numeric, 2),
+          'charge_delta', ROUND(COALESCE(mtf.avg_charge_delta, 0)::numeric, 2),
+          'delta_percentage', CASE
+            WHEN mtf.monthly_avg_amount > 0 AND mtf.avg_charge_delta IS NOT NULL
+            THEN ROUND((mtf.avg_charge_delta / mtf.monthly_avg_amount * 100)::numeric, 1)
+            ELSE NULL
+          END,
+          'transaction_count', mtf.monthly_transaction_count
+        ) ORDER BY ABS(COALESCE(mtf.avg_charge_delta, 0)) DESC
+      )
+      FROM merchant_trends_final mtf
+      WHERE mtf.merchant_period_date = (SELECT current_period FROM latest_period)
+        AND mtf.avg_charge_delta IS NOT NULL
+        AND ABS(mtf.avg_charge_delta) > 5
+      LIMIT 10
+    ) AS price_changes_by_merchant,
+
+    ss.report_generated_at
+
+  FROM summary_stats ss
+)
+
+SELECT * FROM final_report
 ORDER BY period_date DESC
