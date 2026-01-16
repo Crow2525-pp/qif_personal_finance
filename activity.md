@@ -85,3 +85,41 @@
 1. Pull latest main on production server
 2. Restart Grafana container: `docker compose restart grafana`
 3. Verify dashboards display data correctly
+
+---
+
+### Local DuckDB Grafana Plugin Fix
+
+**Task**: Validate local development environment works with Playwright.
+
+**Actions performed**:
+
+1. **Identified DuckDB plugin version issue**
+   - docker-compose.local.yml referenced non-existent v1.1.1
+   - Latest available version is v0.4.0
+   - Fixed URL: `https://github.com/motherduckdb/grafana-duckdb-datasource/releases/download/v0.4.0/motherduck-duckdb-datasource-0.4.0.zip`
+
+2. **Identified glibc compatibility issue**
+   - DuckDB plugin requires glibc 2.35+ (Ubuntu 22.04+)
+   - Default Grafana image is Alpine-based (uses musl libc)
+   - Fix: Added `image: grafana/grafana:latest-ubuntu` to docker-compose.local.yml
+
+3. **Validated DuckDB connection**
+   - Datasource test: "Data source is working"
+   - Successfully queried `personal_finance.reporting.fct_transactions` table
+   - Data displayed correctly in Grafana Explore
+
+**Known Limitation**:
+- Tables with JSON columns (e.g., `rpt_executive_dashboard.top_spending_categories_json`) fail with:
+  ```
+  sql: Scan error on column index 54, name "top_spending_categories_json": unsupported Scan
+  ```
+- This is a DuckDB Grafana plugin limitation, not a data issue
+
+**Files modified**:
+- `docker-compose.local.yml` (plugin version + Ubuntu image)
+
+**Screenshots**:
+- `screenshots/local-duckdb-grafana-data.png` - Shows transaction data in Grafana Explore
+
+**PR Created**: https://github.com/Crow2525-pp/qif_personal_finance/pull/9
