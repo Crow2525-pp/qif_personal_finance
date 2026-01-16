@@ -1,4 +1,20 @@
-# Activity Log
+### Step 4: Create activity.md
+
+This file logs what the agent accomplishes during each iteration:
+
+```markdown
+# Project Build - Activity Log
+
+## Current Status
+**Last Updated:** 
+**Tasks Completed:** 
+**Current Task:** 
+
+---
+
+## Session Log
+
+<!-- Agent will append dated entries here -->
 
 ## 2026-01-16
 
@@ -162,3 +178,16 @@
 1. **Option A**: Run PostgreSQL locally alongside DuckDB for dashboard testing
 2. **Option B**: Create local-specific dashboard JSON files with DuckDB-compatible queries
 3. **Option C**: Use Grafana Explore for ad-hoc data validation (works with raw SQL)
+
+## 2026-01-16
+
+### Dashboard Time Framing & Freshness
+
+**Task**: Standardize time framing and freshness indicators across core dashboards.
+
+**Actions performed**:
+- Added Data Freshness panels with data-through and last refresh timestamps to Executive, Monthly Budget Summary, Cash Flow Analysis, Household Net Worth, and Savings Analysis dashboards.
+- Updated default time range to last complete month and added quick ranges (YTD, trailing 12 months).
+- Added time window notes in dashboard guidance.
+
+**Screenshot**: `screenshots/time-framing-freshness.png`
