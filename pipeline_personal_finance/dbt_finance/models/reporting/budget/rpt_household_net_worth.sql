@@ -239,8 +239,33 @@ net_worth_analysis AS (
   FROM net_worth_trends
 ),
 
+allocation_analysis AS (
+  SELECT
+    *,
+    -- Asset allocation percentages
+    CASE WHEN total_assets > 0 THEN (liquid_assets / total_assets) ELSE 0 END AS liquid_asset_allocation_pct,
+    CASE WHEN total_assets > 0 THEN (property_assets / total_assets) ELSE 0 END AS property_asset_allocation_pct,
+    CASE WHEN total_assets > 0 THEN (non_property_assets / total_assets) ELSE 0 END AS other_asset_allocation_pct,
+
+    -- Ideal allocations (60% liquid, 35% property, 5% other for balanced portfolio)
+    0.60 AS ideal_liquid_allocation,
+    0.35 AS ideal_property_allocation,
+    0.05 AS ideal_other_allocation,
+
+    -- Allocation drift (difference from ideal, as percentages)
+    (CASE WHEN total_assets > 0 THEN (liquid_assets / total_assets) ELSE 0 END) - 0.60 AS liquid_allocation_drift,
+    (CASE WHEN total_assets > 0 THEN (property_assets / total_assets) ELSE 0 END) - 0.35 AS property_allocation_drift,
+    (CASE WHEN total_assets > 0 THEN (non_property_assets / total_assets) ELSE 0 END) - 0.05 AS other_allocation_drift,
+
+    -- Overall allocation health (sum of absolute drift values, lower is better)
+    ABS((CASE WHEN total_assets > 0 THEN (liquid_assets / total_assets) ELSE 0 END) - 0.60) +
+    ABS((CASE WHEN total_assets > 0 THEN (property_assets / total_assets) ELSE 0 END) - 0.35) +
+    ABS((CASE WHEN total_assets > 0 THEN (non_property_assets / total_assets) ELSE 0 END) - 0.05) AS total_allocation_drift_score
+  FROM net_worth_analysis
+),
+
 final_insights AS (
-  SELECT 
+  SELECT
     *,
     -- Net worth health score (1-100)
     LEAST(100, GREATEST(0,
@@ -250,9 +275,9 @@ final_insights AS (
       (CASE WHEN mom_net_worth_change > 0 THEN 10 ELSE 0 END) + -- Growth bonus
       (CASE WHEN liquidity_ratio > 0.2 THEN 5 ELSE 0 END) -- Liquidity bonus (ratio scale)
     )) AS net_worth_health_score,
-    
+
     -- Financial advice
-    CASE 
+    CASE
       WHEN net_worth < 0 AND debt_to_asset_ratio > 0.8 THEN 'Focus on debt reduction immediately'
       WHEN liquid_assets < 1000 THEN 'Build emergency fund before investing'
       WHEN debt_to_asset_ratio > 0.7 THEN 'Consider debt consolidation or aggressive paydown'
@@ -260,25 +285,25 @@ final_insights AS (
       WHEN estimated_months_expenses_covered > 6 THEN 'Good liquidity - explore investment opportunities'
       ELSE 'Monitor trends and maintain current strategy'
     END AS financial_advice,
-    
+
     -- Milestone tracking
-    CASE 
+    CASE
       WHEN net_worth >= 100000 THEN 'Six-Figure Net Worth Achieved'
-      WHEN net_worth >= 50000 THEN 'Building Wealth Steadily'  
+      WHEN net_worth >= 50000 THEN 'Building Wealth Steadily'
       WHEN net_worth >= 10000 THEN 'Positive Momentum'
       WHEN net_worth >= 0 THEN 'Breaking Even'
       ELSE 'Rebuilding Phase'
     END AS wealth_milestone,
-    
+
     -- Progress toward goals (assuming goal is positive net worth growth)
-    CASE 
+    CASE
       WHEN yoy_net_worth_change_percent > 0.10 THEN 'Exceeding Expectations'
       WHEN yoy_net_worth_change_percent > 0.05 THEN 'On Track'
       WHEN yoy_net_worth_change_percent > 0 THEN 'Slow Progress'
       ELSE 'Below Expectations'
     END AS annual_progress_assessment
-    
-  FROM net_worth_analysis
+
+  FROM allocation_analysis
 )
 
 SELECT * FROM final_insights
