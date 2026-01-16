@@ -143,3 +143,60 @@ More detailed guidance lives in `grafana/provisioning/dashboards/README.md`.
 ## Testing
 
 Test files located in `dagster_finance_tests/` directory. Testing infrastructure is minimal and requires expansion for comprehensive coverage.
+
+## Pre-Commit Dashboard Verification
+
+Before committing changes that affect Grafana dashboards or dbt models, verify the dashboards are functioning correctly using Playwright.
+
+### Verification Process
+
+1. **Navigate to Grafana**:
+   - Production server: `http://192.168.1.103:3001`
+   - Local development: `http://localhost:3001`
+   - Credentials: Check with project owner (do not store in code)
+
+2. **Review Key Dashboards**:
+   - Executive Financial Overview - main KPIs and summary
+   - Cash Flow Analysis - income/expense trends
+   - Category Spending Analysis - spending breakdowns
+   - Account Performance - balance tracking
+
+3. **Verify Panel Data**:
+   - All panels should display data (not "No data")
+   - Check for console errors in browser (F12 > Console)
+   - Common issues:
+     - "default database not configured" = datasource misconfiguration
+     - SQL syntax errors = check dbt model changes
+     - Missing data = verify dbt models ran successfully
+
+4. **Take Screenshot**:
+   - Save to `screenshots/[task-name].png`
+   - Document any issues found
+
+5. **Update Activity Log**:
+   - Append dated entry to `activity.md`
+   - Include: task description, actions taken, findings, screenshot filename
+
+### Using Playwright MCP
+
+```
+# Navigate to Grafana
+mcp__playwright__browser_navigate(url="http://192.168.1.103:3001")
+
+# Login (fill credentials)
+mcp__playwright__browser_fill_form(fields=[...])
+
+# Take screenshot
+mcp__playwright__browser_take_screenshot(
+  filename="screenshots/dashboard-review.png",
+  fullPage=true
+)
+```
+
+### Troubleshooting Database Connection
+
+If dashboards show "No data":
+1. Verify PostgreSQL is running: `docker-compose ps`
+2. Check datasource config: `grafana/provisioning/datasources/postgres.yml`
+3. Test database connection: `docker-compose exec dagster_postgres psql -U postgres -d personal_finance`
+4. Verify dbt models exist: Check `reporting` schema for expected tables
