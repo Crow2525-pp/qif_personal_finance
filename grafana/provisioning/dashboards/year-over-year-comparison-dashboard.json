@@ -1353,6 +1353,273 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "description": "Inflation-adjusted income and expenses for comparison",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "inflation_adjusted_annual_income"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Inflation-Adjusted Income"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "inflation_adjusted_annual_expenses"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Inflation-Adjusted Expenses"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 46
+      },
+      "id": 12,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  (comparison_year || '-01-01')::date as time,\n  inflation_adjusted_annual_income,\n  inflation_adjusted_annual_expenses\nFROM reporting.rpt_year_over_year_comparison \nORDER BY comparison_year;",
+          "refId": "A"
+        }
+      ],
+      "title": "Inflation-Adjusted Income vs Expenses",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Top 3 drivers for latest complete year",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 46
+      },
+      "id": 13,
+      "options": {
+        "frameIndex": 0,
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  'Top Expense Driver 1' as \"Category\",\n  top_expense_driver_1 as \"Driver\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1\nUNION ALL\nSELECT \n  'Top Expense Driver 2' as \"Category\",\n  top_expense_driver_2 as \"Driver\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1\nUNION ALL\nSELECT \n  'Top Net Worth Driver' as \"Category\",\n  top_net_worth_driver_1 as \"Driver\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
+          "refId": "A"
+        }
+      ],
+      "title": "Top 3 Drivers - Latest Year",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "text",
+        "uid": "-- Text --"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 54
+      },
+      "id": 14,
+      "options": {
+        "content": "## Narrative Summary\n\nThe narrative below captures key wins, risk factors, and recommended next actions based on the latest complete year's financial performance.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.0.0",
+      "title": "Key Insights & Narrative",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Summary narrative of wins, risks, and next actions",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 58
+      },
+      "id": 15,
+      "options": {
+        "frameIndex": 0,
+        "showHeader": false
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  narrative_summary as \"Summary\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
+          "refId": "A"
+        }
+      ],
+      "title": "Narrative Summary",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "Comprehensive year-over-year comparison table",
       "fieldConfig": {
         "defaults": {
@@ -1419,7 +1686,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 46
+        "y": 64
       },
       "id": 11,
       "options": {
