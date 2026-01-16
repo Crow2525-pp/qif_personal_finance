@@ -19,7 +19,68 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Cash Flow Analysis",
+      "tooltip": "View detailed cash flow trends and forecasts",
+      "type": "link",
+      "url": "/d/cash_flow_dashboard/cash-flow-analysis"
+    },
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Monthly Budget Summary",
+      "tooltip": "Review budget vs actual performance",
+      "type": "link",
+      "url": "/d/monthly_budget_dashboard/monthly-budget-summary"
+    },
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Category Spending Analysis",
+      "tooltip": "Analyze spending by category",
+      "type": "link",
+      "url": "/d/category_spending_dashboard/category-spending"
+    },
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Household Net Worth",
+      "tooltip": "Track overall net worth and asset allocation",
+      "type": "link",
+      "url": "/d/net_worth_dashboard/household-net-worth"
+    },
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Savings Performance",
+      "tooltip": "Monitor savings rate and goals",
+      "type": "link",
+      "url": "/d/savings_dashboard/savings-analysis"
+    }
+  ],
   "liveNow": false,
   "panels": [
     {
