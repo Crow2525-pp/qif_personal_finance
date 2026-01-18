@@ -29,18 +29,82 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 24,
-        "x": 0,
+        "w": 18,
+        "x": 6,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# 💼 Monthly Budget Cockpit - Decision-Ready Budget Dashboard\n\n**What This Dashboard Shows:** Real-time budget monitoring with pace tracking, spending classification, and recommended adjustments for the next month.\n\n**Key Metrics Explained:**\n• **Pace Tracker:** Daily spending target vs actual burn rate - stay on track each day\n• **Fixed vs Discretionary:** See where you can flex spending vs fixed commitments\n• **Budget Adjustments:** Evidence-based recommendations based on recent overruns\n• **Monthly Summary:** Complete income/expense trends and savings rate tracking\n\n**How to Use:** Check daily pace tracker to adjust discretionary spending. Review budget adjustments monthly to stay ahead of overrun patterns.",
+        "content": "# Monthly Budget Cockpit - Decision-Ready Budget Dashboard\n\n**What This Dashboard Shows:** Budget performance with pace tracking, spending classification, and recommended adjustments for the next month.\n\n**Key Metrics Explained:**\n- **Pace Tracker:** Daily spending target vs actual burn rate\n- **Fixed vs Discretionary:** Distinguish flexible vs committed spending\n- **Budget Adjustments:** Recommendations based on recent overruns\n- **Monthly Summary:** Income/expense trends and savings rate tracking\n- **Category Breakdown:** Major expense areas (mortgage, household, food, family)\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- YTD panels reflect year-to-date totals.\n- Trend charts cover the trailing 12 months.\n\n**How to Use:** Check daily pace tracker to adjust discretionary spending. Review budget adjustments monthly to stay ahead of overrun patterns.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
       "title": "Dashboard Instructions",
       "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Data recency for the current dashboard context.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "id": 101,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n)\nSELECT\n  to_char((SELECT month_date FROM latest_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM latest_period);",
+          "refId": "A"
+        }
+      ],
+      "title": "Data Freshness",
+      "type": "table"
     },
     {
       "datasource": {
@@ -1538,10 +1602,28 @@
     "list": []
   },
   "time": {
-    "from": "now-1y",
-    "to": "now"
+    "from": "now-1M/M",
+    "to": "now/M"
   },
-  "timepicker": {},
+  "timepicker": {
+    "quick_ranges": [
+      {
+        "from": "now-1M/M",
+        "to": "now/M",
+        "display": "Last complete month"
+      },
+      {
+        "from": "now/Y",
+        "to": "now",
+        "display": "Year to date"
+      },
+      {
+        "from": "now-12M/M",
+        "to": "now/M",
+        "display": "Trailing 12 months"
+      }
+    ]
+  },
   "timezone": "",
   "title": "Monthly Budget Summary",
   "uid": "monthly_budget_summary",
