@@ -1,14 +1,16 @@
 {
   "mcpServers": {
     "playwright": {
-      "command": "cmd /c npx",
+      "type": "stdio",
+      "command": "npx",
       "args": [
         "-y",
         "@playwright/mcp@latest",
         "--headless",
         "--output-dir",
-        "."
-      ]
+        "screenshots"
+      ],
+      "env": {}
     }
   }
 }

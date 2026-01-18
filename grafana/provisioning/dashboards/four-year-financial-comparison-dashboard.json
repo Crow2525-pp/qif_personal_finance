@@ -1055,6 +1055,281 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "description": "Inflation-adjusted four-year comparison",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 3,
+            "pointSize": 6,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "inflation_adjusted_annual_income"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Inflation-Adjusted Income"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "inflation_adjusted_annual_expenses"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Inflation-Adjusted Expenses"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 38
+      },
+      "id": 9,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH latest_year AS (\n  SELECT MAX(comparison_year) as max_year\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n)\nSELECT \n  (comparison_year || '-01-01')::date as time,\n  inflation_adjusted_annual_income,\n  inflation_adjusted_annual_expenses\nFROM reporting.rpt_year_over_year_comparison, latest_year\nWHERE comparison_year >= (latest_year.max_year - 3)\nORDER BY comparison_year;",
+          "refId": "A"
+        }
+      ],
+      "title": "Four-Year Inflation-Adjusted Income vs Expenses",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Top 3 drivers comparison across four years",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 38
+      },
+      "id": 10,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH latest_year AS (\n  SELECT MAX(comparison_year) as max_year\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n)\nSELECT \n  comparison_year as \"Year\",\n  top_expense_driver_1 as \"Top Expense\",\n  top_expense_driver_2 as \"2nd Expense\",\n  top_net_worth_driver_1 as \"Net Worth Driver\"\nFROM reporting.rpt_year_over_year_comparison, latest_year\nWHERE comparison_year >= (latest_year.max_year - 3)\nORDER BY comparison_year DESC;",
+          "refId": "A"
+        }
+      ],
+      "title": "Four-Year Top 3 Drivers Comparison",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "text",
+        "uid": "-- Text --"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 46
+      },
+      "id": 11,
+      "options": {
+        "content": "## Narrative Summary - Latest Year\n\nBelow is a summary of key wins, identified risks, and recommended next actions based on the latest complete year's performance.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.0.0",
+      "title": "Key Insights & Narrative",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Summary narrative of wins, risks, and next actions",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 50
+      },
+      "id": 12,
+      "options": {
+        "frameIndex": 0,
+        "showHeader": false
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH latest_year AS (\n  SELECT MAX(comparison_year) as max_year\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n)\nSELECT \n  narrative_summary as \"Summary\"\nFROM reporting.rpt_year_over_year_comparison, latest_year\nWHERE comparison_year = latest_year.max_year;",
+          "refId": "A"
+        }
+      ],
+      "title": "Narrative Summary",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "Comprehensive four-year financial summary table",
       "fieldConfig": {
         "defaults": {
@@ -1218,7 +1493,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 56
       },
       "id": 8,
       "options": {
