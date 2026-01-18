@@ -123,10 +123,10 @@ def load_categories() -> list[Category]:
     conn = get_db_connection()
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            # Get categories with display order
+            # Get categories with display order from landing schema
             cur.execute("""
                 SELECT category, display_order
-                FROM staging.stg_categories_allowed
+                FROM landing.categories_allowed
                 WHERE category != 'Uncategorized'
                 ORDER BY display_order
             """)
@@ -139,7 +139,7 @@ def load_categories() -> list[Category]:
             # Get subcategories from existing mappings
             cur.execute("""
                 SELECT DISTINCT category, subcategory
-                FROM staging.stg_banking_categories
+                FROM landing.banking_categories
                 WHERE category IS NOT NULL AND subcategory IS NOT NULL
             """)
             for row in cur.fetchall():
@@ -319,7 +319,7 @@ def display_group(group: UncategorizedGroup, index: int):
 
     if group.suggested_category and group.confidence:
         confidence_pct = group.confidence * 100
-        print(f"  💡 Suggestion: {group.suggested_category}/{group.suggested_subcategory} ({confidence_pct:.0f}% confidence)")
+        print(f"  -> Suggestion: {group.suggested_category}/{group.suggested_subcategory} ({confidence_pct:.0f}% confidence)")
 
 
 def prompt_category(categories: list[Category], suggestion: Optional[str] = None) -> tuple[str, str]:
@@ -482,10 +482,10 @@ def main():
             with conn.cursor() as cur:
                 cur.execute("SELECT COUNT(*) FROM reporting.fct_transactions")
                 count = cur.fetchone()[0]
-                print(f"✅ Connected successfully! Found {count:,} transactions.")
+                print(f"[OK] Connected successfully! Found {count:,} transactions.")
             conn.close()
         except Exception as e:
-            print(f"❌ Connection failed: {e}")
+            print(f"[ERROR] Connection failed: {e}")
         return
 
     print("=" * 60)
@@ -502,7 +502,7 @@ def main():
     groups = get_uncategorized_groups(limit=args.limit)
 
     if not groups:
-        print("\n✅ No uncategorized transactions found! Your data is clean.")
+        print("\n[OK] No uncategorized transactions found! Your data is clean.")
         return
 
     total_uncategorized = sum(g.txn_count for g in groups)
@@ -549,7 +549,7 @@ def main():
             add_mapping(mappings, group.memo_pattern, category, subcategory, store, all_accounts)
             categorized += 1
             transactions_categorized += group.txn_count
-            print(f"  ✅ Added!")
+            print(f"  [OK] Added!")
         else:
             print("  Skipped.")
 
@@ -566,7 +566,7 @@ def main():
             print(f"  {CATEGORIES_FILE}")
         else:
             save_mappings(mappings)
-            print(f"\n  ✅ Saved {len(mappings)} mappings to:")
+            print(f"\n  [OK] Saved {len(mappings)} mappings to:")
             print(f"  {CATEGORIES_FILE}")
             print(f"\n  Next steps:")
             print(f"  1. Review changes: git diff {CATEGORIES_FILE.relative_to(PROJECT_ROOT)}")
