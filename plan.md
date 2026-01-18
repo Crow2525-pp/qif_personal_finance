@@ -249,7 +249,7 @@
       "Add sensitivity sliders for income and expense changes with delta output",
       "Show projected vs actual gaps to calibrate forecasts"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "feature",
