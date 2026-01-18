@@ -32,16 +32,27 @@ WITH grocery_transactions AS (
         )
 ),
 
+-- Aggregate transactions by date and store first to create daily totals (order surrogate)
+daily_aggregates AS (
+    SELECT
+        transaction_date,
+        year_month,
+        grocery_store,
+        SUM(abs_amount) AS daily_total
+    FROM grocery_transactions
+    GROUP BY transaction_date, year_month, grocery_store
+),
+
 period_stats AS (
     SELECT
         year_month,
         grocery_store,
         COUNT(DISTINCT transaction_date) AS order_count,
-        ROUND(AVG(abs_amount), 2) AS average_order_value,
-        MAX(abs_amount) AS largest_order_value,
-        MIN(abs_amount) AS smallest_order_value,
-        SUM(abs_amount) AS total_spend
-    FROM grocery_transactions
+        ROUND(AVG(daily_total), 2) AS average_order_value,
+        MAX(daily_total) AS largest_order_value,
+        MIN(daily_total) AS smallest_order_value,
+        SUM(daily_total) AS total_spend
+    FROM daily_aggregates
     GROUP BY year_month, grocery_store
 ),
 
