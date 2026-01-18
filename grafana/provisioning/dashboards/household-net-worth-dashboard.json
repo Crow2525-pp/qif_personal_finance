@@ -29,18 +29,82 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 24,
-        "x": 0,
+        "w": 18,
+        "x": 6,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# 🏠 Household Net Worth Dashboard - Wealth Tracking & Allocation Analysis\n\n**What This Dashboard Shows:** Comprehensive wealth accumulation tracking with asset allocation analysis, liquidity coverage assessment, and change drivers.\n\n**Key Metrics Explained:**\n• **Net Worth Health Score:** Classification from critical to excellent based on assets vs liabilities\n• **Assets vs Liabilities:** Breakdown with liquidity analysis showing readily accessible funds\n• **Asset Allocation:** Shows distribution across liquid (60%), property (35%), and other (5%) asset classes\n• **Allocation Drift:** Measures deviation from target allocation - lower scores indicate better balance\n• **Liquidity Coverage:** Months of expenses covered by liquid assets - targets 3-6 months minimum\n• **Net Worth Change Drivers:** Asset and liability changes showing what's driving monthly net worth movements\n• **Debt-to-Asset Ratio:** Lower percentages indicate stronger financial position\n• **Monthly Progress:** Consistent increases indicate successful wealth building\n\n**How to Use:** Track wealth building progress with milestone goals. Monitor allocation drift to maintain balanced portfolio. Review change drivers to understand what impacts net worth month-to-month. Focus on increasing assets, reducing debt ratios, and maintaining adequate liquidity.",
+        "content": "# Household Net Worth Dashboard - Wealth Tracking & Allocation Analysis\n\n**What This Dashboard Shows:** Comprehensive wealth accumulation tracking with asset allocation analysis, liquidity coverage assessment, and change drivers.\n\n**Key Metrics Explained:**\n- **Net Worth Health Score:** Classification from critical to excellent based on assets vs liabilities\n- **Assets vs Liabilities:** Breakdown with liquidity analysis showing readily accessible funds\n- **Asset Allocation:** Distribution across liquid, property, and other asset classes\n- **Allocation Drift:** Deviation from target allocation; lower scores indicate better balance\n- **Liquidity Coverage:** Months of expenses covered by liquid assets\n- **Net Worth Change Drivers:** Asset and liability changes driving month-over-month movement\n- **Debt-to-Asset Ratio:** Lower percentages indicate stronger financial position\n- **Monthly Progress:** Consistent increases indicate successful wealth building\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- Trend panels cover the trailing 12 months unless noted.\n- Annual progress panels use complete years only.\n\n**How to Use:** Track wealth building progress with milestone goals. Monitor allocation drift to maintain a balanced portfolio. Review change drivers to understand month-to-month changes, and maintain adequate liquidity.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
       "title": "Dashboard Instructions",
       "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Data recency for the current dashboard context.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "id": 101,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_household_net_worth\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n)\nSELECT\n  to_char((SELECT month_date FROM latest_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_household_net_worth\nWHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM latest_period);",
+          "refId": "A"
+        }
+      ],
+      "title": "Data Freshness",
+      "type": "table"
     },
     {
       "datasource": {
@@ -1809,10 +1873,28 @@
     "list": []
   },
   "time": {
-    "from": "now-1y",
-    "to": "now"
+    "from": "now-1M/M",
+    "to": "now/M"
   },
-  "timepicker": {},
+  "timepicker": {
+    "quick_ranges": [
+      {
+        "from": "now-1M/M",
+        "to": "now/M",
+        "display": "Last complete month"
+      },
+      {
+        "from": "now/Y",
+        "to": "now",
+        "display": "Year to date"
+      },
+      {
+        "from": "now-12M/M",
+        "to": "now/M",
+        "display": "Trailing 12 months"
+      }
+    ]
+  },
   "timezone": "",
   "title": "Household Net Worth Analysis (Most Recent Complete Month)",
   "uid": "household_net_worth",
