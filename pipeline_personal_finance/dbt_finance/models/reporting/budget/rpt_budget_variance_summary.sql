@@ -74,45 +74,45 @@ variance_calculation AS (
       ELSE 0
     END AS income_variance_pct,
 
-    -- Expense variance
+    -- Expense variance (positive = overspending, negative = under budget)
     total_expenses,
     target_expenses,
-    CASE WHEN target_expenses > 0 THEN target_expenses - total_expenses ELSE 0 END AS expense_variance_delta,
+    CASE WHEN target_expenses > 0 THEN total_expenses - target_expenses ELSE 0 END AS expense_variance_delta,
     CASE WHEN target_expenses > 0
-      THEN ROUND(((target_expenses - total_expenses) / target_expenses) * 100, 1)
+      THEN ROUND(((total_expenses - target_expenses) / target_expenses) * 100, 1)
       ELSE 0
     END AS expense_variance_pct,
 
-    -- Category variances (over = positive for expenses)
+    -- Category variances (positive = overspending, negative = under budget)
     mortgage_expenses,
     target_mortgage,
-    CASE WHEN target_mortgage > 0 THEN target_mortgage - mortgage_expenses ELSE 0 END AS mortgage_variance_delta,
+    CASE WHEN target_mortgage > 0 THEN mortgage_expenses - target_mortgage ELSE 0 END AS mortgage_variance_delta,
     CASE WHEN target_mortgage > 0
-      THEN ROUND(((target_mortgage - mortgage_expenses) / target_mortgage) * 100, 1)
+      THEN ROUND(((mortgage_expenses - target_mortgage) / target_mortgage) * 100, 1)
       ELSE 0
     END AS mortgage_variance_pct,
 
     household_expenses,
     target_household,
-    CASE WHEN target_household > 0 THEN target_household - household_expenses ELSE 0 END AS household_variance_delta,
+    CASE WHEN target_household > 0 THEN household_expenses - target_household ELSE 0 END AS household_variance_delta,
     CASE WHEN target_household > 0
-      THEN ROUND(((target_household - household_expenses) / target_household) * 100, 1)
+      THEN ROUND(((household_expenses - target_household) / target_household) * 100, 1)
       ELSE 0
     END AS household_variance_pct,
 
     food_expenses,
     target_food,
-    CASE WHEN target_food > 0 THEN target_food - food_expenses ELSE 0 END AS food_variance_delta,
+    CASE WHEN target_food > 0 THEN food_expenses - target_food ELSE 0 END AS food_variance_delta,
     CASE WHEN target_food > 0
-      THEN ROUND(((target_food - food_expenses) / target_food) * 100, 1)
+      THEN ROUND(((food_expenses - target_food) / target_food) * 100, 1)
       ELSE 0
     END AS food_variance_pct,
 
     family_expenses,
     target_family,
-    CASE WHEN target_family > 0 THEN target_family - family_expenses ELSE 0 END AS family_variance_delta,
+    CASE WHEN target_family > 0 THEN family_expenses - target_family ELSE 0 END AS family_variance_delta,
     CASE WHEN target_family > 0
-      THEN ROUND(((target_family - family_expenses) / target_family) * 100, 1)
+      THEN ROUND(((family_expenses - target_family) / target_family) * 100, 1)
       ELSE 0
     END AS family_variance_pct,
 
