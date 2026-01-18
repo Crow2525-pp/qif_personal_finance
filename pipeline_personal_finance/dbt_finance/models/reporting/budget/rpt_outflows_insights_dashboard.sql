@@ -115,6 +115,7 @@ merchant_spending_current AS (
     ROW_NUMBER() OVER (ORDER BY vsa.spend_last_12_months DESC) AS merchant_spend_rank
   FROM {{ ref('rpt_vendor_spending_analysis') }} vsa
   WHERE spend_last_90_days > 0
+  ORDER BY vsa.spend_last_12_months DESC
   LIMIT 20
 ),
 
@@ -478,7 +479,7 @@ final_report AS (
           'merchant_name', mtf.vendor_name,
           'category', mtf.category,
           'current_avg_charge', ROUND(mtf.monthly_avg_amount::numeric, 2),
-          'previous_avg_charge', ROUND((mtf.monthly_avg_amount - mtf.avg_charge_delta)::numeric, 2),
+          'previous_avg_charge', ROUND((mtf.monthly_avg_amount + mtf.avg_charge_delta)::numeric, 2),
           'charge_delta', ROUND(COALESCE(mtf.avg_charge_delta, 0)::numeric, 2),
           'delta_percentage', CASE
             WHEN mtf.monthly_avg_amount > 0 AND mtf.avg_charge_delta IS NOT NULL
