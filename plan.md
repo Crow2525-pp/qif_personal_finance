@@ -9,7 +9,8 @@
       "Use a consistent default of most recent complete month with a quick toggle for YTD and trailing 12 months",
       "Label panels that use different time windows to avoid mixed-period interpretation"
     ],
-    "passes": true
+    "passes": false,
+    "notes": "Implemented in code; pending Grafana verification."
   },
   {
     "category": "feature",
@@ -35,7 +36,7 @@
       "Apply to Category Spending Analysis, Outflows Insights, and Monthly Budget Summary"
     ],
     "passes": false,
-    "notes": "Grafana review: variance driver panels not visible on Category Spending, Outflows Insights, or Monthly Budget Summary."
+    "notes": "Grafana review: variance driver panels not visible on Category Spending, Outflows Insights, or Monthly Budget Summary. Implemented in code; pending Grafana verification."
   },
   {
     "category": "feature",
@@ -48,7 +49,7 @@
       "Provide a short list of suggested adjustments for next month based on historical average"
     ],
     "passes": false,
-    "notes": "Grafana review: Monthly Budget Summary lacks budget targets/variance, heatmap, and adjustment suggestions."
+    "notes": "Grafana review: Monthly Budget Summary lacks budget targets/variance, heatmap, and adjustment suggestions. Implemented in code; pending Grafana verification."
   },
   {
     "category": "feature",
@@ -61,7 +62,7 @@
       "Include a 'what changed since last month' summary with links to variance drivers"
     ],
     "passes": false,
-    "notes": "Grafana review: Cash Flow Analysis missing recurring bills next month and 'what changed since last month' summary."
+    "notes": "Grafana review: Cash Flow Analysis missing recurring bills next month and 'what changed since last month' summary. Implemented in code; pending Grafana verification."
   },
   {
     "category": "feature",
@@ -73,7 +74,8 @@
       "Include a 'needs review' queue combining large, uncategorized, and new merchants",
       "Add quick filters for account, merchant, and category"
     ],
-    "passes": true
+    "passes": false,
+    "notes": "Implemented in code; pending Grafana verification."
   },
   {
     "category": "feature",
@@ -86,7 +88,7 @@
       "Surface savings rate benchmarks and a short action checklist"
     ],
     "passes": false,
-    "notes": "Grafana review: Savings Analysis missing explicit goal progress, required monthly transfer, and action checklist."
+    "notes": "Grafana review: Savings Analysis missing explicit goal progress, required monthly transfer, and action checklist. Implemented in code; pending Grafana verification."
   },
   {
     "category": "feature",
@@ -99,7 +101,7 @@
       "Add a 'net worth change drivers' panel tied to account movements"
     ],
     "passes": false,
-    "notes": "Grafana review: Net worth dashboard missing payoff sensitivity and net worth change drivers panels."
+    "notes": "Grafana review: Net worth dashboard missing payoff sensitivity and net worth change drivers panels. Implemented in code; pending Grafana verification."
   },
   {
     "category": "feature",
@@ -125,7 +127,7 @@
       "Add a 'switching opportunity' panel showing alternative retailers with lower average spend"
     ],
     "passes": false,
-    "notes": "Grafana review: Amazon/Grocery dashboards missing budget variance highlights and switching opportunity panels; Amazon panels show No data/400 errors."
+    "notes": "Grafana review: Amazon/Grocery dashboards missing budget variance highlights and switching opportunity panels; Amazon panels show No data/400 errors. Implemented in code; pending Grafana verification."
   },
   {
     "category": "feature",
@@ -151,7 +153,7 @@
       "Add a short 'budget adjustments for next month' list based on recent overruns"
     ],
     "passes": false,
-    "notes": "Grafana review: Monthly Budget Summary missing pace tracker, fixed vs discretionary rollup, and adjustment list."
+    "notes": "Grafana review: Monthly Budget Summary missing pace tracker, fixed vs discretionary rollup, and adjustment list. Implemented in code; pending Grafana verification."
   },
   {
     "category": "feature",
@@ -177,7 +179,7 @@
       "Highlight price changes for repeat merchants (average charge delta)"
     ],
     "passes": false,
-    "notes": "Grafana review: Outflows Insights missing top merchants, subscription candidates, and price change panels."
+    "notes": "Grafana review: Outflows Insights missing top merchants, subscription candidates, and price change panels. Implemented in code; pending Grafana verification."
   },
   {
     "category": "feature",
@@ -216,7 +218,7 @@
       "Add net worth change drivers with asset/liability deltas"
     ],
     "passes": false,
-    "notes": "Grafana review: Net worth dashboard missing allocation drift and change driver panels."
+    "notes": "Grafana review: Net worth dashboard missing allocation drift and change driver panels. Implemented in code; pending Grafana verification."
   },
   {
     "category": "feature",
@@ -278,7 +280,7 @@
       "Add a 'fix order' list sorted by financial impact"
     ],
     "passes": false,
-    "notes": "Grafana review: Financial Reconciliation dashboard does not show data-quality blockers or fix-order list."
+    "notes": "Grafana review: Financial Reconciliation dashboard does not show data-quality blockers or fix-order list. Implemented in code; pending Grafana verification."
   },
   {
     "category": "feature",
@@ -302,7 +304,8 @@
       "Highlight top 3 drivers for income, expenses, and net worth changes",
       "Add a short narrative summary of wins, risks, and next actions"
     ],
-    "passes": false
+    "passes": false,
+    "notes": "Implemented in code; pending Grafana verification."
   },
   {
     "category": "feature",
