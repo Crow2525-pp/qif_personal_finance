@@ -29,18 +29,82 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 24,
-        "x": 0,
+        "w": 18,
+        "x": 6,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# \ud83c\udfe0 Household Net Worth Dashboard - Wealth Tracking\n\n**What This Dashboard Shows:** Tracks wealth accumulation and net worth progression over time with health scoring and milestone tracking.\n\n**Key Metrics Explained:**\n\u2022 **Net Worth Health Score:** Classification from critical to excellent based on assets vs liabilities\n\u2022 **Assets vs Liabilities:** Breakdown with liquidity analysis showing readily accessible funds\n\u2022 **Debt-to-Asset Ratio:** Lower percentages indicate stronger financial position\n\u2022 **Monthly Progress:** Consistent increases indicate successful wealth building\n\n**How to Use:** Track wealth building progress with milestone goals. Focus on increasing assets and reducing debt-to-asset ratios over time.",
+        "content": "# \ud83c\udfe0 Household Net Worth Dashboard - Wealth Tracking\n\n**What This Dashboard Shows:** Tracks wealth accumulation and net worth progression over time with health scoring and milestone tracking.\n\n**Key Metrics Explained:**\n\u2022 **Net Worth Health Score:** Classification from critical to excellent based on assets vs liabilities\n\u2022 **Assets vs Liabilities:** Breakdown with liquidity analysis showing readily accessible funds\n\u2022 **Debt-to-Asset Ratio:** Lower percentages indicate stronger financial position\n\u2022 **Monthly Progress:** Consistent increases indicate successful wealth building\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- Trend panels cover the trailing 12 months unless noted.\n- Annual progress panels use complete years only.\n\n**How to Use:** Track wealth building progress with milestone goals. Focus on increasing assets and reducing debt-to-asset ratios over time.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
       "title": "Dashboard Instructions",
       "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Data recency for the current dashboard context.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "id": 101,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_household_net_worth\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n)\nSELECT\n  to_char((SELECT month_date FROM latest_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_household_net_worth\nWHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM latest_period);",
+          "refId": "A"
+        }
+      ],
+      "title": "Data Freshness",
+      "type": "table"
     },
     {
       "datasource": {
@@ -1406,10 +1470,28 @@
     "list": []
   },
   "time": {
-    "from": "now-1y",
-    "to": "now"
+    "from": "now-1M/M",
+    "to": "now/M"
   },
-  "timepicker": {},
+  "timepicker": {
+    "quick_ranges": [
+      {
+        "from": "now-1M/M",
+        "to": "now/M",
+        "display": "Last complete month"
+      },
+      {
+        "from": "now/Y",
+        "to": "now",
+        "display": "Year to date"
+      },
+      {
+        "from": "now-12M/M",
+        "to": "now/M",
+        "display": "Trailing 12 months"
+      }
+    ]
+  },
   "timezone": "",
   "title": "Household Net Worth Analysis (Most Recent Complete Month)",
   "uid": "household_net_worth",
