@@ -191,3 +191,38 @@ This file logs what the agent accomplishes during each iteration:
 - Added time window notes in dashboard guidance.
 
 **Screenshot**: `screenshots/time-framing-freshness.png`
+
+## 2026-01-18
+
+### Transaction Anomaly Detection & Review Workflow
+
+**Task**: Strengthen transaction analysis with anomaly and review workflows.
+
+**Status**: VERIFIED - Feature already implemented and committed
+
+**Actions performed**:
+- Verified implementation of three dbt visualization models:
+  1. `viz_transaction_anomalies` - Flags transactions deviating significantly from 12-month baseline per merchant using statistical measures (standard deviations, percentage variance)
+  2. `viz_transactions_needs_review_queue` - Creates prioritized review queue combining large transactions (>$500), uncategorized transactions, and new merchants with priority scoring
+  3. `viz_transaction_filter_options` - Provides distinct filter options (accounts, merchants, categories) for dashboard filtering
+
+- Verified Transaction Analysis dashboard has two new panels:
+  1. "Transaction Anomalies (Baseline Comparison)" - Table showing anomalies with merchant 12-month averages and variance percentages
+  2. "Transactions Needing Review" - Priority-based queue for recent and current month transactions
+
+- Models provide:
+  - Anomaly flags with severity labels (🔴 Severe, 🟠 High, 🟡 Moderate, 🟢 Minor)
+  - Review priority levels (1-7) with human-readable labels
+  - Transaction filtering by account, merchant, and category
+  - Statistical baseline metrics (12m avg, stddev, max, count)
+
+**Files verified**:
+- `/pipeline_personal_finance/dbt_finance/models/viz/transactions/viz_transaction_anomalies.sql`
+- `/pipeline_personal_finance/dbt_finance/models/viz/transactions/viz_transactions_needs_review_queue.sql`
+- `/pipeline_personal_finance/dbt_finance/models/viz/transactions/viz_transaction_filter_options.sql`
+- `/pipeline_personal_finance/dbt_finance/models/viz/transactions/schema.yml`
+- `/grafana/provisioning/dashboards/transaction-analysis-dashboard.json`
+
+**Commit**: `d864a17` - "Implement transaction anomaly detection and review workflows"
+
+**Plan Status**: Updated plan.md to mark task as passes: true

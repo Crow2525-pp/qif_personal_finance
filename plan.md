@@ -69,7 +69,7 @@
       "Include a 'needs review' queue combining large, uncategorized, and new merchants",
       "Add quick filters for account, merchant, and category"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "feature",
