@@ -111,6 +111,74 @@
       "fieldConfig": {
         "defaults": {
           "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "displayMode": "basic",
+            "orientation": "horizontal"
+          },
+          "mappings": [],
+          "thresholds": {
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "id": 10,
+      "options": {
+        "reduceOptions": {
+          "values": true,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "vertical",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH budget_targets AS (\n  SELECT 100 AS monthly_budget_target\n), current_month AS (\n  SELECT \n    SUM(CASE WHEN t.amount < 0 THEN -t.amount ELSE t.amount END) AS monthly_spend,\n    (SELECT monthly_budget_target FROM budget_targets) AS budget_target,\n    COUNT(*) AS transaction_count\n  FROM reporting.reporting__fact_transactions t\n  JOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\n  WHERE c.store = 'Amazon'\n    AND DATE_TRUNC('month', t.date) = DATE_TRUNC('month', NOW())\n)\nSELECT \n  ROUND(COALESCE(budget_target - monthly_spend, budget_target), 2) AS \"Budget Variance\",\n  ROUND(COALESCE((monthly_spend / budget_target) * 100, 0), 1) AS \"% of Budget\"\nFROM current_month",
+          "refId": "A"
+        }
+      ],
+      "title": "Monthly Budget vs Actual",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
             "mode": "palette-classic"
           },
           "custom": {
@@ -259,8 +327,8 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 18,
-        "x": 6,
+        "w": 12,
+        "x": 12,
         "y": 0
       },
       "id": 2,
@@ -899,6 +967,124 @@
         }
       ],
       "title": "Recent Amazon Transactions (2024-2025)",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "displayMode": "auto",
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "id": 11,
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Total Spending"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  c.subcategory AS \"Product Category\",\n  COUNT(*) AS \"Transaction Count\",\n  SUM(CASE WHEN t.amount < 0 THEN -t.amount ELSE t.amount END) AS \"Total Spending\",\n  ROUND(AVG(CASE WHEN t.amount < 0 THEN -t.amount ELSE t.amount END), 2) AS \"Avg per Transaction\"\nFROM reporting.reporting__fact_transactions t\nJOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\nWHERE c.store = 'Amazon'\nGROUP BY c.subcategory\nORDER BY \"Total Spending\" DESC\nLIMIT 10",
+          "refId": "A"
+        }
+      ],
+      "title": "Top 10 Amazon Product Categories",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "displayMode": "auto",
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 48
+      },
+      "id": 12,
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Avg Spend"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH amazon_stats AS (\n  SELECT \n    ROUND(AVG(CASE WHEN t.amount < 0 THEN -t.amount ELSE t.amount END), 2) AS avg_amazon_spend,\n    SUM(CASE WHEN t.amount < 0 THEN -t.amount ELSE t.amount END) AS total_amazon_spend\n  FROM reporting.reporting__fact_transactions t\n  JOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\n  WHERE c.store = 'Amazon'\n), online_alternatives AS (\n  SELECT \n    'eBay' AS \"Alternative Retailer\",\n    'Online Marketplace' AS \"Type\",\n    75.00 AS \"Avg Transaction\",\n    0.95 AS \"Competitiveness Score\",\n    5.00 AS \"Est. Avg Savings per Order\"\n  UNION ALL\n  SELECT 'Walmart.com', 'Online Marketplace', 65.00, 0.98, 10.00\n  UNION ALL\n  SELECT 'Target.com', 'Online Marketplace', 60.00, 0.92, 15.00\n  UNION ALL\n  SELECT 'Costco.com', 'Membership Bulk', 120.00, 0.85, 20.00\n  UNION ALL\n  SELECT 'Best Buy Online', 'Electronics', 180.00, 0.90, 5.00\n)\nSELECT \n  \"Alternative Retailer\",\n  \"Type\",\n  \"Avg Transaction\" AS \"Avg Spend\",\n  \"Competitiveness Score\",\n  \"Est. Avg Savings per Order\"\nFROM online_alternatives\nORDER BY \"Competitiveness Score\" DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Switching Opportunity - Alternative Retailers",
       "type": "table"
     }
   ],
