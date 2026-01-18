@@ -11,11 +11,11 @@
 WITH latest_month_variance AS (
   SELECT
     budget_year_month,
-    transaction_year,
-    transaction_month,
+    budget_year,
+    budget_month,
 
     -- Get the most recent complete month
-    ROW_NUMBER() OVER (ORDER BY transaction_year DESC, transaction_month DESC) AS recency_rank,
+    ROW_NUMBER() OVER (ORDER BY budget_year DESC, budget_month DESC) AS recency_rank,
 
     mortgage_variance_pct,
     mortgage_variance_delta,
@@ -48,8 +48,8 @@ WITH latest_month_variance AS (
 variance_ranked AS (
   SELECT
     budget_year_month,
-    transaction_year,
-    transaction_month,
+    budget_year,
+    budget_month,
 
     -- Identify categories to adjust
     CASE
@@ -81,8 +81,8 @@ variance_ranked AS (
 suggestions_base AS (
   SELECT
     budget_year_month,
-    transaction_year,
-    transaction_month,
+    budget_year,
+    budget_month,
     net_cash_flow,
     savings_rate_percent,
     total_expenses,
@@ -96,8 +96,8 @@ suggestions_base AS (
 suggestions_unpacked AS (
   SELECT
     budget_year_month,
-    transaction_year,
-    transaction_month,
+    budget_year,
+    budget_month,
     net_cash_flow,
     savings_rate_percent,
 
@@ -146,8 +146,8 @@ suggestions_unpacked AS (
 
 SELECT
   budget_year_month,
-  transaction_year,
-  transaction_month,
+  budget_year,
+  budget_month,
   adjustment_priority,
   suggestion_text,
   recommended_action,

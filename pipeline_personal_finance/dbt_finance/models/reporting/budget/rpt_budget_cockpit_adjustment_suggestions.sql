@@ -2,7 +2,7 @@
   config(
     materialized='table',
     indexes=[
-      {'columns': ['analysis_month'], 'unique': false}
+      {'columns': ['adjustment_month'], 'unique': false}
     ]
   )
 }}

@@ -385,7 +385,7 @@ summary_stats AS (
     CURRENT_TIMESTAMP AS report_generated_at
     
   FROM alert_analysis aa
-)
+),
 
 final_report AS (
   SELECT

@@ -26,3 +26,4 @@ schedules.db
 !pipeline_personal_finance/dbt_finance/macros
 .venv
 *.log*
+*.log.1
