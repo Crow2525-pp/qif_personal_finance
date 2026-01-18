@@ -1,4 +1,20 @@
-# Activity Log
+### Step 4: Create activity.md
+
+This file logs what the agent accomplishes during each iteration:
+
+```markdown
+# Project Build - Activity Log
+
+## Current Status
+**Last Updated:** 
+**Tasks Completed:** 
+**Current Task:** 
+
+---
+
+## Session Log
+
+<!-- Agent will append dated entries here -->
 
 ## 2026-01-16
 
@@ -162,3 +178,103 @@
 1. **Option A**: Run PostgreSQL locally alongside DuckDB for dashboard testing
 2. **Option B**: Create local-specific dashboard JSON files with DuckDB-compatible queries
 3. **Option C**: Use Grafana Explore for ad-hoc data validation (works with raw SQL)
+
+## 2026-01-16
+
+### Dashboard Time Framing & Freshness
+
+**Task**: Standardize time framing and freshness indicators across core dashboards.
+
+**Actions performed**:
+- Added Data Freshness panels with data-through and last refresh timestamps to Executive, Monthly Budget Summary, Cash Flow Analysis, Household Net Worth, and Savings Analysis dashboards.
+- Updated default time range to last complete month and added quick ranges (YTD, trailing 12 months).
+- Added time window notes in dashboard guidance.
+
+**Screenshot**: `screenshots/time-framing-freshness.png`
+
+## 2026-01-18
+
+### Transaction Anomaly Detection & Review Workflow
+
+**Task**: Strengthen transaction analysis with anomaly and review workflows.
+
+**Status**: VERIFIED - Feature already implemented and committed
+
+**Actions performed**:
+- Verified implementation of three dbt visualization models:
+  1. `viz_transaction_anomalies` - Flags transactions deviating significantly from 12-month baseline per merchant using statistical measures (standard deviations, percentage variance)
+  2. `viz_transactions_needs_review_queue` - Creates prioritized review queue combining large transactions (>$500), uncategorized transactions, and new merchants with priority scoring
+  3. `viz_transaction_filter_options` - Provides distinct filter options (accounts, merchants, categories) for dashboard filtering
+
+- Verified Transaction Analysis dashboard has two new panels:
+  1. "Transaction Anomalies (Baseline Comparison)" - Table showing anomalies with merchant 12-month averages and variance percentages
+  2. "Transactions Needing Review" - Priority-based queue for recent and current month transactions
+
+- Models provide:
+  - Anomaly flags with severity labels (🔴 Severe, 🟠 High, 🟡 Moderate, 🟢 Minor)
+  - Review priority levels (1-7) with human-readable labels
+  - Transaction filtering by account, merchant, and category
+  - Statistical baseline metrics (12m avg, stddev, max, count)
+
+**Files verified**:
+- `/pipeline_personal_finance/dbt_finance/models/viz/transactions/viz_transaction_anomalies.sql`
+- `/pipeline_personal_finance/dbt_finance/models/viz/transactions/viz_transactions_needs_review_queue.sql`
+- `/pipeline_personal_finance/dbt_finance/models/viz/transactions/viz_transaction_filter_options.sql`
+- `/pipeline_personal_finance/dbt_finance/models/viz/transactions/schema.yml`
+- `/grafana/provisioning/dashboards/transaction-analysis-dashboard.json`
+
+**Commit**: `d864a17` - "Implement transaction anomaly detection and review workflows"
+
+**Plan Status**: Updated plan.md to mark task as passes: true
+
+## 2026-01-18
+
+### Add Order-Level Context to Amazon and Grocery Dashboards
+
+**Task**: Add order-level context to Amazon and Grocery dashboards to enable decision-making around purchase patterns, spending drivers, and price/volume changes.
+
+**Status**: COMPLETED - PR #25 created and merged
+
+**Actions performed**:
+
+1. **Created SQL visualization models**:
+   - `viz_amazon_order_context.sql`: Analyzes Amazon transactions with:
+     - Order count per month (COUNT DISTINCT transaction_date)
+     - Average order value (AVG of absolute amounts)
+     - Largest order value (MAX)
+     - Purchase type split: Subscription/Recurring vs One-Off (detected via memo keywords: 'prime', 'subscribe', 'recurring', 'membership')
+     - Month-over-month AOV change percentage
+     - Year-over-year order count comparison
+
+   - `viz_grocery_order_context.sql`: Analyzes grocery transactions by store (Coles, Woolworths, Gaskos) with:
+     - Same metrics as Amazon but partitioned by grocery_store
+     - Store detection via memo patterns
+     - Purchase type split for groceries (Subscription/Recurring vs One-Off, detected via 'subscription', 'recurring', 'delivery' keywords)
+     - Window functions partitioned by grocery store for trend analysis
+
+2. **Updated Amazon Dashboard**:
+   - Added "Order Context (Latest Month)" stat panel showing order count, avg order value, largest order
+   - Added "Recurring vs One-Off (Latest Month)" stat panel showing spend by purchase type
+   - Added "Basket Size Trend (Price Inflation/Volume)" time series showing 18-month AOV trends
+
+3. **Updated Grocery Dashboard**:
+   - Added "Order Context by Store (Latest Month)" stat panel with per-store metrics
+   - Added "Recurring vs One-Off by Store (Latest Month)" stat panel with purchase type by store
+   - Added "Basket Size Trend by Store (Price Inflation/Volume)" time series tracking AOV trends per retailer
+
+**Feature Requirements Met**:
+✓ Show order count, average order value, and largest order for the period
+✓ Split recurring/subscription vs one-off purchases
+✓ Add basket-size trend to spot price inflation or volume changes
+
+**Files Created/Modified**:
+- `pipeline_personal_finance/dbt_finance/models/viz/expenses/viz_amazon_order_context.sql` (84 lines)
+- `pipeline_personal_finance/dbt_finance/models/viz/groceries/viz_grocery_order_context.sql` (96 lines)
+- `grafana/provisioning/dashboards/amazon-spending-dashboard.json` (added 3 panels)
+- `grafana/provisioning/dashboards/grocery-spending-dashboard.json` (added 3 panels)
+
+**Commit**: `70b0ca8` - "Add order-level context to Amazon and Grocery dashboards"
+
+**PR Created**: https://github.com/Crow2525-pp/qif_personal_finance/pull/25
+
+**Plan Status**: Updated plan.md to mark task as passes: true

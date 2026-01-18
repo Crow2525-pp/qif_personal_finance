@@ -684,6 +684,352 @@
       ],
       "title": "12-Month Projected Savings by Scenario",
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "text"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 40
+      },
+      "id": 8,
+      "options": {
+        "content": "## Scenario Assumptions\n\n**Full-Time Scenario:**\n- Work Factor: 100% (full-time employment)\n- Monthly QBE Income: $3,800\n- Monthly Education Income: $420 (30% of months active)\n- Partner Income: $2,900\n- Annual Bonus: $12,000\n- Annual Tax Refund: $2,000\n- Income Growth Rate: 5% annually\n- Expense Growth Rate: 4% annually\n\n**Part-Time Scenario:**\n- Work Factor: 60% (3 days per week)\n- Monthly QBE Income: $2,280 (60% of full-time)\n- Monthly Education Income: $420 (30% of months active)\n- Partner Income: $2,900\n- Annual Bonus: $7,000 (reduced for part-time)\n- Annual Tax Refund: $2,000\n- Income Growth Rate: 3% annually\n- Expense Growth Rate: 4% annually\n\n**General Assumptions:**\n- Inflation Rate: 2% annually\n- Based on 24-month historical baseline\n- Expense projections use confidence intervals",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.0.0",
+      "title": "Scenario Assumptions Documentation",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Base Projection"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "blue"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Conservative (-10%)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "red"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Optimistic (+10%)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 40
+      },
+      "id": 9,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  projection_date as time,\n  projected_net_flow as \"Base Projection\",\n  worst_case_net_flow as \"Conservative (-10%)\",\n  best_case_net_flow as \"Optimistic (+10%)\"\nFROM reporting.fct_projection_sensitivity \nWHERE scenario = '$scenario'\nORDER BY projection_date",
+          "refId": "A"
+        }
+      ],
+      "title": "Sensitivity Analysis: Income/Expense Range",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": true,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Income Gap"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "orange"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Expense Gap"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "red"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 48
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  projection_date as time,\n  income_gap as \"Income Gap (Projected - Actual)\",\n  expense_gap as \"Expense Gap (Projected - Actual)\",\n  net_flow_gap as \"Net Flow Gap\"\nFROM reporting.fct_projection_sensitivity \nWHERE scenario = '$scenario'\nAND prev_year_actual_income IS NOT NULL\nORDER BY projection_date",
+          "refId": "A"
+        }
+      ],
+      "title": "Projection Calibration: Gaps vs Historical (Same Month Last Year)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            }
+          },
+          "mappings": [],
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 56
+      },
+      "id": 11,
+      "options": {
+        "displayLabels": ["name", "value"],
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "values": ["value"]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  'Optimistic Case' as metric,\n  best_case_net_flow * 12 as value\nFROM reporting.fct_projection_sensitivity \nWHERE scenario = '$scenario'\nAND projection_month = 12\nUNION ALL\nSELECT \n  'Base Case' as metric,\n  projected_net_flow * 12 as value\nFROM reporting.fct_projection_sensitivity \nWHERE scenario = '$scenario'\nAND projection_month = 12\nUNION ALL\nSELECT \n  'Conservative Case' as metric,\n  worst_case_net_flow * 12 as value\nFROM reporting.fct_projection_sensitivity \nWHERE scenario = '$scenario'\nAND projection_month = 12",
+          "refId": "A"
+        }
+      ],
+      "title": "Scenario Range: Annual Net Flow Impact (Best/Base/Worst Case)",
+      "type": "piechart"
     }
   ],
   "refresh": "",
