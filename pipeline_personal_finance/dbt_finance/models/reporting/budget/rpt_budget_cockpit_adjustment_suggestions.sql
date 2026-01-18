@@ -68,13 +68,10 @@ overspending_categories AS (
     overspend_amount,
     month_rank,
     -- Count consecutive months of overspending
-    ROW_NUMBER() OVER (
+    SUM(CASE WHEN overspend_amount <= 0 THEN 1 ELSE 0 END) OVER (
       PARTITION BY level_1_category
       ORDER BY budget_year_month DESC
-    ) - ROW_NUMBER() OVER (
-      PARTITION BY level_1_category
-      ORDER BY budget_year_month DESC
-    ) FILTER (WHERE overspend_amount > 0) as consecutive_overspend_group
+    ) as consecutive_overspend_group
   FROM recent_months_analysis
   WHERE month_rank <= 3
 ),
@@ -92,7 +89,6 @@ consecutive_overspending AS (
     ROUND(COUNT(*) * (MAX(category_spending) - MAX(avg_spending)), 2) as projected_annual_impact
   FROM overspending_categories
   WHERE overspend_amount > 0
-    AND consecutive_overspend_group IS NOT NULL
   GROUP BY level_1_category, level_2_subcategory, consecutive_overspend_group
   HAVING COUNT(*) >= 2  -- Only consider 2+ consecutive months
 ),

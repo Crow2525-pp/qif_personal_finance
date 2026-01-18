@@ -89,8 +89,8 @@ pace_analysis AS (
     END as pace_status,
     -- Health flag
     CASE
-      WHEN (dt.mtd_expenses / NULLIF(dt.current_day_of_month, 0)) > (dt.avg_daily_expense_target * 1.1) THEN 'warning'
       WHEN (dt.mtd_expenses / NULLIF(dt.current_day_of_month, 0)) > (dt.avg_daily_expense_target * 1.25) THEN 'critical'
+      WHEN (dt.mtd_expenses / NULLIF(dt.current_day_of_month, 0)) > (dt.avg_daily_expense_target * 1.1) THEN 'warning'
       ELSE 'healthy'
     END as pace_health,
     CURRENT_TIMESTAMP as report_generated_at
