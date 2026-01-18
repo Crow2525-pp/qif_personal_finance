@@ -24,15 +24,25 @@ WITH amazon_transactions AS (
         AND LOWER(ft.transaction_memo) LIKE '%amazon%'
 ),
 
+amazon_orders AS (
+    SELECT
+        transaction_date::date AS order_date,
+        DATE_TRUNC('month', transaction_date) AS year_month,
+        purchase_type,
+        SUM(abs_amount) AS order_amount
+    FROM amazon_transactions
+    GROUP BY transaction_date::date, DATE_TRUNC('month', transaction_date), purchase_type
+),
+
 period_stats AS (
     SELECT
         year_month,
-        COUNT(DISTINCT transaction_date) AS order_count,
-        ROUND(AVG(abs_amount), 2) AS average_order_value,
-        MAX(abs_amount) AS largest_order_value,
-        MIN(abs_amount) AS smallest_order_value,
-        SUM(abs_amount) AS total_spend
-    FROM amazon_transactions
+        COUNT(*) AS order_count,
+        ROUND(AVG(order_amount), 2) AS average_order_value,
+        MAX(order_amount) AS largest_order_value,
+        MIN(order_amount) AS smallest_order_value,
+        SUM(order_amount) AS total_spend
+    FROM amazon_orders
     GROUP BY year_month
 ),
 
@@ -40,10 +50,10 @@ purchase_type_split AS (
     SELECT
         year_month,
         purchase_type,
-        COUNT(*) AS transaction_count,
-        SUM(abs_amount) AS category_spend,
-        ROUND(AVG(abs_amount), 2) AS avg_amount
-    FROM amazon_transactions
+        COUNT(*) AS order_count,
+        SUM(order_amount) AS category_spend,
+        ROUND(AVG(order_amount), 2) AS avg_amount
+    FROM amazon_orders
     GROUP BY year_month, purchase_type
 ),
 
@@ -75,9 +85,9 @@ SELECT
      FROM purchase_type_split pt WHERE pt.year_month = bst.year_month) AS recurring_spend,
     (SELECT SUM(CASE WHEN pt.purchase_type = 'One-Off Purchase' THEN pt.category_spend ELSE 0 END)
      FROM purchase_type_split pt WHERE pt.year_month = bst.year_month) AS oneoff_spend,
-    (SELECT SUM(CASE WHEN pt.purchase_type = 'Subscription/Recurring' THEN pt.transaction_count ELSE 0 END)
+    (SELECT SUM(CASE WHEN pt.purchase_type = 'Subscription/Recurring' THEN pt.order_count ELSE 0 END)
      FROM purchase_type_split pt WHERE pt.year_month = bst.year_month) AS recurring_count,
-    (SELECT SUM(CASE WHEN pt.purchase_type = 'One-Off Purchase' THEN pt.transaction_count ELSE 0 END)
+    (SELECT SUM(CASE WHEN pt.purchase_type = 'One-Off Purchase' THEN pt.order_count ELSE 0 END)
      FROM purchase_type_split pt WHERE pt.year_month = bst.year_month) AS oneoff_count,
     (SELECT total_spend FROM period_stats ps WHERE ps.year_month = bst.year_month) AS total_monthly_spend
 FROM basket_size_trend bst
