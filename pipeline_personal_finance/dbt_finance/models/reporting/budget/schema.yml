@@ -158,3 +158,160 @@ models:
         description: "Net worth health score (1-100)"
       - name: savings_health_score
         description: "Savings health score (1-100)"
+
+  - name: rpt_budget_variance_summary
+    description: "Monthly budget variance analysis using 3-month rolling average targets. Tracks actual vs target income and expenses with variance percentages and status indicators for each major spending category."
+    columns:
+      - name: budget_year_month
+        description: "YYYY-MM format for easy sorting and filtering"
+        tests:
+          - not_null
+          - unique
+      - name: transaction_year
+        description: "Year of the transaction"
+        tests:
+          - not_null
+      - name: transaction_month
+        description: "Month of the transaction (1-12)"
+        tests:
+          - not_null
+      - name: total_income
+        description: "Actual total monthly income from all sources"
+        tests:
+          - not_null
+      - name: target_income
+        description: "3-month rolling average income target"
+      - name: income_variance_delta
+        description: "Dollar difference between actual and target income"
+      - name: income_variance_pct
+        description: "Percentage variance of income vs target (0-100 scale)"
+      - name: income_status
+        description: "Status indicator: Below Target, Above Target, or On Target"
+      - name: total_expenses
+        description: "Actual total monthly expenses"
+        tests:
+          - not_null
+      - name: target_expenses
+        description: "3-month rolling average expense target"
+      - name: expense_variance_delta
+        description: "Dollar difference between target and actual expenses (positive = under budget)"
+      - name: expense_variance_pct
+        description: "Percentage variance of expenses vs target (0-100 scale)"
+      - name: expense_status
+        description: "Status indicator: Under Budget, Over Budget, or On Budget"
+      - name: mortgage_expenses
+        description: "Actual mortgage-related expenses for the month"
+      - name: target_mortgage
+        description: "3-month rolling average mortgage target"
+      - name: mortgage_variance_delta
+        description: "Dollar variance for mortgage spending"
+      - name: mortgage_variance_pct
+        description: "Percentage variance for mortgage spending"
+      - name: household_expenses
+        description: "Actual household & services expenses"
+      - name: target_household
+        description: "3-month rolling average household target"
+      - name: household_variance_delta
+        description: "Dollar variance for household spending"
+      - name: household_variance_pct
+        description: "Percentage variance for household spending"
+      - name: food_expenses
+        description: "Actual food & drink expenses"
+      - name: target_food
+        description: "3-month rolling average food target"
+      - name: food_variance_delta
+        description: "Dollar variance for food spending"
+      - name: food_variance_pct
+        description: "Percentage variance for food spending"
+      - name: family_expenses
+        description: "Actual family & kids expenses"
+      - name: target_family
+        description: "3-month rolling average family target"
+      - name: family_variance_delta
+        description: "Dollar variance for family spending"
+      - name: family_variance_pct
+        description: "Percentage variance for family spending"
+      - name: net_cash_flow
+        description: "Net income minus expenses for the month"
+      - name: savings_rate_percent
+        description: "Savings rate as ratio (0-1, not percentage)"
+
+  - name: rpt_category_budget_heatmap
+    description: "Top 10 spending categories with budget performance indicators. Compares actual spending against 3-month rolling average targets with heatmap intensity values for dashboard visualization."
+    columns:
+      - name: budget_year_month
+        description: "YYYY-MM format for time series analysis"
+        tests:
+          - not_null
+      - name: category_name
+        description: "Top-level spending category"
+        tests:
+          - not_null
+      - name: category_expenses
+        description: "Actual spending amount in this category"
+        tests:
+          - not_null
+      - name: target_expenses
+        description: "3-month rolling average spending target for category"
+      - name: variance_delta
+        description: "Dollar difference between actual and target"
+      - name: variance_pct
+        description: "Percentage variance vs target"
+      - name: budget_status
+        description: "Status indicator: Over Budget, Under Budget, On Budget, or No Target"
+      - name: heatmap_intensity
+        description: "Numeric intensity for heatmap coloring (-2 to 3: -2=light green/under, 0=neutral, 3=dark red/over)"
+      - name: transaction_count
+        description: "Number of transactions in this category for the month"
+        tests:
+          - not_null
+      - name: spending_rank
+        description: "Rank of category by spending amount (1=highest)"
+        tests:
+          - not_null
+      - name: category_expenses_formatted
+        description: "Category expenses formatted as USD currency string"
+      - name: target_expenses_formatted
+        description: "Target expenses formatted as USD currency string"
+      - name: variance_delta_formatted
+        description: "Variance delta formatted as USD currency string"
+      - name: variance_pct_formatted
+        description: "Variance percentage formatted as percentage string"
+
+  - name: rpt_budget_adjustment_suggestions
+    description: "AI-like budget adjustment recommendations based on current month variance patterns. Prioritizes suggestions by urgency (Critical/High/Medium) with quantified potential monthly savings."
+    columns:
+      - name: budget_year_month
+        description: "YYYY-MM format for the analysis month"
+        tests:
+          - not_null
+      - name: transaction_year
+        description: "Year of the analysis month"
+        tests:
+          - not_null
+      - name: transaction_month
+        description: "Month of the analysis"
+        tests:
+          - not_null
+      - name: adjustment_priority
+        description: "Urgency level: Critical (negative cash flow), High (low savings rate), or Medium (elevated expenses)"
+        tests:
+          - not_null
+      - name: suggestion_text
+        description: "Descriptive text of the budget adjustment suggestion"
+        tests:
+          - not_null
+      - name: recommended_action
+        description: "Specific recommended action to address the budget issue"
+        tests:
+          - not_null
+      - name: current_net_cash_flow
+        description: "Current month's net cash flow"
+      - name: current_savings_rate_pct
+        description: "Current savings rate as percentage (0-100 scale)"
+      - name: potential_monthly_savings
+        description: "Estimated monthly savings if recommendation is implemented"
+      - name: net_cash_flow_formatted
+        description: "Net cash flow formatted as USD currency string"
+      - name: potential_savings_formatted
+        description: "Potential savings formatted as USD currency string"

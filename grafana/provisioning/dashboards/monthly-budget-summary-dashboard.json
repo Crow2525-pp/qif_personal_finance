@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# 📅 Monthly Budget Summary Dashboard - Budget Performance\n\n**What This Dashboard Shows:** Monthly budget performance with income vs expenses analysis and savings rate tracking.\n\n**Key Metrics Explained:**\n• **Income vs Expenses:** Complete monthly financial picture with net cash flow\n• **Savings Rate:** Percentage of income saved. Target 15-20% for strong financial health\n• **Expense Ratios:** Keep total expenses below 85% of income for sustainability\n• **Category Breakdown:** Major expense areas (mortgage, household, food, family)\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- YTD panels reflect year-to-date totals.\n- Trend charts cover the trailing 12 months.\n\n**How to Use:** Expense ratios above 90% leave little room for unexpected costs. Monitor savings rates monthly for consistency.",
+        "content": "# Monthly Budget Cockpit - Decision-Ready Budget Dashboard\n\n**What This Dashboard Shows:** Budget performance with pace tracking, spending classification, and recommended adjustments for the next month.\n\n**Key Metrics Explained:**\n- **Pace Tracker:** Daily spending target vs actual burn rate\n- **Fixed vs Discretionary:** Distinguish flexible vs committed spending\n- **Budget Adjustments:** Recommendations based on recent overruns\n- **Monthly Summary:** Income/expense trends and savings rate tracking\n- **Category Breakdown:** Major expense areas (mortgage, household, food, family)\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- YTD panels reflect year-to-date totals.\n- Trend charts cover the trailing 12 months.\n\n**How to Use:** Check daily pace tracker to adjust discretionary spending. Review budget adjustments monthly to stay ahead of overrun patterns.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -253,7 +253,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Savings rate and expense ratio for last complete month (scaled 0–100%, negatives allowed)",
+      "description": "Savings rate and expense ratio for last complete month (scaled 0\u00e2\u20ac\u201c100%, negatives allowed)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -464,7 +464,10 @@
               {
                 "id": "custom.lineStyle",
                 "value": {
-                  "dash": [10, 10],
+                  "dash": [
+                    10,
+                    10
+                  ],
                   "fill": "dash"
                 }
               }
@@ -490,7 +493,10 @@
               {
                 "id": "custom.lineStyle",
                 "value": {
-                  "dash": [10, 10],
+                  "dash": [
+                    10,
+                    10
+                  ],
                   "fill": "dash"
                 }
               }
@@ -1050,6 +1056,443 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "description": "Current month pace tracker - daily spend target vs actual burn rate",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "daily_expense_target"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Daily Target"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "actual_daily_burn_rate"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Daily Actual"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 100
+                    },
+                    {
+                      "color": "red",
+                      "value": 150
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "mtd_expenses"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Month-to-Date"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pace_status"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Pace Status"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "value"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "Above pace": {
+                        "color": "red",
+                        "index": 0
+                      },
+                      "On pace": {
+                        "color": "green",
+                        "index": 1
+                      },
+                      "Below pace": {
+                        "color": "blue",
+                        "index": 2
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 38
+      },
+      "id": 9,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  daily_expense_target,\n  actual_daily_burn_rate,\n  mtd_expenses,\n  current_day_of_month,\n  days_remaining,\n  pace_status,\n  ROUND(pace_vs_target_ratio, 2) as pace_ratio,\n  ROUND(projected_month_end_expenses, 2) as projected_end_expenses,\n  ROUND(mtd_variance_from_target, 2) as mtd_variance\nFROM reporting.rpt_budget_cockpit_pace_tracker;",
+          "refId": "A"
+        }
+      ],
+      "title": "Current Month Pace Tracker",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Fixed vs Discretionary spending split with variance analysis for last complete month",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fixed"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Discretionary"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "variance_assessment"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Variance"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 46
+      },
+      "id": 10,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  spending_type as \"Type\",\n  ROUND(amount, 2) as \"Amount\",\n  total_transactions as \"Transactions\",\n  ROUND(avg_transaction_size, 2) as \"Avg Size\",\n  ROUND(pct_of_total_spending, 1) as \"% of Total\",\n  ROUND(rolling_3m_avg, 2) as \"3m Avg\",\n  ROUND(variance_from_historical_avg, 2) as \"Variance $\",\n  variance_assessment as \"Assessment\"\nFROM reporting.rpt_budget_cockpit_fixed_vs_discretionary\nWHERE budget_year_month = TO_CHAR(CURRENT_DATE - INTERVAL '1 month', 'YYYY-MM')\nORDER BY \n  CASE WHEN spending_type = 'Fixed' THEN 0 ELSE 1 END,\n  amount DESC;",
+          "refId": "A"
+        }
+      ],
+      "title": "Fixed vs Discretionary Spending",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Budget adjustment recommendations based on recent spending patterns and overruns",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "priority"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "1": {
+                        "color": "red",
+                        "index": 0,
+                        "text": "Critical"
+                      },
+                      "2": {
+                        "color": "orange",
+                        "index": 1,
+                        "text": "High"
+                      },
+                      "3": {
+                        "color": "yellow",
+                        "index": 2,
+                        "text": "Medium"
+                      },
+                      "4": {
+                        "color": "blue",
+                        "index": 3,
+                        "text": "Low"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "suggested_budget_amount"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Suggested Budget"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "historical_average"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Historical Avg"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_overspend"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total Overspend"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 46
+      },
+      "id": 11,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  level_1_category as \"Category\",\n  months_of_consecutive_overspend as \"Consecutive Months\",\n  ROUND(suggested_budget_amount, 0) as \"Suggested Budget\",\n  ROUND(total_overspend, 0) as \"Total Overspend\",\n  ROUND(reduction_pct, 1) as \"Reduction %\",\n  adjustment_rationale as \"Rationale\",\n  priority\nFROM reporting.rpt_budget_cockpit_adjustment_suggestions\nORDER BY priority ASC, total_overspend DESC;",
+          "refId": "A"
+        }
+      ],
+      "title": "Budget Adjustments for Next Month",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "Detailed monthly budget breakdown table",
       "fieldConfig": {
         "defaults": {
@@ -1116,7 +1559,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 54
       },
       "id": 8,
       "options": {
@@ -1146,6 +1589,378 @@
         }
       ],
       "title": "Monthly Budget History",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Budget targets vs actual spending with variance deltas for income and expenses",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_income"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Actual Income"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "target_income"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Target Income (3m avg)"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "light-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_expenses"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Actual Expenses"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "target_expenses"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Target Expenses (3m avg)"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "light-red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 46
+      },
+      "id": 9,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  total_income,\n  target_income,\n  ROUND(income_variance_delta, 2) as income_variance_delta,\n  income_variance_pct,\n  total_expenses,\n  target_expenses,\n  ROUND(expense_variance_delta, 2) as expense_variance_delta,\n  expense_variance_pct,\n  expense_status\nFROM reporting.rpt_budget_variance_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
+          "refId": "A"
+        }
+      ],
+      "title": "Budget vs Actual (Last Complete Month)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Heatmap showing top spending categories with over/under budget status",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "budget_status"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "Over Budget": {
+                        "color": "red",
+                        "index": 0
+                      },
+                      "On Budget": {
+                        "color": "green",
+                        "index": 1
+                      },
+                      "Under Budget": {
+                        "color": "blue",
+                        "index": 2
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "variance_pct"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 54
+      },
+      "id": 10,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  category_name,\n  category_expenses,\n  target_expenses,\n  variance_delta,\n  variance_pct,\n  budget_status,\n  transaction_count\nFROM reporting.rpt_category_budget_heatmap \nWHERE budget_year_month = (\n  SELECT MAX(budget_year_month) FROM reporting.rpt_category_budget_heatmap\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') < date_trunc('month', CURRENT_DATE)\n)\nORDER BY spending_rank ASC;",
+          "refId": "A"
+        }
+      ],
+      "title": "Category Budget Heatmap (Top 10)",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Suggested budget adjustments for next month based on historical patterns",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "adjustment_priority"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "Critical": {
+                        "color": "dark-red",
+                        "index": 0
+                      },
+                      "High": {
+                        "color": "orange",
+                        "index": 1
+                      },
+                      "Medium": {
+                        "color": "yellow",
+                        "index": 2
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "potential_monthly_savings"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 54
+      },
+      "id": 11,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  adjustment_priority,\n  suggestion_text,\n  recommended_action,\n  current_savings_rate_pct,\n  potential_monthly_savings\nFROM reporting.rpt_budget_adjustment_suggestions \nORDER BY \n  CASE adjustment_priority WHEN 'Critical' THEN 1 WHEN 'High' THEN 2 ELSE 3 END,\n  potential_monthly_savings DESC\nLIMIT 5;",
+          "refId": "A"
+        }
+      ],
+      "title": "Suggested Budget Adjustments",
       "type": "table"
     },
     {
@@ -1244,9 +2059,9 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 46
+        "y": 63
       },
-      "id": 9,
+      "id": 102,
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1348,9 +2163,9 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 46
+        "y": 63
       },
-      "id": 10,
+      "id": 103,
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1476,9 +2291,9 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 56
+        "y": 73
       },
-      "id": 11,
+      "id": 104,
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1580,9 +2395,9 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 56
+        "y": 73
       },
-      "id": 12,
+      "id": 105,
       "options": {
         "cellHeight": "sm",
         "footer": {
