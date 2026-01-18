@@ -121,12 +121,12 @@
           "thresholds": {
             "steps": [
               {
-                "color": "green",
+                "color": "red",
                 "value": null
               },
               {
-                "color": "red",
-                "value": 50
+                "color": "green",
+                "value": 0
               }
             ]
           },
