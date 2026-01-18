@@ -301,13 +301,15 @@ final_insights AS (
     -- Goal tracking: Monthly savings needed for specific milestones
     -- Goal 1: 20% Savings Rate (intermediate milestone)
     CASE
-      WHEN total_income > 0 THEN (total_income * 0.20) - (cash_savings + offset_savings + investment_contributions)
+      WHEN total_income > 0 AND traditional_savings_rate_percent < 0.20
+      THEN GREATEST(0, (total_income * 0.20) - (cash_savings + offset_savings + investment_contributions))
       ELSE 0
     END AS monthly_savings_needed_for_20_percent,
 
     -- Goal 2: FIRE Target (25% savings rate)
     CASE
-      WHEN total_income > 0 THEN (total_income * 0.25) - (cash_savings + offset_savings + investment_contributions)
+      WHEN total_income > 0 AND traditional_savings_rate_percent < 0.25
+      THEN GREATEST(0, (total_income * 0.25) - (cash_savings + offset_savings + investment_contributions))
       ELSE 0
     END AS monthly_savings_needed_for_fire,
 
