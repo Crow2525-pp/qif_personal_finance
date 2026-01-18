@@ -188,6 +188,7 @@ net_worth_trends AS (
 net_worth_analysis AS (
   SELECT 
     *,
+    (total_assets - property_assets - liquid_assets) AS other_assets,
     -- Financial ratios
     CASE WHEN total_assets > 0 THEN (total_liabilities / total_assets) ELSE 0 END AS debt_to_asset_ratio,
     CASE WHEN total_liabilities > 0 THEN (liquid_assets / total_liabilities) ELSE NULL END AS liquidity_ratio,
@@ -245,7 +246,7 @@ allocation_analysis AS (
     -- Asset allocation percentages
     CASE WHEN total_assets > 0 THEN (liquid_assets / total_assets) ELSE 0 END AS liquid_asset_allocation_pct,
     CASE WHEN total_assets > 0 THEN (property_assets / total_assets) ELSE 0 END AS property_asset_allocation_pct,
-    CASE WHEN total_assets > 0 THEN (non_property_assets / total_assets) ELSE 0 END AS other_asset_allocation_pct,
+    CASE WHEN total_assets > 0 THEN (other_assets / total_assets) ELSE 0 END AS other_asset_allocation_pct,
 
     -- Ideal allocations (60% liquid, 35% property, 5% other for balanced portfolio)
     0.60 AS ideal_liquid_allocation,
@@ -255,12 +256,12 @@ allocation_analysis AS (
     -- Allocation drift (difference from ideal, as percentages)
     (CASE WHEN total_assets > 0 THEN (liquid_assets / total_assets) ELSE 0 END) - 0.60 AS liquid_allocation_drift,
     (CASE WHEN total_assets > 0 THEN (property_assets / total_assets) ELSE 0 END) - 0.35 AS property_allocation_drift,
-    (CASE WHEN total_assets > 0 THEN (non_property_assets / total_assets) ELSE 0 END) - 0.05 AS other_allocation_drift,
+    (CASE WHEN total_assets > 0 THEN (other_assets / total_assets) ELSE 0 END) - 0.05 AS other_allocation_drift,
 
     -- Overall allocation health (sum of absolute drift values, lower is better)
     ABS((CASE WHEN total_assets > 0 THEN (liquid_assets / total_assets) ELSE 0 END) - 0.60) +
     ABS((CASE WHEN total_assets > 0 THEN (property_assets / total_assets) ELSE 0 END) - 0.35) +
-    ABS((CASE WHEN total_assets > 0 THEN (non_property_assets / total_assets) ELSE 0 END) - 0.05) AS total_allocation_drift_score
+    ABS((CASE WHEN total_assets > 0 THEN (other_assets / total_assets) ELSE 0 END) - 0.05) AS total_allocation_drift_score
   FROM net_worth_analysis
 ),
 
