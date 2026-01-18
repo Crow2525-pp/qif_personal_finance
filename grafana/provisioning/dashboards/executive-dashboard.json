@@ -1789,6 +1789,145 @@
       "pluginVersion": "10.0.0",
       "title": "How to Read This Dashboard",
       "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Quick view of data-quality blockers for the selected period.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "left"
+          },
+          "links": [
+            {
+              "title": "View Outflows Reconciliation Exceptions",
+              "url": "/d/outflows_reconciliation",
+              "targetBlank": true
+            }
+          ]
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "value"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 140
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "detail"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 240
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 53,
+        "w": 12,
+        "h": 6
+      },
+      "id": 901,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nperiod_bounds AS (\n  SELECT month_date,\n         month_date AS month_start,\n         (month_date + INTERVAL '1 month' - INTERVAL '1 day')::date AS month_end\n  FROM selected_period\n),\nstale_accounts AS (\n  SELECT COUNT(*) AS stale_accounts\n  FROM reporting.dim_accounts_enhanced\n  WHERE account_last_transaction_date < (SELECT month_end FROM period_bounds) - INTERVAL '45 days'\n),\ntransfer_pairs AS (\n  SELECT\n    transaction_date::date AS txn_date,\n    transaction_amount_abs AS amount_abs,\n    SUM(CASE WHEN transaction_amount < 0 THEN 1 ELSE 0 END) AS out_count,\n    SUM(CASE WHEN transaction_amount > 0 THEN 1 ELSE 0 END) AS in_count\n  FROM reporting.fct_transactions_enhanced\n  WHERE COALESCE(is_internal_transfer, FALSE)\n    AND transaction_date >= (SELECT month_start FROM period_bounds)\n    AND transaction_date <= (SELECT month_end FROM period_bounds)\n  GROUP BY 1,2\n),\nunmatched_transfers AS (\n  SELECT COALESCE(SUM(ABS(out_count - in_count)), 0) AS unmatched_count\n  FROM transfer_pairs\n),\nuncategorized AS (\n  SELECT uncategorized_pct\n  FROM reporting.rpt_outflows_insights_dashboard\n  WHERE period_date = (SELECT month_date FROM period_bounds)\n)\nSELECT 'Stale accounts (45d+ no activity)' AS metric,\n       COALESCE((SELECT stale_accounts FROM stale_accounts), 0)::text AS value,\n       'Accounts without recent transactions' AS detail\nUNION ALL\nSELECT 'Unmatched internal transfers',\n       COALESCE((SELECT unmatched_count FROM unmatched_transfers), 0)::text,\n       'Proxy count based on paired in/out amounts'\nUNION ALL\nSELECT 'Uncategorized spend %',\n       CONCAT(ROUND(COALESCE((SELECT uncategorized_pct FROM uncategorized), 0), 1), '%'),\n       'Share of outflows currently uncategorized';",
+          "refId": "A"
+        }
+      ],
+      "title": "Data Quality Callouts",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Top uncategorized merchants (latest complete month).",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "left"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total Spend"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last Seen"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "time: YYYY-MM-DD"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 53,
+        "w": 12,
+        "h": 6
+      },
+      "id": 902,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH data AS (\n  SELECT\n    original_memo AS merchant,\n    transaction_count AS txn_count,\n    ROUND(total_amount, 2) AS total_spend,\n    last_transaction_date AS last_seen,\n    priority_level\n  FROM reporting.viz_uncategorized_transactions_with_original_memo\n  ORDER BY total_amount DESC, transaction_count DESC\n  LIMIT 10\n)\nSELECT\n  merchant AS \"Merchant\",\n  txn_count AS \"Txn Count\",\n  total_spend AS \"Total Spend\",\n  last_seen AS \"Last Seen\",\n  priority_level AS \"Priority\"\nFROM data\nUNION ALL\nSELECT 'None', 0, 0, NULL::date, 'N/A'\nWHERE NOT EXISTS (SELECT 1 FROM data);",
+          "refId": "A"
+        }
+      ],
+      "title": "Top Uncategorized Merchants",
+      "type": "table"
     }
   ],
   "refresh": "",

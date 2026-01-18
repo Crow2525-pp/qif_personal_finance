@@ -14,16 +14,10 @@ patch_transactions AS (
       'bank_name',
       'account_name'
     ]) }} AS TEXT) AS primary_key,
-    CAST('' AS TEXT) AS receipt,
-    CAST('' AS TEXT) AS location,
-    CAST('' AS TEXT) AS description_date,
-    CAST('' AS TEXT) AS card_no,
-    CAST('BANK_MORTGAGE' AS TEXT) AS sender,
-    CAST('YOU' AS TEXT) AS recipient,
-    CAST(amount AS DOUBLE) AS transaction_amount,
+    CAST(date AS DATE) AS transaction_date,
+    CAST(amount AS DOUBLE PRECISION) AS transaction_amount,
     CAST(line_number AS BIGINT) AS line_number,
     CAST('bendigo_homeloan' AS TEXT) AS account_name,
-    CAST(date AS DATE) AS transaction_date,
     CAST(memo AS TEXT) AS memo,
     CAST(memo AS TEXT) AS transaction_description,
     CAST(CASE
@@ -32,6 +26,12 @@ patch_transactions AS (
       WHEN memo = 'TRANSFER 00538977991401' THEN 'TRANSFER'
       ELSE ''
     END AS TEXT) AS transaction_type,
+    CAST('' AS TEXT) AS receipt,
+    CAST('' AS TEXT) AS location,
+    CAST('' AS TEXT) AS description_date,
+    CAST('' AS TEXT) AS card_no,
+    CAST('BANK_MORTGAGE' AS TEXT) AS sender,
+    CAST('YOU' AS TEXT) AS recipient,
     CAST(CURRENT_DATE AS DATE) AS etl_date,
     CAST(CURRENT_TIME AS TIME) AS etl_time
 

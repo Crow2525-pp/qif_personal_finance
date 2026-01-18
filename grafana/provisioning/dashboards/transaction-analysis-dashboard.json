@@ -710,21 +710,216 @@
       "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Quick view of data-quality blockers for the latest complete month.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "left"
+          },
+          "links": [
+            {
+              "title": "View Outflows Reconciliation Exceptions",
+              "url": "/d/outflows_reconciliation",
+              "targetBlank": true
+            }
+          ]
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "value"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 140
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "detail"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 240
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
-        "h": 1,
-        "w": 24,
         "x": 0,
-        "y": 36
+        "y": 36,
+        "w": 12,
+        "h": 6
       },
-      "id": 101,
-      "title": "Transaction Review Workflow",
-      "type": "text",
+      "id": 907,
       "options": {
-        "content": "## Transaction Review Workflow\n\nIdentify transactions that need review with duplicate detection, reversal flags, and merchant trend analysis.",
-        "mode": "markdown"
+        "cellHeight": "sm",
+        "showHeader": true
       },
-      "pluginVersion": "10.0.0"
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (
+  SELECT budget_year_month,
+         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date
+  FROM reporting.rpt_monthly_budget_summary
+  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+),
+latest_period AS (
+  SELECT MAX(month_date) AS month_date
+  FROM available_months
+),
+period_bounds AS (
+  SELECT month_date,
+         month_date AS month_start,
+         (month_date + INTERVAL '1 month' - INTERVAL '1 day')::date AS month_end
+  FROM latest_period
+),
+stale_accounts AS (
+  SELECT COUNT(*) AS stale_accounts
+  FROM reporting.dim_accounts_enhanced
+  WHERE account_last_transaction_date < (SELECT month_end FROM period_bounds) - INTERVAL '45 days'
+),
+transfer_pairs AS (
+  SELECT
+    transaction_date::date AS txn_date,
+    transaction_amount_abs AS amount_abs,
+    SUM(CASE WHEN transaction_amount < 0 THEN 1 ELSE 0 END) AS out_count,
+    SUM(CASE WHEN transaction_amount > 0 THEN 1 ELSE 0 END) AS in_count
+  FROM reporting.fct_transactions_enhanced
+  WHERE COALESCE(is_internal_transfer, FALSE)
+    AND transaction_date >= (SELECT month_start FROM period_bounds)
+    AND transaction_date <= (SELECT month_end FROM period_bounds)
+  GROUP BY 1,2
+),
+unmatched_transfers AS (
+  SELECT COALESCE(SUM(ABS(out_count - in_count)), 0) AS unmatched_count
+  FROM transfer_pairs
+),
+uncategorized AS (
+  SELECT uncategorized_pct
+  FROM reporting.rpt_outflows_insights_dashboard
+  WHERE period_date = (SELECT month_date FROM period_bounds)
+)
+SELECT 'Stale accounts (45d+ no activity)' AS metric,
+       COALESCE((SELECT stale_accounts FROM stale_accounts), 0)::text AS value,
+       'Accounts without recent transactions' AS detail
+UNION ALL
+SELECT 'Unmatched internal transfers',
+       COALESCE((SELECT unmatched_count FROM unmatched_transfers), 0)::text,
+       'Proxy count based on paired in/out amounts'
+UNION ALL
+SELECT 'Uncategorized spend %',
+       CONCAT(ROUND(COALESCE((SELECT uncategorized_pct FROM uncategorized), 0), 1), '%'),
+       'Share of outflows currently uncategorized';",
+          "refId": "A"
+        }
+      ],
+      "title": "Data Quality Callouts",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Top uncategorized merchants (latest complete month).",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "left"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total Spend"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last Seen"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "time: YYYY-MM-DD"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 36,
+        "w": 12,
+        "h": 6
+      },
+      "id": 908,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH data AS (
+  SELECT
+    original_memo AS merchant,
+    transaction_count AS txn_count,
+    ROUND(total_amount, 2) AS total_spend,
+    last_transaction_date AS last_seen,
+    priority_level
+  FROM reporting.viz_uncategorized_transactions_with_original_memo
+  ORDER BY total_amount DESC, transaction_count DESC
+  LIMIT 10
+)
+SELECT
+  merchant AS \"Merchant\",
+  txn_count AS \"Txn Count\",
+  total_spend AS \"Total Spend\",
+  last_seen AS \"Last Seen\",
+  priority_level AS \"Priority\"
+FROM data
+UNION ALL
+SELECT 'None', 0, 0, NULL::date, 'N/A'
+WHERE NOT EXISTS (SELECT 1 FROM data);",
+          "refId": "A"
+        }
+      ],
+      "title": "Top Uncategorized Merchants",
+      "type": "table"
     },
     {
       "datasource": {
@@ -735,10 +930,10 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 37
+        "y": 42
       },
-      "id": 102,
-      "title": "Transactions Needing Review (Duplicates, Reversals, Uncategorized)",
+      "id": 7,
+      "title": "Transaction Anomalies (Baseline Comparison)",
       "type": "table",
       "pluginVersion": "10.0.0",
       "fieldConfig": {
@@ -754,6 +949,54 @@
           }
         },
         "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "amount_abs"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "displayName",
+                "value": "Amount"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "merchant_12m_avg"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "displayName",
+                "value": "12m Avg"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "variance_from_avg_pct"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "displayName",
+                "value": "Variance %"
+              }
+            ]
+          },
           {
             "matcher": {
               "id": "byName",
@@ -769,40 +1012,125 @@
           {
             "matcher": {
               "id": "byName",
+              "options": "anomaly_severity_label"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Severity"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT
+  transaction_date::date,
+  account_name,
+  merchant_name,
+  category_name,
+  amount_abs,
+  merchant_12m_avg,
+  variance_from_avg_pct,
+  merchant_12m_count,
+  anomaly_severity_label
+FROM viz.viz_transaction_anomalies
+WHERE transaction_date >= CURRENT_DATE - INTERVAL '3 months'
+ORDER BY variance_from_avg_pct DESC
+LIMIT 30;",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 52
+      },
+      "id": 8,
+      "title": "Transactions Needing Review",
+      "type": "table",
+      "pluginVersion": "10.0.0",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
               "options": "amount_abs"
             },
             "properties": [
               {
-                "id": "displayName",
-                "value": "Amount"
-              },
-              {
                 "id": "unit",
                 "value": "currencyUSD"
+              },
+              {
+                "id": "displayName",
+                "value": "Amount"
               }
             ]
           },
           {
             "matcher": {
               "id": "byName",
-              "options": "account_name"
+              "options": "transaction_date"
             },
             "properties": [
               {
                 "id": "displayName",
-                "value": "Account"
+                "value": "Date"
               }
             ]
           },
           {
             "matcher": {
               "id": "byName",
-              "options": "merchant"
+              "options": "primary_review_reason"
             },
             "properties": [
               {
                 "id": "displayName",
-                "value": "Merchant"
+                "value": "Review Reason"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "priority_label"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Priority"
               }
             ]
           },
@@ -817,62 +1145,6 @@
                 "value": "Category"
               }
             ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "is_duplicate"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Duplicate"
-              },
-              {
-                "id": "type",
-                "value": "boolean"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "is_reversal_or_chargeback"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Reversal"
-              },
-              {
-                "id": "type",
-                "value": "boolean"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "review_status"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Review Status"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "review_priority"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Priority"
-              }
-            ]
           }
         ]
       },
@@ -889,226 +1161,25 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  transaction_date::date,\n  account_name,\n  merchant,\n  amount_abs,\n  level_1_category,\n  review_status,\n  review_priority,\n  is_duplicate,\n  duplicate_count,\n  is_reversal_or_chargeback,\n  reversal_type,\n  quick_action_recategorize,\n  quick_action_mark_transfer,\n  quick_action_exclude_budget,\n  merchant_transaction_count,\n  merchant_last_purchase_date::date\nFROM viz_transaction_review_workflow\nWHERE review_priority < 99\nORDER BY review_priority, transaction_date DESC\nLIMIT 50;",
+          "rawSql": "SELECT
+  transaction_date::date,
+  account_name,
+  merchant_name,
+  amount_abs,
+  level_1_category,
+  primary_review_reason,
+  is_new_merchant,
+  merchant_12m_transaction_count,
+  priority_label,
+  queue_status
+FROM viz.viz_transactions_needs_review_queue
+WHERE queue_status IN ('RECENT', 'CURRENT_MONTH')
+ORDER BY review_priority ASC, amount_abs DESC
+LIMIT 40;",
           "refId": "A"
         }
       ]
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 12,
-        "x": 0,
-        "y": 47
-      },
-      "id": 103,
-      "title": "Merchant Trends (Last 12 Months)",
-      "type": "table",
-      "pluginVersion": "10.0.0",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            }
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "merchant"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Merchant"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "merchant_transaction_count"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Txns"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "merchant_total_spend"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Total"
-              },
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "merchant_avg_spend"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Avg"
-              },
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "merchant_last_purchase_date"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Last Purchase"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "merchant_frequency_per_month"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Freq/Mo"
-              }
-            ]
-          }
-        ]
-      },
-      "options": {
-        "cellHeight": "sm",
-        "showHeader": true
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT DISTINCT\n  merchant,\n  merchant_transaction_count,\n  ROUND(merchant_total_spend::NUMERIC, 2) AS merchant_total_spend,\n  ROUND(merchant_avg_spend::NUMERIC, 2) AS merchant_avg_spend,\n  merchant_last_purchase_date::date,\n  ROUND(merchant_frequency_per_month::NUMERIC, 1) AS merchant_frequency_per_month,\n  merchant_last_month,\n  merchant_prev_month\nFROM viz_transaction_review_workflow\nWHERE merchant_transaction_count >= 3\nORDER BY merchant_total_spend DESC\nLIMIT 30;",
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 12,
-        "x": 12,
-        "y": 47
-      },
-      "id": 104,
-      "title": "Duplicate Detection Summary",
-      "type": "table",
-      "pluginVersion": "10.0.0",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            }
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "duplicate_type"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Type"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "count"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Count"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "total_amount"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Total Impact"
-              },
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              }
-            ]
-          }
-        ]
-      },
-      "options": {
-        "cellHeight": "sm",
-        "showHeader": true
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  review_status AS duplicate_type,\n  COUNT(*) AS count,\n  ROUND(SUM(amount_abs)::NUMERIC, 2) AS total_amount,\n  ROUND(AVG(amount_abs)::NUMERIC, 2) AS avg_amount\nFROM viz_transaction_review_workflow\nWHERE review_status IN ('DUPLICATE', 'REVERSAL', 'UNCATEGORIZED')\nGROUP BY review_status\nORDER BY count DESC;",
-          "refId": "A"
-        }
-      ]
+    }
     }
   ],
   "refresh": "",
