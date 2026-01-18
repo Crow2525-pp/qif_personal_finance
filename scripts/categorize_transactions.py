@@ -119,41 +119,38 @@ def get_db_connection():
 
 
 def load_categories() -> list[Category]:
-    """Load allowed categories and their subcategories from the database."""
-    conn = get_db_connection()
-    try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            # Get categories with display order from landing schema
-            cur.execute("""
-                SELECT category, display_order
-                FROM landing.categories_allowed
-                WHERE category != 'Uncategorized'
-                ORDER BY display_order
-            """)
-            categories = {row['category']: Category(
-                name=row['category'],
-                subcategories=[],
-                display_order=row['display_order']
-            ) for row in cur.fetchall()}
+    """Load allowed categories from the local CSV file (source of truth)."""
+    # Read categories from the seed CSV file directly
+    categories = {}
+    if ALLOWED_CATEGORIES_FILE.exists():
+        with open(ALLOWED_CATEGORIES_FILE, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                cat_name = row['category']
+                if cat_name != 'Uncategorized':
+                    categories[cat_name] = Category(
+                        name=cat_name,
+                        subcategories=[],
+                        display_order=int(row['display_order'])
+                    )
 
-            # Get subcategories from existing mappings
-            cur.execute("""
-                SELECT DISTINCT category, subcategory
-                FROM landing.banking_categories
-                WHERE category IS NOT NULL AND subcategory IS NOT NULL
-            """)
-            for row in cur.fetchall():
-                if row['category'] in categories:
-                    if row['subcategory'] not in categories[row['category']].subcategories:
-                        categories[row['category']].subcategories.append(row['subcategory'])
+    # Get subcategories from existing banking_categories.csv
+    if CATEGORIES_FILE.exists():
+        with open(CATEGORIES_FILE, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                cat = row.get('category')
+                subcat = row.get('subcategory')
+                if cat and subcat and cat in categories:
+                    if subcat not in categories[cat].subcategories:
+                        categories[cat].subcategories.append(subcat)
 
-            # Sort subcategories
-            for cat in categories.values():
-                cat.subcategories.sort()
+    # Sort subcategories
+    for cat in categories.values():
+        cat.subcategories.sort()
 
-            return list(categories.values())
-    finally:
-        conn.close()
+    # Return sorted by display_order
+    return sorted(categories.values(), key=lambda c: c.display_order)
 
 
 def get_uncategorized_groups(limit: int = 50) -> list[UncategorizedGroup]:
