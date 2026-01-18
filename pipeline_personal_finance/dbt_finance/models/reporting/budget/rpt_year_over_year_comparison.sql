@@ -231,62 +231,117 @@ final_scores AS (
 ),
 
 final_analysis AS (
-  SELECT 
+  SELECT
     *,
     -- Performance classifications
-    CASE 
+    CASE
       WHEN yoy_income_change_percent > 0.10 THEN 'Strong Income Growth'
       WHEN yoy_income_change_percent > 0.03 THEN 'Moderate Income Growth'
       WHEN yoy_income_change_percent > -0.03 THEN 'Stable Income'
       ELSE 'Income Decline'
     END AS income_performance,
-    
-    CASE 
+
+    CASE
       WHEN yoy_expense_change_percent < 0.03 THEN 'Excellent Expense Control'
       WHEN yoy_expense_change_percent < 0.07 THEN 'Good Expense Control'
       WHEN yoy_expense_change_percent < 0.15 THEN 'Moderate Expense Growth'
       ELSE 'High Expense Growth'
     END AS expense_performance,
-    
-    CASE 
+
+    CASE
       WHEN yoy_net_worth_change_percent > 0.20 THEN 'Exceptional Net Worth Growth'
       WHEN yoy_net_worth_change_percent > 0.10 THEN 'Strong Net Worth Growth'
       WHEN yoy_net_worth_change_percent > 0.05 THEN 'Good Net Worth Growth'
       WHEN yoy_net_worth_change_percent > 0 THEN 'Modest Net Worth Growth'
       ELSE 'Net Worth Decline'
     END AS net_worth_performance,
-    
+
+    -- Inflation adjustment (simplified: using 2.5% annual inflation as baseline)
+    ROUND(annual_income / POWER(1.025, EXTRACT(YEAR FROM CURRENT_DATE) - comparison_year), 0) AS inflation_adjusted_annual_income,
+    ROUND(annual_expenses / POWER(1.025, EXTRACT(YEAR FROM CURRENT_DATE) - comparison_year), 0) AS inflation_adjusted_annual_expenses,
+    ROUND(annual_net_cash_flow / POWER(1.025, EXTRACT(YEAR FROM CURRENT_DATE) - comparison_year), 0) AS inflation_adjusted_annual_net_cash_flow,
+    ROUND(year_end_net_worth / POWER(1.025, EXTRACT(YEAR FROM CURRENT_DATE) - comparison_year), 0) AS inflation_adjusted_year_end_net_worth,
+
+    -- Expense drivers (top 3)
+    CASE
+      WHEN annual_mortgage_expenses > annual_household_expenses AND annual_mortgage_expenses > annual_food_expenses
+      THEN 'Mortgage (' || (CASE WHEN annual_expenses > 0 THEN ROUND(annual_mortgage_expenses / annual_expenses * 100, 0) ELSE 0 END) || '%)'
+      WHEN annual_household_expenses > annual_mortgage_expenses AND annual_household_expenses > annual_food_expenses
+      THEN 'Household (' || (CASE WHEN annual_expenses > 0 THEN ROUND(annual_household_expenses / annual_expenses * 100, 0) ELSE 0 END) || '%)'
+      WHEN annual_food_expenses > annual_mortgage_expenses AND annual_food_expenses > annual_household_expenses
+      THEN 'Food & Drink (' || (CASE WHEN annual_expenses > 0 THEN ROUND(annual_food_expenses / annual_expenses * 100, 0) ELSE 0 END) || '%)'
+      ELSE 'Other'
+    END AS top_expense_driver_1,
+
+    CASE
+      WHEN annual_family_expenses > LEAST(COALESCE(annual_household_expenses, 0), COALESCE(annual_food_expenses, 0), COALESCE(annual_mortgage_expenses, 0))
+      THEN 'Family & Kids (' || (CASE WHEN annual_expenses > 0 THEN ROUND(annual_family_expenses / annual_expenses * 100, 0) ELSE 0 END) || '%)'
+      WHEN annual_household_expenses > LEAST(COALESCE(annual_family_expenses, 0), COALESCE(annual_food_expenses, 0), COALESCE(annual_mortgage_expenses, 0))
+      THEN 'Household (' || (CASE WHEN annual_expenses > 0 THEN ROUND(annual_household_expenses / annual_expenses * 100, 0) ELSE 0 END) || '%)'
+      ELSE 'Food & Drink (' || (CASE WHEN annual_expenses > 0 THEN ROUND(annual_food_expenses / annual_expenses * 100, 0) ELSE 0 END) || '%)'
+    END AS top_expense_driver_2,
+
+    -- Net worth drivers
+    CASE
+      WHEN annual_mortgage_reduction > annual_investment_contributions AND annual_mortgage_reduction > annual_liquid_savings
+      THEN 'Mortgage Reduction ($' || ROUND(annual_mortgage_reduction, 0) || ')'
+      WHEN annual_investment_contributions > annual_mortgage_reduction AND annual_investment_contributions > annual_liquid_savings
+      THEN 'Investment Growth ($' || ROUND(annual_investment_contributions, 0) || ')'
+      ELSE 'Liquid Savings ($' || ROUND(annual_liquid_savings, 0) || ')'
+    END AS top_net_worth_driver_1,
+
     -- Key insights
-    CASE 
+    CASE
       WHEN annual_financial_progress_score > 85 THEN 'Outstanding financial year - all metrics improving'
       WHEN annual_financial_progress_score > 70 THEN 'Strong financial year - most goals achieved'
       WHEN annual_financial_progress_score > 55 THEN 'Solid financial year - steady progress'
       WHEN annual_financial_progress_score > 40 THEN 'Mixed financial year - some areas need attention'
       ELSE 'Challenging financial year - focus on core improvements needed'
     END AS annual_financial_assessment,
-    
-    -- Top accomplishment
-    CASE 
-      WHEN yoy_net_worth_change_percent > 0.20 THEN 'Exceptional net worth growth of ' || ROUND(yoy_net_worth_change_percent, 3)
-      WHEN yoy_savings_rate_change > 0.05 THEN 'Significant savings rate improvement of ' || ROUND(yoy_savings_rate_change, 3)
+
+    -- Top accomplishment (Win)
+    CASE
+      WHEN yoy_net_worth_change_percent > 0.20 THEN 'Exceptional net worth growth of ' || ROUND(yoy_net_worth_change_percent * 100, 1) || '%'
+      WHEN yoy_savings_rate_change > 0.05 THEN 'Significant savings rate improvement of ' || ROUND(yoy_savings_rate_change * 100, 1) || '%'
       WHEN annual_mortgage_reduction > 10000 THEN 'Strong mortgage paydown of $' || ROUND(annual_mortgage_reduction, 0)
-      WHEN yoy_income_change_percent > 0.15 THEN 'Excellent income growth of ' || ROUND(yoy_income_change_percent, 3)
+      WHEN yoy_income_change_percent > 0.15 THEN 'Excellent income growth of ' || ROUND(yoy_income_change_percent * 100, 1) || '%'
       ELSE 'Maintained financial stability'
     END AS top_financial_accomplishment,
-    
-    -- Priority focus area for next year
-    CASE 
+
+    -- Priority focus area for next year (Risk/Action)
+    CASE
       WHEN avg_annual_savings_rate < 0.10 THEN 'Increase savings rate to at least 10%'
-      WHEN yoy_expense_change_percent > yoy_income_change_percent + 5 THEN 'Focus on expense management'
+      WHEN yoy_expense_change_percent > yoy_income_change_percent + 0.05 THEN 'Focus on expense management'
       WHEN months_negative_cash_flow > 3 THEN 'Improve cash flow consistency'
       WHEN annual_liquid_savings < annual_expenses * 0.25 THEN 'Build emergency fund'
       ELSE 'Optimize investment allocation and tax efficiency'
     END AS next_year_priority_focus,
-    
+
+    -- Narrative summary combining wins, risks, and actions
+    'Wins: ' ||
+    (CASE
+      WHEN yoy_net_worth_change_percent > 0.20 THEN 'Exceptional net worth growth'
+      WHEN yoy_savings_rate_change > 0.05 THEN 'Savings rate improvement'
+      WHEN yoy_income_change_percent > 0.10 THEN 'Strong income growth'
+      ELSE 'Maintained stability'
+    END) ||
+    ' | Risk: ' ||
+    (CASE
+      WHEN yoy_expense_change_percent > yoy_income_change_percent + 0.05 THEN 'expenses rising faster than income'
+      WHEN avg_annual_savings_rate < 0.10 THEN 'low savings rate'
+      WHEN months_negative_cash_flow > 3 THEN 'inconsistent cash flow'
+      ELSE 'normal'
+    END) ||
+    ' | Next: ' ||
+    (CASE
+      WHEN yoy_expense_change_percent > 0.10 THEN 'monitor expense trends monthly'
+      WHEN avg_annual_savings_rate < 0.15 THEN 'track savings rate growth'
+      ELSE 'review investment performance'
+    END) AS narrative_summary,
+
     CURRENT_TIMESTAMP AS report_generated_at
-    
+
   FROM final_scores
-)
 
 SELECT * FROM final_analysis
 ORDER BY comparison_year DESC
