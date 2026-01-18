@@ -41,11 +41,11 @@ WITH transaction_context AS (
       PARTITION BY UPPER(COALESCE(dc.store, ft.transaction_memo))
     ) AS merchant_first_seen,
 
-    -- Count transactions with this merchant in past 12 months
+    -- Count transactions with this merchant in past 12 months (time-based)
     COUNT(*) OVER (
       PARTITION BY UPPER(COALESCE(dc.store, ft.transaction_memo))
       ORDER BY ft.transaction_date
-      ROWS BETWEEN 365 PRECEDING AND CURRENT ROW
+      RANGE BETWEEN INTERVAL '12 months' PRECEDING AND CURRENT ROW
     ) AS merchant_12m_transaction_count
 
   FROM {{ ref('fct_transactions') }} ft
@@ -79,14 +79,15 @@ with_review_reasons AS (
     END AS is_new_merchant,
 
     -- Review priority (1 = highest)
+    -- Note: Inline is_new_merchant expression since SELECT-list aliases aren't visible to other SELECT expressions
     CASE
       WHEN amount_abs >= 1000 AND level_1_category = 'Uncategorized' THEN 1  -- Large + uncategorized
       WHEN amount_abs >= 1000 THEN 2  -- Large transactions
       WHEN level_1_category = 'Uncategorized' AND amount_abs >= 100 THEN 3  -- Uncategorized >$100
-      WHEN is_new_merchant AND amount_abs >= 200 THEN 4  -- New merchant >$200
+      WHEN (transaction_date = merchant_first_seen AND merchant_12m_transaction_count = 1) AND amount_abs >= 200 THEN 4  -- New merchant >$200
       WHEN level_1_category = 'Uncategorized' THEN 5  -- Any uncategorized
       WHEN amount_abs >= 500 THEN 6  -- Large but categorized
-      WHEN is_new_merchant THEN 7  -- New merchant (any amount)
+      WHEN (transaction_date = merchant_first_seen AND merchant_12m_transaction_count = 1) THEN 7  -- New merchant (any amount)
       ELSE NULL
     END AS review_priority,
 

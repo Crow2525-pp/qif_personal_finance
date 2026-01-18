@@ -34,29 +34,29 @@ WITH transaction_baseline AS (
     ft.is_internal_transfer,
     ft.is_financial_service,
 
-    -- Compute 12-month rolling statistics for same merchant
+    -- Compute 12-month rolling statistics for same merchant (time-based window)
     AVG(ABS(ft.transaction_amount)) OVER (
       PARTITION BY UPPER(COALESCE(dc.store, ft.transaction_memo))
       ORDER BY ft.transaction_date
-      ROWS BETWEEN 365 PRECEDING AND CURRENT ROW
+      RANGE BETWEEN INTERVAL '12 months' PRECEDING AND CURRENT ROW
     ) AS merchant_12m_avg,
 
     STDDEV_POP(ABS(ft.transaction_amount)) OVER (
       PARTITION BY UPPER(COALESCE(dc.store, ft.transaction_memo))
       ORDER BY ft.transaction_date
-      ROWS BETWEEN 365 PRECEDING AND CURRENT ROW
+      RANGE BETWEEN INTERVAL '12 months' PRECEDING AND CURRENT ROW
     ) AS merchant_12m_stddev,
 
     MAX(ABS(ft.transaction_amount)) OVER (
       PARTITION BY UPPER(COALESCE(dc.store, ft.transaction_memo))
       ORDER BY ft.transaction_date
-      ROWS BETWEEN 365 PRECEDING AND CURRENT ROW
+      RANGE BETWEEN INTERVAL '12 months' PRECEDING AND CURRENT ROW
     ) AS merchant_12m_max,
 
     COUNT(*) OVER (
       PARTITION BY UPPER(COALESCE(dc.store, ft.transaction_memo))
       ORDER BY ft.transaction_date
-      ROWS BETWEEN 365 PRECEDING AND CURRENT ROW
+      RANGE BETWEEN INTERVAL '12 months' PRECEDING AND CURRENT ROW
     ) AS merchant_12m_count
 
   FROM {{ ref('fct_transactions') }} ft
