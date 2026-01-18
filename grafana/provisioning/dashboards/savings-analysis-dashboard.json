@@ -29,18 +29,82 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 24,
-        "x": 0,
+        "w": 18,
+        "x": 6,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udc8e Savings Analysis Dashboard - Wealth Building Progress\n\n**What This Dashboard Shows:** Net cash savings vs. contribution-driven savings, with trend and goal tracking.\n\n**Key Metrics**\n\u2022 **Savings Health Score (1-100):** Assess net cash flow vs. contribution consistency.\n\u2022 **Net vs Traditional Savings Rate:** Net cash retained after expenses vs. targeted contributions (cash/invest).\n\u2022 **Contribution Mix:** Track cash savings, offset top-ups, and investment contributions separately.\n\u2022 **Rolling Averages:** Smooth the net rate to spot sustained improvement.\n\n**How to Use:** Net savings shows what actually stayed in your accounts. Traditional savings highlights how much you purposely set aside (cash/invest). Align both with your goals.",
+        "content": "# \ud83d\udc8e Savings Analysis Dashboard - Wealth Building Progress\n\n**What This Dashboard Shows:** Net cash savings vs. contribution-driven savings, with trend and goal tracking.\n\n**Key Metrics**\n\u2022 **Savings Health Score (1-100):** Assess net cash flow vs. contribution consistency.\n\u2022 **Net vs Traditional Savings Rate:** Net cash retained after expenses vs. targeted contributions (cash/invest).\n\u2022 **Contribution Mix:** Track cash savings, offset top-ups, and investment contributions separately.\n\u2022 **Rolling Averages:** Smooth the net rate to spot sustained improvement.\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- YTD panels reflect year-to-date totals.\n- Trend charts cover the trailing 12 months.\n- Rolling averages use the last 3 complete months.\n\n**How to Use:** Net savings shows what actually stayed in your accounts. Traditional savings highlights how much you purposely set aside (cash/invest). Align both with your goals.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
       "title": "Dashboard Instructions",
       "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Data recency for the current dashboard context.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "id": 101,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_savings_analysis\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n)\nSELECT\n  to_char((SELECT month_date FROM latest_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_savings_analysis\nWHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM latest_period);",
+          "refId": "A"
+        }
+      ],
+      "title": "Data Freshness",
+      "type": "table"
     },
     {
       "datasource": {
@@ -1634,10 +1698,28 @@
     "list": []
   },
   "time": {
-    "from": "now-1y",
-    "to": "now"
+    "from": "now-1M/M",
+    "to": "now/M"
   },
-  "timepicker": {},
+  "timepicker": {
+    "quick_ranges": [
+      {
+        "from": "now-1M/M",
+        "to": "now/M",
+        "display": "Last complete month"
+      },
+      {
+        "from": "now/Y",
+        "to": "now",
+        "display": "Year to date"
+      },
+      {
+        "from": "now-12M/M",
+        "to": "now/M",
+        "display": "Trailing 12 months"
+      }
+    ]
+  },
   "timezone": "",
   "title": "Savings Analysis",
   "uid": "savings_analysis",
