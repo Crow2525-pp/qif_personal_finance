@@ -309,6 +309,6 @@
       "Split recurring/subscription vs one-off purchases",
       "Add a basket-size trend to spot price inflation or volume changes"
     ],
-    "passes": false
+    "passes": true
   }
 ]

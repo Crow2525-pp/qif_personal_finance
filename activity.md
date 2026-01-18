@@ -226,3 +226,55 @@ This file logs what the agent accomplishes during each iteration:
 **Commit**: `d864a17` - "Implement transaction anomaly detection and review workflows"
 
 **Plan Status**: Updated plan.md to mark task as passes: true
+
+## 2026-01-18
+
+### Add Order-Level Context to Amazon and Grocery Dashboards
+
+**Task**: Add order-level context to Amazon and Grocery dashboards to enable decision-making around purchase patterns, spending drivers, and price/volume changes.
+
+**Status**: COMPLETED - PR #25 created and merged
+
+**Actions performed**:
+
+1. **Created SQL visualization models**:
+   - `viz_amazon_order_context.sql`: Analyzes Amazon transactions with:
+     - Order count per month (COUNT DISTINCT transaction_date)
+     - Average order value (AVG of absolute amounts)
+     - Largest order value (MAX)
+     - Purchase type split: Subscription/Recurring vs One-Off (detected via memo keywords: 'prime', 'subscribe', 'recurring', 'membership')
+     - Month-over-month AOV change percentage
+     - Year-over-year order count comparison
+
+   - `viz_grocery_order_context.sql`: Analyzes grocery transactions by store (Coles, Woolworths, Gaskos) with:
+     - Same metrics as Amazon but partitioned by grocery_store
+     - Store detection via memo patterns
+     - Purchase type split for groceries (Subscription/Recurring vs One-Off, detected via 'subscription', 'recurring', 'delivery' keywords)
+     - Window functions partitioned by grocery store for trend analysis
+
+2. **Updated Amazon Dashboard**:
+   - Added "Order Context (Latest Month)" stat panel showing order count, avg order value, largest order
+   - Added "Recurring vs One-Off (Latest Month)" stat panel showing spend by purchase type
+   - Added "Basket Size Trend (Price Inflation/Volume)" time series showing 18-month AOV trends
+
+3. **Updated Grocery Dashboard**:
+   - Added "Order Context by Store (Latest Month)" stat panel with per-store metrics
+   - Added "Recurring vs One-Off by Store (Latest Month)" stat panel with purchase type by store
+   - Added "Basket Size Trend by Store (Price Inflation/Volume)" time series tracking AOV trends per retailer
+
+**Feature Requirements Met**:
+✓ Show order count, average order value, and largest order for the period
+✓ Split recurring/subscription vs one-off purchases
+✓ Add basket-size trend to spot price inflation or volume changes
+
+**Files Created/Modified**:
+- `pipeline_personal_finance/dbt_finance/models/viz/expenses/viz_amazon_order_context.sql` (84 lines)
+- `pipeline_personal_finance/dbt_finance/models/viz/groceries/viz_grocery_order_context.sql` (96 lines)
+- `grafana/provisioning/dashboards/amazon-spending-dashboard.json` (added 3 panels)
+- `grafana/provisioning/dashboards/grocery-spending-dashboard.json` (added 3 panels)
+
+**Commit**: `70b0ca8` - "Add order-level context to Amazon and Grocery dashboards"
+
+**PR Created**: https://github.com/Crow2525-pp/qif_personal_finance/pull/25
+
+**Plan Status**: Updated plan.md to mark task as passes: true
