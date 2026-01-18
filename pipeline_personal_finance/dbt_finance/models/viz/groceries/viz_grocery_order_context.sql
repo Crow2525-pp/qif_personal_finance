@@ -33,6 +33,10 @@ WITH grocery_transactions AS (
 ),
 
 grocery_orders AS (
+    -- Group transactions by date and store as a proxy for orders
+    -- Note: This assumes one shopping trip per store per day. Multiple same-day trips to
+    -- the same store will be aggregated into a single order with combined amounts.
+    -- This is a limitation of not having explicit order IDs in the transaction data.
     SELECT
         transaction_date::date AS order_date,
         DATE_TRUNC('month', transaction_date) AS year_month,
