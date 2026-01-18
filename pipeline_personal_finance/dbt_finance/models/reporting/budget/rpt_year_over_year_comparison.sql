@@ -265,20 +265,20 @@ final_analysis AS (
     -- Expense drivers (top 3)
     CASE
       WHEN annual_mortgage_expenses > annual_household_expenses AND annual_mortgage_expenses > annual_food_expenses
-      THEN 'Mortgage (' || ROUND(annual_mortgage_expenses / annual_expenses * 100, 0) || '%)'
+      THEN 'Mortgage (' || (CASE WHEN annual_expenses > 0 THEN ROUND(annual_mortgage_expenses / annual_expenses * 100, 0) ELSE 0 END) || '%)'
       WHEN annual_household_expenses > annual_mortgage_expenses AND annual_household_expenses > annual_food_expenses
-      THEN 'Household (' || ROUND(annual_household_expenses / annual_expenses * 100, 0) || '%)'
+      THEN 'Household (' || (CASE WHEN annual_expenses > 0 THEN ROUND(annual_household_expenses / annual_expenses * 100, 0) ELSE 0 END) || '%)'
       WHEN annual_food_expenses > annual_mortgage_expenses AND annual_food_expenses > annual_household_expenses
-      THEN 'Food & Drink (' || ROUND(annual_food_expenses / annual_expenses * 100, 0) || '%)'
+      THEN 'Food & Drink (' || (CASE WHEN annual_expenses > 0 THEN ROUND(annual_food_expenses / annual_expenses * 100, 0) ELSE 0 END) || '%)'
       ELSE 'Other'
     END AS top_expense_driver_1,
 
     CASE
       WHEN annual_family_expenses > LEAST(COALESCE(annual_household_expenses, 0), COALESCE(annual_food_expenses, 0), COALESCE(annual_mortgage_expenses, 0))
-      THEN 'Family & Kids (' || ROUND(annual_family_expenses / annual_expenses * 100, 0) || '%)'
+      THEN 'Family & Kids (' || (CASE WHEN annual_expenses > 0 THEN ROUND(annual_family_expenses / annual_expenses * 100, 0) ELSE 0 END) || '%)'
       WHEN annual_household_expenses > LEAST(COALESCE(annual_family_expenses, 0), COALESCE(annual_food_expenses, 0), COALESCE(annual_mortgage_expenses, 0))
-      THEN 'Household (' || ROUND(annual_household_expenses / annual_expenses * 100, 0) || '%)'
-      ELSE 'Food & Drink (' || ROUND(annual_food_expenses / annual_expenses * 100, 0) || '%)'
+      THEN 'Household (' || (CASE WHEN annual_expenses > 0 THEN ROUND(annual_household_expenses / annual_expenses * 100, 0) ELSE 0 END) || '%)'
+      ELSE 'Food & Drink (' || (CASE WHEN annual_expenses > 0 THEN ROUND(annual_food_expenses / annual_expenses * 100, 0) ELSE 0 END) || '%)'
     END AS top_expense_driver_2,
 
     -- Net worth drivers
