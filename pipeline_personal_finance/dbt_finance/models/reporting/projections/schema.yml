@@ -74,3 +74,46 @@ models:
         description: "Income difference between full-time and part-time scenarios"
       - name: quarterly_projected_net_flow
         description: "Quarterly aggregate of projected net cash flow"
+
+  - name: fct_projection_sensitivity
+    description: "Financial projections with sensitivity analysis and scenario testing"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - scenario
+            - projection_date
+    columns:
+      - name: scenario
+        description: "Work scenario: 'full_time' or 'part_time'"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['full_time', 'part_time']
+      - name: projection_date
+        description: "Calendar date for the projection"
+        tests:
+          - not_null
+      - name: total_projected_income
+        description: "Total projected monthly income"
+        tests:
+          - not_null
+      - name: projected_monthly_expenses
+        description: "Projected monthly expenses"
+        tests:
+          - not_null
+      - name: prev_year_actual_income
+        description: "Actual income from same month previous year (NULL if no data)"
+      - name: prev_year_actual_expenses
+        description: "Actual expenses from same month previous year (NULL if no data)"
+      - name: income_gap
+        description: "Gap between projected and actual income (NULL if no historical data)"
+      - name: expense_gap
+        description: "Gap between projected and actual expenses (NULL if no historical data)"
+      - name: conservative_income
+        description: "Conservative income scenario (-10%)"
+      - name: optimistic_income
+        description: "Optimistic income scenario (+10%)"
+      - name: worst_case_net_flow
+        description: "Worst case net flow (conservative income, high expenses)"
+      - name: best_case_net_flow
+        description: "Best case net flow (optimistic income, low expenses)"
