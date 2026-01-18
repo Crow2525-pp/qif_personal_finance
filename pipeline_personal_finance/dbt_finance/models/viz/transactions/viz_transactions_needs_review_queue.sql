@@ -78,23 +78,27 @@ with_review_reasons AS (
       ELSE FALSE
     END AS is_new_merchant,
 
-    -- Review priority (1 = highest)
-    -- Note: Inline is_new_merchant expression since SELECT-list aliases aren't visible to other SELECT expressions
-    CASE
-      WHEN amount_abs >= 1000 AND level_1_category = 'Uncategorized' THEN 1  -- Large + uncategorized
-      WHEN amount_abs >= 1000 THEN 2  -- Large transactions
-      WHEN level_1_category = 'Uncategorized' AND amount_abs >= 100 THEN 3  -- Uncategorized >$100
-      WHEN (transaction_date = merchant_first_seen AND merchant_12m_transaction_count = 1) AND amount_abs >= 200 THEN 4  -- New merchant >$200
-      WHEN level_1_category = 'Uncategorized' THEN 5  -- Any uncategorized
-      WHEN amount_abs >= 500 THEN 6  -- Large but categorized
-      WHEN (transaction_date = merchant_first_seen AND merchant_12m_transaction_count = 1) THEN 7  -- New merchant (any amount)
-      ELSE NULL
-    END AS review_priority,
-
     -- Days since first occurrence of merchant
     CAST(CURRENT_DATE - merchant_first_seen AS INTEGER) AS days_since_merchant_first_seen
 
   FROM transaction_context
+),
+
+review_priority_ranked AS (
+  SELECT
+    *,
+    -- Review priority (1 = highest)
+    CASE
+      WHEN amount_abs >= 1000 AND level_1_category = 'Uncategorized' THEN 1  -- Large + uncategorized
+      WHEN amount_abs >= 1000 THEN 2  -- Large transactions
+      WHEN level_1_category = 'Uncategorized' AND amount_abs >= 100 THEN 3  -- Uncategorized >$100
+      WHEN is_new_merchant AND amount_abs >= 200 THEN 4  -- New merchant >$200
+      WHEN level_1_category = 'Uncategorized' THEN 5  -- Any uncategorized
+      WHEN amount_abs >= 500 THEN 6  -- Large but categorized
+      WHEN is_new_merchant THEN 7  -- New merchant (any amount)
+      ELSE NULL
+    END AS review_priority
+  FROM with_review_reasons
 )
 
 SELECT
@@ -154,7 +158,7 @@ SELECT
     ELSE 'NOT_IN_QUEUE'
   END AS queue_status
 
-FROM with_review_reasons
+FROM review_priority_ranked
 
 WHERE review_priority IS NOT NULL  -- Only return transactions that need review
   OR transaction_date >= CURRENT_DATE - INTERVAL '3 months'  -- Or show recent context
