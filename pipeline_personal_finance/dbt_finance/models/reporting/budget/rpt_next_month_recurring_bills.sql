@@ -38,40 +38,57 @@ next_month_projection AS (
     recurrence_type,
     estimated_monthly_cost,
     last_transaction_date,
+    EXTRACT(DAY FROM last_transaction_date) AS last_transaction_day,
+    CASE recurrence_type
+      WHEN 'Monthly' THEN INTERVAL '1 month'
+      WHEN 'Quarterly' THEN INTERVAL '3 months'
+      WHEN 'Semi-Annual' THEN INTERVAL '6 months'
+      WHEN 'Annual' THEN INTERVAL '12 months'
+      ELSE INTERVAL '1 month'
+    END AS recurrence_interval,
+    subscription_likelihood_score,
+    is_currently_active
+  FROM recurring_base
+),
+
+dated_projection AS (
+  SELECT
+    merchant_pattern,
+    category,
+    subcategory,
+    recurrence_type,
+    estimated_monthly_cost,
+    last_transaction_date,
 
     -- Calculate estimated due date (assume same day of month as last transaction)
     CASE
-      WHEN EXTRACT(DAY FROM last_transaction_date) <= 28 THEN
-        DATE_TRUNC('month', CURRENT_DATE + INTERVAL '1 month') +
-        (EXTRACT(DAY FROM last_transaction_date) - 1) * INTERVAL '1 day'
+      WHEN last_transaction_day <= 28 THEN
+        DATE_TRUNC('month', CURRENT_DATE + recurrence_interval) +
+        (last_transaction_day - 1) * INTERVAL '1 day'
       ELSE
-        DATE_TRUNC('month', CURRENT_DATE + INTERVAL '1 month') +
+        DATE_TRUNC('month', CURRENT_DATE + recurrence_interval) +
         INTERVAL '1 month' - INTERVAL '1 day'  -- Last day of month
     END AS estimated_next_due_date,
 
     -- Days until due
-    (
-      CASE
-        WHEN EXTRACT(DAY FROM last_transaction_date) <= 28 THEN
-          DATE_TRUNC('month', CURRENT_DATE + INTERVAL '1 month') +
-          (EXTRACT(DAY FROM last_transaction_date) - 1) * INTERVAL '1 day'
-        ELSE
-          DATE_TRUNC('month', CURRENT_DATE + INTERVAL '1 month') +
-          INTERVAL '1 month' - INTERVAL '1 day'
-      END
-    ) - CURRENT_DATE AS days_until_due,
+    CASE
+      WHEN last_transaction_day <= 28 THEN
+        (DATE_TRUNC('month', CURRENT_DATE + recurrence_interval) +
+        (last_transaction_day - 1) * INTERVAL '1 day')::date - CURRENT_DATE
+      ELSE
+        (DATE_TRUNC('month', CURRENT_DATE + recurrence_interval) +
+        INTERVAL '1 month' - INTERVAL '1 day')::date - CURRENT_DATE
+    END AS days_until_due,
 
     -- Priority flag (bills due sooner should be higher priority)
     CASE
-      WHEN EXTRACT(DAY FROM last_transaction_date) <= 7 THEN 'High'  -- Early in month
-      WHEN EXTRACT(DAY FROM last_transaction_date) <= 14 THEN 'Medium'
+      WHEN last_transaction_day <= 7 THEN 'High'  -- Early in month
+      WHEN last_transaction_day <= 14 THEN 'Medium'
       ELSE 'Low'
     END AS payment_priority,
-
     subscription_likelihood_score,
     is_currently_active
-
-  FROM recurring_base
+  FROM next_month_projection
 ),
 
 final_projection AS (
@@ -87,7 +104,7 @@ final_projection AS (
     subscription_likelihood_score,
     ROUND(estimated_monthly_cost, 2) AS projected_next_month_impact,
     CURRENT_TIMESTAMP AS report_generated_at
-  FROM next_month_projection
+  FROM dated_projection
 )
 
 SELECT * FROM final_projection
