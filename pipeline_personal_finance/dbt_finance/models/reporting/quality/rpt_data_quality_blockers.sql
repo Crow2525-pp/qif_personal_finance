@@ -19,7 +19,7 @@ failed_by_category AS (
   SELECT
     domain,
     COUNT(*) FILTER (WHERE NOT pass) AS failure_count,
-    SUM(ABS(COALESCE(delta, 0)))::numeric AS total_financial_impact
+    SUM(ABS(COALESCE(delta, 0))) FILTER (WHERE NOT pass)::numeric AS total_financial_impact
   FROM {{ ref('rpt_financials_reconciliation_tests') }}
   WHERE period_date = (SELECT latest_date FROM latest_tests)
   GROUP BY domain

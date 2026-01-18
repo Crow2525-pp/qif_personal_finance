@@ -82,7 +82,7 @@ category_details AS (
     END AS recommended_dashboard
   FROM base_tests bt
   WHERE bt.domain IN ('Outflows', 'Budget', 'Income')
-    AND bt.test_name LIKE '%cat_%' OR bt.test_name LIKE '%uncategorized%'
+    AND (bt.test_name LIKE '%cat_%' OR bt.test_name LIKE '%uncategorized%')
     AND NOT bt.pass
 ),
 
