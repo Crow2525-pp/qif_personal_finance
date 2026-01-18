@@ -21,7 +21,8 @@
       "Surface a prioritized list of top uncategorized merchants with counts and total spend",
       "Link outflows reconciliation status to the related exception list"
     ],
-    "passes": false
+    "passes": true,
+    "notes": "PR #10 merged 2026-01-16. Deployed to production - Data Quality Callouts and Top Uncategorized Merchants panels verified on Executive dashboard"
   },
   {
     "category": "feature",
