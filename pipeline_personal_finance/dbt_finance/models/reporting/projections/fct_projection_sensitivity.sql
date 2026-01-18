@@ -22,25 +22,36 @@ projection_gaps AS (
         bp.*,
 
         -- Projected vs Historical Comparison (same month, previous year)
-        COALESCE(hm.actual_income, 0) as prev_year_actual_income,
-        COALESCE(hm.actual_expenses, 0) as prev_year_actual_expenses,
-        COALESCE(hm.actual_net_flow, 0) as prev_year_actual_net_flow,
+        -- Preserve NULLs when no historical data exists for filtering
+        hm.actual_income as prev_year_actual_income,
+        hm.actual_expenses as prev_year_actual_expenses,
+        hm.actual_net_flow as prev_year_actual_net_flow,
 
         -- Gap Analysis (Projected - Actual)
-        bp.total_projected_income - COALESCE(hm.actual_income, 0) as income_gap,
-        bp.projected_monthly_expenses - COALESCE(hm.actual_expenses, 0) as expense_gap,
-        (bp.total_projected_income - bp.projected_monthly_expenses) - COALESCE(hm.actual_net_flow, 0) as net_flow_gap,
+        -- Only calculate gaps when historical data exists
+        CASE WHEN hm.actual_income IS NOT NULL
+            THEN bp.total_projected_income - hm.actual_income
+            ELSE NULL
+        END as income_gap,
+        CASE WHEN hm.actual_expenses IS NOT NULL
+            THEN bp.projected_monthly_expenses - hm.actual_expenses
+            ELSE NULL
+        END as expense_gap,
+        CASE WHEN hm.actual_net_flow IS NOT NULL
+            THEN (bp.total_projected_income - bp.projected_monthly_expenses) - hm.actual_net_flow
+            ELSE NULL
+        END as net_flow_gap,
 
         -- Gap as percentage (for understanding projection accuracy)
         CASE
-            WHEN COALESCE(hm.actual_income, 0) > 0 THEN
-                (bp.total_projected_income - COALESCE(hm.actual_income, 0)) / COALESCE(hm.actual_income, 0)
+            WHEN hm.actual_income > 0 THEN
+                (bp.total_projected_income - hm.actual_income) / hm.actual_income
             ELSE NULL
         END as income_gap_pct,
 
         CASE
-            WHEN COALESCE(hm.actual_expenses, 0) > 0 THEN
-                (bp.projected_monthly_expenses - COALESCE(hm.actual_expenses, 0)) / COALESCE(hm.actual_expenses, 0)
+            WHEN hm.actual_expenses > 0 THEN
+                (bp.projected_monthly_expenses - hm.actual_expenses) / hm.actual_expenses
             ELSE NULL
         END as expense_gap_pct,
 
