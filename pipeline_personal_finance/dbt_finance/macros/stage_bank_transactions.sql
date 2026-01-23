@@ -11,7 +11,7 @@ SELECT
   CAST(card_no AS TEXT) AS card_no,
   CAST(sender AS TEXT) AS sender,
   CAST(recipient AS TEXT) AS recipient,
-  CAST(transaction_amount AS DOUBLE) AS transaction_amount,
+  CAST(transaction_amount AS DOUBLE PRECISION) AS transaction_amount,
   CAST(line_number AS BIGINT) AS line_number,
   COALESCE(CAST(account_name AS TEXT), '{{ bank_name }}_{{ account_label }}') AS account_name,
   CAST(transaction_date AS DATE) AS transaction_date,
