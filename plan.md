@@ -1,335 +1,174 @@
+# Family Finance Dashboard Roadmap
+
+## Strategic Direction
+
+The current dashboard suite provides comprehensive financial metrics but is optimized for detailed analysis rather than the quick, actionable insights needed by busy parents with three young children. The immediate priority is reducing the 38.7% uncategorized spend to under 15% so that category-level insights become trustworthy, then building family-specific views that surface childcare costs, grocery trends, and emergency fund progress prominently. Once the data foundation is solid, we'll add weekly pacing indicators and a simplified "Parent Dashboard" that answers "are we on track this week?" in under 30 seconds.
+
+The second phase focuses on forward-looking features: upcoming recurring bills, seasonal expense preparation (school terms, holidays, sports registrations), and education savings goal tracking. Mobile dashboards will be enhanced with family-specific quick-glance panels so parents can check finances while managing morning routines. Throughout, the emphasis is on reducing cognitive load—surfacing only what matters this week rather than overwhelming with historical analysis.
+
+---
+
+## Concrete Tasks (Priority Order)
+
 [
   {
-    "category": "feature",
-    "description": "Standardize time framing and freshness indicators across core dashboards",
-    "branch": "feature/time-framing-freshness",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_personal_finance",
-    "steps": [
-      "Add a visible 'data through' date and last refresh timestamp to Executive, Monthly Budget Summary, Cash Flow Analysis, Household Net Worth, and Savings Analysis",
-      "Use a consistent default of most recent complete month with a quick toggle for YTD and trailing 12 months",
-      "Label panels that use different time windows to avoid mixed-period interpretation"
-    ],
-    "passes": false,
-    "notes": "Implemented in code; pending Grafana verification."
+    "id": 1,
+    "category": "data-quality",
+    "title": "Add top 20 uncategorized merchants to category mappings",
+    "description": "Review the Top Uncategorized Merchants panel on Executive dashboard and add category mappings for the 20 highest-spend merchants to reduce uncategorized spend from 38.7% toward 15%",
+    "scope": "seeds/category_mappings + dbt run",
+    "effort": "small"
   },
   {
-    "category": "feature",
-    "description": "Add data-quality and categorization backlog callouts where decisions are made",
-    "branch": "feature/data-quality-callouts",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-data-quality-callouts",
-    "steps": [
-      "Add a compact data quality panel (missing accounts, unmatched transfers, uncategorized %) to Executive, Cash Flow Analysis, Outflows Insights, and Transaction Analysis",
-      "Surface a prioritized list of top uncategorized merchants with counts and total spend",
-      "Link outflows reconciliation status to the related exception list"
-    ],
-    "passes": true,
-    "notes": "PR #10 merged 2026-01-16. Deployed to production - Data Quality Callouts and Top Uncategorized Merchants panels verified on Executive dashboard"
+    "id": 2,
+    "category": "data-quality",
+    "title": "Create childcare-specific subcategory",
+    "description": "Add 'Childcare & Early Education' as a subcategory under Family & Kids with mappings for daycare centers, preschools, and babysitting services",
+    "scope": "seeds/category_mappings + dbt model update",
+    "effort": "small"
   },
   {
-    "category": "feature",
-    "description": "Make variance drivers actionable in spending dashboards",
-    "branch": "feature/variance-drivers",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-variance-drivers",
-    "steps": [
-      "Add MoM and YoY variance driver panels with top categories and the top 5 transactions per category",
-      "Include a threshold filter (e.g., >10% and >$100) to reduce noise",
-      "Apply to Category Spending Analysis, Outflows Insights, and Monthly Budget Summary"
-    ],
-    "passes": false,
-    "notes": "Grafana review: variance driver panels not visible on Category Spending, Outflows Insights, or Monthly Budget Summary. Implemented in code; pending Grafana verification."
+    "id": 3,
+    "category": "family-insights",
+    "title": "Add 'Family Essentials' cost panel to Executive dashboard",
+    "description": "Create a single stat row showing monthly totals for: Childcare, Groceries, Kids Activities, Family Medical. These are the non-negotiable costs parents need to see first",
+    "scope": "Grafana Executive dashboard + new SQL panel",
+    "effort": "medium"
   },
   {
-    "category": "feature",
-    "description": "Add budget vs actual views to support monthly decision making",
-    "branch": "feature/budget-vs-actual",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-budget-vs-actual",
-    "steps": [
-      "Introduce budget targets and variance deltas in Monthly Budget Summary",
-      "Add a budget heatmap for top categories with over/under indicators",
-      "Provide a short list of suggested adjustments for next month based on historical average"
-    ],
-    "passes": false,
-    "notes": "Grafana review: Monthly Budget Summary lacks budget targets/variance, heatmap, and adjustment suggestions. Implemented in code; pending Grafana verification."
+    "id": 4,
+    "category": "emergency-fund",
+    "title": "Add emergency fund coverage panel to Executive dashboard",
+    "description": "Calculate months of essential expenses covered by liquid assets (target: 3-6 months). Show as gauge with red/yellow/green zones",
+    "scope": "Grafana panel + SQL calculation",
+    "effort": "small"
   },
   {
-    "category": "feature",
-    "description": "Improve cash flow guidance with specific, traceable recommendations",
-    "branch": "feature/cash-flow-guidance",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-cash-flow-guidance",
-    "steps": [
-      "Connect cash flow recommendations to the underlying categories and transactions",
-      "Add a panel showing recurring bills due next month and their projected impact",
-      "Include a 'what changed since last month' summary with links to variance drivers"
-    ],
-    "passes": false,
-    "notes": "Grafana review: Cash Flow Analysis missing recurring bills next month and 'what changed since last month' summary. Implemented in code; pending Grafana verification."
+    "id": 5,
+    "category": "weekly-pacing",
+    "title": "Add 'Week-to-Date Spending Pace' panel",
+    "description": "Show current week spending vs weekly budget target (monthly budget / weeks in month). Include 'days remaining' and 'daily budget remaining' for easy mental math",
+    "scope": "New Grafana panel on Executive or new Weekly Review dashboard",
+    "effort": "medium"
   },
   {
-    "category": "feature",
-    "description": "Strengthen transaction analysis with anomaly and review workflows",
-    "branch": "feature/transaction-anomaly",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-transaction-anomaly",
-    "steps": [
-      "Add anomaly flags for unusually high transactions vs 12-month baseline",
-      "Include a 'needs review' queue combining large, uncategorized, and new merchants",
-      "Add quick filters for account, merchant, and category"
-    ],
-    "passes": false,
-    "notes": "Implemented in code; pending Grafana verification."
+    "id": 6,
+    "category": "family-insights",
+    "title": "Create Grocery spending breakdown panel",
+    "description": "Break down grocery spending by store (Coles, Woolworths, Aldi, etc.) with average basket size and visit frequency to identify shopping pattern opportunities",
+    "scope": "Grafana Category Spending dashboard or Grocery dashboard",
+    "effort": "small"
   },
   {
-    "category": "feature",
-    "description": "Enhance savings dashboards with goal-based guidance",
-    "branch": "feature/savings-goals",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-savings-goals",
-    "steps": [
-      "Add explicit savings goals and progress-to-goal tracking",
-      "Show required monthly transfer to hit goal and impact on cash flow",
-      "Surface savings rate benchmarks and a short action checklist"
-    ],
-    "passes": false,
-    "notes": "Grafana review: Savings Analysis missing explicit goal progress, required monthly transfer, and action checklist. Implemented in code; pending Grafana verification."
+    "id": 7,
+    "category": "upcoming-expenses",
+    "title": "Add 'Bills Due Next 14 Days' panel",
+    "description": "Surface recurring bills due in the next 2 weeks with amounts and due dates. Critical for cash flow planning around pay cycles",
+    "scope": "New dbt model for recurring transaction detection + Grafana panel",
+    "effort": "medium"
   },
   {
-    "category": "feature",
-    "description": "Make net worth and mortgage dashboards more decision-friendly",
-    "branch": "feature/net-worth-mortgage",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-net-worth-mortgage",
-    "steps": [
-      "Add a debt payoff sensitivity panel (extra payments vs payoff date)",
-      "Break out asset allocation trends by account type over time",
-      "Add a 'net worth change drivers' panel tied to account movements"
-    ],
-    "passes": false,
-    "notes": "Grafana review: Net worth dashboard missing payoff sensitivity and net worth change drivers panels. Implemented in code; pending Grafana verification."
+    "id": 8,
+    "category": "mobile",
+    "title": "Add 'This Week Summary' to mobile Executive Overview",
+    "description": "Add compact panel showing: week spending vs pace, emergency fund months, and single biggest expense this week",
+    "scope": "Grafana mobile Executive Overview dashboard",
+    "effort": "small"
   },
   {
-    "category": "feature",
-    "description": "Reduce dashboard redundancy and improve navigation",
-    "branch": "feature/dashboard-navigation",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-dashboard-navigation",
-    "steps": [
-      "Add cross-links from Executive to Cash Flow, Budget, Spending, Net Worth, and Savings dashboards",
-      "Consolidate repeated panels (e.g., cash flow trends, savings rate) into a single authoritative source",
-      "Document which dashboards are mobile-only vs full detail"
-    ],
-    "passes": false,
-    "notes": "Grafana review: no cross-links/navigation improvements observed on Executive dashboard."
+    "id": 9,
+    "category": "data-quality",
+    "title": "Add kids activities merchants to category mappings",
+    "description": "Map swimming lessons, sports clubs, music classes, playgroups, and similar merchants to 'Kids Activities' subcategory",
+    "scope": "seeds/category_mappings",
+    "effort": "small"
   },
   {
-    "category": "feature",
-    "description": "Upgrade specialized merchant dashboards to include decision context",
-    "branch": "feature/merchant-dashboard-context",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-merchant-dashboard-context",
-    "steps": [
-      "Add budget targets and variance highlights to Grocery and Amazon dashboards",
-      "Include a top 10 item or order category breakdown where data allows",
-      "Add a 'switching opportunity' panel showing alternative retailers with lower average spend"
-    ],
-    "passes": false,
-    "notes": "Grafana review: Amazon/Grocery dashboards missing budget variance highlights and switching opportunity panels; Amazon panels show No data/400 errors. Implemented in code; pending Grafana verification."
+    "id": 10,
+    "category": "simplification",
+    "title": "Create 'Parent Quick Check' dashboard",
+    "description": "New single-page dashboard with only 6 panels: This Week Pace, Emergency Fund Months, Family Essentials Total, Biggest Unusual Expense, Uncategorized Count, Bills Due Soon",
+    "scope": "New Grafana dashboard",
+    "effort": "medium"
   },
   {
-    "category": "feature",
-    "description": "Add executive actionability and risk callouts to the Executive Financial Overview",
-    "branch": "feature/executive-actionability",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-executive-actionability",
-    "steps": [
-      "Add a short 'Top 3 actions this month' panel tied to cash flow, savings, and spending drivers",
-      "Surface threshold-based alerts (negative cash flow, expense ratio >100%, savings rate < target)",
-      "Link each action to the underlying dashboard panel or category list"
-    ],
-    "passes": false,
-    "notes": "Grafana review: Executive dashboard missing 'Top 3 actions' and threshold alert callouts/links."
+    "id": 11,
+    "category": "savings-goals",
+    "title": "Add education savings goal tracker",
+    "description": "Track progress toward education fund goals (e.g., $X per child by school age). Show current balance, monthly contribution needed, and progress percentage",
+    "scope": "Grafana Savings Analysis dashboard + goal configuration",
+    "effort": "medium"
   },
   {
-    "category": "feature",
-    "description": "Make Monthly Budget Summary a decision-ready budget cockpit",
-    "branch": "feature/budget-cockpit",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-budget-cockpit",
-    "steps": [
-      "Add remaining-days pace tracker (daily spend target vs actual) for the current month",
-      "Split spending into fixed vs discretionary with a variance rollup",
-      "Add a short 'budget adjustments for next month' list based on recent overruns"
-    ],
-    "passes": false,
-    "notes": "Grafana review: Monthly Budget Summary missing pace tracker, fixed vs discretionary rollup, and adjustment list. Implemented in code; pending Grafana verification."
+    "id": 12,
+    "category": "family-insights",
+    "title": "Add 'Cost Per Child' estimation panel",
+    "description": "Divide Family & Kids category spending by number of children to show approximate monthly cost per child for budgeting discussions",
+    "scope": "Grafana panel with configurable child count variable",
+    "effort": "small"
   },
   {
-    "category": "feature",
-    "description": "Deepen Cash Flow Analysis with income timing and bill awareness",
-    "branch": "feature/cash-flow-income-timing",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-cash-flow-income-timing",
-    "steps": [
-      "Add income source mix and timing distribution for the latest complete month",
-      "Show upcoming recurring bills for the next 30 days with expected impact",
-      "Annotate cash flow trend with the top 3 category drivers"
-    ],
-    "passes": false,
-    "notes": "Grafana review: Cash Flow Analysis missing income timing mix, upcoming 30-day bills, and driver annotations."
+    "id": 13,
+    "category": "alerts",
+    "title": "Add spending spike alert to Executive dashboard",
+    "description": "Highlight when any category exceeds 150% of its 3-month average with the category name and overage amount prominently displayed",
+    "scope": "Grafana conditional formatting + SQL",
+    "effort": "small"
   },
   {
-    "category": "feature",
-    "description": "Add merchant-level insights to Outflows Insights",
-    "branch": "feature/outflows-merchant-insights",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-outflows-merchant-insights",
-    "steps": [
-      "Include top merchants by spend and month-over-month change",
-      "Add subscription/recurring charge detection and cancellation candidates",
-      "Highlight price changes for repeat merchants (average charge delta)"
-    ],
-    "passes": false,
-    "notes": "Grafana review: Outflows Insights missing top merchants, subscription candidates, and price change panels. Implemented in code; pending Grafana verification."
+    "id": 14,
+    "category": "seasonal",
+    "title": "Add 'Seasonal Expense Preparation' panel",
+    "description": "Show upcoming seasonal costs based on historical patterns: school term fees (Feb, Apr, Jul, Oct), Christmas (Nov-Dec), winter utilities (Jun-Aug), sports registration seasons",
+    "scope": "New dbt model + Grafana panel",
+    "effort": "medium"
   },
   {
-    "category": "feature",
-    "description": "Enhance Transaction Analysis with review and exception workflows",
-    "branch": "feature/transaction-review-workflow",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-transaction-review-workflow",
-    "steps": [
-      "Add duplicate and reversal/chargeback flags to the review queue",
-      "Group transactions by merchant with a trend sparkline and last purchase date",
-      "Add quick actions for recategorize, mark transfer, and exclude from budget"
-    ],
-    "passes": false,
-    "notes": "Grafana review: Transaction Analysis missing review workflow panels (duplicates/reversals/actions); some panels show No data."
+    "id": 15,
+    "category": "cash-flow",
+    "title": "Add pay cycle cash flow projection",
+    "description": "Project cash position at next pay date based on known bills and average daily discretionary spend. Answer: 'Will we make it to payday?'",
+    "scope": "SQL model + Grafana panel",
+    "effort": "medium"
   },
   {
-    "category": "feature",
-    "description": "Add goal-first guidance to Savings Analysis",
-    "branch": "feature/savings-goal-guidance",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-savings-goal-guidance",
-    "steps": [
-      "Show target savings rate and progress-to-goal for each defined goal",
-      "Calculate required monthly savings to hit each target date",
-      "Add a simple 'top levers' checklist based on expense and income trends"
-    ],
-    "passes": false,
-    "notes": "Grafana review: Savings Analysis missing goal-first guidance and top levers checklist."
+    "id": 16,
+    "category": "mobile",
+    "title": "Add quick categorization link to mobile dashboards",
+    "description": "Add deep link from mobile uncategorized count to Transaction Analysis filtered to uncategorized items for quick review during downtime",
+    "scope": "Grafana mobile dashboard link configuration",
+    "effort": "small"
   },
   {
-    "category": "feature",
-    "description": "Add allocation and liquidity context to Household Net Worth Analysis",
-    "branch": "feature/net-worth-liquidity",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-net-worth-liquidity",
-    "steps": [
-      "Add asset allocation breakdown by account type and a drift indicator",
-      "Show liquidity coverage (months of expenses covered by liquid assets)",
-      "Add net worth change drivers with asset/liability deltas"
-    ],
-    "passes": false,
-    "notes": "Grafana review: Net worth dashboard missing allocation drift and change driver panels. Implemented in code; pending Grafana verification."
+    "id": 17,
+    "category": "family-insights",
+    "title": "Add 'Fixed vs Flexible' expense breakdown",
+    "description": "Classify expenses as Fixed (mortgage, insurance, childcare) vs Flexible (dining, entertainment, shopping) to show actual discretionary budget available",
+    "scope": "Category classification + Grafana panel",
+    "effort": "medium"
   },
   {
-    "category": "feature",
-    "description": "Expand Category Spending Analysis with budget limits and drivers",
-    "branch": "feature/category-spending-budget",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-category-spending-budget",
-    "steps": [
-      "Add budget targets and over/under variance per top category",
-      "Show top transactions within each category to explain spikes",
-      "Add an uncategorized bucket with a link to the review queue"
-    ],
-    "passes": false,
-    "notes": "Grafana review: Category Spending Analysis missing budget variance per category and top transaction drilldowns."
+    "id": 18,
+    "category": "simplification",
+    "title": "Add 'Top 3 Actions This Week' panel",
+    "description": "Rule-based recommendations panel: e.g., 'Categorize 5 transactions', 'Grocery spend up 20% - check receipts', 'Transfer $X to emergency fund to hit 3-month target'",
+    "scope": "SQL logic + Grafana panel on Parent Quick Check",
+    "effort": "medium"
   },
   {
-    "category": "feature",
-    "description": "Improve Expense Performance Analysis with targets and attribution",
-    "branch": "feature/expense-performance-targets",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-expense-performance-targets",
-    "steps": [
-      "Add target expense-to-income ratio and highlight distance to target",
-      "Attribute month-over-month expense changes to top 5 categories",
-      "Add a rolling 3-month average baseline for context"
-    ],
-    "passes": false
+    "id": 19,
+    "category": "data-quality",
+    "title": "Add medical expense subcategories",
+    "description": "Break down Health & Medical into: GP Visits, Pharmacy, Specialist, Hospital, Health Insurance to track kids' medical costs separately",
+    "scope": "seeds/category_mappings + merchant classification",
+    "effort": "small"
   },
   {
-    "category": "feature",
-    "description": "Make Account Performance more actionable for cash management",
-    "branch": "feature/account-performance-cash",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-account-performance-cash",
-    "steps": [
-      "Add cash buffer coverage (months of expenses) per account group",
-      "Explain large balance changes with top transfer/transaction drivers",
-      "Add interest rate and fee summary for key accounts"
-    ],
-    "passes": false
-  },
-  {
-    "category": "feature",
-    "description": "Add assumptions and sensitivity to the Financial Projections Dashboard",
-    "branch": "feature/financial-projections-sensitivity",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-financial-projections-sensitivity",
-    "steps": [
-      "Document scenario assumptions (income, expense growth, savings rate) inline",
-      "Add sensitivity sliders for income and expense changes with delta output",
-      "Show projected vs actual gaps to calibrate forecasts"
-    ],
-    "passes": true
-  },
-  {
-    "category": "feature",
-    "description": "Turn Financial Reconciliation into an actionable fix list",
-    "branch": "feature/reconciliation-fix-list",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-reconciliation-fix-list",
-    "steps": [
-      "Add direct links from failed checks to the offending accounts or categories",
-      "Summarize top data-quality blockers impacting dashboards",
-      "Add a 'fix order' list sorted by financial impact"
-    ],
-    "passes": false,
-    "notes": "Grafana review: Financial Reconciliation dashboard does not show data-quality blockers or fix-order list. Implemented in code; pending Grafana verification."
-  },
-  {
-    "category": "feature",
-    "description": "Add payoff scenario planning to the Mortgage Payoff Dashboard",
-    "branch": "feature/mortgage-payoff-scenarios",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-mortgage-payoff-scenarios",
-    "steps": [
-      "Add extra-payment scenarios with new payoff dates",
-      "Show total interest saved for each scenario",
-      "Include refinance rate comparison with break-even month"
-    ],
-    "passes": false
-  },
-  {
-    "category": "feature",
-    "description": "Improve long-horizon comparison dashboards with normalized context",
-    "branch": "feature/long-horizon-normalized",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-long-horizon-normalized",
-    "steps": [
-      "Add inflation-adjusted values for year-over-year and four-year views",
-      "Highlight top 3 drivers for income, expenses, and net worth changes",
-      "Add a short narrative summary of wins, risks, and next actions"
-    ],
-    "passes": false,
-    "notes": "Implemented in code; pending Grafana verification."
-  },
-  {
-    "category": "feature",
-    "description": "Bring mobile dashboards closer to full-dashboard utility",
-    "branch": "feature/mobile-dashboard-utility",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-mobile-dashboard-utility",
-    "steps": [
-      "Add 'last updated' and 'data through' stamps on all mobile dashboards",
-      "Add deep links to the related full dashboards for drilldown",
-      "Surface a compact alerts panel (cash flow negative, overspending, low savings)"
-    ],
-    "passes": false
-  },
-  {
-    "category": "feature",
-    "description": "Add order-level context to Amazon and Grocery dashboards",
-    "branch": "feature/amazon-grocery-order-context",
-    "worktree": "C:/Users/p_pat/Documents/projects/qif_worktrees/feature-amazon-grocery-order-context",
-    "steps": [
-      "Show order count, average order value, and largest order for the period",
-      "Split recurring/subscription vs one-off purchases",
-      "Add a basket-size trend to spot price inflation or volume changes"
-    ],
-    "passes": true,
-    "notes": "Grafana review: order-context panels present but showing No data/400 errors on Amazon dashboard; verify datasource/query."
+    "id": 20,
+    "category": "reporting",
+    "title": "Add monthly family finance summary text panel",
+    "description": "Auto-generated plain English summary: 'In December, your family spent $X on essentials and $Y on discretionary items. Emergency fund covers N months. Biggest increase: Groceries (+$Z).'",
+    "scope": "SQL text generation + Grafana text panel",
+    "effort": "medium"
   }
 ]
