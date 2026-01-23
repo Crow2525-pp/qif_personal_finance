@@ -11,39 +11,39 @@
 WITH budget_targets AS (
   -- Calculate 3-month rolling average as budget targets
   SELECT
-    transaction_year,
-    transaction_month,
-    transaction_year || '-' || LPAD(transaction_month::TEXT, 2, '0') AS budget_year_month,
+    budget_year,
+    budget_month,
+    budget_year || '-' || LPAD(budget_month::TEXT, 2, '0') AS budget_year_month,
 
     -- Rolling 3-month average targets (excluding current month)
     AVG(total_income) OVER (
-      ORDER BY transaction_year, transaction_month
+      ORDER BY budget_year, budget_month
       ROWS BETWEEN 3 PRECEDING AND 1 PRECEDING
     ) AS target_income,
 
     AVG(total_expenses) OVER (
-      ORDER BY transaction_year, transaction_month
+      ORDER BY budget_year, budget_month
       ROWS BETWEEN 3 PRECEDING AND 1 PRECEDING
     ) AS target_expenses,
 
     -- Category-level targets
     AVG(mortgage_expenses) OVER (
-      ORDER BY transaction_year, transaction_month
+      ORDER BY budget_year, budget_month
       ROWS BETWEEN 3 PRECEDING AND 1 PRECEDING
     ) AS target_mortgage,
 
     AVG(household_expenses) OVER (
-      ORDER BY transaction_year, transaction_month
+      ORDER BY budget_year, budget_month
       ROWS BETWEEN 3 PRECEDING AND 1 PRECEDING
     ) AS target_household,
 
     AVG(food_expenses) OVER (
-      ORDER BY transaction_year, transaction_month
+      ORDER BY budget_year, budget_month
       ROWS BETWEEN 3 PRECEDING AND 1 PRECEDING
     ) AS target_food,
 
     AVG(family_expenses) OVER (
-      ORDER BY transaction_year, transaction_month
+      ORDER BY budget_year, budget_month
       ROWS BETWEEN 3 PRECEDING AND 1 PRECEDING
     ) AS target_family,
 
@@ -62,8 +62,8 @@ WITH budget_targets AS (
 variance_calculation AS (
   SELECT
     budget_year_month,
-    transaction_year,
-    transaction_month,
+    budget_year,
+    budget_month,
 
     -- Income variance
     total_income,
@@ -124,8 +124,8 @@ variance_calculation AS (
 
 SELECT
   budget_year_month,
-  transaction_year,
-  transaction_month,
+  budget_year,
+  budget_month,
 
   -- Income metrics with variance
   total_income,
@@ -181,4 +181,4 @@ SELECT
 
 FROM variance_calculation
 WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') < date_trunc('month', CURRENT_DATE)
-ORDER BY transaction_year DESC, transaction_month DESC
+ORDER BY budget_year DESC, budget_month DESC
