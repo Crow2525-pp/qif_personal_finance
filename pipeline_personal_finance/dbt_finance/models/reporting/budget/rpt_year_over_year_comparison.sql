@@ -342,6 +342,7 @@ final_analysis AS (
     CURRENT_TIMESTAMP AS report_generated_at
 
   FROM final_scores
+)
 
 SELECT * FROM final_analysis
 ORDER BY comparison_year DESC

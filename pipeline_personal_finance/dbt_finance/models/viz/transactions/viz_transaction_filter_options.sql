@@ -7,11 +7,11 @@
 -- Used for populating dropdown filters in Transaction Analysis dashboard
 
 WITH account_filters AS (
-  SELECT DISTINCT
+  SELECT
     'account' AS filter_type,
     da.account_name AS filter_value,
     da.bank_name AS filter_group,
-    COUNT(DISTINCT ft.transaction_key) OVER (PARTITION BY da.account_key) AS transaction_count,
+    COUNT(DISTINCT ft.transaction_key) AS transaction_count,
     da.account_type AS filter_detail
 
   FROM {{ ref('fct_transactions') }} ft
@@ -21,16 +21,18 @@ WITH account_filters AS (
   WHERE ft.transaction_amount < 0  -- Only expenses for filtering
     AND NOT COALESCE(ft.is_internal_transfer, FALSE)
     AND da.account_name IS NOT NULL
+  GROUP BY
+    da.account_name,
+    da.bank_name,
+    da.account_type
 ),
 
 merchant_filters AS (
-  SELECT DISTINCT
+  SELECT
     'merchant' AS filter_type,
-    COALESCE(dc.store, 'Unknown Merchant') AS filter_value,
+    COALESCE(dc.store, ft.transaction_memo, 'Unknown Merchant') AS filter_value,
     dc.level_1_category AS filter_group,
-    COUNT(DISTINCT ft.transaction_key) OVER (
-      PARTITION BY UPPER(COALESCE(dc.store, ft.transaction_memo))
-    ) AS transaction_count,
+    COUNT(DISTINCT ft.transaction_key) AS transaction_count,
     dc.level_2_subcategory AS filter_detail
 
   FROM {{ ref('fct_transactions') }} ft
@@ -40,14 +42,18 @@ merchant_filters AS (
   WHERE ft.transaction_amount < 0  -- Only expenses for filtering
     AND NOT COALESCE(ft.is_internal_transfer, FALSE)
     AND COALESCE(dc.store, 'Unknown') IS NOT NULL
+  GROUP BY
+    COALESCE(dc.store, ft.transaction_memo, 'Unknown Merchant'),
+    dc.level_1_category,
+    dc.level_2_subcategory
 ),
 
 category_filters AS (
-  SELECT DISTINCT
+  SELECT
     'category' AS filter_type,
     dc.category AS filter_value,
     dc.level_1_category AS filter_group,
-    COUNT(DISTINCT ft.transaction_key) OVER (PARTITION BY dc.category_key) AS transaction_count,
+    COUNT(DISTINCT ft.transaction_key) AS transaction_count,
     dc.level_2_subcategory AS filter_detail
 
   FROM {{ ref('fct_transactions') }} ft
@@ -57,6 +63,10 @@ category_filters AS (
   WHERE ft.transaction_amount < 0  -- Only expenses for filtering
     AND NOT COALESCE(ft.is_internal_transfer, FALSE)
     AND dc.category IS NOT NULL
+  GROUP BY
+    dc.category,
+    dc.level_1_category,
+    dc.level_2_subcategory
 )
 
 SELECT

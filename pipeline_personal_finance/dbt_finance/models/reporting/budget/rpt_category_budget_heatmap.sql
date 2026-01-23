@@ -3,7 +3,7 @@
     materialized='table',
     indexes=[
       {'columns': ['budget_year_month'], 'unique': false},
-      {'columns': ['level_1_category'], 'unique': false}
+      {'columns': ['category_name'], 'unique': false}
     ]
   )
 }}

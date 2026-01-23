@@ -20,7 +20,7 @@ models:
       - name: net_cash_flow
         description: "Income minus expenses (positive = surplus, negative = deficit)"
       - name: savings_rate_percent
-        description: "Ratio of income saved (net cash flow / income, 0–1)"
+        description: "Ratio of income saved (net cash flow / income, 0-1)"
 
   - name: rpt_category_spending_trends
     description: "Detailed spending analysis by category with trend identification and variance analysis"
@@ -167,12 +167,12 @@ models:
         tests:
           - not_null
           - unique
-      - name: transaction_year
-        description: "Year of the transaction"
+      - name: budget_year
+        description: "Year of the budget period"
         tests:
           - not_null
-      - name: transaction_month
-        description: "Month of the transaction (1-12)"
+      - name: budget_month
+        description: "Month of the budget period (1-12)"
         tests:
           - not_null
       - name: total_income
@@ -285,11 +285,11 @@ models:
         description: "YYYY-MM format for the analysis month"
         tests:
           - not_null
-      - name: transaction_year
+      - name: budget_year
         description: "Year of the analysis month"
         tests:
           - not_null
-      - name: transaction_month
+      - name: budget_month
         description: "Month of the analysis"
         tests:
           - not_null
@@ -315,3 +315,446 @@ models:
         description: "Net cash flow formatted as USD currency string"
       - name: potential_savings_formatted
         description: "Potential savings formatted as USD currency string"
+  - name: rpt_recurring_transactions_analysis
+    description: |
+      Analyzes transaction patterns to identify recurring expenses, subscriptions, and regular bills.
+      Uses pattern matching on merchant names and transaction frequency analysis to detect recurring patterns.
+      Provides subscription likelihood scores and flags potentially cancelled subscriptions.
+    columns:
+      - name: merchant_pattern
+        description: Normalized merchant/vendor name pattern used for grouping similar transactions
+        data_type: text
+        tests:
+          - not_null
+
+      - name: category
+        description: Level 1 spending category
+        data_type: text
+        tests:
+          - not_null
+
+      - name: subcategory
+        description: Level 2 spending subcategory
+        data_type: text
+
+      - name: recurrence_type
+        description: Classification of recurrence pattern (Monthly, Quarterly, Semi-Annual, Annual, Irregular Recurring)
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Monthly', 'Quarterly', 'Semi-Annual', 'Annual', 'Irregular Recurring']
+
+      - name: transaction_count
+        description: Total number of transactions for this merchant pattern
+        data_type: bigint
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 3"
+
+      - name: months_appeared
+        description: Number of distinct months this merchant appeared in
+        data_type: bigint
+        tests:
+          - not_null
+
+      - name: days_active
+        description: Days between first and last transaction
+        data_type: integer
+
+      - name: first_transaction_date
+        description: Date of first transaction with this merchant
+        data_type: date
+        tests:
+          - not_null
+
+      - name: last_transaction_date
+        description: Date of most recent transaction with this merchant
+        data_type: date
+        tests:
+          - not_null
+
+      - name: average_transaction_amount
+        description: Average transaction amount (AUD)
+        data_type: numeric
+
+      - name: total_lifetime_spend
+        description: Total amount spent with this merchant across all time (AUD)
+        data_type: numeric
+        tests:
+          - not_null
+
+      - name: estimated_monthly_cost
+        description: Estimated average monthly cost based on historical spending (AUD)
+        data_type: numeric
+
+      - name: estimated_annual_cost
+        description: Projected annual cost (estimated_monthly_cost * 12) (AUD)
+        data_type: numeric
+
+      - name: consistency_score
+        description: Payment consistency score (0-100), higher means more consistent amounts
+        data_type: numeric
+
+      - name: is_currently_active
+        description: Flag indicating if merchant had transaction in last 60 days
+        data_type: boolean
+        tests:
+          - not_null
+
+      - name: possibly_cancelled
+        description: Flag indicating subscription may have been cancelled based on recurrence pattern and inactivity
+        data_type: boolean
+        tests:
+          - not_null
+
+      - name: subscription_likelihood_score
+        description: Score (0-100) indicating likelihood this is a subscription service
+        data_type: integer
+
+      - name: cost_rank
+        description: Rank by estimated monthly cost (1 = highest)
+        data_type: bigint
+
+  - name: rpt_debt_reduction_tracking
+    description: |
+      Comprehensive debt and mortgage tracking report showing principal vs interest breakdown,
+      payment efficiency, and projected payoff dates. Tracks all liability accounts over time.
+    columns:
+      - name: period_month
+        description: Month of the debt snapshot (first day of month)
+        data_type: date
+        tests:
+          - not_null
+          - unique:
+              config:
+                where: "account_name = 'bendigo_homeloan'"
+
+      - name: account_name
+        description: Name of the liability account being tracked
+        data_type: text
+        tests:
+          - not_null
+
+      - name: is_mortgage
+        description: Flag indicating if this is a mortgage account
+        data_type: boolean
+        tests:
+          - not_null
+
+      - name: outstanding_debt_balance
+        description: Outstanding debt balance at end of month (AUD)
+        data_type: numeric
+        tests:
+          - not_null
+
+      - name: previous_month_balance
+        description: Previous month's outstanding balance (AUD)
+        data_type: numeric
+
+      - name: month_over_month_reduction
+        description: Change in debt balance from previous month (positive = debt reduced) (AUD)
+        data_type: numeric
+
+      - name: total_monthly_payment
+        description: Total payments made during the month (AUD)
+        data_type: numeric
+
+      - name: principal_reduction
+        description: Amount of payment that reduced principal (AUD)
+        data_type: numeric
+
+      - name: interest_paid
+        description: Interest charges paid during the month (AUD)
+        data_type: numeric
+
+      - name: fees_paid
+        description: Fees and other charges paid during the month (AUD)
+        data_type: numeric
+
+      - name: lifetime_total_payments
+        description: Cumulative total of all payments made since account inception (AUD)
+        data_type: numeric
+
+      - name: lifetime_principal_paid
+        description: Cumulative principal reduction since account inception (AUD)
+        data_type: numeric
+
+      - name: lifetime_interest_paid
+        description: Cumulative interest paid since account inception (AUD)
+        data_type: numeric
+
+      - name: estimated_interest_rate_pct
+        description: Estimated annual interest rate based on monthly charges (percentage)
+        data_type: numeric
+
+      - name: interest_to_principal_ratio
+        description: Ratio of interest to principal in payments (lower is better)
+        data_type: numeric
+
+      - name: payment_efficiency_score
+        description: Score (0-100) showing % of payment going to principal (higher is better)
+        data_type: numeric
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "between 0 and 100"
+
+      - name: estimated_months_to_payoff
+        description: Projected months until debt is paid off at current payment rate
+        data_type: numeric
+
+      - name: projected_payoff_date
+        description: Estimated payoff date based on current payment trends
+        data_type: timestamp without time zone
+
+      - name: debt_reduction_status
+        description: Assessment of debt reduction progress
+        data_type: text
+        tests:
+          - accepted_values:
+              values: ['Debt Increasing', 'No Change', 'Below Average Progress', 'On Track or Better', 'Unknown']
+
+      - name: payment_efficiency_rating
+        description: Qualitative rating of payment efficiency
+        data_type: text
+        tests:
+          - accepted_values:
+              values: ['Excellent (>80% to principal)', 'Good (60-80% to principal)', 'Fair (40-60% to principal)', 'Poor (<40% to principal)']
+
+  - name: rpt_vendor_spending_analysis
+    description: |
+      Comprehensive vendor/merchant spending analysis identifying spending patterns, top vendors,
+      and relationship status. Helps answer "where does my money go?" at the merchant level.
+    columns:
+      - name: vendor_name
+        description: Vendor/merchant name from transaction description
+        data_type: text
+        tests:
+          - not_null
+
+      - name: category
+        description: Level 1 spending category
+        data_type: text
+
+      - name: spending_tier
+        description: Spending tier classification based on percentile
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Top 5% (Major Vendor)', 'Top 10%', 'Top 25%', 'Above Average', 'Below Average']
+
+      - name: transaction_frequency_tier
+        description: Classification of transaction frequency
+        data_type: text
+        tests:
+          - accepted_values:
+              values: ['Very Frequent (4+/month)', 'Frequent (1-4/month)', 'Regular (Quarterly)', 'Occasional (Annual)', 'Rare']
+
+      - name: vendor_relationship_status
+        description: Current status of vendor relationship based on recency
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Active (Last 30 days)', 'Recent (Last 90 days)', 'Inactive (<6 months)', 'Dormant (<1 year)', 'Historical (>1 year ago)']
+
+      - name: is_high_value_vendor
+        description: Flag for vendors in top 20% of spending with frequent transactions
+        data_type: boolean
+        tests:
+          - not_null
+
+      - name: appears_subscription_like
+        description: Flag indicating spending pattern resembles a subscription
+        data_type: boolean
+        tests:
+          - not_null
+
+      - name: first_transaction_date
+        description: Date of first transaction with vendor
+        data_type: date
+        tests:
+          - not_null
+
+      - name: last_transaction_date
+        description: Date of most recent transaction with vendor
+        data_type: date
+        tests:
+          - not_null
+
+      - name: total_transactions
+        description: Total number of transactions with this vendor
+        data_type: bigint
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "> 0"
+
+      - name: total_lifetime_spend
+        description: Total amount spent with vendor across all time (AUD)
+        data_type: numeric
+        tests:
+          - not_null
+
+      - name: average_transaction_amount
+        description: Average transaction amount (AUD)
+        data_type: numeric
+
+      - name: average_monthly_spend
+        description: Average monthly spending with this vendor (AUD)
+        data_type: numeric
+
+      - name: spend_last_90_days
+        description: Amount spent in last 90 days (AUD)
+        data_type: numeric
+
+      - name: spend_last_12_months
+        description: Amount spent in last 12 months (AUD)
+        data_type: numeric
+
+      - name: lifetime_spend_rank
+        description: Rank by total lifetime spend (1 = highest)
+        data_type: bigint
+        tests:
+          - not_null
+
+      - name: spend_percentile
+        description: Percentile of total spend (0-100)
+        data_type: numeric
+
+      - name: spending_consistency_score
+        description: Score (0-100) indicating spending consistency with this vendor
+        data_type: numeric
+
+  - name: rpt_financial_health_scorecard
+    description: |
+      Comprehensive financial health scorecard providing multi-dimensional assessment
+      of financial wellbeing. Scores 7 key dimensions and provides overall health rating.
+      Updated monthly with the most recent complete month's data.
+    columns:
+      - name: assessment_month
+        description: Month of assessment (YYYY-MM format)
+        data_type: text
+        tests:
+          - not_null
+          - unique
+
+      - name: savings_score
+        description: Savings health score (0-100), based on savings rate and consistency
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "between 0 and 100"
+
+      - name: net_worth_score
+        description: Net worth health score (0-100), based on assets, liabilities, and growth
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "between 0 and 100"
+
+      - name: cash_flow_score
+        description: Cash flow efficiency score (0-100), based on income vs expenses
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "between 0 and 100"
+
+      - name: emergency_fund_score
+        description: Emergency fund adequacy score (0-100), based on months of expenses covered
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "between 0 and 100"
+
+      - name: income_stability_score
+        description: Income stability score (0-100), based on income variance over 6 months
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "between 0 and 100"
+
+      - name: debt_management_score
+        description: Debt management score (0-100), based on debt-to-income ratio
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "between 0 and 100"
+
+      - name: spending_control_score
+        description: Spending control score (0-100), based on expense trends vs average
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "between 0 and 100"
+
+      - name: overall_financial_health_score
+        description: Weighted average of all dimension scores (0-100)
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "between 0 and 100"
+
+      - name: overall_health_rating
+        description: Qualitative rating of overall financial health
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Excellent', 'Very Good', 'Good', 'Fair', 'Needs Improvement', 'Poor']
+
+      - name: monthly_income
+        description: Total income for the assessment month (AUD)
+        data_type: numeric
+
+      - name: monthly_expenses
+        description: Total expenses for the assessment month (AUD)
+        data_type: numeric
+
+      - name: monthly_net_cash_flow
+        description: Net cash flow for the assessment month (AUD)
+        data_type: numeric
+
+      - name: savings_rate_pct
+        description: Savings rate as percentage (0-100)
+        data_type: numeric
+
+      - name: net_worth
+        description: Total net worth (assets - liabilities) (AUD)
+        data_type: numeric
+
+      - name: liquid_assets
+        description: Total liquid assets available (AUD)
+        data_type: numeric
+
+      - name: emergency_fund_months_coverage
+        description: Number of months of expenses covered by liquid assets
+        data_type: numeric
+
+      - name: debt_to_income_ratio
+        description: Total debt divided by monthly income
+        data_type: numeric
+
+      - name: financial_strengths
+        description: Array of financial dimensions scoring >= 80 (strengths)
+        data_type: ARRAY
+
+      - name: areas_needing_attention
+        description: Array of financial dimensions scoring < 60 (needs improvement)
+        data_type: ARRAY
+
+      - name: top_priority_for_improvement
+        description: Recommended top priority area based on lowest score
+        data_type: text
+        tests:
+          - not_null

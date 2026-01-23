@@ -2,7 +2,7 @@
   config(
     materialized='table',
     indexes=[
-      {'columns': ['tracking_date'], 'unique': false}
+      {'columns': ['today'], 'unique': false}
     ]
   )
 }}
@@ -71,16 +71,16 @@ pace_analysis AS (
     dt.mtd_income,
     dt.mtd_expenses,
     dt.days_with_spending,
-    ROUND(dt.avg_daily_expense_target, 2) as daily_expense_target,
+    ROUND(CAST(dt.avg_daily_expense_target AS DECIMAL(18, 4)), 2) as daily_expense_target,
     -- Pace calculations
-    ROUND(dt.mtd_expenses / NULLIF(dt.current_day_of_month, 0), 2) as actual_daily_burn_rate,
-    ROUND(dt.mtd_expenses / NULLIF(dt.avg_daily_expense_target, 0), 2) as pace_vs_target_ratio,
+    ROUND(CAST(dt.mtd_expenses / NULLIF(dt.current_day_of_month, 0) AS DECIMAL(18, 4)), 2) as actual_daily_burn_rate,
+    ROUND(CAST(dt.mtd_expenses / NULLIF(dt.avg_daily_expense_target, 0) AS DECIMAL(18, 4)), 2) as pace_vs_target_ratio,
     -- Projected month-end
-    ROUND(dt.mtd_expenses * (dt.days_in_month::FLOAT / dt.current_day_of_month), 2) as projected_month_end_expenses,
+    ROUND(CAST(dt.mtd_expenses * (dt.days_in_month::FLOAT / dt.current_day_of_month) AS DECIMAL(18, 4)), 2) as projected_month_end_expenses,
     -- Days remaining
     dt.days_in_month - dt.current_day_of_month as days_remaining,
     -- Variance from target
-    ROUND(dt.mtd_expenses - (dt.avg_daily_expense_target * dt.current_day_of_month), 2) as mtd_variance_from_target,
+    ROUND(CAST(dt.mtd_expenses - (dt.avg_daily_expense_target * dt.current_day_of_month) AS DECIMAL(18, 4)), 2) as mtd_variance_from_target,
     -- Rate comparison
     CASE
       WHEN dt.mtd_expenses / NULLIF(dt.current_day_of_month, 0) > dt.avg_daily_expense_target THEN 'Above pace'

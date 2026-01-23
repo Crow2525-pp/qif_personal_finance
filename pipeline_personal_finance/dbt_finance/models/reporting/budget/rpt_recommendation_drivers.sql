@@ -63,7 +63,7 @@ top_inflow_sources AS (
   LEFT JOIN {{ ref('dim_categories') }} dc ON t.category_key = dc.category_key
   WHERE t.is_income_transaction = true
     AND t.transaction_year || '-' || LPAD(t.transaction_month::TEXT, 2, '0') =
-        (SELECT MAX(budget_year_month) FROM latest_month_data)
+        (SELECT latest_month FROM latest_month_data)
   GROUP BY
     t.transaction_year || '-' || LPAD(t.transaction_month::TEXT, 2, '0'),
     dc.level_1_category
