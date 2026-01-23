@@ -27,3 +27,10 @@ schedules.db
 .venv
 *.log*
 *.log.1
+# Allow minimal seed stubs while keeping other CSVs ignored
+!pipeline_personal_finance/dbt_finance/seeds/known_values.csv
+!pipeline_personal_finance/dbt_finance/seeds/banking_categories.csv
+!pipeline_personal_finance/dbt_finance/seeds/categories_allowed.csv
+!pipeline_personal_finance/dbt_finance/seeds/property_assets.csv
+!pipeline_personal_finance/dbt_finance/seeds/property_valuation_overrides.csv
+!pipeline_personal_finance/dbt_finance/seeds/mortgage_patch_data.csv
