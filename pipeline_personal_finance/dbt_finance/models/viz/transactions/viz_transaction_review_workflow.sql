@@ -66,6 +66,8 @@ duplicates AS (
     ) AS duplicate_count
 
   FROM transaction_base ft1
+  LEFT JOIN transaction_base ft2
+    ON ft2.account_key = ft1.account_key
   GROUP BY ft1.transaction_key
 ),
 
@@ -101,10 +103,20 @@ reversals AS (
 ),
 
 -- Group transactions by merchant to calculate trends and last purchase date
-merchant_trends AS (
+merchant_monthly_spend AS (
   SELECT
     merchant,
     account_key,
+    DATE_TRUNC('month', transaction_date) AS month_start,
+    SUM(amount_abs) AS monthly_spend
+  FROM transaction_base
+  GROUP BY merchant, account_key, DATE_TRUNC('month', transaction_date)
+),
+
+merchant_trends AS (
+  SELECT
+    tb.merchant,
+    tb.account_key,
     COUNT(*) AS merchant_transaction_count,
     SUM(amount_abs) AS merchant_total_spend,
     AVG(amount_abs) AS merchant_avg_spend,
@@ -113,10 +125,9 @@ merchant_trends AS (
 
     -- Calculate month-over-month trend (sparkline representation as text)
     STRING_AGG(
-      TO_CHAR(DATE_TRUNC('month', transaction_date), 'YYYY-MM') || ':' ||
-      LPAD(ROUND(SUM(amount_abs) FILTER (WHERE transaction_date >= DATE_TRUNC('month', transaction_date)
-                                          AND transaction_date < DATE_TRUNC('month', transaction_date) + INTERVAL '1 month'))::text, 6, ' '),
-      ' | ' ORDER BY DATE_TRUNC('month', transaction_date)
+      TO_CHAR(mms.month_start, 'YYYY-MM') || ':' ||
+      LPAD(ROUND(mms.monthly_spend)::text, 6, ' '),
+      ' | ' ORDER BY mms.month_start
     ) AS merchant_trend_sparkline,
 
     -- Recent months trend for graphical representation
@@ -125,10 +136,19 @@ merchant_trends AS (
                                     AND transaction_date < CURRENT_DATE - INTERVAL '1 month')::NUMERIC, 2) AS merchant_prev_month,
 
     -- Frequency analysis
-    ROUND((COUNT(*) * 30.0) / (EXTRACT(DAY FROM MAX(transaction_date) - MIN(transaction_date)) + 1), 1) AS merchant_frequency_per_month
+    ROUND(
+      (COUNT(*) * 30.0)
+      / (NULLIF((MAX(transaction_date) - MIN(transaction_date))::numeric, 0) + 1),
+      1
+    ) AS merchant_frequency_per_month
 
-  FROM transaction_base
-  GROUP BY merchant, account_key
+  FROM transaction_base tb
+  LEFT JOIN merchant_monthly_spend mms
+    ON tb.merchant = mms.merchant
+    AND tb.account_key = mms.account_key
+  GROUP BY
+    tb.merchant,
+    tb.account_key
 ),
 
 -- Combine all enrichments

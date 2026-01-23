@@ -129,6 +129,7 @@ final_analysis AS (
     days_active,
     first_transaction_date,
     last_transaction_date,
+    days_since_last_transaction,
 
     -- Amount statistics
     ROUND(avg_amount, 2) AS average_transaction_amount,

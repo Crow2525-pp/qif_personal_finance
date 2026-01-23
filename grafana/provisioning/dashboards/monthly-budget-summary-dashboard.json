@@ -1697,9 +1697,9 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 62
+        "y": 46
       },
-      "id": 12,
+      "id": 9,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1710,7 +1710,7 @@
             "lastNotNull"
           ],
           "fields": "",
-          "values": true
+          "values": false
         },
         "showPercentChange": false,
         "textMode": "auto",
@@ -1815,9 +1815,9 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 70
+        "y": 54
       },
-      "id": 13,
+      "id": 10,
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1931,9 +1931,9 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 70
+        "y": 54
       },
-      "id": 14,
+      "id": 11,
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -2059,7 +2059,7 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 78
+        "y": 63
       },
       "id": 102,
       "options": {
@@ -2163,7 +2163,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 78
+        "y": 63
       },
       "id": 103,
       "options": {
@@ -2291,7 +2291,7 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 88
+        "y": 73
       },
       "id": 104,
       "options": {
@@ -2395,7 +2395,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 88
+        "y": 73
       },
       "id": 105,
       "options": {

@@ -53,12 +53,7 @@ projection_gaps AS (
             WHEN hm.actual_expenses > 0 THEN
                 (bp.projected_monthly_expenses - hm.actual_expenses) / hm.actual_expenses
             ELSE NULL
-        END as expense_gap_pct,
-
-        -- Confidence bounds (upper/lower bounds for expense forecasts)
-        bp.upper_expense_bound,
-        bp.lower_expense_bound
-
+        END as expense_gap_pct
     FROM base_projections bp
     LEFT JOIN (
         SELECT
@@ -78,12 +73,10 @@ SELECT
     -- Sensitivity bands (for what-if analysis)
     total_projected_income * 0.9 as conservative_income,
     total_projected_income * 1.1 as optimistic_income,
-    projected_monthly_expenses * 0.9 as conservative_expenses,
-    projected_monthly_expenses * 1.1 as optimistic_expenses,
 
     -- Adjusted net flows based on sensitivity ranges
-    (total_projected_income * 0.9) - (projected_monthly_expenses * 1.1) as worst_case_net_flow,
-    (total_projected_income * 1.1) - (projected_monthly_expenses * 0.9) as best_case_net_flow
+    (total_projected_income * 0.9) - conservative_expenses as worst_case_net_flow,
+    (total_projected_income * 1.1) - optimistic_expenses as best_case_net_flow
 
 FROM projection_gaps
 ORDER BY scenario, projection_month
