@@ -58,60 +58,61 @@ monthly_cash_flow AS (
     transaction_year,
     transaction_month,
     
-    -- Total cash flows (excluding internal transfers)
+    -- Total cash flows (exclude internal transfers)
     SUM(CASE 
-      WHEN cash_flow_type = 'Cash Inflow' THEN ABS(transaction_amount)
-      ELSE 0 
-    END) AS total_inflows,
+          WHEN NOT is_internal_transfer AND (COALESCE(is_income_transaction, FALSE) OR transaction_amount > 0)
+            THEN ABS(transaction_amount)
+          ELSE 0
+        END) AS total_inflows,
     
     SUM(CASE 
-      WHEN cash_flow_type = 'Cash Outflow' THEN ABS(transaction_amount)
-      ELSE 0 
-    END) AS total_outflows,
+          WHEN NOT is_internal_transfer AND transaction_amount < 0
+            THEN ABS(transaction_amount)
+          ELSE 0
+        END) AS total_outflows,
     
     SUM(CASE 
-      WHEN cash_flow_type = 'Internal Transfer' THEN ABS(transaction_amount)
-      ELSE 0 
-    END) AS total_internal_transfers,
+          WHEN is_internal_transfer THEN ABS(transaction_amount)
+          ELSE 0
+        END) AS total_internal_transfers,
     
-    -- Net cash flow
+    -- Net cash flow (exclude internal transfers)
     SUM(CASE 
-      WHEN cash_flow_type = 'Cash Inflow' THEN ABS(transaction_amount)
-      WHEN cash_flow_type = 'Cash Outflow' THEN -ABS(transaction_amount)
-      ELSE 0 
-    END) AS net_cash_flow,
+          WHEN NOT is_internal_transfer THEN transaction_amount
+          ELSE 0
+        END) AS net_cash_flow,
     
-    -- By category
+    -- By category (exclude internal transfers)
     SUM(CASE 
-      WHEN cash_flow_category = 'Operating' AND cash_flow_type = 'Cash Inflow' 
-      THEN ABS(transaction_amount) ELSE 0 
-    END) AS operating_inflows,
-    
-    SUM(CASE 
-      WHEN cash_flow_category = 'Operating' AND cash_flow_type = 'Cash Outflow' 
-      THEN ABS(transaction_amount) ELSE 0 
-    END) AS operating_outflows,
+          WHEN NOT is_internal_transfer AND cash_flow_category = 'Operating' AND (COALESCE(is_income_transaction, FALSE) OR transaction_amount > 0)
+            THEN ABS(transaction_amount) ELSE 0 
+        END) AS operating_inflows,
     
     SUM(CASE 
-      WHEN cash_flow_category = 'Financing' AND cash_flow_type != 'Internal Transfer'
-      THEN CASE WHEN transaction_amount < 0 THEN -ABS(transaction_amount) ELSE ABS(transaction_amount) END
-      ELSE 0 
-    END) AS financing_cash_flow,
+          WHEN NOT is_internal_transfer AND cash_flow_category = 'Operating' AND transaction_amount < 0
+            THEN ABS(transaction_amount) ELSE 0 
+        END) AS operating_outflows,
     
     SUM(CASE 
-      WHEN cash_flow_category = 'Investing' AND cash_flow_type != 'Internal Transfer'
-      THEN CASE WHEN transaction_amount < 0 THEN -ABS(transaction_amount) ELSE ABS(transaction_amount) END
-      ELSE 0 
-    END) AS investing_cash_flow,
+          WHEN NOT is_internal_transfer AND cash_flow_category = 'Financing'
+            THEN transaction_amount
+          ELSE 0 
+        END) AS financing_cash_flow,
+    
+    SUM(CASE 
+          WHEN NOT is_internal_transfer AND cash_flow_category = 'Investing'
+            THEN transaction_amount
+          ELSE 0 
+        END) AS investing_cash_flow,
     
     -- Transaction counts
-    COUNT(CASE WHEN cash_flow_type = 'Cash Inflow' THEN 1 END) AS inflow_transaction_count,
-    COUNT(CASE WHEN cash_flow_type = 'Cash Outflow' THEN 1 END) AS outflow_transaction_count,
-    COUNT(CASE WHEN cash_flow_type = 'Internal Transfer' THEN 1 END) AS internal_transfer_count,
+    COUNT(CASE WHEN NOT is_internal_transfer AND (COALESCE(is_income_transaction, FALSE) OR transaction_amount > 0) THEN 1 END) AS inflow_transaction_count,
+    COUNT(CASE WHEN NOT is_internal_transfer AND transaction_amount < 0 THEN 1 END) AS outflow_transaction_count,
+    COUNT(CASE WHEN is_internal_transfer THEN 1 END) AS internal_transfer_count,
     
     -- Average transaction sizes
-    AVG(CASE WHEN cash_flow_type = 'Cash Inflow' THEN ABS(transaction_amount) END) AS avg_inflow_amount,
-    AVG(CASE WHEN cash_flow_type = 'Cash Outflow' THEN ABS(transaction_amount) END) AS avg_outflow_amount
+    AVG(CASE WHEN NOT is_internal_transfer AND (COALESCE(is_income_transaction, FALSE) OR transaction_amount > 0) THEN ABS(transaction_amount) END) AS avg_inflow_amount,
+    AVG(CASE WHEN NOT is_internal_transfer AND transaction_amount < 0 THEN ABS(transaction_amount) END) AS avg_outflow_amount
     
   FROM cash_flow_base
   GROUP BY budget_year_month, transaction_year, transaction_month
