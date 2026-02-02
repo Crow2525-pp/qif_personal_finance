@@ -16,18 +16,36 @@
   - Household essentials
 */
 
-WITH monthly_family_spending AS (
-  SELECT
+WITH month_set AS (
+  SELECT DISTINCT
     ft.transaction_year,
     ft.transaction_month,
-    ft.transaction_year || '-' || LPAD(ft.transaction_month::TEXT, 2, '0') AS budget_year_month,
+    ft.transaction_year || '-' || LPAD(ft.transaction_month::TEXT, 2, '0') AS budget_year_month
+  FROM {{ ref('fct_transactions') }} ft
+  WHERE to_date(ft.transaction_year || '-' || LPAD(ft.transaction_month::TEXT, 2, '0') || '-01', 'YYYY-MM-DD') < date_trunc('month', CURRENT_DATE)
+),
+
+monthly_family_spending AS (
+  SELECT
+    ms.transaction_year,
+    ms.transaction_month,
+    ms.budget_year_month,
     dc.level_1_category,
     dc.level_2_subcategory,
 
-    SUM({{ metric_expense(false, 'ft', 'dc') }}) AS category_spending,
-    COUNT(*) AS transaction_count
+    SUM(
+      CASE 
+        WHEN ft.transaction_amount < 0 AND NOT COALESCE(ft.is_internal_transfer, FALSE)
+          THEN ABS(ft.transaction_amount)
+        ELSE 0
+      END
+    ) AS category_spending,
+    COUNT(CASE WHEN ft.transaction_amount < 0 AND NOT COALESCE(ft.is_internal_transfer, FALSE) THEN 1 END) AS transaction_count
 
-  FROM {{ ref('fct_transactions') }} ft
+  FROM month_set ms
+  LEFT JOIN {{ ref('fct_transactions') }} ft
+    ON ft.transaction_year = ms.transaction_year
+   AND ft.transaction_month = ms.transaction_month
   LEFT JOIN {{ ref('dim_categories') }} dc ON ft.category_key = dc.category_key
   WHERE dc.level_1_category IN ('Food & Drink', 'Family & Kids', 'Health & Beauty', 'Household & Services')
   GROUP BY
