@@ -17,7 +17,9 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "title": "Add top 20 uncategorized merchants to category mappings",
     "description": "Review the Top Uncategorized Merchants panel on Executive dashboard and add category mappings for the 20 highest-spend merchants to reduce uncategorized spend from 38.7% toward 15%",
     "scope": "seeds/category_mappings + dbt run",
-    "effort": "small"
+    "effort": "small",
+    "status": "in-progress",
+    "notes": "Use scripts/categorize_transactions.py interactive tool. 19 patterns (1004 transactions) categorized in previous session."
   },
   {
     "id": 2,
@@ -25,7 +27,9 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "title": "Create childcare-specific subcategory",
     "description": "Add 'Childcare & Early Education' as a subcategory under Family & Kids with mappings for daycare centers, preschools, and babysitting services",
     "scope": "seeds/category_mappings + dbt model update",
-    "effort": "small"
+    "effort": "small",
+    "status": "pending",
+    "notes": "Add subcategory mappings in banking_categories.csv with subcategory='Childcare & Early Education'"
   },
   {
     "id": 3,
@@ -33,7 +37,9 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "title": "Add 'Family Essentials' cost panel to Executive dashboard",
     "description": "Create a single stat row showing monthly totals for: Childcare, Groceries, Kids Activities, Family Medical. These are the non-negotiable costs parents need to see first",
     "scope": "Grafana Executive dashboard + new SQL panel",
-    "effort": "medium"
+    "effort": "medium",
+    "status": "done",
+    "notes": "Created rpt_family_essentials.sql model and added 'Family Essentials (Last Month)' stat panel to Executive dashboard"
   },
   {
     "id": 4,
@@ -41,7 +47,9 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "title": "Add emergency fund coverage panel to Executive dashboard",
     "description": "Calculate months of essential expenses covered by liquid assets (target: 3-6 months). Show as gauge with red/yellow/green zones",
     "scope": "Grafana panel + SQL calculation",
-    "effort": "small"
+    "effort": "small",
+    "status": "done",
+    "notes": "Created rpt_emergency_fund_coverage.sql model and added gauge panel to Executive dashboard with red/orange/yellow/green thresholds at 0/1/3/6 months"
   },
   {
     "id": 5,
@@ -49,7 +57,9 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "title": "Add 'Week-to-Date Spending Pace' panel",
     "description": "Show current week spending vs weekly budget target (monthly budget / weeks in month). Include 'days remaining' and 'daily budget remaining' for easy mental math",
     "scope": "New Grafana panel on Executive or new Weekly Review dashboard",
-    "effort": "medium"
+    "effort": "medium",
+    "status": "done",
+    "notes": "Created rpt_weekly_spending_pace.sql model and added 'Week-to-Date Spending Pace' stat panel to Executive dashboard showing weekly budget, spending, and daily budget remaining"
   },
   {
     "id": 6,
