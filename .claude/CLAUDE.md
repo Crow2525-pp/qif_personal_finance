@@ -2,6 +2,12 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Claude Local Permissions
+- `.claude/settings.local.json` is the allowlist that controls which shell commands Claude Code may execute when running locally.
+- Keep the allow list tight and command-specific (prefer `docker-compose ps` over broad `docker*` globs).
+- Never add commands that expose secrets or destructive actions; review and prune entries after one-off debugging sessions.
+- If you broaden permissions, leave a short note in the Git history or PR describing why the new command is required.
+
 ## Project Overview
 
 This is a personal finance data pipeline that processes QIF (Quicken Interchange Format) bank transaction files and displays financial insights through Grafana dashboards. The system runs on a home server and provides financial visualization for household budgeting.
