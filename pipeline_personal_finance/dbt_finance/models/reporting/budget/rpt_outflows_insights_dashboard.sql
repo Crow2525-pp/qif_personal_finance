@@ -62,7 +62,7 @@ top_drivers AS (
 uncategorized_analysis AS (
   SELECT
     ao.period_date,
-    ao.uncategorized,
+    ao.uncategorized AS uncategorized_amount,
     CASE WHEN ao.total_outflows > 0 THEN (ao.uncategorized / ao.total_outflows) * 100 ELSE 0 END AS uncategorized_pct,
 
     -- Previous month uncategorized for comparison
@@ -419,7 +419,7 @@ final_report AS (
     ss.transportation_pct,
     ss.shopping_retail,
     ss.shopping_retail_pct,
-    ss.uncategorized,
+    ss.uncategorized AS uncategorized_amount,
     ss.uncategorized_pct,
     ss.mom_uncategorized_change_pct,
 

@@ -654,6 +654,28 @@ models:
         description: Score (0-100) indicating spending consistency with this vendor
         data_type: numeric
 
+  - name: rpt_mom_cash_flow_waterfall
+    description: "Month-over-month cash flow waterfall showing drivers of change (income, expenses, transfers, net)"
+    columns:
+      - name: budget_year_month
+        description: "YYYY-MM format for the current month"
+        tests:
+          - not_null
+      - name: driver
+        description: "Cash flow driver category (Income, Expenses, Transfers, Net Change)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Income', 'Expenses', 'Transfers', 'Net Change']
+      - name: delta_amount
+        description: "Dollar change from previous month (positive = improvement to net cash flow)"
+        tests:
+          - not_null
+      - name: sort_order
+        description: "Display order for waterfall visualization (1-4)"
+        tests:
+          - not_null
+
   - name: rpt_financial_health_scorecard
     description: |
       Comprehensive financial health scorecard providing multi-dimensional assessment
