@@ -22,6 +22,32 @@ models:
       - name: savings_rate_percent
         description: "Ratio of income saved (net cash flow / income, 0-1)"
 
+  - name: rpt_family_essentials
+    description: "Family essentials rollup (groceries, family, health, household) with trend metrics"
+    columns:
+      - name: budget_year_month
+        description: "Latest available month in YYYY-MM format"
+        tests:
+          - not_null
+          - unique
+      - name: total_family_essentials
+        description: "Total essential spending for the month"
+        tests:
+          - not_null
+
+  - name: rpt_emergency_fund_coverage
+    description: "Emergency fund coverage calculation using liquid assets vs average essential expenses"
+    columns:
+      - name: budget_year_month
+        description: "Month of the assessment (aligned to latest available net worth month)"
+        tests:
+          - not_null
+          - unique
+      - name: months_essential_expenses_covered
+        description: "Months of essential expenses covered by liquid assets"
+        tests:
+          - not_null
+
   - name: rpt_category_spending_trends
     description: "Detailed spending analysis by category with trend identification and variance analysis"
     columns:

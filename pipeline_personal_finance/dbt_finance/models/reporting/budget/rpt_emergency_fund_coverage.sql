@@ -13,14 +13,29 @@
   Target: 3-6 months coverage for a family with young children.
 */
 
-WITH latest_net_worth AS (
+WITH available_months AS (
+  -- Anchor to overlapping months present in both sources to avoid NULL coverage
+  SELECT
+    GREATEST(nw.min_month, mb.min_month) AS min_month,
+    LEAST(nw.max_month, mb.max_month) AS max_month
+  FROM (
+    SELECT MIN(budget_year_month) AS min_month, MAX(budget_year_month) AS max_month
+    FROM {{ ref('rpt_household_net_worth') }}
+  ) nw
+  CROSS JOIN (
+    SELECT MIN(budget_year_month) AS min_month, MAX(budget_year_month) AS max_month
+    FROM {{ ref('rpt_monthly_budget_summary') }}
+  ) mb
+),
+
+latest_net_worth AS (
   SELECT
     budget_year_month,
     liquid_assets,
     total_assets,
     net_worth
   FROM {{ ref('rpt_household_net_worth') }}
-  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+  WHERE budget_year_month = (SELECT max_month FROM available_months)
   ORDER BY budget_year_month DESC
   LIMIT 1
 ),
@@ -37,7 +52,7 @@ expense_history AS (
     food_expenses,
     family_expenses
   FROM {{ ref('rpt_monthly_budget_summary') }}
-  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+  WHERE budget_year_month BETWEEN (SELECT min_month FROM available_months) AND (SELECT max_month FROM available_months)
   ORDER BY budget_year_month DESC
   LIMIT 6
 ),
@@ -101,8 +116,8 @@ SELECT
   liquid_assets,
   avg_monthly_expenses,
   avg_monthly_essential_expenses,
-  months_total_expenses_covered,
-  months_essential_expenses_covered,
+  COALESCE(months_total_expenses_covered, 0) AS months_total_expenses_covered,
+  COALESCE(months_essential_expenses_covered, 0) AS months_essential_expenses_covered,
   target_months_coverage,
   gap_to_target_dollars,
 
