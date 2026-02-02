@@ -67,6 +67,12 @@ monthly_totals AS (
   GROUP BY budget_year_month, transaction_year, transaction_month
 ),
 
+-- Anchor to the freshest fully-loaded month so the executive panel never returns zero rows
+latest_month AS (
+  SELECT MAX(to_date(budget_year_month || '-01', 'YYYY-MM-DD')) AS max_month
+  FROM monthly_totals
+),
+
 with_trends AS (
   SELECT
     mt.*,
@@ -143,5 +149,5 @@ SELECT
   CURRENT_TIMESTAMP AS report_generated_at
 
 FROM with_trends
-WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') < date_trunc('month', CURRENT_DATE)
+WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT max_month FROM latest_month)
 ORDER BY transaction_year DESC, transaction_month DESC
