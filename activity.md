@@ -332,3 +332,9 @@ This file logs what the agent accomplishes during each iteration:
 **Commit**: `6a4646c` - "feat: Complete dashboard fixes for tasks 21-30"
 
 **Plan Status**: Tasks 21-30 marked as completed in plan.md
+
+**Critical Fixes**: `be68f4b` - "fix: Correct waterfall unique index and liability classification"
+- **P1 Fix 1**: Changed waterfall model unique index from single column `budget_year_month` to composite `(budget_year_month, driver)` - model emits 4 rows per month so single column would cause unique constraint violation on dbt run
+- **P1 Fix 2**: Changed liability classification from `account_type = 'liability'` to `is_liability` flag - account_type contains values like 'Home Loan', 'Offset', not the string 'liability'; without this fix all liabilities would be misclassified as assets, making total_liabilities = 0 and inflating net_worth
+
+**PR Created**: https://github.com/Crow2525-pp/qif_personal_finance/pull/35
