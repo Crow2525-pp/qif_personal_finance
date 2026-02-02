@@ -145,7 +145,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nprevious_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n  WHERE month_date < (SELECT month_date FROM selected_period)\n),\ncurrent_budget AS (\n  SELECT *, to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\ncurrent_cf AS (\n  SELECT forecasted_next_month_net_flow\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\ncurrent_scores AS (\n  SELECT\n    CASE\n      WHEN cb.savings_rate_percent >= 0.30 THEN 'Excellent'\n      WHEN cb.savings_rate_percent >= 0.20 THEN 'Strong'\n      WHEN cb.savings_rate_percent >= 0.15 THEN 'Good'\n      WHEN cb.savings_rate_percent >= 0.10 THEN 'Fair'\n      ELSE 'Needs Attention'\n    END AS savings_rating\n  FROM current_budget cb\n),\nsummary AS (\n  SELECT\n    to_char((SELECT month_date FROM selected_period), 'Mon YYYY') AS month_label,\n    CASE\n      WHEN cb.net_cash_flow >= 0 THEN 'Positive'\n      ELSE 'Negative'\n    END AS health_rating,\n    COALESCE(ccf.forecasted_next_month_net_flow, 0) AS forecast_value\n  FROM current_budget cb\n  LEFT JOIN current_cf ccf ON TRUE\n)\nSELECT CONCAT('📊 Financial Summary for ', summary.month_label,\n              ' | Net Cash Flow: ', summary.health_rating,\n              ' | Next Month Forecast: $', ROUND(summary.forecast_value)::text) AS summary\nFROM summary;",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nprevious_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n  WHERE month_date < (SELECT month_date FROM selected_period)\n),\ncurrent_budget AS (\n  SELECT *, to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\ncurrent_cf AS (\n  SELECT forecasted_next_month_net_flow\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\ncurrent_scores AS (\n  SELECT\n    CASE\n      WHEN cb.savings_rate_percent >= 0.30 THEN 'Excellent'\n      WHEN cb.savings_rate_percent >= 0.20 THEN 'Strong'\n      WHEN cb.savings_rate_percent >= 0.15 THEN 'Good'\n      WHEN cb.savings_rate_percent >= 0.10 THEN 'Fair'\n      ELSE 'Needs Attention'\n    END AS savings_rating\n  FROM current_budget cb\n),\nsummary AS (\n  SELECT\n    to_char((SELECT month_date FROM selected_period), 'Mon YYYY') AS month_label,\n    CASE\n      WHEN cb.net_cash_flow >= 0 THEN 'Positive'\n      ELSE 'Negative'\n    END AS health_rating,\n    COALESCE(ccf.forecasted_next_month_net_flow, 0) AS forecast_value\n  FROM current_budget cb\n  LEFT JOIN current_cf ccf ON TRUE\n)\nSELECT CONCAT('\u00f0\u0178\u201c\u0160 Financial Summary for ', summary.month_label,\n              ' | Net Cash Flow: ', summary.health_rating,\n              ' | Next Month Forecast: $', ROUND(summary.forecast_value)::text) AS summary\nFROM summary;",
           "refId": "A"
         }
       ],
@@ -157,7 +157,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Overall financial health scoreboard. Each bar reflects raw ratios from the selected month: savings performance is net cash flow ÷ income, cash-flow status comes from the cash-flow analysis state machine, and net-worth progress tracks the wealth milestone. The composite score weights net worth 30%, savings 30%, and cash flow 40%.",
+      "description": "Overall financial health scoreboard. Each bar reflects raw ratios from the selected month: savings performance is net cash flow \u00c3\u00b7 income, cash-flow status comes from the cash-flow analysis state machine, and net-worth progress tracks the wealth milestone. The composite score weights net worth 30%, savings 30%, and cash flow 40%.",
       "fieldConfig": {
         "defaults": {
           "min": 0,
@@ -386,7 +386,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Δ ($)"
+                "value": "\u00ce\u201d ($)"
               },
               {
                 "id": "unit",
@@ -402,7 +402,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Δ Ratio"
+                "value": "\u00ce\u201d Ratio"
               },
               {
                 "id": "unit",
@@ -425,14 +425,14 @@
           "refId": "A"
         }
       ],
-      "description": "Cash-oriented KPIs with raw values; Δ Ratio shows change vs the previous month."
+      "description": "Cash-oriented KPIs with raw values; \u00ce\u201d Ratio shows change vs the previous month."
     },
     {
       "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Savings and expense ratios for the selected month. Savings rate values are raw ratios (0–1) of net cash flow to income across the monthly, 3‑month rolling, and year‑to‑date views. Expense ratio is total outflows divided by inflows; lower numbers signal tighter expense control.",
+      "description": "Savings and expense ratios for the selected month. Savings rate values are raw ratios (0\u00e2\u20ac\u201c1) of net cash flow to income across the monthly, 3\u00e2\u20ac\u2018month rolling, and year\u00e2\u20ac\u2018to\u00e2\u20ac\u2018date views. Expense ratio is total outflows divided by inflows; lower numbers signal tighter expense control.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -715,7 +715,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Δ"
+                "value": "\u00ce\u201d"
               },
               {
                 "id": "unit",
@@ -731,7 +731,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Δ Ratio"
+                "value": "\u00ce\u201d Ratio"
               },
               {
                 "id": "unit",
@@ -741,14 +741,14 @@
           }
         ]
       },
-      "description": "Score and risk KPIs expressed as raw values; Δ Ratio captures relative change where applicable."
+      "description": "Score and risk KPIs expressed as raw values; \u00ce\u201d Ratio captures relative change where applicable."
     },
     {
       "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Expense Control Score translates your outflow-to-inflow ratio into a 0-100 scale. Scores above 80 mean expenses are ≤90% of income (strong control). 55–70 means you’re spending roughly 100–110% of income (monitor closely). A 10 indicates expenses exceed 150% of income—an immediate signal that cash burn is unsustainable.",
+      "description": "Expense Control Score translates your outflow-to-inflow ratio into a 0-100 scale. Scores above 80 mean expenses are \u00e2\u2030\u00a490% of income (strong control). 55\u00e2\u20ac\u201c70 means you\u00e2\u20ac\u2122re spending roughly 100\u00e2\u20ac\u201c110% of income (monitor closely). A 10 indicates expenses exceed 150% of income\u00e2\u20ac\u201dan immediate signal that cash burn is unsustainable.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1212,7 +1212,10 @@
               {
                 "id": "custom.lineStyle",
                 "value": {
-                  "dash": [10, 10],
+                  "dash": [
+                    10,
+                    10
+                  ],
                   "fill": "dash"
                 }
               },
@@ -1721,7 +1724,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Δ"
+                "value": "\u00ce\u201d"
               },
               {
                 "id": "unit",
@@ -1863,7 +1866,7 @@
       },
       "id": 100,
       "options": {
-        "content": "### How to Read\n- Use the month selector to compare any historical period; \"Latest\" always reflects the newest closed month.\n- Time windows: Latest = most recent complete month; trend panels show trailing 12 months; rolling averages use last 3 complete months.\n- Rates are returned as true ratios (0–1); keep formatting adjustments in Grafana rather than multiplying by 100 in SQL.\n- Start with low scores or large negative deltas, then drill into linked dashboards for root-cause detail.\n- Forecasts are forward-looking cash expectations; plan around the trajectory, not a single month.",
+        "content": "### How to Read\n- Use the month selector to compare any historical period; \"Latest\" always reflects the newest closed month.\n- Time windows: Latest = most recent complete month; trend panels show trailing 12 months; rolling averages use last 3 complete months.\n- Rates are returned as true ratios (0\u00e2\u20ac\u201c1); keep formatting adjustments in Grafana rather than multiplying by 100 in SQL.\n- Start with low scores or large negative deltas, then drill into linked dashboards for root-cause detail.\n- Forecasts are forward-looking cash expectations; plan around the trajectory, not a single month.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -2240,15 +2243,15 @@
               },
               {
                 "color": "yellow",
-                "value": 0
+                "value": 90
               },
               {
                 "color": "red",
-                "value": 100
+                "value": 110
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "percent"
         },
         "overrides": [
           {
@@ -2315,11 +2318,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  wtd_spending AS \"Week Spent\",\n  weekly_budget_target AS \"Weekly Budget\",\n  ROUND((wtd_spending / NULLIF(wtd_budget_target, 0) * 100)::numeric, 1) AS \"Pace %\",\n  daily_budget_remaining AS \"Daily Budget Left\",\n  days_remaining_in_week AS \"Days Left\",\n  wtd_budget_target AS \"Expected Spend\"\nFROM reporting.rpt_weekly_spending_pace;",
+          "rawSql": "SELECT\n  mtd_pace_ratio AS \"Pace %\",\n  mtd_spending AS \"Month Spent\",\n  monthly_budget_target AS \"Monthly Budget\",\n  mtd_daily_budget_remaining AS \"Daily Budget Left\",\n  days_remaining_in_month AS \"Days Left\"\nFROM reporting.rpt_weekly_spending_pace\nLIMIT 1;",
           "refId": "A"
         }
       ],
-      "title": "Week-to-Date Spending Pace",
+      "title": "Month-to-Date Spending Pace",
       "type": "stat"
     }
   ],

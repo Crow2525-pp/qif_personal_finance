@@ -59,7 +59,13 @@ weekly_target AS (
 
 week_transactions AS (
   SELECT
-    SUM({{ metric_expense(false, 'ft', 'dc') }}) AS wtd_spending
+    SUM(
+      CASE 
+        WHEN ft.transaction_amount < 0 AND NOT COALESCE(ft.is_internal_transfer, FALSE)
+          THEN ABS(ft.transaction_amount)
+        ELSE 0
+      END
+    ) AS wtd_spending
   FROM {{ ref('fct_transactions') }} ft
   LEFT JOIN {{ ref('dim_categories') }} dc ON ft.category_key = dc.category_key
   WHERE ft.transaction_date >= (SELECT week_start FROM month_context)
@@ -68,7 +74,13 @@ week_transactions AS (
 
 mtd_transactions AS (
   SELECT
-    SUM({{ metric_expense(false, 'ft', 'dc') }}) AS mtd_spending
+    SUM(
+      CASE 
+        WHEN ft.transaction_amount < 0 AND NOT COALESCE(ft.is_internal_transfer, FALSE)
+          THEN ABS(ft.transaction_amount)
+        ELSE 0
+      END
+    ) AS mtd_spending
   FROM {{ ref('fct_transactions') }} ft
   LEFT JOIN {{ ref('dim_categories') }} dc ON ft.category_key = dc.category_key
   WHERE ft.transaction_date >= (SELECT month_start FROM month_context)
@@ -119,6 +131,13 @@ SELECT
   -- Month-to-date pacing
   ROUND((wt.daily_budget_target * wt.current_day_of_month)::numeric, 2) AS mtd_budget_target,
   COALESCE(mtx.mtd_spending, 0) - ROUND((wt.daily_budget_target * wt.current_day_of_month)::numeric, 2) AS mtd_variance,
+  ROUND((COALESCE(mtx.mtd_spending, 0) / NULLIF(ROUND((wt.daily_budget_target * wt.current_day_of_month)::numeric, 2), 0) * 100)::numeric, 1) AS mtd_pace_ratio,
+  ROUND((wt.daily_budget_target * wt.current_day_of_month)::numeric, 2) AS mtd_expected_spend_to_date,
+  CASE
+    WHEN wt.days_in_month - wt.current_day_of_month > 0
+      THEN ROUND(((wt.monthly_budget_target - COALESCE(mtx.mtd_spending, 0)) / (wt.days_in_month - wt.current_day_of_month))::numeric, 2)
+    ELSE 0
+  END AS mtd_daily_budget_remaining,
 
   -- Projected month end
   CASE
