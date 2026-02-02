@@ -41,9 +41,43 @@ patch_transactions AS (
 ),
 
 combined AS (
-  SELECT * FROM original_transactions
+  SELECT
+    primary_key,
+    receipt,
+    location,
+    description_date,
+    card_no,
+    sender,
+    recipient,
+    transaction_amount,
+    line_number,
+    account_name,
+    transaction_date,
+    memo,
+    transaction_description,
+    transaction_type,
+    etl_date,
+    etl_time
+  FROM original_transactions
   UNION ALL
-  SELECT * FROM patch_transactions
+  SELECT
+    primary_key,
+    receipt,
+    location,
+    description_date,
+    card_no,
+    sender,
+    recipient,
+    transaction_amount,
+    line_number,
+    account_name,
+    transaction_date,
+    memo,
+    transaction_description,
+    transaction_type,
+    etl_date,
+    etl_time
+  FROM patch_transactions
 )
 
 SELECT * FROM combined
