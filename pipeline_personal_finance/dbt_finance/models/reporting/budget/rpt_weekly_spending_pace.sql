@@ -12,13 +12,23 @@
   Note: Uses ISODOW (1=Monday, 7=Sunday) to match DATE_TRUNC('week') which starts on Monday
 */
 
-WITH current_month_budget AS (
+WITH latest_available_month AS (
+  -- Get the most recent month with data (fallback if current month doesn't exist)
+  SELECT MAX(budget_year_month) AS latest_month
+  FROM {{ ref('rpt_monthly_budget_summary') }}
+),
+
+current_month_budget AS (
   -- Get the rolling 3-month average as the monthly budget target
+  -- Use current month if available, otherwise use the latest available month
   SELECT
     rolling_3m_avg_expenses AS monthly_budget_target,
     total_expenses AS current_month_expenses
   FROM {{ ref('rpt_monthly_budget_summary') }}
-  WHERE budget_year_month = TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+  WHERE budget_year_month = COALESCE(
+    (SELECT budget_year_month FROM {{ ref('rpt_monthly_budget_summary') }} WHERE budget_year_month = TO_CHAR(CURRENT_DATE, 'YYYY-MM')),
+    (SELECT latest_month FROM latest_available_month)
+  )
 ),
 
 month_context AS (
