@@ -6,6 +6,16 @@ seeds:
     docs:
       show: true
       node_color: "#34d399"
+    config:
+      column_types:
+        account_name: text
+        specific_date: date
+        account_balance: numeric
+        is_asset: boolean
+        is_liquid_asset: boolean
+        is_loan: boolean
+        is_homeloan: boolean
+        is_debt: boolean
     columns:
       - name: account_name
         description: The name of the account.
@@ -36,6 +46,18 @@ seeds:
     docs:
       show: true
       node_color: "#34d399"
+    config:
+      column_types:
+        origin_key: text
+        transaction_description: text
+        transaction_type: text
+        sender: text
+        recipient: text
+        account_name: text
+        category: text
+        subcategory: text
+        store: text
+        internal_indicator: text
     columns:
       - name: transaction_description
         description: Describes the nature of the transaction. If null then wildcard.
@@ -57,6 +79,10 @@ seeds:
     docs:
       show: true
       node_color: "#3b82f6"
+    config:
+      column_types:
+        category: text
+        display_order: integer
     columns:
       - name: category
         description: Canonical Level 1 category name.
@@ -73,6 +99,18 @@ seeds:
     docs:
       show: true
       node_color: "#10b981"
+    config:
+      column_types:
+        asset_id: text
+        asset_name: text
+        display_name: text
+        asset_type: text
+        purchase_date: date
+        purchase_price: numeric
+        appreciation_rate_low: numeric
+        appreciation_rate_high: numeric
+        currency_code: text
+        notes: text
     columns:
       - name: asset_id
         description: Unique identifier for the asset (e.g., ppor)
@@ -104,6 +142,13 @@ seeds:
     docs:
       show: true
       node_color: "#10b981"
+    config:
+      column_types:
+        asset_id: text
+        valuation_date: date
+        market_value: numeric
+        currency_code: text
+        notes: text
     columns:
       - name: asset_id
         description: Links to property_assets.asset_id

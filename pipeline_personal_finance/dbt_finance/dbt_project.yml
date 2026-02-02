@@ -62,7 +62,6 @@ seeds:
       +enabled: "{{ target.name == 'local_duckdb' }}"
     banking_categories:
       +column_types:
-        origin_key: int
         transaction_description: text
         transaction_type: text
         sender: text
