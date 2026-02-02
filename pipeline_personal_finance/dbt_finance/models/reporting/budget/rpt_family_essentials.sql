@@ -49,8 +49,9 @@ monthly_family_spending AS (
   LEFT JOIN {{ ref('dim_categories') }} dc ON ft.category_key = dc.category_key
   WHERE dc.level_1_category IN ('Food & Drink', 'Family & Kids', 'Health & Beauty', 'Household & Services')
   GROUP BY
-    ft.transaction_year,
-    ft.transaction_month,
+    ms.transaction_year,
+    ms.transaction_month,
+    ms.budget_year_month,
     dc.level_1_category,
     dc.level_2_subcategory
 ),
