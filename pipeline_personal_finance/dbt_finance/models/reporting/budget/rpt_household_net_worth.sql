@@ -99,7 +99,7 @@ monthly_net_worth_calculation AS (
     
     -- Breakdown by account categories
     SUM(CASE 
-      WHEN COALESCE(is_liquid_asset, FALSE) THEN end_of_month_balance 
+      WHEN COALESCE(is_liquid_asset, FALSE) THEN ABS(end_of_month_balance)
       ELSE 0 
     END) AS liquid_assets,
     

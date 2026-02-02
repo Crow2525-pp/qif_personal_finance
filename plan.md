@@ -12,6 +12,96 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
 
 [
   {
+    "id": 31,
+    "category": "dashboard-fix",
+    "title": "Fix Monthly Income pull in Executive Snapshot",
+    "description": "Use inflow_excl_transfers from reporting.rpt_cash_flow_analysis for selected month (COALESCE to 0) so Monthly Income is not $0; ensure datasource UID matches Postgres and join only on latest/selected month key.",
+    "scope": "reporting.rpt_cash_flow_analysis; grafana/provisioning/dashboards/executive-dashboard.json (Monthly Financial Snapshot stat)",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 32,
+    "category": "dashboard-fix",
+    "title": "Return real percentages in Savings & Expense Performance",
+    "description": "Multiply ratios by 100 with divide-by-zero guards: savings_rate_pct, savings_rate_3m_pct, savings_rate_ytd_pct, expense_ratio_pct; set Grafana unit=percent and thresholds 5/10/20/30 so values no longer show 0%.",
+    "scope": "reporting.rpt_monthly_budget_summary; grafana/provisioning/dashboards/executive-dashboard.json (Savings & Expense Performance bar gauge)",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 33,
+    "category": "dashboard-fix",
+    "title": "Make Cash Flow Drivers panel always return rows",
+    "description": "In MoM drivers query, select current and previous month even if prior is missing by defaulting to 0 rows; compute income_delta, expense_delta, transfers_delta, net_delta; ensure datasource UID is valid to stop 'No data'.",
+    "scope": "reporting.rpt_monthly_budget_summary (plus transfers source); grafana/provisioning/dashboards/executive-dashboard.json (Cash Flow Drivers panel)",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 34,
+    "category": "dashboard-fix",
+    "title": "Align liquid assets and net worth signs",
+    "description": "Treat assets/liabilities as positive balances in both net worth and monthly snapshot queries; set net_worth = assets - liabilities; remove negative liquid_assets so snapshots and asset cards agree.",
+    "scope": "reporting.rpt_household_net_worth; reporting.rpt_cash_flow_analysis snapshot fields; grafana/provisioning/dashboards/executive-dashboard.json (Asset & Liability Snapshot, Monthly Financial Snapshot)",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 35,
+    "category": "dashboard-fix",
+    "title": "Restore Cash Flow Trend as timeseries",
+    "description": "Ensure query outputs time (month_date) and numeric series; set panel type timeseries with Net Cash Flow (bars), 3M Avg (line), Forecast (dashed line, shifted +1 month).",
+    "scope": "reporting.rpt_cash_flow_analysis + grafana/provisioning/dashboards/executive-dashboard.json (Cash Flow Trend panel)",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 36,
+    "category": "dashboard-fix",
+    "title": "Replace WTD pace with Month-to-Date pace",
+    "description": "Create MTD pace query: mtd_spend, monthly_budget, expected_spend_to_date, pace_ratio%, days_left_in_month; show pace_ratio with thresholds (<90 green, 90-110 yellow, >110 red) and secondary stats for budget/remaining.",
+    "scope": "reporting.rpt_monthly_budget_summary or new rpt_monthly_pacing; grafana/provisioning/dashboards/executive-dashboard.json (replace WTD panel)",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 37,
+    "category": "dashboard-fix",
+    "title": "Reorder hero row for monthly cadence",
+    "description": "Top layout order: Data Freshness → Monthly Financial Snapshot → Family Essentials → Emergency Fund → Cash Flow Drivers; move Data Quality Callouts directly under hero; fold detailed KPI tables into a collapsible section.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json layout",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 38,
+    "category": "dashboard-fix",
+    "title": "Enhance Data Quality Callouts for uncategorized risk",
+    "description": "Return uncategorized_pct numeric plus uncategorized_amount; set percent thresholds red>15%, yellow>10%; add link to Transaction Analysis filtered to uncategorized items.",
+    "scope": "reporting.rpt_outflows_insights_dashboard; grafana/provisioning/dashboards/executive-dashboard.json (Data Quality Callouts)",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 39,
+    "category": "dashboard-fix",
+    "title": "Update Executive Summary text for monthly/quarterly cadence",
+    "description": "Rewrite summary to state latest closed month, refresh frequency (monthly/quarterly), and cite net cash flow direction plus count of cash-flow drivers surfaced.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json (Executive Summary text panel)",
+    "effort": "tiny",
+    "status": "pending"
+  },
+  {
+    "id": 40,
+    "category": "dashboard-fix",
+    "title": "Align mobile Executive Overview with monthly-first layout",
+    "description": "Mirror hero row order and new MTD pacing panel in 01-executive-overview-mobile.json so mobile users see monthly cadence first.",
+    "scope": "grafana/provisioning/dashboards/01-executive-overview-mobile.json",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
     "id": 21,
     "category": "dashboard-fix",
     "title": "Fix Family Essentials stat (latest month filter + fallback)",

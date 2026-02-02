@@ -15,8 +15,18 @@ WITH monthly_transactions AS (
     ft.transaction_date,
     dc.category_type,
     dc.level_1_category,
-    {{ metric_income('ft') }}  AS income_amount,
-    {{ metric_expense(false, 'ft', 'dc') }} AS expense_amount
+    -- Treat income as positive cash in, excluding internal transfers
+    CASE 
+      WHEN COALESCE(ft.is_income_transaction, FALSE) OR (ft.transaction_amount > 0 AND NOT COALESCE(ft.is_internal_transfer, FALSE))
+        THEN ft.transaction_amount
+      ELSE 0
+    END AS income_amount,
+    -- Treat expenses as positive cash out, excluding internal transfers
+    CASE 
+      WHEN ft.transaction_amount < 0 AND NOT COALESCE(ft.is_internal_transfer, FALSE)
+        THEN ABS(ft.transaction_amount)
+      ELSE 0
+    END AS expense_amount
   FROM {{ ref('fct_transactions') }} ft
   LEFT JOIN {{ ref('dim_categories') }} dc
     ON ft.category_key = dc.category_key
