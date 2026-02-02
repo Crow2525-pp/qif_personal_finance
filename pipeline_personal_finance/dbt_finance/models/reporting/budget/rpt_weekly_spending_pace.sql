@@ -8,6 +8,8 @@
   Week-to-Date Spending Pace Analysis
   Shows current week spending vs weekly budget target.
   Helps answer: "Are we on track this week?"
+
+  Note: Uses ISODOW (1=Monday, 7=Sunday) to match DATE_TRUNC('week') which starts on Monday
 */
 
 WITH current_month_budget AS (
@@ -26,7 +28,7 @@ month_context AS (
     DATE_TRUNC('week', CURRENT_DATE) AS week_start,
     (DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '6 days')::DATE AS week_end,
     EXTRACT(DAY FROM CURRENT_DATE)::INT AS current_day_of_month,
-    EXTRACT(DOW FROM CURRENT_DATE)::INT AS current_day_of_week,  -- 0=Sunday, 1=Monday, etc.
+    EXTRACT(ISODOW FROM CURRENT_DATE)::INT AS current_day_of_week,  -- 1=Monday, 7=Sunday
     EXTRACT(DAY FROM (DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'))::INT AS days_in_month
 ),
 
@@ -68,7 +70,7 @@ SELECT
   wt.week_end,
   wt.month_start,
   wt.current_day_of_month,
-  wt.current_day_of_week + 1 AS day_of_week,  -- 1=Sunday, 2=Monday, etc. (more intuitive)
+  wt.current_day_of_week AS day_of_week,  -- 1=Monday, 2=Tuesday, ..., 7=Sunday
   wt.days_in_month,
   wt.days_in_month - wt.current_day_of_month AS days_remaining_in_month,
   7 - wt.current_day_of_week AS days_remaining_in_week,
@@ -83,8 +85,8 @@ SELECT
   COALESCE(mtx.mtd_spending, 0) AS mtd_spending,
 
   -- Week-to-date pacing
-  ROUND((wt.daily_budget_target * (wt.current_day_of_week + 1))::numeric, 2) AS wtd_budget_target,
-  COALESCE(wtx.wtd_spending, 0) - ROUND((wt.daily_budget_target * (wt.current_day_of_week + 1))::numeric, 2) AS wtd_variance,
+  ROUND((wt.daily_budget_target * wt.current_day_of_week)::numeric, 2) AS wtd_budget_target,
+  COALESCE(wtx.wtd_spending, 0) - ROUND((wt.daily_budget_target * wt.current_day_of_week)::numeric, 2) AS wtd_variance,
 
   -- Daily budget remaining for rest of week
   CASE
@@ -95,8 +97,8 @@ SELECT
 
   -- Pace status
   CASE
-    WHEN COALESCE(wtx.wtd_spending, 0) <= (wt.daily_budget_target * (wt.current_day_of_week + 1) * 0.9) THEN 'Under Budget'
-    WHEN COALESCE(wtx.wtd_spending, 0) <= (wt.daily_budget_target * (wt.current_day_of_week + 1) * 1.1) THEN 'On Track'
+    WHEN COALESCE(wtx.wtd_spending, 0) <= (wt.daily_budget_target * wt.current_day_of_week * 0.9) THEN 'Under Budget'
+    WHEN COALESCE(wtx.wtd_spending, 0) <= (wt.daily_budget_target * wt.current_day_of_week * 1.1) THEN 'On Track'
     ELSE 'Over Budget'
   END AS pace_status,
 
