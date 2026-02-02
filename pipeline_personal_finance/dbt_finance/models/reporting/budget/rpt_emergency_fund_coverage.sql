@@ -13,19 +13,29 @@
   Target: 3-6 months coverage for a family with young children.
 */
 
-WITH available_months AS (
-  -- Anchor to overlapping months present in both sources to avoid NULL coverage
+WITH net_worth_bounds AS (
+  SELECT
+    MIN(budget_year_month) AS min_month,
+    MAX(budget_year_month) AS max_month
+  FROM {{ ref('rpt_household_net_worth') }}
+  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+),
+
+budget_bounds AS (
+  SELECT
+    MIN(budget_year_month) AS min_month,
+    MAX(budget_year_month) AS max_month
+  FROM {{ ref('rpt_monthly_budget_summary') }}
+  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+),
+
+available_months AS (
+  -- Anchor to overlapping completed months present in both sources
   SELECT
     GREATEST(nw.min_month, mb.min_month) AS min_month,
     LEAST(nw.max_month, mb.max_month) AS max_month
-  FROM (
-    SELECT MIN(budget_year_month) AS min_month, MAX(budget_year_month) AS max_month
-    FROM {{ ref('rpt_household_net_worth') }}
-  ) nw
-  CROSS JOIN (
-    SELECT MIN(budget_year_month) AS min_month, MAX(budget_year_month) AS max_month
-    FROM {{ ref('rpt_monthly_budget_summary') }}
-  ) mb
+  FROM net_worth_bounds nw
+  CROSS JOIN budget_bounds mb
 ),
 
 latest_net_worth AS (
