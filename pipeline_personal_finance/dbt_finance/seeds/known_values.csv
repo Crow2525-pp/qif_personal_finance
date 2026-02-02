@@ -1,1 +1,7 @@
 account_name,specific_date,account_balance,is_asset,is_liquid_asset,is_loan,is_homeloan,is_debt
+ing_countdown,2024-01-01,0,true,true,false,false,false
+ing_billsbillsbills,2024-01-01,0,true,true,false,false,false
+adelaide_offset,2024-01-01,0,true,true,false,false,false
+adelaide_homeloan,2024-01-01,0,false,false,true,true,true
+bendigo_offset,2024-01-01,0,true,true,false,false,false
+bendigo_homeloan,2024-01-01,0,false,false,true,true,true
