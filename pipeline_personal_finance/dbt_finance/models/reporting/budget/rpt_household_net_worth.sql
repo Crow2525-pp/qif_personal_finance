@@ -70,7 +70,7 @@ monthly_net_worth_calculation AS (
 
     -- Asset values (use absolute values for display)
     SUM(CASE
-      WHEN account_type != 'liability' THEN ABS(end_of_month_balance)
+      WHEN NOT is_liability THEN ABS(end_of_month_balance)
       ELSE 0
     END) AS total_assets,
     SUM(CASE
@@ -78,22 +78,22 @@ monthly_net_worth_calculation AS (
       ELSE 0
     END) AS property_assets,
     SUM(CASE
-      WHEN account_type NOT IN ('liability', 'Property') THEN ABS(end_of_month_balance)
+      WHEN NOT is_liability AND account_type != 'Property' THEN ABS(end_of_month_balance)
       ELSE 0
     END) AS non_property_assets,
 
     -- Liability values (use absolute values for display)
     SUM(CASE
-      WHEN account_type = 'liability' THEN ABS(end_of_month_balance)
+      WHEN is_liability THEN ABS(end_of_month_balance)
       ELSE 0
     END) AS total_liabilities,
 
     -- Net worth calculation (assets - liabilities)
     SUM(CASE
-      WHEN account_type != 'liability' THEN ABS(end_of_month_balance)
+      WHEN NOT is_liability THEN ABS(end_of_month_balance)
       ELSE 0
     END) - SUM(CASE
-      WHEN account_type = 'liability' THEN ABS(end_of_month_balance)
+      WHEN is_liability THEN ABS(end_of_month_balance)
       ELSE 0
     END) AS net_worth,
     

@@ -2,7 +2,7 @@
   config(
     materialized='table',
     indexes=[
-      {'columns': ['budget_year_month'], 'unique': true}
+      {'columns': ['budget_year_month', 'driver'], 'unique': true}
     ]
   )
 }}
