@@ -278,3 +278,63 @@ This file logs what the agent accomplishes during each iteration:
 **PR Created**: https://github.com/Crow2525-pp/qif_personal_finance/pull/25
 
 **Plan Status**: Updated plan.md to mark task as passes: true
+
+## 2026-02-02
+
+### Executive Dashboard Fixes (Tasks 21-30)
+
+**Task**: Complete all 10 dashboard fix tasks from plan.md (tasks 21-30) to improve data accuracy, visualization clarity, and actionability.
+
+**Status**: COMPLETED - Branch `feature/dashboard-fixes-tasks-21-30` created
+
+**Actions performed**:
+
+1. **Stat Panel Fixes (Tasks 21, 23, 28, 29)**:
+   - Task 21: Fixed Family Essentials stat with COALESCE on all spend columns; updated Grafana to set `reduceOptions.values=true` and show only Total Essentials field
+   - Task 23: Restored Monthly Financial Snapshot by sourcing from `rpt_cash_flow_analysis` instead of `rpt_monthly_budget_summary`; corrected field mappings to use `total_inflows`/`total_outflows`
+   - Task 28: Improved Week-to-Date Spending Pace by adding `pace_ratio` (wtd_spending / expected_spend_to_date * 100) and `expected_spend_to_date` field; updated Grafana stat with percent unit and color-coded thresholds (<90 green, 90-110 yellow, >110 red)
+   - Task 29: Tightened Emergency Fund Coverage gauge calculation using NULLIF for safe division; updated Grafana gauge to max 6 months (was 12) with proper month unit
+
+2. **Chart Visualizations (Tasks 22, 24, 25)**:
+   - Task 22: Corrected Asset & Liability Snapshot sign logic using ABS(end_of_month_balance) for all calculations; changed to `account_type != 'liability'` for assets and `account_type = 'liability'` for liabilities; fixed net_worth = total_assets - total_liabilities with proper NULLIF handling
+   - Task 24: Fixed Savings & Expense Performance to return 0-100 percent values (`savings_rate_pct`, `savings_rate_3m_pct`, `savings_rate_ytd_pct`, `expense_ratio_pct`) instead of ratios; updated Grafana bar gauge from `percentunit` to `percent` with thresholds at 5/10/20/30 and min 0 max 100
+   - Task 25: Aligned Cash Flow Trend forecast to display one month ahead by adding `+ interval '1 month'` to forecast dates; split query into separate result sets for historical vs forecast data; updated visualization with bars for Net Cash Flow, line for 3-Month Avg, and dashed line with light fill for Forecast
+
+3. **Table Panel Improvements (Tasks 26, 27)**:
+   - Task 26: Made Data Quality Callouts numeric and actionable by returning `uncategorized_pct` as numeric value (no % string) and exposing `uncategorized_amount`; updated Grafana table with percent unit, thresholds (green <10, yellow 10-15, red >15), cell background coloring, and link to `/d/transaction_analysis_dashboard?var_category=Uncategorized`
+   - Task 27: Added actionability to Top Uncategorized Merchants by calculating `contribution_pct` (total_amount / sum of all uncategorized * 100); added filtering WHERE txn_count>=2 OR total_amount>=100 to focus on patterns; updated Grafana table with Contribution % column (percent unit, 2 decimals) and URL link per merchant to categorization workflow
+
+4. **Waterfall Visualization (Task 30)**:
+   - Created new dbt model `rpt_mom_cash_flow_waterfall.sql` to calculate month-over-month deltas:
+     - income_delta = curr.total_income - prev.total_income
+     - expense_delta = -(curr.total_expenses - prev.total_expenses) [negated so decreases show as positive]
+     - transfers_delta = curr.internal_transfers - prev.internal_transfers
+     - net_delta = curr.net_cash_flow - prev.net_cash_flow
+   - Unpivots deltas into 4 rows per month: Income, Expenses, Transfers, Net Change with sort_order for proper display
+   - Replaced "Month-over-Month Cash Changes" table panel with horizontal bar chart waterfall visualization
+   - Color thresholds: Red for negative (<0), Green for positive (>=0), Blue for Net Change
+   - Added schema documentation to schema.yml
+
+**Files Modified**:
+- `pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_emergency_fund_coverage.sql`
+- `pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_family_essentials.sql`
+- `pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_household_net_worth.sql`
+- `pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_monthly_budget_summary.sql`
+- `pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_outflows_insights_dashboard.sql`
+- `pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_weekly_spending_pace.sql`
+- `pipeline_personal_finance/dbt_finance/models/reporting/budget/schema.yml`
+- `pipeline_personal_finance/dbt_finance/models/viz/expenses/viz_uncategorized_transactions_with_original_memo.sql`
+- `grafana/provisioning/dashboards/executive-dashboard.json`
+
+**Files Created**:
+- `pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_mom_cash_flow_waterfall.sql`
+
+**Commit**: `6a4646c` - "feat: Complete dashboard fixes for tasks 21-30"
+
+**Plan Status**: Tasks 21-30 marked as completed in plan.md
+
+**Critical Fixes**: `be68f4b` - "fix: Correct waterfall unique index and liability classification"
+- **P1 Fix 1**: Changed waterfall model unique index from single column `budget_year_month` to composite `(budget_year_month, driver)` - model emits 4 rows per month so single column would cause unique constraint violation on dbt run
+- **P1 Fix 2**: Changed liability classification from `account_type = 'liability'` to `is_liability` flag - account_type contains values like 'Home Loan', 'Offset', not the string 'liability'; without this fix all liabilities would be misclassified as assets, making total_liabilities = 0 and inflating net_worth
+
+**PR Created**: https://github.com/Crow2525-pp/qif_personal_finance/pull/35

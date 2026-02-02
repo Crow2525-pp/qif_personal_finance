@@ -55,7 +55,7 @@ expense_history AS (
     budget_year_month,
     total_expenses,
     -- Essential expenses approximation (mortgage + household + food + family + health)
-    mortgage_expenses + household_expenses + food_expenses + family_expenses AS essential_expenses,
+    COALESCE(mortgage_expenses, 0) + COALESCE(household_expenses, 0) + COALESCE(food_expenses, 0) + COALESCE(family_expenses, 0) AS essential_expenses,
     -- Individual category breakdowns
     mortgage_expenses,
     household_expenses,
@@ -95,11 +95,7 @@ emergency_fund_calc AS (
     END AS months_total_expenses_covered,
 
     -- Months of essential expenses covered (more conservative)
-    CASE
-      WHEN ae.avg_monthly_essential_expenses > 0
-      THEN ROUND((nw.liquid_assets / ae.avg_monthly_essential_expenses)::numeric, 1)
-      ELSE 0
-    END AS months_essential_expenses_covered,
+    ROUND((nw.liquid_assets / NULLIF(ae.avg_monthly_essential_expenses, 0))::numeric, 1) AS months_essential_expenses_covered,
 
     -- Target coverage (6 months for family with young kids)
     6.0 AS target_months_coverage,

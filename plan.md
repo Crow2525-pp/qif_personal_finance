@@ -12,6 +12,96 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
 
 [
   {
+    "id": 21,
+    "category": "dashboard-fix",
+    "title": "Fix Family Essentials stat (latest month filter + fallback)",
+    "description": "SQL: add WHERE budget_year_month = (SELECT month_key FROM selected_key) and COALESCE all spend columns to 0; keep ORDER BY budget_year_month DESC LIMIT 1 so latest closed month returns a row. Grafana (panel title 'Family Essentials (Last Month)' in executive-dashboard.json): set reduceOptions.values=true and fields='Total Essentials' so the stat shows the total, not an empty state.",
+    "scope": "reporting.rpt_family_essentials; grafana/provisioning/dashboards/executive-dashboard.json (Family Essentials stat panel)",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 22,
+    "category": "dashboard-fix",
+    "title": "Correct Asset & Liability Snapshot sign logic",
+    "description": "SQL (rpt_household_net_worth): compute total_assets = SUM(CASE WHEN account_type!='liability' THEN balance_abs ELSE 0 END), total_liabilities = SUM(CASE WHEN account_type='liability' THEN balance_abs ELSE 0 END); net_worth = total_assets - total_liabilities; debt_to_asset_ratio = total_liabilities/NULLIF(total_assets,0). Grafana (Asset & Liability Snapshot panel): keep unit currencyUSD; no negatives should appear for assets.",
+    "scope": "reporting.rpt_household_net_worth; grafana/provisioning/dashboards/executive-dashboard.json (Asset & Liability Snapshot panel)",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 23,
+    "category": "dashboard-fix",
+    "title": "Restore Monthly Financial Snapshot income/expense values",
+    "description": "SQL: source monthly_income = inflow_excl_transfers, monthly_expenses = outflow_excl_transfers from rpt_cash_flow_analysis for selected month; monthly_net_cash_flow = monthly_income - monthly_expenses; COALESCE fields to 0. Grafana panel 'Monthly Financial Snapshot': ensure fields map to monthly_income, monthly_expenses, monthly_net_cash_flow, monthly_total_savings (same as net cash flow) and keep unit currencyUSD.",
+    "scope": "reporting.rpt_cash_flow_analysis; grafana/provisioning/dashboards/executive-dashboard.json (Monthly Financial Snapshot stat)",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 24,
+    "category": "dashboard-fix",
+    "title": "Return percent values in Savings & Expense Performance",
+    "description": "SQL: output savings_rate_pct = ROUND(CASE WHEN total_income>0 THEN net_cash_flow/total_income*100 END,1), savings_rate_3m_pct same windowed, savings_rate_ytd_pct = ytd_net_cash_flow/NULLIF(ytd_income,0)*100, expense_ratio_pct = outflow_to_inflow_ratio*100. Grafana (Savings & Expense Performance bar gauge): set unit to percent (not percentunit), thresholds 5/10/20/30, min 0 max 100.",
+    "scope": "reporting.rpt_monthly_budget_summary; grafana/provisioning/dashboards/executive-dashboard.json (Savings & Expense Performance)",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 25,
+    "category": "dashboard-fix",
+    "title": "Align Cash Flow Trend forecast one month forward",
+    "description": "SQL: set forecast series time = month_date + interval '1 month' for forecasted_next_month_net_flow; limit to last 12 months. Grafana timeseries: show Net Cash Flow as bars, 3-Month Avg line, Forecast Next Month as dashed line with light fill; legend at bottom.",
+    "scope": "reporting.rpt_cash_flow_analysis; grafana/provisioning/dashboards/executive-dashboard.json (Cash Flow Trend panel)",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 26,
+    "category": "dashboard-fix",
+    "title": "Make Data Quality Callouts numeric and actionable",
+    "description": "SQL: return uncategorized_pct numeric (no % string) and uncategorized_amount; keep stale_accounts and unmatched_transfers. Grafana table: set uncategorized_pct unit percent, thresholds red>15, yellow>10; add link column to /d/transaction_analysis_dashboard?var_category=Uncategorized. Keep existing link to outflows_reconciliation.",
+    "scope": "reporting.rpt_outflows_insights_dashboard; grafana/provisioning/dashboards/executive-dashboard.json (Data Quality Callouts)",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 27,
+    "category": "dashboard-fix",
+    "title": "Add actionability to Top Uncategorized Merchants",
+    "description": "SQL: add contribution_pct = total_amount / (SELECT SUM(total_amount) FROM reporting.viz_uncategorized_transactions_with_original_memo) * 100; filter WHERE txn_count>=2 OR total_amount>=100; keep ORDER BY total_amount DESC LIMIT 10. Grafana table: add Contribution % column (unit percent, two decimals), add URL link per merchant to categorize flow (same target as existing script path).",
+    "scope": "reporting.viz_uncategorized_transactions_with_original_memo; grafana/provisioning/dashboards/executive-dashboard.json (Top Uncategorized Merchants table)",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 28,
+    "category": "dashboard-fix",
+    "title": "Improve Week-to-Date Spending Pace readability",
+    "description": "SQL: add pace_ratio = wtd_spending / NULLIF(expected_spend_to_date,0) * 100 and return expected_spend_to_date. Grafana stat: set main value to pace_ratio (unit percent, thresholds <90 green, 90–110 yellow, >110 red); show secondaries Week Spent, Weekly Budget, Daily Budget Left, Days Left; hide raw pace_status field.",
+    "scope": "reporting.rpt_weekly_spending_pace; grafana/provisioning/dashboards/executive-dashboard.json (Week-to-Date Spending Pace stat)",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 29,
+    "category": "dashboard-fix",
+    "title": "Tighten Emergency Fund Coverage gauge",
+    "description": "SQL: months_essential_expenses_covered = liquid_assets / NULLIF(essential_expenses_last_month,0); return coverage_status. Grafana gauge: set max 6, unit month, thresholds at 0/1/3/6 (red/orange/yellow/green), show status text as secondary label.",
+    "scope": "reporting.rpt_emergency_fund_coverage; grafana/provisioning/dashboards/executive-dashboard.json (Emergency Fund Coverage gauge)",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 30,
+    "category": "dashboard-fix",
+    "title": "Replace MoM Cash table with drivers waterfall",
+    "description": "SQL: for selected and previous month, calculate income_delta = curr.total_income - prev.total_income, expense_delta = -(curr.total_expenses - prev.total_expenses), transfers_delta = COALESCE(curr.internal_transfers,0) - COALESCE(prev.internal_transfers,0), net_delta = curr.net_cash_flow - prev.net_cash_flow; return ordered rows income, expense, transfers, net. Grafana: replace existing MoM Cash Changes table with waterfall visualization using these rows.",
+    "scope": "reporting.rpt_monthly_budget_summary (plus internal_transfers source) and grafana/provisioning/dashboards/executive-dashboard.json (replace MoM Cash Changes panel)",
+    "effort": "medium",
+    "status": "pending"
+  },
+  {
     "id": 1,
     "category": "data-quality",
     "title": "Add top 20 uncategorized merchants to category mappings",

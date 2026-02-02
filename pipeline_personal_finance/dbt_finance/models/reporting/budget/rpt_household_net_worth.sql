@@ -63,35 +63,38 @@ monthly_account_balances AS (
 ),
 
 monthly_net_worth_calculation AS (
-  SELECT 
+  SELECT
     budget_year_month,
     transaction_year,
     transaction_month,
-    
-    -- Asset values (positive balances for assets, absolute value for display)
-    SUM(CASE 
-      WHEN NOT is_liability THEN end_of_month_balance 
-      ELSE 0 
+
+    -- Asset values (use absolute values for display)
+    SUM(CASE
+      WHEN NOT is_liability THEN ABS(end_of_month_balance)
+      ELSE 0
     END) AS total_assets,
-    SUM(CASE 
-      WHEN account_type = 'Property' THEN end_of_month_balance
+    SUM(CASE
+      WHEN account_type = 'Property' THEN ABS(end_of_month_balance)
       ELSE 0
     END) AS property_assets,
-    SUM(CASE 
-      WHEN NOT is_liability AND account_type <> 'Property' THEN end_of_month_balance
+    SUM(CASE
+      WHEN NOT is_liability AND account_type != 'Property' THEN ABS(end_of_month_balance)
       ELSE 0
     END) AS non_property_assets,
-    
-    -- Liability values (negative balances for liabilities, show as positive for readability)
-    SUM(CASE 
+
+    -- Liability values (use absolute values for display)
+    SUM(CASE
       WHEN is_liability THEN ABS(end_of_month_balance)
-      ELSE 0 
+      ELSE 0
     END) AS total_liabilities,
-    
+
     -- Net worth calculation (assets - liabilities)
-    SUM(CASE 
-      WHEN NOT is_liability THEN end_of_month_balance 
-      ELSE -ABS(end_of_month_balance)
+    SUM(CASE
+      WHEN NOT is_liability THEN ABS(end_of_month_balance)
+      ELSE 0
+    END) - SUM(CASE
+      WHEN is_liability THEN ABS(end_of_month_balance)
+      ELSE 0
     END) AS net_worth,
     
     -- Breakdown by account categories
@@ -186,11 +189,11 @@ net_worth_trends AS (
 ),
 
 net_worth_analysis AS (
-  SELECT 
+  SELECT
     *,
     (total_assets - property_assets - liquid_assets) AS other_assets,
     -- Financial ratios
-    CASE WHEN total_assets > 0 THEN (total_liabilities / total_assets) ELSE 0 END AS debt_to_asset_ratio,
+    total_liabilities / NULLIF(total_assets, 0) AS debt_to_asset_ratio,
     CASE WHEN total_liabilities > 0 THEN (liquid_assets / total_liabilities) ELSE NULL END AS liquidity_ratio,
     CASE WHEN total_assets > 0 THEN (net_worth / total_assets) ELSE 0 END AS equity_ratio,
     

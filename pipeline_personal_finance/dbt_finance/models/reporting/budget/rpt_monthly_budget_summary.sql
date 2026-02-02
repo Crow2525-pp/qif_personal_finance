@@ -55,27 +55,31 @@ monthly_aggregation AS (
 ),
 
 final_metrics AS (
-  SELECT 
+  SELECT
     *,
     -- Calculated metrics (ratios, not percent-scaled)
     CASE WHEN total_income > 0 THEN (net_cash_flow / total_income) ELSE 0 END AS savings_rate_percent,
     CASE WHEN total_income > 0 THEN (total_expenses / total_income) ELSE 0 END AS expense_ratio_percent,
     total_expenses / NULLIF(expense_transaction_count, 0) AS avg_expense_amount,
-    
+
     -- Period comparisons
     LAG(total_income) OVER (ORDER BY budget_year, budget_month) AS prev_month_income,
     LAG(total_expenses) OVER (ORDER BY budget_year, budget_month) AS prev_month_expenses,
     LAG(net_cash_flow) OVER (ORDER BY budget_year, budget_month) AS prev_month_net_flow,
-    
+
     -- Rolling averages (3 month)
     AVG(total_income) OVER (
-      ORDER BY budget_year, budget_month 
+      ORDER BY budget_year, budget_month
       ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
     ) AS rolling_3m_avg_income,
     AVG(total_expenses) OVER (
-      ORDER BY budget_year, budget_month 
-      ROWS BETWEEN 2 PRECEDING AND CURRENT ROW  
+      ORDER BY budget_year, budget_month
+      ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
     ) AS rolling_3m_avg_expenses,
+    AVG(net_cash_flow) OVER (
+      ORDER BY budget_year, budget_month
+      ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
+    ) AS rolling_3m_avg_net_cash_flow,
     
     -- Year-to-date running totals
     SUM(total_income) OVER (
@@ -97,13 +101,13 @@ final_metrics AS (
   FROM monthly_aggregation
 )
 
-SELECT 
+SELECT
   -- Period identifiers
   budget_year,
   budget_month,
   budget_year_month,
   month_start_date,
-  
+
   -- Formatted currency amounts (USD with thousands separators)
   '$' || TO_CHAR(total_income::numeric, 'FM999,999,999') AS total_income_formatted,
   '$' || TO_CHAR(total_expenses::numeric, 'FM999,999,999') AS total_expenses_formatted,
@@ -111,21 +115,27 @@ SELECT
   '$' || TO_CHAR(ytd_income::numeric, 'FM999,999,999') AS ytd_income_formatted,
   '$' || TO_CHAR(ytd_expenses::numeric, 'FM999,999,999') AS ytd_expenses_formatted,
   '$' || TO_CHAR(ytd_net_cash_flow::numeric, 'FM999,999,999') AS ytd_net_cash_flow_formatted,
-  
+
   -- Category expenses (formatted)
   '$' || TO_CHAR(mortgage_expenses::numeric, 'FM999,999,999') AS mortgage_expenses_formatted,
   '$' || TO_CHAR(household_expenses::numeric, 'FM999,999,999') AS household_expenses_formatted,
   '$' || TO_CHAR(food_expenses::numeric, 'FM999,999,999') AS food_expenses_formatted,
   '$' || TO_CHAR(family_expenses::numeric, 'FM999,999,999') AS family_expenses_formatted,
   '$' || TO_CHAR(avg_expense_amount::numeric, 'FM999,999,999') AS avg_expense_amount_formatted,
-  
+
   -- Rolling averages (formatted)
   '$' || TO_CHAR(rolling_3m_avg_income::numeric, 'FM999,999,999') AS rolling_3m_avg_income_formatted,
   '$' || TO_CHAR(rolling_3m_avg_expenses::numeric, 'FM999,999,999') AS rolling_3m_avg_expenses_formatted,
-  
+
   -- Percentage rates (formatted as percentages)
   TO_CHAR(savings_rate_percent * 100, 'FM990.0') || '%' AS savings_rate_formatted,
   TO_CHAR(expense_ratio_percent * 100, 'FM990.0') || '%' AS expense_ratio_formatted,
+
+  -- Percentage rates for Grafana (0-100 scale for 'percent' unit)
+  ROUND(CASE WHEN total_income > 0 THEN (net_cash_flow / total_income) * 100 ELSE 0 END, 1) AS savings_rate_pct,
+  ROUND(CASE WHEN total_income > 0 THEN (rolling_3m_avg_net_cash_flow / rolling_3m_avg_income) * 100 ELSE 0 END, 1) AS savings_rate_3m_pct,
+  ROUND(ytd_net_cash_flow / NULLIF(ytd_income, 0) * 100, 1) AS savings_rate_ytd_pct,
+  ROUND(expense_ratio_percent * 100, 1) AS expense_ratio_pct,
   
   -- Transaction counts (formatted with commas)
   TO_CHAR(total_transactions, 'FM999,999,999') AS total_transactions_formatted,

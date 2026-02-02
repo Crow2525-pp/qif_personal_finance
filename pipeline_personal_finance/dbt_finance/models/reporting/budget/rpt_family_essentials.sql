@@ -44,23 +44,23 @@ monthly_totals AS (
     transaction_month,
 
     -- Groceries (Food & Drink category, typically groceries subcategory)
-    SUM(CASE WHEN level_1_category = 'Food & Drink' THEN category_spending ELSE 0 END) AS groceries_spending,
+    COALESCE(SUM(CASE WHEN level_1_category = 'Food & Drink' THEN category_spending ELSE 0 END), 0) AS groceries_spending,
     SUM(CASE WHEN level_1_category = 'Food & Drink' THEN transaction_count ELSE 0 END) AS groceries_transactions,
 
     -- Family & Kids (childcare, activities, supplies)
-    SUM(CASE WHEN level_1_category = 'Family & Kids' THEN category_spending ELSE 0 END) AS family_kids_spending,
+    COALESCE(SUM(CASE WHEN level_1_category = 'Family & Kids' THEN category_spending ELSE 0 END), 0) AS family_kids_spending,
     SUM(CASE WHEN level_1_category = 'Family & Kids' THEN transaction_count ELSE 0 END) AS family_kids_transactions,
 
     -- Health & Medical
-    SUM(CASE WHEN level_1_category = 'Health & Beauty' THEN category_spending ELSE 0 END) AS health_spending,
+    COALESCE(SUM(CASE WHEN level_1_category = 'Health & Beauty' THEN category_spending ELSE 0 END), 0) AS health_spending,
     SUM(CASE WHEN level_1_category = 'Health & Beauty' THEN transaction_count ELSE 0 END) AS health_transactions,
 
     -- Household essentials
-    SUM(CASE WHEN level_1_category = 'Household & Services' THEN category_spending ELSE 0 END) AS household_spending,
+    COALESCE(SUM(CASE WHEN level_1_category = 'Household & Services' THEN category_spending ELSE 0 END), 0) AS household_spending,
     SUM(CASE WHEN level_1_category = 'Household & Services' THEN transaction_count ELSE 0 END) AS household_transactions,
 
     -- Total family essentials
-    SUM(category_spending) AS total_family_essentials,
+    COALESCE(SUM(category_spending), 0) AS total_family_essentials,
     SUM(transaction_count) AS total_transactions
 
   FROM monthly_family_spending

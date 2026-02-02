@@ -96,7 +96,11 @@ SELECT
 
   -- Week-to-date pacing
   ROUND((wt.daily_budget_target * wt.current_day_of_week)::numeric, 2) AS wtd_budget_target,
+  ROUND((wt.daily_budget_target * wt.current_day_of_week)::numeric, 2) AS expected_spend_to_date,
   COALESCE(wtx.wtd_spending, 0) - ROUND((wt.daily_budget_target * wt.current_day_of_week)::numeric, 2) AS wtd_variance,
+
+  -- Pace ratio (percentage)
+  ROUND((COALESCE(wtx.wtd_spending, 0) / NULLIF(ROUND((wt.daily_budget_target * wt.current_day_of_week)::numeric, 2), 0) * 100)::numeric, 1) AS pace_ratio,
 
   -- Daily budget remaining for rest of week
   CASE

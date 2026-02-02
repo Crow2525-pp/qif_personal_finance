@@ -83,43 +83,57 @@ uncategorized_grouped AS (
     transaction_type,
     sender,
     recipient
+),
+
+total_uncategorized AS (
+  SELECT SUM(total_amount) AS total_uncategorized_amount
+  FROM uncategorized_grouped
 )
 
 SELECT
   -- Original memo for categorization
-  original_memo,
-  standardized_memo,
+  ug.original_memo,
+  ug.standardized_memo,
 
   -- Account context
-  account_name,
-  bank_name,
+  ug.account_name,
+  ug.bank_name,
 
   -- Transaction details that help with categorization
-  transaction_type,
-  sender,
-  recipient,
-  sample_location,
+  ug.transaction_type,
+  ug.sender,
+  ug.recipient,
+  ug.sample_location,
 
   -- Financial impact
-  total_amount,
-  transaction_count,
-  avg_amount,
+  ug.total_amount,
+  ug.transaction_count AS txn_count,
+  ug.avg_amount,
+
+  -- Contribution percentage
+  CASE
+    WHEN tu.total_uncategorized_amount > 0
+    THEN (ug.total_amount / tu.total_uncategorized_amount) * 100
+    ELSE 0
+  END AS contribution_pct,
 
   -- Timing info
-  first_transaction_date,
-  last_transaction_date,
+  ug.first_transaction_date,
+  ug.last_transaction_date,
 
   -- Detailed transaction info for review
-  all_amounts,
-  all_dates,
+  ug.all_amounts,
+  ug.all_dates,
 
   -- Flag high-value items that need urgent attention
   CASE
-    WHEN total_amount >= 1000 THEN 'HIGH'
-    WHEN total_amount >= 500 THEN 'MEDIUM'
-    WHEN total_amount >= 100 THEN 'LOW'
+    WHEN ug.total_amount >= 1000 THEN 'HIGH'
+    WHEN ug.total_amount >= 500 THEN 'MEDIUM'
+    WHEN ug.total_amount >= 100 THEN 'LOW'
     ELSE 'MINOR'
   END AS priority_level
 
-FROM uncategorized_grouped
-ORDER BY total_amount DESC, transaction_count DESC
+FROM uncategorized_grouped ug
+CROSS JOIN total_uncategorized tu
+WHERE ug.transaction_count >= 2 OR ug.total_amount >= 100
+ORDER BY ug.total_amount DESC, ug.transaction_count DESC
