@@ -14,6 +14,8 @@ This is a personal finance data pipeline that processes QIF (Quicken Interchange
 
 **Tech Stack**: Dagster (orchestration), dbt (transformations), PostgreSQL (storage), Docker Compose (deployment), Python with UV workspace management.
 
+**Operational context** — the pipeline runs on a manual, monthly cadence and dashboards are reviewed once or twice a quarter. See `.claude/pipeline-context.md` for the full picture and the guardrails Claude should follow when touching the pipeline or dashboards.
+
 ## Development Commands
 
 ### Setup and Run
