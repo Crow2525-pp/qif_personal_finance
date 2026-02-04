@@ -126,25 +126,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month,\n  bendigo_offset,\n  ing_billsbillsbills,\n  bendigo_homeloan,\n  ing_countdown\nFROM reporting.viz_balance_by_year_month \nWHERE period_date >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\n  AND period_date < DATE_TRUNC('month', CURRENT_DATE)\nORDER BY period_date;",
+          "rawSql": "SELECT \n  period_date AS time,\n  bendigo_offset,\n  ing_billsbillsbills,\n  bendigo_homeloan,\n  ing_countdown\nFROM reporting.viz_balance_by_year_month \nWHERE period_date >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\n  AND period_date < DATE_TRUNC('month', CURRENT_DATE)\nORDER BY period_date;",
           "refId": "A"
         }
       ],
       "title": "Account Balance Trends",
-      "transformations": [
-        {
-          "id": "convertFieldType",
-          "options": {
-            "conversions": [
-              {
-                "destinationType": "time",
-                "targetField": "year_month"
-              }
-            ],
-            "fields": {}
-          }
-        }
-      ],
       "type": "timeseries"
     },
     {
@@ -375,25 +361,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month,\n  net_position\nFROM reporting.viz_net_position_after_homeloan \nWHERE year_month >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\n  AND year_month < DATE_TRUNC('month', CURRENT_DATE)\nORDER BY year_month;",
+          "rawSql": "SELECT \n  year_month AS time,\n  net_position\nFROM reporting.viz_net_position_after_homeloan \nWHERE year_month >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\n  AND year_month < DATE_TRUNC('month', CURRENT_DATE)\nORDER BY year_month;",
           "refId": "A"
         }
       ],
       "title": "Net Position After Home Loan",
-      "transformations": [
-        {
-          "id": "convertFieldType",
-          "options": {
-            "conversions": [
-              {
-                "destinationType": "time",
-                "targetField": "year_month"
-              }
-            ],
-            "fields": {}
-          }
-        }
-      ],
       "type": "timeseries"
     },
     {
@@ -518,25 +490,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month,\n  \"bendigo_offset_MoM\" as bendigo_offset,\n  \"ing_billsbillsbills_MoM\" as ing_bills,\n  \"bendigo_homeloan_MoM\" as bendigo_loan,\n  \"ing_countdown_MoM\" as ing_countdown\nFROM reporting.viz_mom_differences \nWHERE period_date >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\n  AND period_date < DATE_TRUNC('month', CURRENT_DATE)\nORDER BY period_date;",
+          "rawSql": "SELECT \n  period_date AS time,\n  \"bendigo_offset_MoM\" as bendigo_offset,\n  \"ing_billsbillsbills_MoM\" as ing_bills,\n  \"bendigo_homeloan_MoM\" as bendigo_loan,\n  \"ing_countdown_MoM\" as ing_countdown\nFROM reporting.viz_mom_differences \nWHERE period_date >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\n  AND period_date < DATE_TRUNC('month', CURRENT_DATE)\nORDER BY period_date;",
           "refId": "A"
         }
       ],
       "title": "Month-over-Month Balance Changes",
-      "transformations": [
-        {
-          "id": "convertFieldType",
-          "options": {
-            "conversions": [
-              {
-                "destinationType": "time",
-                "targetField": "year_month"
-              }
-            ],
-            "fields": {}
-          }
-        }
-      ],
       "type": "timeseries"
     },
     {
@@ -628,20 +586,6 @@
         }
       ],
       "title": "Interest Payments",
-      "transformations": [
-        {
-          "id": "convertFieldType",
-          "options": {
-            "conversions": [
-              {
-                "destinationType": "time",
-                "targetField": "year_month"
-              }
-            ],
-            "fields": {}
-          }
-        }
-      ],
       "type": "timeseries"
     },
     {
@@ -776,9 +720,9 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 24
+        "w": 24,
+        "x": 0,
+        "y": 32
       },
       "id": 7,
       "options": {
@@ -907,7 +851,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 40
       },
       "id": 8,
       "options": {
