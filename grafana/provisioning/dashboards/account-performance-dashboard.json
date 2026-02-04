@@ -126,7 +126,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  period_date AS time,\n  bendigo_offset,\n  ing_billsbillsbills,\n  bendigo_homeloan,\n  ing_countdown\nFROM reporting.viz_balance_by_year_month \nWHERE period_date >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\n  AND period_date < DATE_TRUNC('month', CURRENT_DATE)\nORDER BY period_date;",
+          "rawSql": "SELECT \n  period_date::timestamptz AS time,\n  bendigo_offset,\n  ing_billsbillsbills,\n  bendigo_homeloan,\n  ing_countdown\nFROM reporting.viz_balance_by_year_month \nWHERE $__timeFilter(period_date)\nORDER BY period_date;",
           "refId": "A"
         }
       ],
@@ -266,7 +266,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  bendigo_offset,\n  ing_billsbillsbills,\n  bendigo_homeloan,\n  ing_countdown\nFROM reporting.viz_balance_by_year_month \nWHERE period_date = (\n  SELECT MAX(period_date) FROM reporting.viz_balance_by_year_month \n  WHERE period_date < DATE_TRUNC('month', CURRENT_DATE)\n)\nLIMIT 1;",
+          "rawSql": "SELECT \n  bendigo_offset,\n  ing_billsbillsbills,\n  bendigo_homeloan,\n  ing_countdown\nFROM reporting.viz_balance_by_year_month \nWHERE period_date = DATE_TRUNC('month', NOW()) - INTERVAL '1 month'\nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -361,7 +361,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month AS time,\n  net_position\nFROM reporting.viz_net_position_after_homeloan \nWHERE year_month >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\n  AND year_month < DATE_TRUNC('month', CURRENT_DATE)\nORDER BY year_month;",
+          "rawSql": "SELECT \n  year_month::timestamptz AS time,\n  net_position\nFROM reporting.viz_net_position_after_homeloan \nWHERE $__timeFilter(year_month)\nORDER BY year_month;",
           "refId": "A"
         }
       ],
@@ -490,7 +490,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  period_date AS time,\n  \"bendigo_offset_MoM\" as bendigo_offset,\n  \"ing_billsbillsbills_MoM\" as ing_bills,\n  \"bendigo_homeloan_MoM\" as bendigo_loan,\n  \"ing_countdown_MoM\" as ing_countdown\nFROM reporting.viz_mom_differences \nWHERE period_date >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\n  AND period_date < DATE_TRUNC('month', CURRENT_DATE)\nORDER BY period_date;",
+          "rawSql": "SELECT \n  period_date::timestamptz AS time,\n  \"bendigo_offset_MoM\" as bendigo_offset,\n  \"ing_billsbillsbills_MoM\" as ing_bills,\n  \"bendigo_homeloan_MoM\" as bendigo_loan,\n  \"ing_countdown_MoM\" as ing_countdown\nFROM reporting.viz_mom_differences \nWHERE $__timeFilter(period_date)\nORDER BY period_date;",
           "refId": "A"
         }
       ],
@@ -581,7 +581,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month_date as time,\n  \"INTEREST\" as interest_amount\nFROM reporting.viz_interest_payments \nWHERE year_month_date >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\nORDER BY year_month_date;",
+          "rawSql": "SELECT \n  year_month_date::timestamptz as time,\n  \"INTEREST\" as interest_amount\nFROM reporting.viz_interest_payments \nWHERE $__timeFilter(year_month_date)\nORDER BY year_month_date;",
           "refId": "A"
         }
       ],
