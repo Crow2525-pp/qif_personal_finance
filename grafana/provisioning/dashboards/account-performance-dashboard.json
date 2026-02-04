@@ -746,7 +746,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  DATE_TRUNC('month', t.date) as time,\n  CASE WHEN COUNT(CASE WHEN t.amount > 0 THEN 1 END) > 0 THEN 3410.00 ELSE 0 END as monthly_payment,\n  SUM(CASE WHEN t.amount < 0 THEN ABS(t.amount) ELSE 0 END) as total_charges_added,\n  CASE WHEN COUNT(CASE WHEN t.amount > 0 THEN 1 END) > 0 THEN 3410.00 ELSE 0 END - SUM(CASE WHEN t.amount < 0 THEN ABS(t.amount) ELSE 0 END) as net_principal_reduction\nFROM reporting.reporting__fact_transactions t \nJOIN reporting.dim_account a ON t.account_foreign_key = a.origin_key \nWHERE a.account_name = 'homeloan'\n  AND DATE_TRUNC('month', t.date) < DATE_TRUNC('month', CURRENT_DATE)\nGROUP BY DATE_TRUNC('month', t.date) \nORDER BY time;",
+          "rawSql": "SELECT \n  DATE_TRUNC('month', ft.transaction_date)::timestamptz AS time,\n  SUM(CASE WHEN ft.transaction_direction = 'Debit' THEN ft.transaction_amount ELSE 0 END) AS monthly_payment,\n  SUM(CASE WHEN ft.transaction_direction = 'Credit' THEN ABS(ft.transaction_amount) ELSE 0 END) AS total_charges_added,\n  SUM(CASE WHEN ft.transaction_direction = 'Debit' THEN ft.transaction_amount ELSE 0 END) -\n    SUM(CASE WHEN ft.transaction_direction = 'Credit' THEN ABS(ft.transaction_amount) ELSE 0 END) AS net_principal_reduction\nFROM reporting.fct_transactions ft\nJOIN reporting.dim_accounts da ON ft.account_key = da.account_key \nWHERE LOWER(da.account_name) = 'homeloan'\n  AND $__timeFilter(ft.transaction_date)\n  AND DATE_TRUNC('month', ft.transaction_date) < DATE_TRUNC('month', CURRENT_DATE)\nGROUP BY DATE_TRUNC('month', ft.transaction_date) \nORDER BY time;",
           "refId": "A"
         }
       ],
