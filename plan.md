@@ -46,7 +46,8 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "description": "Standardize all percent outputs to 0–100 numeric scale. SQL: multiply ratios by 100 and alias without '%' chars. Panels to update: Savings & Expense Performance bars, MoM Rate Changes, Expense Ratio stats, uncategorized_pct in Data Quality Callouts. JSON: set fieldConfig.defaults.unit='percent', thresholds numeric (e.g., 5/10/20/30 or red>15 yellow>10 for data-quality), remove any suffix text '%'.",
     "scope": "reporting.rpt_monthly_budget_summary; reporting.rpt_outflows_insights_dashboard; grafana/provisioning/dashboards/executive-dashboard.json (Savings & Expense Performance, MoM Rate Changes, Data Quality Callouts, related stats)",
     "effort": "small",
-    "status": "pending"
+    "status": "done",
+    "notes": "Panel 101 MoM Rate Changes: SQL ×100 for current/previous/delta, JSON unit changed to percent. Consistent with Savings & Expense Performance bars."
   },
   {
     "id": 45,
@@ -55,7 +56,8 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "description": "Filter Data Quality Callouts, Top Uncategorized Merchants, and AI Financial Insights to $time_window/$dashboard_period. SQL: add window_range CTE (start_date/end_date) and apply WHERE activity_date BETWEEN start_date AND end_date (or month_date for monthly models). For merchants: recompute contribution_pct within the filtered set and ORDER BY contribution_pct DESC LIMIT 10. JSON: pass both variables in links (?var-dashboard_period=$dashboard_period&var-time_window=$time_window) and set panels to refresh on variable change.",
     "scope": "reporting.rpt_outflows_insights_dashboard; reporting.viz_uncategorized_transactions_with_original_memo; grafana/provisioning/dashboards/executive-dashboard.json (Data Quality Callouts, Top Uncategorized Merchants, AI Financial Insights)",
     "effort": "medium",
-    "status": "pending"
+    "status": "done",
+    "notes": "Removed hardcoded last-month filter from viz_uncategorized view. Panel 901 transfer_pairs and uncategorized aggregated across window_range. Panel 902 recomputes contribution_pct within the filtered window. Links updated to pass both variables."
   },
   {
     "id": 31,
