@@ -43,6 +43,47 @@
       "type": "text"
     },
     {
+      "id": 9,
+      "type": "stat",
+      "title": "Data Freshness",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PCC52D03280B7034C"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
+          "rawQuery": true,
+          "rawSql": "SELECT TO_CHAR(MAX(period_date), 'Mon YYYY') AS latest_month FROM reporting.viz_balance_by_year_month;"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "value",
+          "values": false
+        },
+        "orientation": "horizontal",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      }
+    },
+    {
       "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
@@ -102,7 +143,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 8
+        "y": 12
       },
       "id": 1,
       "options": {
@@ -237,7 +278,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 20
       },
       "id": 2,
       "options": {
@@ -337,7 +378,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 20
       },
       "id": 3,
       "options": {
@@ -463,7 +504,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 24
+        "y": 28
       },
       "id": 4,
       "options": {
@@ -557,7 +598,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 24
+        "y": 28
       },
       "id": 5,
       "options": {
@@ -722,7 +763,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 36
       },
       "id": 7,
       "options": {
@@ -851,7 +892,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 40
+        "y": 44
       },
       "id": 8,
       "options": {
