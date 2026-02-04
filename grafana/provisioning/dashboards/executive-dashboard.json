@@ -2470,6 +2470,7 @@
     "to": "now/M"
   },
   "timepicker": {
+    "hidden": true,
     "quick_ranges": [
       {
         "from": "now-1M/M",
