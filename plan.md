@@ -37,7 +37,8 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "description": "Guard division by zero and missing previous periods in Net Cash Flow and Forecast rows. SQL template: delta_ratio = CASE WHEN COALESCE(prev,0)=0 AND COALESCE(curr,0)=0 THEN 0 WHEN COALESCE(prev,0)=0 THEN NULL ELSE (curr-prev)/NULLIF(ABS(prev),0) END; delta_value = curr - COALESCE(prev,0). Apply the same logic to MoM Rate Changes. In JSON: set field.displayMode to 'color-text', nullValueMode='connected', and add 'text: n/a' override when value is null; keep percent unit.",
     "scope": "reporting.rpt_monthly_budget_summary; grafana/provisioning/dashboards/executive-dashboard.json (Key Executive KPIs, Month-over-Month Rate Changes tables)",
     "effort": "small",
-    "status": "pending"
+    "status": "done",
+    "notes": "Both-zero guard added to panel 102. All three KPI/rate tables now show n/a for null deltas via color-text display and value mapping."
   },
   {
     "id": 44,
