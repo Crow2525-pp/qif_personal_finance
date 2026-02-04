@@ -44,7 +44,6 @@ WITH uncategorized_transactions AS (
   WHERE dc.level_1_category = 'Uncategorized'
     AND ft.transaction_amount < 0  -- Only outflows (expenses)
     AND NOT COALESCE(ft.is_internal_transfer, FALSE)  -- Exclude internal transfers
-    AND ft.transaction_date >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month')  -- Last month
     AND COALESCE(ft.transaction_description, ft.transaction_memo) IS NOT NULL
     AND LENGTH(TRIM(COALESCE(ft.transaction_description, ft.transaction_memo))) > 1
 ),
