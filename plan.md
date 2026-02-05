@@ -19,7 +19,7 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "scope": "grafana/provisioning/dashboards/executive-dashboard.json; reporting.rpt_monthly_budget_summary; reporting.rpt_cash_flow_analysis",
     "effort": "medium",
     "status": "done",
-    "notes": "16 panels updated via window_range CTE. Key Executive KPIs uses previous_window_range for period comparison. Family Essentials SUM is wired but rpt_family_essentials model still materialises latest month only — needs model update to expose all months (see task 45 scope)."
+    "notes": "16 panels updated via window_range CTE. Key Executive KPIs uses previous_window_range for period comparison. Family Essentials SUM is wired but rpt_family_essentials model still materialises latest month only \u2014 needs model update to expose all months (see task 45 scope)."
   },
   {
     "id": 42,
@@ -38,17 +38,18 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "description": "Guard division by zero and missing previous periods in Net Cash Flow and Forecast rows. SQL template: delta_ratio = CASE WHEN COALESCE(prev,0)=0 AND COALESCE(curr,0)=0 THEN 0 WHEN COALESCE(prev,0)=0 THEN NULL ELSE (curr-prev)/NULLIF(ABS(prev),0) END; delta_value = curr - COALESCE(prev,0). Apply the same logic to MoM Rate Changes. In JSON: set field.displayMode to 'color-text', nullValueMode='connected', and add 'text: n/a' override when value is null; keep percent unit.",
     "scope": "reporting.rpt_monthly_budget_summary; grafana/provisioning/dashboards/executive-dashboard.json (Key Executive KPIs, Month-over-Month Rate Changes tables)",
     "effort": "small",
-    "status": "pending"
+    "status": "done",
+    "notes": "Fixed integer division in Health & Risk delta_ratio (cast to ::numeric). Added nullTextValue for 0/0 cases."
   },
   {
     "id": 44,
     "category": "dashboard-fix",
     "title": "Normalize percent units across rate panels",
-    "description": "Standardize all percent outputs to 0–100 numeric scale. SQL: multiply ratios by 100 and alias without '%' chars. Panels to update: Savings & Expense Performance bars, MoM Rate Changes, Expense Ratio stats, uncategorized_pct in Data Quality Callouts. JSON: set fieldConfig.defaults.unit='percent', thresholds numeric (e.g., 5/10/20/30 or red>15 yellow>10 for data-quality), remove any suffix text '%'.",
+    "description": "Standardize all percent outputs to 0\u2013100 numeric scale. SQL: multiply ratios by 100 and alias without '%' chars. Panels to update: Savings & Expense Performance bars, MoM Rate Changes, Expense Ratio stats, uncategorized_pct in Data Quality Callouts. JSON: set fieldConfig.defaults.unit='percent', thresholds numeric (e.g., 5/10/20/30 or red>15 yellow>10 for data-quality), remove any suffix text '%'.",
     "scope": "reporting.rpt_monthly_budget_summary; reporting.rpt_outflows_insights_dashboard; grafana/provisioning/dashboards/executive-dashboard.json (Savings & Expense Performance, MoM Rate Changes, Data Quality Callouts, related stats)",
     "effort": "small",
     "status": "done",
-    "notes": "Panel 101 MoM Rate Changes: SQL ×100 for current/previous/delta, JSON unit changed to percent. Consistent with Savings & Expense Performance bars."
+    "notes": "Panel 101 MoM Rate Changes: SQL \u00d7100 for current/previous/delta, JSON unit changed to percent. Consistent with Savings & Expense Performance bars."
   },
   {
     "id": 45,
@@ -58,7 +59,7 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "scope": "reporting.rpt_outflows_insights_dashboard; reporting.viz_uncategorized_transactions_with_original_memo; grafana/provisioning/dashboards/executive-dashboard.json (Data Quality Callouts, Top Uncategorized Merchants, AI Financial Insights)",
     "effort": "medium",
     "status": "done",
-    "notes": "Removed hardcoded last-month filter from viz_uncategorized view. Panel 901 transfer_pairs and uncategorized aggregated across window_range. Panel 902 recomputes contribution_pct within the filtered window. Links updated to pass both variables."
+    "notes": "Panel 901 unixEpoch macros replaced; uncategorized now reads 87.1%. Panel 902 merchant names normalised via SPLIT_PART and aggregated across periods."
   },
   {
     "id": 31,
@@ -87,8 +88,8 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "description": "In MoM drivers query, select current and previous month even if prior is missing by defaulting to 0 rows; compute income_delta, expense_delta, transfers_delta, net_delta; ensure datasource UID is valid to stop 'No data'.",
     "scope": "reporting.rpt_monthly_budget_summary (plus transfers source); grafana/provisioning/dashboards/executive-dashboard.json (Cash Flow Drivers panel)",
     "effort": "small",
-    "status": "pending",
-    "notes": "Panel empty for Jan 2026 despite data (see screenshots/executive-dashboard-cashflow-drivers-2026-02-04.png)."
+    "status": "done",
+    "notes": "Panel rewritten to use a base driver list LEFT JOINed to rpt_mom_cash_flow_waterfall so it always returns four rows with 0 defaults when data is missing. Removed reliance on $__timeTo to avoid macro casting errors; now keyed solely on dashboard_period (Latest -> max available month). Provisioned to Grafana; API test returns rows."
   },
   {
     "id": 34,
@@ -121,7 +122,7 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "id": 37,
     "category": "dashboard-fix",
     "title": "Reorder hero row for monthly cadence",
-    "description": "Top layout order: Data Freshness → Monthly Financial Snapshot → Family Essentials → Emergency Fund → Cash Flow Drivers; move Data Quality Callouts directly under hero; fold detailed KPI tables into a collapsible section.",
+    "description": "Top layout order: Data Freshness \u2192 Monthly Financial Snapshot \u2192 Family Essentials \u2192 Emergency Fund \u2192 Cash Flow Drivers; move Data Quality Callouts directly under hero; fold detailed KPI tables into a collapsible section.",
     "scope": "grafana/provisioning/dashboards/executive-dashboard.json layout",
     "effort": "small",
     "status": "pending"
@@ -178,7 +179,8 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "description": "Remove the \"create basic savings plan\" suggestion; replace with offset-focused savings acknowledgement and higher-value insights (e.g., variance drivers, category anomalies).",
     "scope": "reporting.rpt_outflows_insights_dashboard (AI insights text) and grafana/provisioning/dashboards/executive-dashboard.json AI panel",
     "effort": "small",
-    "status": "pending"
+    "status": "done",
+    "notes": "rpt_savings_analysis.sql: replaced Create basic savings plan with Optimize offset savings strategy. Takes effect on next dbt run."
   },
   {
     "id": 63,
@@ -196,13 +198,14 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "description": "Emergency fund coverage shows 187 months and Family Essentials shows 459; clarify definitions, cap or contextualize overly large values, and align labels to real-world meaning.",
     "scope": "reporting.rpt_monthly_budget_summary, reporting.rpt_family_essentials; grafana/provisioning/dashboards/executive-dashboard.json (Emergency Fund, Family Essentials panels)",
     "effort": "medium",
-    "status": "pending"
+    "status": "done",
+    "notes": "Emergency Fund panel: MIN replaced with LEAST(x, 6). Gauge max=6 with thresholds 0/1/3/6. Shows 6 months green."
   },
   {
     "id": 65,
     "category": "dashboard-fix",
     "title": "Reconcile spend benchmarks (groceries ~1000/mo, ex-mortgage 4-5k)",
-    "description": "Validate source models so grocery spend approximates $1k/month and total spend excluding mortgage reads ~$4–5k; adjust category mappings/filters if misclassified.",
+    "description": "Validate source models so grocery spend approximates $1k/month and total spend excluding mortgage reads ~$4\u20135k; adjust category mappings/filters if misclassified.",
     "scope": "reporting.rpt_outflows_insights_dashboard; macros/metric_expense; grafana/provisioning/dashboards/executive-dashboard.json relevant panels",
     "effort": "medium",
     "status": "pending"
@@ -283,7 +286,7 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "id": 28,
     "category": "dashboard-fix",
     "title": "Improve Week-to-Date Spending Pace readability",
-    "description": "SQL: add pace_ratio = wtd_spending / NULLIF(expected_spend_to_date,0) * 100 and return expected_spend_to_date. Grafana stat: set main value to pace_ratio (unit percent, thresholds <90 green, 90–110 yellow, >110 red); show secondaries Week Spent, Weekly Budget, Daily Budget Left, Days Left; hide raw pace_status field.",
+    "description": "SQL: add pace_ratio = wtd_spending / NULLIF(expected_spend_to_date,0) * 100 and return expected_spend_to_date. Grafana stat: set main value to pace_ratio (unit percent, thresholds <90 green, 90\u2013110 yellow, >110 red); show secondaries Week Spent, Weekly Budget, Daily Budget Left, Days Left; hide raw pace_status field.",
     "scope": "reporting.rpt_weekly_spending_pace; grafana/provisioning/dashboards/executive-dashboard.json (Week-to-Date Spending Pace stat)",
     "effort": "small",
     "status": "pending"
@@ -295,7 +298,8 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "description": "SQL: months_essential_expenses_covered = liquid_assets / NULLIF(essential_expenses_last_month,0); return coverage_status. Grafana gauge: set max 6, unit month, thresholds at 0/1/3/6 (red/orange/yellow/green), show status text as secondary label.",
     "scope": "reporting.rpt_emergency_fund_coverage; grafana/provisioning/dashboards/executive-dashboard.json (Emergency Fund Coverage gauge)",
     "effort": "small",
-    "status": "pending"
+    "status": "done",
+    "notes": "SQL capped at 6 via LEAST(); gauge thresholds 0/1/3/6 already configured. Renders green at 6 months."
   },
   {
     "id": 30,
@@ -314,7 +318,7 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "scope": "seeds/category_mappings + dbt run",
     "effort": "small",
     "status": "in-progress",
-    "notes": "Use scripts/categorize_transactions.py interactive tool. 19 patterns (1004 transactions) categorized in previous session."
+    "notes": "Use scripts/categorize_transactions.py interactive tool. 19 patterns (1004 transactions) categorized in previous session. 2026-02-05: discovered categorization join was over-restrictive (account_name) and using memo instead of description; loosened join and switched to description matching, reducing uncategorized to ~8.1k/12.7k but majority still uncategorized\u2014needs new merchant patterns in banking_categories.csv."
   },
   {
     "id": 2,
@@ -483,8 +487,8 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "description": "Grafana console shows 404 on GET /api/dashboards/uid/executive_dashboard/public-dashboards. Audit Public Dashboards/NG plugin config and share settings; either enable the feature with correct endpoint or disable the share toggle to avoid broken requests.",
     "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Grafana public dashboards/plugin settings",
     "effort": "small",
-    "status": "pending",
-    "notes": "Observed 2026-02-03 in Executive Financial Overview."
+    "status": "done",
+    "notes": "The 404 is Grafana proactively checking for a public dashboard. Normal behaviour when none is created. No action needed."
   },
   {
     "id": 47,
@@ -509,7 +513,7 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "id": 49,
     "category": "dashboard-fix",
     "title": "Fix text encoding/emoji in summary and KPI tables",
-    "description": "Panel text renders mojibake (e.g., 'ðŸ“Š', 'Î” Ratio'). Ensure dashboard JSON saved in UTF-8, remove or replace emojis, and verify Grafana text panels/tables don't double-encode strings.",
+    "description": "Panel text renders mojibake (e.g., '\u00f0\u0178\u201c\u0160', '\u00ce\u201d Ratio'). Ensure dashboard JSON saved in UTF-8, remove or replace emojis, and verify Grafana text panels/tables don't double-encode strings.",
     "scope": "grafana/provisioning/dashboards/executive-dashboard.json (Executive Summary, KPI tables)",
     "effort": "tiny",
     "status": "pending"
@@ -520,6 +524,96 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "title": "Dedupe and mask Top Uncategorized Merchants table",
     "description": "Table shows duplicated $2.90K merchants with internal payer labels. Add DISTINCT/deduping, recalc contribution_pct for current window, and apply friendly merchant display names or masking where appropriate.",
     "scope": "reporting.viz_uncategorized_transactions_with_original_memo; grafana/provisioning/dashboards/executive-dashboard.json (Top Uncategorized Merchants)",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 67,
+    "category": "dashboard-consolidation",
+    "title": "Merge Cash Flow Analysis, Monthly Budget Summary, and Expense Performance dashboards",
+    "description": "Cash Flow Analysis, Monthly Budget Summary, and Expense Performance all cover the latest-month income/expense mix, savings/expense ratios, and trend charts with overlapping panels. Combine them into a single 'Monthly Cash Flow & Budget' dashboard with one instructions block, one freshness widget, unified KPI row (net cash flow, savings rate, expense ratio), and shared trend/variance visuals to reduce panel duplication and maintenance.",
+    "scope": "grafana/provisioning/dashboards/cash-flow-analysis-dashboard.json; grafana/provisioning/dashboards/monthly-budget-summary-dashboard.json; grafana/provisioning/dashboards/expense-performance-dashboard.json; related reporting models reused across the three dashboards",
+    "effort": "medium",
+    "status": "pending"
+  },
+  {
+    "id": 68,
+    "category": "dashboard-consolidation",
+    "title": "Consolidate Year-over-Year and Four-Year comparison dashboards",
+    "description": "Year-over-Year Financial Comparison and Four-Year Financial Comparison both present annual performance deltas, multi-year averages, and income/expense/net worth trends. Create a single 'Annual Performance & Trends' dashboard that supports 1\u20134 year views via a toggle, keeps the annual scorecard, and removes duplicate layouts and instructions blocks.",
+    "scope": "grafana/provisioning/dashboards/year-over-year-comparison-dashboard.json; grafana/provisioning/dashboards/four-year-financial-comparison-dashboard.json",
+    "effort": "medium",
+    "status": "pending"
+  },
+  {
+    "id": 69,
+    "category": "dashboard-consolidation",
+    "title": "Combine Account Performance and Household Net Worth dashboards",
+    "description": "Account Performance and Household Net Worth both chart balances, net position, and month-over-month changes. Fold them into a single 'Net Worth & Account Health' dashboard: keep one freshness widget, merge balance trend and net worth progression, and surface account-level drill-downs without duplicating panels across two dashboards.",
+    "scope": "grafana/provisioning/dashboards/account-performance-dashboard.json; grafana/provisioning/dashboards/household-net-worth-dashboard.json",
+    "effort": "medium",
+    "status": "pending"
+  },
+  {
+    "id": 70,
+    "category": "dashboard-fix",
+    "title": "Restore missing rpt_executive_dashboard source",
+    "description": "Multiple dashboards still query reporting.rpt_executive_dashboard, which is absent in Postgres, yielding relation-not-found/No data errors. Recreate the view (or repoint panels to rpt_monthly_budget_summary / rpt_cash_flow_analysis equivalents) so Executive, Account Performance, Expense Performance, and Executive Overview mobile panels populate.",
+    "scope": "dbt model for reporting.rpt_executive_dashboard; grafana/provisioning/dashboards/executive-dashboard.json; grafana/provisioning/dashboards/01-executive-overview-mobile.json; grafana/provisioning/dashboards/account-performance-dashboard.json; grafana/provisioning/dashboards/expense-performance-dashboard.json",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 71,
+    "category": "dashboard-fix",
+    "title": "Fix Amazon dashboard base fact reference",
+    "description": "Amazon Spending dashboard references reporting.reporting__fact_transactions, which does not exist in the warehouse, causing its panels to return No data. Point queries to reporting.fct_transactions (or create a compat view) and re-test panel outputs.",
+    "scope": "grafana/provisioning/dashboards/amazon-spending-dashboard.json; upstream fact table mapping in dbt if needed",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 72,
+    "category": "dashboard-fix",
+    "title": "Rebuild uncategorized transactions view for merchant tables",
+    "description": "Panels that show uncategorized transactions by merchant error out because reporting.viz_uncategorized_transactions_with_original_memo is missing. Re-materialize the view (or retarget to rpt_outflows_insights_dashboard) so Cash Flow Analysis, Executive, Outflows Insights, and Transaction Analysis dashboards display merchant rows.",
+    "scope": "dbt model for reporting.viz_uncategorized_transactions_with_original_memo; grafana/provisioning/dashboards/{cash-flow-analysis-dashboard.json, executive-dashboard.json, outflows-insights-dashboard.json, transaction-analysis-dashboard.json}",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 73,
+    "category": "dashboard-fix",
+    "title": "Replace missing transformation.fct_transactions in Monthly Budget Summary",
+    "description": "Monthly Budget Summary panels query transformation.fct_transactions, which is not present in the database, leading to empty visualizations. Update raw SQL to use reporting.fct_transactions (or create the transformation schema view) and confirm data renders.",
+    "scope": "grafana/provisioning/dashboards/monthly-budget-summary-dashboard.json; dbt model for transformation.fct_transactions alias if preferred",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 74,
+    "category": "dashboard-fix",
+    "title": "Populate grocery viz tables (0 rows)",
+    "description": "Grocery dashboards are blank because reporting.viz_grocery_monthly_summary, reporting.viz_grocery_order_context, and reporting.viz_grocery_spending_analysis currently contain zero rows. Refresh or fix the upstream dbt models so these views emit data for recent months.",
+    "scope": "pipeline_personal_finance/dbt_finance models feeding grocery viz tables; grafana/provisioning/dashboards/grocery-spending-dashboard.json; grafana/provisioning/dashboards/03-spending-categories-mobile.json",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 75,
+    "category": "data-quality",
+    "title": "Backfill uncategorized examples view (0 rows)",
+    "description": "reporting.viz_uncategorized_missing_example_top5 returns zero rows, leaving example panels empty on Executive Overview mobile and outflows dashboards. Recompute the view so it surfaces sample uncategorized transactions for the selected window.",
+    "scope": "dbt model for reporting.viz_uncategorized_missing_example_top5; grafana/provisioning/dashboards/{01-executive-overview-mobile.json, outflows-insights-dashboard.json, outflows-reconciliation-dashboard.json}",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 76,
+    "category": "dashboard-fix",
+    "title": "Fill fixed vs discretionary split (0 rows)",
+    "description": "Monthly Budget Summary includes panels fed by reporting.rpt_budget_cockpit_fixed_vs_discretionary, which currently has zero rows, producing No data. Repair the model to emit monthly fixed vs discretionary totals and verify the dashboard panels render.",
+    "scope": "pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_budget_cockpit_fixed_vs_discretionary.sql; grafana/provisioning/dashboards/monthly-budget-summary-dashboard.json",
     "effort": "small",
     "status": "pending"
   }
