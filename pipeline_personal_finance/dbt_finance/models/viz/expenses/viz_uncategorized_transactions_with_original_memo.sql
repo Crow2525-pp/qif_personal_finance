@@ -7,6 +7,8 @@
 WITH uncategorized_transactions AS (
   SELECT
     ft.transaction_date,
+    DATE_TRUNC('month', ft.transaction_date)::date AS period_date,
+    TO_CHAR(ft.transaction_date, 'YYYY-MM') AS period_key,
     ft.transaction_amount,
     ABS(ft.transaction_amount) AS amount_abs,
 
@@ -51,6 +53,8 @@ WITH uncategorized_transactions AS (
 -- Add some aggregation for similar transactions
 uncategorized_grouped AS (
   SELECT
+    period_date,
+    period_key,
     original_memo,
     standardized_memo,
     account_name,
@@ -75,6 +79,8 @@ uncategorized_grouped AS (
 
   FROM uncategorized_transactions
   GROUP BY
+    period_date,
+    period_key,
     original_memo,
     standardized_memo,
     account_name,
@@ -85,11 +91,15 @@ uncategorized_grouped AS (
 ),
 
 total_uncategorized AS (
-  SELECT SUM(total_amount) AS total_uncategorized_amount
+  SELECT period_date, SUM(total_amount) AS total_uncategorized_amount
   FROM uncategorized_grouped
+  GROUP BY period_date
 )
 
 SELECT
+  ug.period_date,
+  ug.period_key,
+
   -- Original memo for categorization
   ug.original_memo,
   ug.standardized_memo,
@@ -112,7 +122,7 @@ SELECT
   -- Contribution percentage
   CASE
     WHEN tu.total_uncategorized_amount > 0
-    THEN (ug.total_amount / tu.total_uncategorized_amount) * 100
+      THEN (ug.total_amount / tu.total_uncategorized_amount) * 100
     ELSE 0
   END AS contribution_pct,
 
@@ -133,6 +143,7 @@ SELECT
   END AS priority_level
 
 FROM uncategorized_grouped ug
-CROSS JOIN total_uncategorized tu
+JOIN total_uncategorized tu
+  ON ug.period_date = tu.period_date
 WHERE ug.transaction_count >= 2 OR ug.total_amount >= 100
-ORDER BY ug.total_amount DESC, ug.transaction_count DESC
+ORDER BY ug.period_date DESC, ug.total_amount DESC, ug.transaction_count DESC

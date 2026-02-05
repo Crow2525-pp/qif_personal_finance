@@ -435,12 +435,14 @@ fact_abs_tests AS (
 
 -- 14) Daily balances vs fact EOM balances
 fact_eom AS (
-  SELECT 
-    DATE_TRUNC('month', ft.transaction_date)::date AS period_date,
-    ft.account_key,
-    MAX(ft.account_balance)::numeric AS eom_balance
-  FROM {{ ref('fct_transactions') }} ft
-  GROUP BY 1,2
+  SELECT DISTINCT
+    DATE_TRUNC('month', fdb.balance_date)::date AS period_date,
+    fdb.account_key,
+    FIRST_VALUE(fdb.daily_balance) OVER (
+      PARTITION BY DATE_TRUNC('month', fdb.balance_date), fdb.account_key
+      ORDER BY fdb.balance_date DESC
+    )::numeric AS eom_balance
+  FROM {{ ref('fct_daily_balances') }} fdb
 ),
 
 daily_eom AS (

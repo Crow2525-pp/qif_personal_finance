@@ -108,6 +108,22 @@ monthly_summary AS (
     SUM(CASE WHEN expense_group = 'Investments' THEN outflow_amount ELSE 0 END) AS investments,
     SUM(CASE WHEN expense_group = 'Taxes' THEN outflow_amount ELSE 0 END) AS taxes,
     SUM(CASE WHEN expense_group = 'Uncategorized' THEN outflow_amount ELSE 0 END) AS uncategorized,
+    SUM(outflow_amount) - (
+      SUM(CASE WHEN expense_group = 'Food & Dining' THEN outflow_amount ELSE 0 END) +
+      SUM(CASE WHEN expense_group = 'Household & Utilities' THEN outflow_amount ELSE 0 END) +
+      SUM(CASE WHEN expense_group = 'Housing & Mortgage' THEN outflow_amount ELSE 0 END) +
+      SUM(CASE WHEN expense_group = 'Transportation' THEN outflow_amount ELSE 0 END) +
+      SUM(CASE WHEN expense_group = 'Shopping & Retail' THEN outflow_amount ELSE 0 END) +
+      SUM(CASE WHEN expense_group = 'Family & Kids' THEN outflow_amount ELSE 0 END) +
+      SUM(CASE WHEN expense_group = 'Health & Wellness' THEN outflow_amount ELSE 0 END) +
+      SUM(CASE WHEN expense_group = 'Entertainment' THEN outflow_amount ELSE 0 END) +
+      SUM(CASE WHEN expense_group = 'Travel' THEN outflow_amount ELSE 0 END) +
+      SUM(CASE WHEN expense_group = 'Gifts & Charity' THEN outflow_amount ELSE 0 END) +
+      SUM(CASE WHEN expense_group = 'Insurance' THEN outflow_amount ELSE 0 END) +
+      SUM(CASE WHEN expense_group = 'Investments' THEN outflow_amount ELSE 0 END) +
+      SUM(CASE WHEN expense_group = 'Taxes' THEN outflow_amount ELSE 0 END) +
+      SUM(CASE WHEN expense_group = 'Uncategorized' THEN outflow_amount ELSE 0 END)
+    ) AS other_expenses,
     
     -- Transaction size analysis
     SUM(CASE WHEN transaction_size_category = 'Large (≥$5000)' THEN outflow_amount ELSE 0 END) AS large_transactions,

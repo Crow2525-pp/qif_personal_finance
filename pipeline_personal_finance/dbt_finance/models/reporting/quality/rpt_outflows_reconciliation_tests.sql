@@ -26,22 +26,23 @@ periods AS (
 viz_monthly AS (
     SELECT 
         vdob.period_date,
-        vdob.total_outflows,
-        vdob.total_transactions,
-        vdob.food_dining,
-        vdob.household_utilities,
-        vdob.housing_mortgage,
+    vdob.total_outflows,
+    vdob.total_transactions,
+    vdob.food_dining,
+    vdob.household_utilities,
+    vdob.housing_mortgage,
         vdob.transportation,
         vdob.shopping_retail,
         vdob.family_kids,
         vdob.health_wellness,
-        vdob.entertainment,
-        vdob.travel,
-        vdob.gifts_charity,
-        vdob.insurance,
-        vdob.investments,
-        vdob.taxes,
-        vdob.uncategorized
+    vdob.entertainment,
+    vdob.travel,
+    vdob.gifts_charity,
+    vdob.insurance,
+    vdob.investments,
+    vdob.taxes,
+    vdob.uncategorized,
+    vdob.other_expenses
     FROM {{ ref('viz_detailed_outflows_breakdown') }} vdob
     WHERE vdob.period_date IN (SELECT period_date FROM periods)
 ),
@@ -87,7 +88,8 @@ category_sum AS (
             COALESCE(insurance, 0) +
             COALESCE(investments, 0) +
             COALESCE(taxes, 0) +
-            COALESCE(uncategorized, 0)
+            COALESCE(uncategorized, 0) +
+            COALESCE(other_expenses, 0)
         )::numeric AS total_outflows_from_categories
     FROM viz_monthly
 ),

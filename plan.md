@@ -2,9 +2,9 @@
 
 ## Strategic Direction
 
-The current dashboard suite provides comprehensive financial metrics but is optimized for detailed analysis rather than the quick, actionable insights needed by busy parents with three young children. The immediate priority is reducing the 38.7% uncategorized spend to under 15% so that category-level insights become trustworthy, then building family-specific views that surface childcare costs, grocery trends, and emergency fund progress prominently. Once the data foundation is solid, we'll add weekly pacing indicators and a simplified "Parent Dashboard" that answers "are we on track this week?" in under 30 seconds.
+Local UI review on 2026-02-04 shows critical regressions: uncategorized spend reads 100% for Jan 2026, Family Essentials/Emergency Fund/Month-to-Date pace panels are empty, and Cash Flow Drivers shows no rows (see `screenshots/executive-dashboard-lower-2026-02-04.png` and `screenshots/executive-dashboard-cashflow-drivers-2026-02-04.png`). Immediate priority is fixing these data-quality and availability issues so the executive dashboard is trustworthy again, targeting uncategorized spend <15% and restoring essentials/pacing signals.
 
-The second phase focuses on forward-looking features: upcoming recurring bills, seasonal expense preparation (school terms, holidays, sports registrations), and education savings goal tracking. Mobile dashboards will be enhanced with family-specific quick-glance panels so parents can check finances while managing morning routines. Throughout, the emphasis is on reducing cognitive load—surfacing only what matters this week rather than overwhelming with historical analysis.
+Once those fixes land, move to family-first quick-glance views (childcare, groceries, emergency fund) and weekly pacing. Phase two remains forward-looking: upcoming recurring bills, seasonal prep, and education savings goals, while keeping cognitive load low for parents.
 
 ---
 
@@ -67,7 +67,8 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "description": "Use inflow_excl_transfers from reporting.rpt_cash_flow_analysis for selected month (COALESCE to 0) so Monthly Income is not $0; ensure datasource UID matches Postgres and join only on latest/selected month key.",
     "scope": "reporting.rpt_cash_flow_analysis; grafana/provisioning/dashboards/executive-dashboard.json (Monthly Financial Snapshot stat)",
     "effort": "small",
-    "status": "pending"
+    "status": "done",
+    "notes": "Monthly Income/Expenses populate correctly for Jan 2026 (see screenshots/executive-dashboard-full-2026-02-04.png)."
   },
   {
     "id": 32,
@@ -76,7 +77,8 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "description": "Multiply ratios by 100 with divide-by-zero guards: savings_rate_pct, savings_rate_3m_pct, savings_rate_ytd_pct, expense_ratio_pct; set Grafana unit=percent and thresholds 5/10/20/30 so values no longer show 0%.",
     "scope": "reporting.rpt_monthly_budget_summary; grafana/provisioning/dashboards/executive-dashboard.json (Savings & Expense Performance bar gauge)",
     "effort": "small",
-    "status": "pending"
+    "status": "done",
+    "notes": "Savings Rate and Expense Ratio now show scaled % values (-10.2%, 4.2%, 110%) in UI (screenshots/executive-dashboard-full-2026-02-04.png)."
   },
   {
     "id": 33,
@@ -85,7 +87,8 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "description": "In MoM drivers query, select current and previous month even if prior is missing by defaulting to 0 rows; compute income_delta, expense_delta, transfers_delta, net_delta; ensure datasource UID is valid to stop 'No data'.",
     "scope": "reporting.rpt_monthly_budget_summary (plus transfers source); grafana/provisioning/dashboards/executive-dashboard.json (Cash Flow Drivers panel)",
     "effort": "small",
-    "status": "pending"
+    "status": "pending",
+    "notes": "Panel empty for Jan 2026 despite data (see screenshots/executive-dashboard-cashflow-drivers-2026-02-04.png)."
   },
   {
     "id": 34,
@@ -147,6 +150,69 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "title": "Align mobile Executive Overview with monthly-first layout",
     "description": "Mirror hero row order and new MTD pacing panel in 01-executive-overview-mobile.json so mobile users see monthly cadence first.",
     "scope": "grafana/provisioning/dashboards/01-executive-overview-mobile.json",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 60,
+    "category": "dashboard-fix",
+    "title": "Clean Executive Summary text",
+    "description": "Remove foreign/garbled characters and restate summary in plain English for the selected month; ensure utf-8 content and template variables render cleanly.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json (Executive Summary text panel)",
+    "effort": "tiny",
+    "status": "pending"
+  },
+  {
+    "id": 61,
+    "category": "dashboard-fix",
+    "title": "Use Grafana timepicker instead of custom time_window",
+    "description": "Un-hide Grafana timepicker, wire panels to Grafana's global range, keep month selector for convenience, and remove/ignore the custom time_window variable so time range follows built-in picker.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; datasource queries using window_range CTE",
+    "effort": "medium",
+    "status": "pending"
+  },
+  {
+    "id": 62,
+    "category": "dashboard-fix",
+    "title": "Refine AI Financial Insights tone",
+    "description": "Remove the \"create basic savings plan\" suggestion; replace with offset-focused savings acknowledgement and higher-value insights (e.g., variance drivers, category anomalies).",
+    "scope": "reporting.rpt_outflows_insights_dashboard (AI insights text) and grafana/provisioning/dashboards/executive-dashboard.json AI panel",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 63,
+    "category": "dashboard-fix",
+    "title": "Move and format \"How to read\" section",
+    "description": "Place the How-to-read guidance at the top of the dashboard with clear typography/bullets; ensure it collapses after first view to reduce clutter.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json layout and text panel",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 64,
+    "category": "dashboard-fix",
+    "title": "Triage Emergency Fund and Family Essentials figures",
+    "description": "Emergency fund coverage shows 187 months and Family Essentials shows 459; clarify definitions, cap or contextualize overly large values, and align labels to real-world meaning.",
+    "scope": "reporting.rpt_monthly_budget_summary, reporting.rpt_family_essentials; grafana/provisioning/dashboards/executive-dashboard.json (Emergency Fund, Family Essentials panels)",
+    "effort": "medium",
+    "status": "pending"
+  },
+  {
+    "id": 65,
+    "category": "dashboard-fix",
+    "title": "Reconcile spend benchmarks (groceries ~1000/mo, ex-mortgage 4-5k)",
+    "description": "Validate source models so grocery spend approximates $1k/month and total spend excluding mortgage reads ~$4–5k; adjust category mappings/filters if misclassified.",
+    "scope": "reporting.rpt_outflows_insights_dashboard; macros/metric_expense; grafana/provisioning/dashboards/executive-dashboard.json relevant panels",
+    "effort": "medium",
+    "status": "pending"
+  },
+  {
+    "id": 66,
+    "category": "dashboard-fix",
+    "title": "Remove/replace Month-to-Date widget",
+    "description": "MTD stats are misleading with quarterly refresh; hide or replace with last-closed-month metrics and trend context.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json (MTD panel)",
     "effort": "small",
     "status": "pending"
   },

@@ -68,7 +68,7 @@ SELECT
   '{{ bank_name }}_{{ account_label }}' AS account_name,
   {% endif %}
   CAST({{ date_expr }} AS DATE) AS transaction_date,
-  CAST({{ memo_expr }} AS TEXT) AS memo,
+  COALESCE(NULLIF(CAST({{ memo_expr }} AS TEXT), ''), CAST({{ description_expr }} AS TEXT)) AS memo,
   CAST({{ description_expr }} AS TEXT) AS transaction_description,
   CAST({{ type_expr }} AS TEXT) AS transaction_type,
   {% if etl_date_expr != 'NULL' %}
