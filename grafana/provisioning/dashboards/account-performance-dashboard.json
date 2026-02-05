@@ -44,48 +44,53 @@
     },
     {
       "id": 9,
-      "type": "stat",
+      "type": "table",
       "title": "Data Freshness",
       "datasource": {
         "type": "grafana-postgresql-datasource",
         "uid": "PCC52D03280B7034C"
       },
-        "targets": [
-          {
-            "refId": "A",
-            "format": "table",
-            "datasource": {
-              "type": "grafana-postgresql-datasource",
-              "uid": "PCC52D03280B7034C"
-            },
-            "rawQuery": true,
-            "rawSql": "SELECT \n  EXTRACT(EPOCH FROM MAX(period_date)) * 1000 AS latest_month_ms\nFROM reporting.viz_balance_by_year_month;"
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nexec_view AS (\n  SELECT dashboard_generated_at\n  FROM reporting.rpt_executive_dashboard\n  WHERE dashboard_month = (SELECT month_key FROM selected_key)\n),\ntime_window_label AS (\n  SELECT CASE '${time_window}'\n    WHEN 'ytd' THEN 'Year to Date'\n    WHEN 'trailing_12m' THEN 'Trailing 12 Months'\n    ELSE 'Latest Month'\n  END AS window_label\n)\nSELECT\n  (SELECT window_label FROM time_window_label) AS \"Time Window\",\n  to_char((SELECT month_date FROM selected_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(exec_view.dashboard_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM exec_view;"
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "footer": {
+          "show": false
+        },
+        "cellHeight": "sm"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
           }
-        ],
-        "options": {
-          "reduceOptions": {
-            "calcs": [
-              "lastNotNull"
-            ],
-            "fields": "latest_month_ms",
-            "values": false
-          },
-          "orientation": "horizontal",
-          "textMode": "value",
-          "colorMode": "value",
-          "graphMode": "none",
-          "justifyMode": "center"
         },
-        "fieldConfig": {
-          "defaults": {
-            "unit": "dateTimeAsIso"
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 4,
-          "w": 24,
-          "x": 0,
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
         "y": 8
       }
     },
@@ -143,7 +148,24 @@
           },
           "unit": "currencyUSD"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "countdown"
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -185,7 +207,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Last complete month account balances",
+      "description": "Shows the most recent month present in the data (not necessarily calendar last month).",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -941,7 +963,51 @@
     "balances"
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "name": "dashboard_period",
+        "label": "Reporting Month",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "PCC52D03280B7034C"
+        },
+        "query": "SELECT budget_year_month AS text, budget_year_month AS value\\nFROM reporting.rpt_monthly_budget_summary\\nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\\nORDER BY budget_year_month DESC;",
+        "includeAll": true,
+        "allValue": "Latest",
+        "multi": false,
+        "current": {
+          "selected": true,
+          "text": "Latest",
+          "value": "Latest"
+        }
+      },
+      {
+        "name": "time_window",
+        "label": "Time Window",
+        "type": "custom",
+        "query": "latest,trailing_12m,ytd",
+        "options": [
+          {
+            "text": "Latest Month",
+            "value": "latest"
+          },
+          {
+            "text": "Trailing 12 Months",
+            "value": "trailing_12m"
+          },
+          {
+            "text": "Year to Date",
+            "value": "ytd"
+          }
+        ],
+        "current": {
+          "selected": true,
+          "text": "Latest Month",
+          "value": "latest"
+        }
+      }
+    ]
   },
   "time": {
     "from": "now-1y",
