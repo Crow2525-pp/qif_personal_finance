@@ -324,5 +324,45 @@ Tasks that have been completed and verified.
     "effort": "medium",
     "status": "done",
     "notes": "Already complete - Cash Flow Drivers panel (id=13) is a barchart showing income/expense/transfers/net deltas as waterfall visualization"
+  },
+  {
+    "id": 1,
+    "category": "dashboard-fix",
+    "title": "Restore data in Executive dashboard Data Freshness panel",
+    "description": "Data Freshness panel shows 'No data' while the rest of the Executive Financial Overview dashboard renders. Identify the upstream model or query returning zero rows and ensure it emits the latest refresh timestamp for the selected month.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; upstream reporting model for freshness",
+    "effort": "small",
+    "status": "done",
+    "notes": "Observed 2026-02-05 on http://localhost:3001/d/executive_dashboard/e718165 (now-1M/M to now/M). FIXED: Data Freshness now shows \"Latest Month Jan 2026 2026-02-05 23:51\""
+  },
+  {
+    "id": 2,
+    "category": "dashboard-fix",
+    "title": "Fix Top Uncategorized Merchants panel returning 'No data'",
+    "description": "Top Uncategorized Merchants panel is empty. Restore the query or view feeding this panel so it returns merchant rows for the selected period.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; reporting.viz_uncategorized_transactions_with_original_memo (or replacement)",
+    "effort": "small",
+    "status": "done",
+    "notes": "Observed 2026-02-05 on http://localhost:3001/d/executive_dashboard/e718165. FIXED: Top Uncategorized Merchants shows 4 merchants (S Patterson Phil pay .70K, SAWMAN PTY LTD, PAYPAL, KIDDIES EYE CARE)"
+  },
+  {
+    "id": 3,
+    "category": "data-quality",
+    "title": "Correct Uncategorized spend percent in Executive Data Quality Callouts",
+    "description": "Data Quality Callouts reports 'Uncategorized spend 100% / $14100 uncategorized', which is implausible for Jan 2026. Recalculate the uncategorized ratio within the selected window with zero-safe denominators and numeric percent units.",
+    "scope": "reporting.rpt_outflows_insights_dashboard; grafana/provisioning/dashboards/executive-dashboard.json",
+    "effort": "small",
+    "status": "done",
+    "notes": "Observed 2026-02-05 on Executive Financial Overview dashboard. FIXED: Uncategorized spend now shows 87.1% / $12,875 (not 100%)"
+  },
+  {
+    "id": 4,
+    "category": "dashboard-fix",
+    "title": "Resolve Grafana datasource query errors for Executive dashboard",
+    "description": "Dashboard load triggers HTTP 400 errors from /api/ds/query, indicating broken SQL/templating or datasource configuration. Identify failing panel queries and fix variable bindings or datasource settings so the dashboard loads without query errors.",
+    "scope": "Grafana postgres datasource config; grafana/provisioning/dashboards/executive-dashboard.json panel queries",
+    "effort": "medium",
+    "status": "done",
+    "notes": "Observed 2026-02-05 on http://localhost:3001/d/executive_dashboard/e718165. FIXED: No 400 query errors, only harmless 404 for public-dashboards"
   }
 ]
