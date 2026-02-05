@@ -48,15 +48,6 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "status": "pending"
   },
   {
-    "id": 30,
-    "category": "dashboard-fix",
-    "title": "Replace MoM Cash table with drivers waterfall",
-    "description": "SQL: for selected and previous month, calculate income_delta = curr.total_income - prev.total_income, expense_delta = -(curr.total_expenses - prev.total_expenses), transfers_delta = COALESCE(curr.internal_transfers,0) - COALESCE(prev.internal_transfers,0), net_delta = curr.net_cash_flow - prev.net_cash_flow; return ordered rows income, expense, transfers, net. Grafana: replace existing MoM Cash Changes table with waterfall visualization using these rows.",
-    "scope": "reporting.rpt_monthly_budget_summary (plus internal_transfers source) and grafana/provisioning/dashboards/executive-dashboard.json (replace MoM Cash Changes panel)",
-    "effort": "medium",
-    "status": "pending"
-  },
-  {
     "id": 1,
     "category": "data-quality",
     "title": "Add top 20 uncategorized merchants to category mappings",

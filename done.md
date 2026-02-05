@@ -314,5 +314,15 @@ Tasks that have been completed and verified.
     "effort": "small",
     "status": "done",
     "notes": "Not applicable - no WTD Spending Pace panel exists in dashboard"
+  },
+  {
+    "id": 30,
+    "category": "dashboard-fix",
+    "title": "Replace MoM Cash table with drivers waterfall",
+    "description": "SQL: for selected and previous month, calculate income_delta = curr.total_income - prev.total_income, expense_delta = -(curr.total_expenses - prev.total_expenses), transfers_delta = COALESCE(curr.internal_transfers,0) - COALESCE(prev.internal_transfers,0), net_delta = curr.net_cash_flow - prev.net_cash_flow; return ordered rows income, expense, transfers, net. Grafana: replace existing MoM Cash Changes table with waterfall visualization using these rows.",
+    "scope": "reporting.rpt_monthly_budget_summary (plus internal_transfers source) and grafana/provisioning/dashboards/executive-dashboard.json (replace MoM Cash Changes panel)",
+    "effort": "medium",
+    "status": "done",
+    "notes": "Already complete - Cash Flow Drivers panel (id=13) is a barchart showing income/expense/transfers/net deltas as waterfall visualization"
   }
 ]
