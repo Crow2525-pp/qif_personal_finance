@@ -556,8 +556,31 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "#66BB6A",
-                  "mode": "fixed"
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#32CD32",
+                      "value": null
+                    },
+                    {
+                      "color": "#FFD700",
+                      "value": 80
+                    },
+                    {
+                      "color": "#FF8C00",
+                      "value": 100
+                    },
+                    {
+                      "color": "#8B0000",
+                      "value": 110
+                    }
+                  ]
                 }
               }
             ]
@@ -1003,8 +1026,27 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "#4169E1",
-                  "mode": "fixed"
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#8B0000",
+                      "value": null
+                    },
+                    {
+                      "color": "#FFD700",
+                      "value": -1000
+                    },
+                    {
+                      "color": "#32CD32",
+                      "value": 0
+                    }
+                  ]
                 }
               }
             ]
