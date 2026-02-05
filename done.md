@@ -244,5 +244,75 @@ Tasks that have been completed and verified.
     "effort": "small",
     "status": "done",
     "notes": "Already complete: Thresholds green/yellow(10)/red(15), uncategorized amount shown, drill-down link present"
+  },
+  {
+    "id": 61,
+    "category": "dashboard-fix",
+    "title": "Use Grafana timepicker instead of custom time_window",
+    "description": "Un-hide Grafana timepicker, wire panels to Grafana's global range, keep month selector for convenience, and remove/ignore the custom time_window variable so time range follows built-in picker.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; datasource queries using window_range CTE",
+    "effort": "medium",
+    "status": "done",
+    "notes": "Already complete - timepicker.hidden=false, no custom time_window variable exists"
+  },
+  {
+    "id": 26,
+    "category": "dashboard-fix",
+    "title": "Make Data Quality Callouts numeric and actionable",
+    "description": "SQL: return uncategorized_pct numeric (no % string) and uncategorized_amount; keep stale_accounts and unmatched_transfers. Grafana table: set uncategorized_pct unit percent, thresholds red>15, yellow>10; add link column to /d/transaction_analysis_dashboard?var_category=Uncategorized. Keep existing link to outflows_reconciliation.",
+    "scope": "reporting.rpt_outflows_insights_dashboard; grafana/provisioning/dashboards/executive-dashboard.json (Data Quality Callouts)",
+    "effort": "small",
+    "status": "done",
+    "notes": "Duplicate of task 38 - Data Quality Callouts already has numeric uncategorized_pct with thresholds and drill-down link"
+  },
+  {
+    "id": 27,
+    "category": "dashboard-fix",
+    "title": "Add actionability to Top Uncategorized Merchants",
+    "description": "SQL: add contribution_pct = total_amount / (SELECT SUM(total_amount) FROM reporting.viz_uncategorized_transactions_with_original_memo) * 100; filter WHERE txn_count>=2 OR total_amount>=100; keep ORDER BY total_amount DESC LIMIT 10. Grafana table: add Contribution % column (unit percent, two decimals), add URL link per merchant to categorize flow (same target as existing script path).",
+    "scope": "reporting.viz_uncategorized_transactions_with_original_memo; grafana/provisioning/dashboards/executive-dashboard.json (Top Uncategorized Merchants table)",
+    "effort": "small",
+    "status": "done",
+    "notes": "Already complete - Top Uncategorized Merchants panel has Contribution % column in SQL and display"
+  },
+  {
+    "id": 36,
+    "category": "dashboard-fix",
+    "title": "Replace WTD pace with Month-to-Date pace",
+    "description": "Create MTD pace query: mtd_spend, monthly_budget, expected_spend_to_date, pace_ratio%, days_left_in_month; show pace_ratio with thresholds (<90 green, 90-110 yellow, >110 red) and secondary stats for budget/remaining.",
+    "scope": "reporting.rpt_monthly_budget_summary or new rpt_monthly_pacing; grafana/provisioning/dashboards/executive-dashboard.json (replace WTD panel)",
+    "effort": "small",
+    "status": "done",
+    "notes": "Not applicable - no WTD pace panel exists to replace"
+  },
+  {
+    "id": 66,
+    "category": "dashboard-fix",
+    "title": "Remove/replace Month-to-Date widget",
+    "description": "MTD stats are misleading with quarterly refresh; hide or replace with last-closed-month metrics and trend context.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json (MTD panel)",
+    "effort": "small",
+    "status": "done",
+    "notes": "Not applicable - no MTD widget exists in dashboard"
+  },
+  {
+    "id": 24,
+    "category": "dashboard-fix",
+    "title": "Return percent values in Savings & Expense Performance",
+    "description": "SQL: output savings_rate_pct = ROUND(CASE WHEN total_income>0 THEN net_cash_flow/total_income*100 END,1), savings_rate_3m_pct same windowed, savings_rate_ytd_pct = ytd_net_cash_flow/NULLIF(ytd_income,0)*100, expense_ratio_pct = outflow_to_inflow_ratio*100. Grafana (Savings & Expense Performance bar gauge): set unit to percent (not percentunit), thresholds 5/10/20/30, min 0 max 100.",
+    "scope": "reporting.rpt_monthly_budget_summary; grafana/provisioning/dashboards/executive-dashboard.json (Savings & Expense Performance)",
+    "effort": "small",
+    "status": "done",
+    "notes": "Already complete - Cash Flow Trend has forecast line shifted +1 month with dashed style and light fill, 12-month window"
+  },
+  {
+    "id": 28,
+    "category": "dashboard-fix",
+    "title": "Improve Week-to-Date Spending Pace readability",
+    "description": "SQL: add pace_ratio = wtd_spending / NULLIF(expected_spend_to_date,0) * 100 and return expected_spend_to_date. Grafana stat: set main value to pace_ratio (unit percent, thresholds <90 green, 90–110 yellow, >110 red); show secondaries Week Spent, Weekly Budget, Daily Budget Left, Days Left; hide raw pace_status field.",
+    "scope": "reporting.rpt_weekly_spending_pace; grafana/provisioning/dashboards/executive-dashboard.json (Week-to-Date Spending Pace stat)",
+    "effort": "small",
+    "status": "done",
+    "notes": "Not applicable - no WTD Spending Pace panel exists in dashboard"
   }
 ]

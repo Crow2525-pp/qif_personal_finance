@@ -12,30 +12,12 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
 
 [
   {
-    "id": 36,
-    "category": "dashboard-fix",
-    "title": "Replace WTD pace with Month-to-Date pace",
-    "description": "Create MTD pace query: mtd_spend, monthly_budget, expected_spend_to_date, pace_ratio%, days_left_in_month; show pace_ratio with thresholds (<90 green, 90-110 yellow, >110 red) and secondary stats for budget/remaining.",
-    "scope": "reporting.rpt_monthly_budget_summary or new rpt_monthly_pacing; grafana/provisioning/dashboards/executive-dashboard.json (replace WTD panel)",
-    "effort": "small",
-    "status": "pending"
-  },
-  {
     "id": 40,
     "category": "dashboard-fix",
     "title": "Align mobile Executive Overview with monthly-first layout",
     "description": "Mirror hero row order and new MTD pacing panel in 01-executive-overview-mobile.json so mobile users see monthly cadence first.",
     "scope": "grafana/provisioning/dashboards/01-executive-overview-mobile.json",
     "effort": "small",
-    "status": "pending"
-  },
-  {
-    "id": 61,
-    "category": "dashboard-fix",
-    "title": "Use Grafana timepicker instead of custom time_window",
-    "description": "Un-hide Grafana timepicker, wire panels to Grafana's global range, keep month selector for convenience, and remove/ignore the custom time_window variable so time range follows built-in picker.",
-    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; datasource queries using window_range CTE",
-    "effort": "medium",
     "status": "pending"
   },
   {
@@ -57,56 +39,11 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "status": "pending"
   },
   {
-    "id": 66,
-    "category": "dashboard-fix",
-    "title": "Remove/replace Month-to-Date widget",
-    "description": "MTD stats are misleading with quarterly refresh; hide or replace with last-closed-month metrics and trend context.",
-    "scope": "grafana/provisioning/dashboards/executive-dashboard.json (MTD panel)",
-    "effort": "small",
-    "status": "pending"
-  },
-  {
-    "id": 24,
-    "category": "dashboard-fix",
-    "title": "Return percent values in Savings & Expense Performance",
-    "description": "SQL: output savings_rate_pct = ROUND(CASE WHEN total_income>0 THEN net_cash_flow/total_income*100 END,1), savings_rate_3m_pct same windowed, savings_rate_ytd_pct = ytd_net_cash_flow/NULLIF(ytd_income,0)*100, expense_ratio_pct = outflow_to_inflow_ratio*100. Grafana (Savings & Expense Performance bar gauge): set unit to percent (not percentunit), thresholds 5/10/20/30, min 0 max 100.",
-    "scope": "reporting.rpt_monthly_budget_summary; grafana/provisioning/dashboards/executive-dashboard.json (Savings & Expense Performance)",
-    "effort": "small",
-    "status": "pending"
-  },
-  {
     "id": 25,
     "category": "dashboard-fix",
     "title": "Align Cash Flow Trend forecast one month forward",
     "description": "SQL: set forecast series time = month_date + interval '1 month' for forecasted_next_month_net_flow; limit to last 12 months. Grafana timeseries: show Net Cash Flow as bars, 3-Month Avg line, Forecast Next Month as dashed line with light fill; legend at bottom.",
     "scope": "reporting.rpt_cash_flow_analysis; grafana/provisioning/dashboards/executive-dashboard.json (Cash Flow Trend panel)",
-    "effort": "small",
-    "status": "pending"
-  },
-  {
-    "id": 26,
-    "category": "dashboard-fix",
-    "title": "Make Data Quality Callouts numeric and actionable",
-    "description": "SQL: return uncategorized_pct numeric (no % string) and uncategorized_amount; keep stale_accounts and unmatched_transfers. Grafana table: set uncategorized_pct unit percent, thresholds red>15, yellow>10; add link column to /d/transaction_analysis_dashboard?var_category=Uncategorized. Keep existing link to outflows_reconciliation.",
-    "scope": "reporting.rpt_outflows_insights_dashboard; grafana/provisioning/dashboards/executive-dashboard.json (Data Quality Callouts)",
-    "effort": "small",
-    "status": "pending"
-  },
-  {
-    "id": 27,
-    "category": "dashboard-fix",
-    "title": "Add actionability to Top Uncategorized Merchants",
-    "description": "SQL: add contribution_pct = total_amount / (SELECT SUM(total_amount) FROM reporting.viz_uncategorized_transactions_with_original_memo) * 100; filter WHERE txn_count>=2 OR total_amount>=100; keep ORDER BY total_amount DESC LIMIT 10. Grafana table: add Contribution % column (unit percent, two decimals), add URL link per merchant to categorize flow (same target as existing script path).",
-    "scope": "reporting.viz_uncategorized_transactions_with_original_memo; grafana/provisioning/dashboards/executive-dashboard.json (Top Uncategorized Merchants table)",
-    "effort": "small",
-    "status": "pending"
-  },
-  {
-    "id": 28,
-    "category": "dashboard-fix",
-    "title": "Improve Week-to-Date Spending Pace readability",
-    "description": "SQL: add pace_ratio = wtd_spending / NULLIF(expected_spend_to_date,0) * 100 and return expected_spend_to_date. Grafana stat: set main value to pace_ratio (unit percent, thresholds <90 green, 90–110 yellow, >110 red); show secondaries Week Spent, Weekly Budget, Daily Budget Left, Days Left; hide raw pace_status field.",
-    "scope": "reporting.rpt_weekly_spending_pace; grafana/provisioning/dashboards/executive-dashboard.json (Week-to-Date Spending Pace stat)",
     "effort": "small",
     "status": "pending"
   },
@@ -385,5 +322,25 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "scope": "pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_budget_cockpit_fixed_vs_discretionary.sql; grafana/provisioning/dashboards/monthly-budget-summary-dashboard.json",
     "effort": "small",
     "status": "pending"
+  },
+  {
+    "id": 77,
+    "category": "dashboard-fix",
+    "title": "Resolve Grafana Postgres query 400 errors across dashboards",
+    "description": "Multiple dashboards log failed /api/ds/query calls (HTTP 400) and variable validation errors when loading panels, which surfaces as 'Error' in the UI. Audit the grafana-postgresql datasource, template variables, and SQL syntax/parameterization so queries execute cleanly without Bad Request responses.",
+    "scope": "Grafana datasource settings; dashboard variables and SQL queries across all dashboards",
+    "effort": "medium",
+    "status": "pending",
+    "notes": "Observed on Account Performance, Amazon Spending, Executive Overview, and several mobile dashboards during 2026-02-05 review."
+  },
+  {
+    "id": 78,
+    "category": "dashboard-fix",
+    "title": "Restore data in dashboards showing 'No data' panels",
+    "description": "Panels show 'No data' on multiple dashboards (Account Performance, Amazon Spending Analysis, Category Spending Analysis, Executive Financial Overview, Expense Performance Analysis, Grocery Spending Analysis, Household Net Worth Analysis, Mortgage Payoff, Outflows Insights, and mobile Executive Overview). Identify the missing/empty sources for each dashboard and ensure queries return rows for the current time range.",
+    "scope": "Grafana dashboard JSONs and their upstream reporting models feeding the affected panels",
+    "effort": "medium",
+    "status": "pending",
+    "notes": "Detected via live Grafana review on 2026-02-05."
   }
 ]
