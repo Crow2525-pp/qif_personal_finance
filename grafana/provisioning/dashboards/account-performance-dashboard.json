@@ -50,36 +50,42 @@
         "type": "grafana-postgresql-datasource",
         "uid": "PCC52D03280B7034C"
       },
-      "targets": [
-        {
-          "refId": "A",
-          "format": "table",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PCC52D03280B7034C"
+        "targets": [
+          {
+            "refId": "A",
+            "format": "table",
+            "datasource": {
+              "type": "grafana-postgresql-datasource",
+              "uid": "PCC52D03280B7034C"
+            },
+            "rawQuery": true,
+            "rawSql": "SELECT \n  EXTRACT(EPOCH FROM MAX(period_date)) * 1000 AS latest_month_ms\nFROM reporting.viz_balance_by_year_month;"
+          }
+        ],
+        "options": {
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "latest_month_ms",
+            "values": false
           },
-          "rawQuery": true,
-          "rawSql": "SELECT TO_CHAR(MAX(period_date), 'Mon YYYY') AS latest_month FROM reporting.viz_balance_by_year_month;"
-        }
-      ],
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "value",
-          "values": false
+          "orientation": "horizontal",
+          "textMode": "value",
+          "colorMode": "value",
+          "graphMode": "none",
+          "justifyMode": "center"
         },
-        "orientation": "horizontal",
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "center"
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 24,
-        "x": 0,
+        "fieldConfig": {
+          "defaults": {
+            "unit": "dateTimeAsIso"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 24,
+          "x": 0,
         "y": 8
       }
     },
