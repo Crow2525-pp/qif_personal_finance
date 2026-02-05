@@ -1358,7 +1358,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH data AS (\n  SELECT\n    original_memo AS merchant,\n    transaction_count AS txn_count,\n    ROUND(total_amount, 2) AS total_spend,\n    last_transaction_date AS last_seen,\n    priority_level\n  FROM reporting.viz_uncategorized_transactions_with_original_memo\n  ORDER BY total_amount DESC, transaction_count DESC\n  LIMIT 10\n)\nSELECT\n  merchant AS \"Merchant\",\n  txn_count AS \"Txn Count\",\n  total_spend AS \"Total Spend\",\n  last_seen AS \"Last Seen\",\n  priority_level AS \"Priority\"\nFROM data\nUNION ALL\nSELECT 'None', 0, 0, NULL::date, 'N/A'\nWHERE NOT EXISTS (SELECT 1 FROM data);",
+          "rawSql": "WITH data AS (\n  SELECT\n    SPLIT_PART(original_memo, ' - ', 1) AS merchant,\n    SUM(transaction_count) AS txn_count,\n    ROUND(SUM(total_amount), 2) AS total_spend,\n    MAX(last_transaction_date) AS last_seen\n  FROM reporting.viz_uncategorized_transactions_with_original_memo\n  GROUP BY SPLIT_PART(original_memo, ' - ', 1)\n  ORDER BY SUM(total_amount) DESC\n  LIMIT 10\n)\nSELECT\n  merchant AS \"Merchant\",\n  txn_count AS \"Txn Count\",\n  total_spend AS \"Total Spend\",\n  last_seen AS \"Last Seen\"\nFROM data\nUNION ALL\nSELECT 'None', 0, 0, NULL::date\nWHERE NOT EXISTS (SELECT 1 FROM data);",
           "refId": "A"
         }
       ],
