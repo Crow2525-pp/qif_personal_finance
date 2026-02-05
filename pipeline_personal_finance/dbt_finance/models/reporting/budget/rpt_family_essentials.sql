@@ -23,7 +23,7 @@ WITH month_set AS (
     ft.transaction_year || '-' || LPAD(ft.transaction_month::TEXT, 2, '0') AS budget_year_month
   FROM {{ ref('fct_transactions') }} ft
   WHERE to_date(ft.transaction_year || '-' || LPAD(ft.transaction_month::TEXT, 2, '0') || '-01', 'YYYY-MM-DD') < date_trunc('month', CURRENT_DATE)
-),
+), 
 
 monthly_family_spending AS (
   SELECT
@@ -43,10 +43,10 @@ monthly_family_spending AS (
     COUNT(CASE WHEN ft.transaction_amount < 0 AND NOT COALESCE(ft.is_internal_transfer, FALSE) THEN 1 END) AS transaction_count
 
   FROM month_set ms
-  LEFT JOIN {{ ref('fct_transactions') }} ft
+  LEFT JOIN {{ ref('fct_transactions_enhanced') }} ft
     ON ft.transaction_year = ms.transaction_year
    AND ft.transaction_month = ms.transaction_month
-  LEFT JOIN {{ ref('dim_categories') }} dc ON ft.category_key = dc.category_key
+  LEFT JOIN {{ ref('dim_categories_enhanced') }} dc ON ft.category_key = dc.category_key
   WHERE dc.level_1_category IN ('Food & Drink', 'Family & Kids', 'Health & Beauty', 'Household & Services')
   GROUP BY
     ms.transaction_year,
@@ -84,13 +84,6 @@ monthly_totals AS (
 
   FROM monthly_family_spending
   GROUP BY budget_year_month, transaction_year, transaction_month
-),
-
--- Anchor to the freshest fully-loaded month (exclude the in-progress calendar month)
-latest_month AS (
-  SELECT MAX(to_date(budget_year_month || '-01', 'YYYY-MM-DD')) AS max_month
-  FROM monthly_totals
-  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') < date_trunc('month', CURRENT_DATE)
 ),
 
 with_trends AS (
@@ -169,5 +162,4 @@ SELECT
   CURRENT_TIMESTAMP AS report_generated_at
 
 FROM with_trends
-WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT max_month FROM latest_month)
 ORDER BY transaction_year DESC, transaction_month DESC

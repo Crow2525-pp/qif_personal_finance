@@ -2247,7 +2247,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  months_essential_expenses_covered AS \"Months Covered\",\n  coverage_status AS \"Status\"\nFROM reporting.rpt_emergency_fund_coverage\nLIMIT 1;",
+          "rawSql": "SELECT\n  MIN(months_essential_expenses_covered, 6) AS \"Months Covered\",\n  coverage_status AS \"Status\"\nFROM reporting.rpt_emergency_fund_coverage\nLIMIT 1;",
           "refId": "A"
         }
       ],

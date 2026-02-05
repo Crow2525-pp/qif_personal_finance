@@ -24,6 +24,7 @@ WITH base_monthly_account_balances AS (
     
     -- Get end of month balance for each account
     MAX(ft.account_balance) AS end_of_month_balance,
+    ABS(MAX(ft.account_balance)) AS balance_abs,
     MIN(ft.transaction_date) AS month_start_date,
     MAX(ft.transaction_date) AS month_end_date
     
@@ -57,6 +58,7 @@ monthly_account_balances AS (
     is_liquid_asset,
     is_mortgage,
     end_of_month_balance,
+    ABS(end_of_month_balance) AS balance_abs,
     month_start_date,
     month_end_date
   FROM {{ ref('int_property_assets_monthly') }}
@@ -70,46 +72,43 @@ monthly_net_worth_calculation AS (
 
     -- Asset values (use absolute values for display)
     SUM(CASE
-      WHEN NOT is_liability THEN ABS(end_of_month_balance)
+      WHEN NOT is_liability THEN balance_abs
       ELSE 0
     END) AS total_assets,
     SUM(CASE
-      WHEN account_type = 'Property' THEN ABS(end_of_month_balance)
+      WHEN account_type = 'Property' THEN balance_abs
       ELSE 0
     END) AS property_assets,
     SUM(CASE
-      WHEN NOT is_liability AND account_type != 'Property' THEN ABS(end_of_month_balance)
+      WHEN NOT is_liability AND account_type != 'Property' THEN balance_abs
       ELSE 0
     END) AS non_property_assets,
 
     -- Liability values (use absolute values for display)
     SUM(CASE
-      WHEN is_liability THEN ABS(end_of_month_balance)
+      WHEN is_liability THEN balance_abs
       ELSE 0
     END) AS total_liabilities,
 
     -- Net worth calculation (assets - liabilities)
     SUM(CASE
-      WHEN NOT is_liability THEN ABS(end_of_month_balance)
+      WHEN NOT is_liability THEN balance_abs
       ELSE 0
-    END) - SUM(CASE
-      WHEN is_liability THEN ABS(end_of_month_balance)
-      ELSE 0
-    END) AS net_worth,
+    END) - SUM(CASE WHEN is_liability THEN balance_abs ELSE 0 END) AS net_worth,
     
     -- Breakdown by account categories
     SUM(CASE 
-      WHEN COALESCE(is_liquid_asset, FALSE) THEN ABS(end_of_month_balance)
+      WHEN COALESCE(is_liquid_asset, FALSE) AND NOT is_liability THEN balance_abs
       ELSE 0 
     END) AS liquid_assets,
     
     SUM(CASE 
-      WHEN account_type = 'Offset' THEN end_of_month_balance 
+      WHEN account_type = 'Offset' THEN balance_abs 
       ELSE 0 
     END) AS offset_accounts,
     
     SUM(CASE 
-      WHEN is_mortgage THEN ABS(end_of_month_balance)
+      WHEN is_mortgage THEN balance_abs
       ELSE 0 
     END) AS mortgage_debt,
     

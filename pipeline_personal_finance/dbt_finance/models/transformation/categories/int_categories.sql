@@ -44,17 +44,15 @@ categorised_transactions AS (
                 AND UPPER(transactions.transaction_type) = UPPER(category.transaction_type)
             ) THEN 2
             WHEN (
-                transactions.memo IS NOT NULL
+                COALESCE(transactions.transaction_description, transactions.memo) IS NOT NULL
                 AND category.transaction_description IS NOT NULL
-                AND transactions.memo ILIKE CONCAT('%', category.transaction_description, '%')
+                AND COALESCE(transactions.transaction_description, transactions.memo) ILIKE CONCAT('%', category.transaction_description, '%')
             ) THEN 3
             ELSE 999
         END AS match_priority
     FROM transaction_data AS transactions
     LEFT JOIN category_mappings AS category
-        ON
-            UPPER(transactions.account_name) = UPPER(category.account_name)
-            AND (
+        ON (
                 (
                     transactions.sender IS NOT NULL
                     AND transactions.recipient IS NOT NULL
@@ -69,9 +67,9 @@ categorised_transactions AS (
                     AND UPPER(transactions.transaction_type) = UPPER(category.transaction_type)
                 )
                 OR (
-                    transactions.memo IS NOT NULL
+                    COALESCE(transactions.transaction_description, transactions.memo) IS NOT NULL
                     AND category.transaction_description IS NOT NULL
-                    AND transactions.memo ILIKE CONCAT('%', category.transaction_description, '%')
+                    AND COALESCE(transactions.transaction_description, transactions.memo) ILIKE CONCAT('%', category.transaction_description, '%')
                 )
             )
 ),
