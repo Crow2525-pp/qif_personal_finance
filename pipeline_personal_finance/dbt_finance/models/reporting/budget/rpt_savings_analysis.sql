@@ -275,7 +275,7 @@ final_insights AS (
     
     -- Personalized recommendations
     CASE 
-      WHEN total_savings_rate_percent < 0.05 THEN 'Critical: Create basic savings plan - start with 1% of income'
+      WHEN total_savings_rate_percent < 0.05 THEN 'Critical: Optimize offset savings strategy - review offset balance allocation'
       WHEN traditional_savings_rate_percent < 0.10 AND expense_ratio_percent > 0.90 THEN 'Focus on reducing expenses to increase savings'
       WHEN liquid_savings_rate_percent < 0.05 THEN 'Build emergency fund before other investments'
       WHEN investment_rate_percent < 0.05 AND total_savings_rate_percent > 0.15 THEN 'Consider increasing investment contributions'
@@ -338,7 +338,7 @@ final_insights AS (
 
     -- Action priority items (comma-separated for display)
     CASE
-      WHEN traditional_savings_rate_percent < 0.10 THEN 'Create basic savings plan | Review all expense categories | Build emergency fund'
+      WHEN traditional_savings_rate_percent < 0.10 THEN 'Optimize offset savings strategy | Review all expense categories | Build emergency fund'
       WHEN traditional_savings_rate_percent < 0.15 THEN 'Increase savings rate by 5% | Cut discretionary spending | Automate transfers'
       WHEN traditional_savings_rate_percent < 0.20 THEN 'Boost savings toward 20% | Optimize investment allocation | Review recurring bills'
       WHEN traditional_savings_rate_percent < 0.25 THEN 'Scale toward FIRE target | Tax-optimize investments | Increase income'
