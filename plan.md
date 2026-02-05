@@ -12,24 +12,6 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
 
 [
   {
-    "id": 34,
-    "category": "dashboard-fix",
-    "title": "Align liquid assets and net worth signs",
-    "description": "Treat assets/liabilities as positive balances in both net worth and monthly snapshot queries; set net_worth = assets - liabilities; remove negative liquid_assets so snapshots and asset cards agree.",
-    "scope": "reporting.rpt_household_net_worth; reporting.rpt_cash_flow_analysis snapshot fields; grafana/provisioning/dashboards/executive-dashboard.json (Asset & Liability Snapshot, Monthly Financial Snapshot)",
-    "effort": "small",
-    "status": "pending"
-  },
-  {
-    "id": 35,
-    "category": "dashboard-fix",
-    "title": "Restore Cash Flow Trend as timeseries",
-    "description": "Ensure query outputs time (month_date) and numeric series; set panel type timeseries with Net Cash Flow (bars), 3M Avg (line), Forecast (dashed line, shifted +1 month).",
-    "scope": "reporting.rpt_cash_flow_analysis + grafana/provisioning/dashboards/executive-dashboard.json (Cash Flow Trend panel)",
-    "effort": "small",
-    "status": "pending"
-  },
-  {
     "id": 36,
     "category": "dashboard-fix",
     "title": "Replace WTD pace with Month-to-Date pace",
@@ -57,30 +39,12 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "status": "pending"
   },
   {
-    "id": 39,
-    "category": "dashboard-fix",
-    "title": "Update Executive Summary text for monthly/quarterly cadence",
-    "description": "Rewrite summary to state latest closed month, refresh frequency (monthly/quarterly), and cite net cash flow direction plus count of cash-flow drivers surfaced.",
-    "scope": "grafana/provisioning/dashboards/executive-dashboard.json (Executive Summary text panel)",
-    "effort": "tiny",
-    "status": "pending"
-  },
-  {
     "id": 40,
     "category": "dashboard-fix",
     "title": "Align mobile Executive Overview with monthly-first layout",
     "description": "Mirror hero row order and new MTD pacing panel in 01-executive-overview-mobile.json so mobile users see monthly cadence first.",
     "scope": "grafana/provisioning/dashboards/01-executive-overview-mobile.json",
     "effort": "small",
-    "status": "pending"
-  },
-  {
-    "id": 60,
-    "category": "dashboard-fix",
-    "title": "Clean Executive Summary text",
-    "description": "Remove foreign/garbled characters and restate summary in plain English for the selected month; ensure utf-8 content and template variables render cleanly.",
-    "scope": "grafana/provisioning/dashboards/executive-dashboard.json (Executive Summary text panel)",
-    "effort": "tiny",
     "status": "pending"
   },
   {
@@ -116,33 +80,6 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "title": "Remove/replace Month-to-Date widget",
     "description": "MTD stats are misleading with quarterly refresh; hide or replace with last-closed-month metrics and trend context.",
     "scope": "grafana/provisioning/dashboards/executive-dashboard.json (MTD panel)",
-    "effort": "small",
-    "status": "pending"
-  },
-  {
-    "id": 21,
-    "category": "dashboard-fix",
-    "title": "Fix Family Essentials stat (latest month filter + fallback)",
-    "description": "SQL: add WHERE budget_year_month = (SELECT month_key FROM selected_key) and COALESCE all spend columns to 0; keep ORDER BY budget_year_month DESC LIMIT 1 so latest closed month returns a row. Grafana (panel title 'Family Essentials (Last Month)' in executive-dashboard.json): set reduceOptions.values=true and fields='Total Essentials' so the stat shows the total, not an empty state.",
-    "scope": "reporting.rpt_family_essentials; grafana/provisioning/dashboards/executive-dashboard.json (Family Essentials stat panel)",
-    "effort": "small",
-    "status": "pending"
-  },
-  {
-    "id": 22,
-    "category": "dashboard-fix",
-    "title": "Correct Asset & Liability Snapshot sign logic",
-    "description": "SQL (rpt_household_net_worth): compute total_assets = SUM(CASE WHEN account_type!='liability' THEN balance_abs ELSE 0 END), total_liabilities = SUM(CASE WHEN account_type='liability' THEN balance_abs ELSE 0 END); net_worth = total_assets - total_liabilities; debt_to_asset_ratio = total_liabilities/NULLIF(total_assets,0). Grafana (Asset & Liability Snapshot panel): keep unit currencyUSD; no negatives should appear for assets.",
-    "scope": "reporting.rpt_household_net_worth; grafana/provisioning/dashboards/executive-dashboard.json (Asset & Liability Snapshot panel)",
-    "effort": "small",
-    "status": "pending"
-  },
-  {
-    "id": 23,
-    "category": "dashboard-fix",
-    "title": "Restore Monthly Financial Snapshot income/expense values",
-    "description": "SQL: source monthly_income = inflow_excl_transfers, monthly_expenses = outflow_excl_transfers from rpt_cash_flow_analysis for selected month; monthly_net_cash_flow = monthly_income - monthly_expenses; COALESCE fields to 0. Grafana panel 'Monthly Financial Snapshot': ensure fields map to monthly_income, monthly_expenses, monthly_net_cash_flow, monthly_total_savings (same as net cash flow) and keep unit currencyUSD.",
-    "scope": "reporting.rpt_cash_flow_analysis; grafana/provisioning/dashboards/executive-dashboard.json (Monthly Financial Snapshot stat)",
     "effort": "small",
     "status": "pending"
   },
