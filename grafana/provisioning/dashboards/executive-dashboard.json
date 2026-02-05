@@ -1321,7 +1321,9 @@
         }
       ],
       "title": "Cash Flow Trend (12 Months)",
-      "type": "timeseries"
+      "type": "timeseries",
+      "timeFrom": "now-12M",
+      "timeTo": "now"
     },
     {
       "datasource": {
