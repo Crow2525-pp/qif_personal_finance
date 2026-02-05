@@ -21,24 +21,6 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "status": "pending"
   },
   {
-    "id": 37,
-    "category": "dashboard-fix",
-    "title": "Reorder hero row for monthly cadence",
-    "description": "Top layout order: Data Freshness → Monthly Financial Snapshot → Family Essentials → Emergency Fund → Cash Flow Drivers; move Data Quality Callouts directly under hero; fold detailed KPI tables into a collapsible section.",
-    "scope": "grafana/provisioning/dashboards/executive-dashboard.json layout",
-    "effort": "small",
-    "status": "pending"
-  },
-  {
-    "id": 38,
-    "category": "dashboard-fix",
-    "title": "Enhance Data Quality Callouts for uncategorized risk",
-    "description": "Return uncategorized_pct numeric plus uncategorized_amount; set percent thresholds red>15%, yellow>10%; add link to Transaction Analysis filtered to uncategorized items.",
-    "scope": "reporting.rpt_outflows_insights_dashboard; grafana/provisioning/dashboards/executive-dashboard.json (Data Quality Callouts)",
-    "effort": "small",
-    "status": "pending"
-  },
-  {
     "id": 40,
     "category": "dashboard-fix",
     "title": "Align mobile Executive Overview with monthly-first layout",

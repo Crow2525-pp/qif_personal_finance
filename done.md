@@ -224,5 +224,25 @@ Tasks that have been completed and verified.
     "effort": "small",
     "status": "done",
     "notes": "Verified: Monthly Snapshot shows 2.8K income, 4.8K expenses, -.98K net cash flow"
+  },
+  {
+    "id": 37,
+    "category": "dashboard-fix",
+    "title": "Reorder hero row for monthly cadence",
+    "description": "Top layout order: Data Freshness → Monthly Financial Snapshot → Family Essentials → Emergency Fund → Cash Flow Drivers; move Data Quality Callouts directly under hero; fold detailed KPI tables into a collapsible section.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json layout",
+    "effort": "small",
+    "status": "done",
+    "notes": "Completed: Hero section reordered - Monthly Snapshot prominent at y=3, Essentials/Fund/Expense at y=10, Data Quality at y=19"
+  },
+  {
+    "id": 38,
+    "category": "dashboard-fix",
+    "title": "Enhance Data Quality Callouts for uncategorized risk",
+    "description": "Return uncategorized_pct numeric plus uncategorized_amount; set percent thresholds red>15%, yellow>10%; add link to Transaction Analysis filtered to uncategorized items.",
+    "scope": "reporting.rpt_outflows_insights_dashboard; grafana/provisioning/dashboards/executive-dashboard.json (Data Quality Callouts)",
+    "effort": "small",
+    "status": "done",
+    "notes": "Already complete: Thresholds green/yellow(10)/red(15), uncategorized amount shown, drill-down link present"
   }
 ]
