@@ -12,86 +12,6 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
 
 [
   {
-    "id": 41,
-    "category": "dashboard-fix",
-    "title": "Make time_window variable drive all Executive panels",
-    "description": "In grafana/provisioning/dashboards/executive-dashboard.json, update every SQL query to honor $time_window via a shared window_range CTE (latest_month, ytd, trailing_12m). Replace single-month filters (= selected_period) with BETWEEN window_range.start_date and window_range.end_date and adjust aggregates (sums/avgs) accordingly for: Data Freshness, Key Executive KPIs table, Savings & Expense Performance, Cash Flow Trend timeseries, and any other month-scoped stat panels. Also set templating.list entries for time_window and dashboard_period to disallow custom values (allowCustom=false, queryOption.multi=false) to prevent invalid SQL.",
-    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; reporting.rpt_monthly_budget_summary; reporting.rpt_cash_flow_analysis",
-    "effort": "medium",
-    "status": "done",
-    "notes": "16 panels updated via window_range CTE. Key Executive KPIs uses previous_window_range for period comparison. Family Essentials SUM is wired but rpt_family_essentials model still materialises latest month only \u2014 needs model update to expose all months (see task 45 scope)."
-  },
-  {
-    "id": 42,
-    "category": "dashboard-fix",
-    "title": "Sync dashboard time picker with selected period",
-    "description": "Ensure the Grafana dashboard time range follows the chosen month in $dashboard_period: set timepicker.hidden=true (dashboard-level) and programmatically set panel queries to use the selected period window instead of the URL time range now-1M/M..now/M. Prevents mismatches where panels show the selected month but the global range stays on the previous one.",
-    "scope": "grafana/provisioning/dashboards/executive-dashboard.json (timepicker block, defaults); reporting queries already windowed after task 41",
-    "effort": "small",
-    "status": "done",
-    "notes": "Timepicker hidden; all panels already windowed via window_range CTE from task 41."
-  },
-  {
-    "id": 43,
-    "category": "dashboard-fix",
-    "title": "Zero-safe deltas and ratios in Executive KPI tables",
-    "description": "Guard division by zero and missing previous periods in Net Cash Flow and Forecast rows. SQL template: delta_ratio = CASE WHEN COALESCE(prev,0)=0 AND COALESCE(curr,0)=0 THEN 0 WHEN COALESCE(prev,0)=0 THEN NULL ELSE (curr-prev)/NULLIF(ABS(prev),0) END; delta_value = curr - COALESCE(prev,0). Apply the same logic to MoM Rate Changes. In JSON: set field.displayMode to 'color-text', nullValueMode='connected', and add 'text: n/a' override when value is null; keep percent unit.",
-    "scope": "reporting.rpt_monthly_budget_summary; grafana/provisioning/dashboards/executive-dashboard.json (Key Executive KPIs, Month-over-Month Rate Changes tables)",
-    "effort": "small",
-    "status": "done",
-    "notes": "Fixed integer division in Health & Risk delta_ratio (cast to ::numeric). Added nullTextValue for 0/0 cases."
-  },
-  {
-    "id": 44,
-    "category": "dashboard-fix",
-    "title": "Normalize percent units across rate panels",
-    "description": "Standardize all percent outputs to 0\u2013100 numeric scale. SQL: multiply ratios by 100 and alias without '%' chars. Panels to update: Savings & Expense Performance bars, MoM Rate Changes, Expense Ratio stats, uncategorized_pct in Data Quality Callouts. JSON: set fieldConfig.defaults.unit='percent', thresholds numeric (e.g., 5/10/20/30 or red>15 yellow>10 for data-quality), remove any suffix text '%'.",
-    "scope": "reporting.rpt_monthly_budget_summary; reporting.rpt_outflows_insights_dashboard; grafana/provisioning/dashboards/executive-dashboard.json (Savings & Expense Performance, MoM Rate Changes, Data Quality Callouts, related stats)",
-    "effort": "small",
-    "status": "done",
-    "notes": "Panel 101 MoM Rate Changes: SQL \u00d7100 for current/previous/delta, JSON unit changed to percent. Consistent with Savings & Expense Performance bars."
-  },
-  {
-    "id": 45,
-    "category": "dashboard-fix",
-    "title": "Apply selected period to data-quality and merchant panels",
-    "description": "Filter Data Quality Callouts, Top Uncategorized Merchants, and AI Financial Insights to $time_window/$dashboard_period. SQL: add window_range CTE (start_date/end_date) and apply WHERE activity_date BETWEEN start_date AND end_date (or month_date for monthly models). For merchants: recompute contribution_pct within the filtered set and ORDER BY contribution_pct DESC LIMIT 10. JSON: pass both variables in links (?var-dashboard_period=$dashboard_period&var-time_window=$time_window) and set panels to refresh on variable change.",
-    "scope": "reporting.rpt_outflows_insights_dashboard; reporting.viz_uncategorized_transactions_with_original_memo; grafana/provisioning/dashboards/executive-dashboard.json (Data Quality Callouts, Top Uncategorized Merchants, AI Financial Insights)",
-    "effort": "medium",
-    "status": "done",
-    "notes": "Panel 901 unixEpoch macros replaced; uncategorized now reads 87.1%. Panel 902 merchant names normalised via SPLIT_PART and aggregated across periods."
-  },
-  {
-    "id": 31,
-    "category": "dashboard-fix",
-    "title": "Fix Monthly Income pull in Executive Snapshot",
-    "description": "Use inflow_excl_transfers from reporting.rpt_cash_flow_analysis for selected month (COALESCE to 0) so Monthly Income is not $0; ensure datasource UID matches Postgres and join only on latest/selected month key.",
-    "scope": "reporting.rpt_cash_flow_analysis; grafana/provisioning/dashboards/executive-dashboard.json (Monthly Financial Snapshot stat)",
-    "effort": "small",
-    "status": "done",
-    "notes": "Monthly Income/Expenses populate correctly for Jan 2026 (see screenshots/executive-dashboard-full-2026-02-04.png)."
-  },
-  {
-    "id": 32,
-    "category": "dashboard-fix",
-    "title": "Return real percentages in Savings & Expense Performance",
-    "description": "Multiply ratios by 100 with divide-by-zero guards: savings_rate_pct, savings_rate_3m_pct, savings_rate_ytd_pct, expense_ratio_pct; set Grafana unit=percent and thresholds 5/10/20/30 so values no longer show 0%.",
-    "scope": "reporting.rpt_monthly_budget_summary; grafana/provisioning/dashboards/executive-dashboard.json (Savings & Expense Performance bar gauge)",
-    "effort": "small",
-    "status": "done",
-    "notes": "Savings Rate and Expense Ratio now show scaled % values (-10.2%, 4.2%, 110%) in UI (screenshots/executive-dashboard-full-2026-02-04.png)."
-  },
-  {
-    "id": 33,
-    "category": "dashboard-fix",
-    "title": "Make Cash Flow Drivers panel always return rows",
-    "description": "In MoM drivers query, select current and previous month even if prior is missing by defaulting to 0 rows; compute income_delta, expense_delta, transfers_delta, net_delta; ensure datasource UID is valid to stop 'No data'.",
-    "scope": "reporting.rpt_monthly_budget_summary (plus transfers source); grafana/provisioning/dashboards/executive-dashboard.json (Cash Flow Drivers panel)",
-    "effort": "small",
-    "status": "done",
-    "notes": "Panel rewritten to use a base driver list LEFT JOINed to rpt_mom_cash_flow_waterfall so it always returns four rows with 0 defaults when data is missing. Removed reliance on $__timeTo to avoid macro casting errors; now keyed solely on dashboard_period (Latest -> max available month). Provisioned to Grafana; API test returns rows."
-  },
-  {
     "id": 34,
     "category": "dashboard-fix",
     "title": "Align liquid assets and net worth signs",
@@ -122,7 +42,7 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "id": 37,
     "category": "dashboard-fix",
     "title": "Reorder hero row for monthly cadence",
-    "description": "Top layout order: Data Freshness \u2192 Monthly Financial Snapshot \u2192 Family Essentials \u2192 Emergency Fund \u2192 Cash Flow Drivers; move Data Quality Callouts directly under hero; fold detailed KPI tables into a collapsible section.",
+    "description": "Top layout order: Data Freshness → Monthly Financial Snapshot → Family Essentials → Emergency Fund → Cash Flow Drivers; move Data Quality Callouts directly under hero; fold detailed KPI tables into a collapsible section.",
     "scope": "grafana/provisioning/dashboards/executive-dashboard.json layout",
     "effort": "small",
     "status": "pending"
@@ -173,16 +93,6 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "status": "pending"
   },
   {
-    "id": 62,
-    "category": "dashboard-fix",
-    "title": "Refine AI Financial Insights tone",
-    "description": "Remove the \"create basic savings plan\" suggestion; replace with offset-focused savings acknowledgement and higher-value insights (e.g., variance drivers, category anomalies).",
-    "scope": "reporting.rpt_outflows_insights_dashboard (AI insights text) and grafana/provisioning/dashboards/executive-dashboard.json AI panel",
-    "effort": "small",
-    "status": "done",
-    "notes": "rpt_savings_analysis.sql: replaced Create basic savings plan with Optimize offset savings strategy. Takes effect on next dbt run."
-  },
-  {
     "id": 63,
     "category": "dashboard-fix",
     "title": "Move and format \"How to read\" section",
@@ -192,20 +102,10 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "status": "pending"
   },
   {
-    "id": 64,
-    "category": "dashboard-fix",
-    "title": "Triage Emergency Fund and Family Essentials figures",
-    "description": "Emergency fund coverage shows 187 months and Family Essentials shows 459; clarify definitions, cap or contextualize overly large values, and align labels to real-world meaning.",
-    "scope": "reporting.rpt_monthly_budget_summary, reporting.rpt_family_essentials; grafana/provisioning/dashboards/executive-dashboard.json (Emergency Fund, Family Essentials panels)",
-    "effort": "medium",
-    "status": "done",
-    "notes": "Emergency Fund panel: MIN replaced with LEAST(x, 6). Gauge max=6 with thresholds 0/1/3/6. Shows 6 months green."
-  },
-  {
     "id": 65,
     "category": "dashboard-fix",
     "title": "Reconcile spend benchmarks (groceries ~1000/mo, ex-mortgage 4-5k)",
-    "description": "Validate source models so grocery spend approximates $1k/month and total spend excluding mortgage reads ~$4\u20135k; adjust category mappings/filters if misclassified.",
+    "description": "Validate source models so grocery spend approximates $1k/month and total spend excluding mortgage reads ~$4–5k; adjust category mappings/filters if misclassified.",
     "scope": "reporting.rpt_outflows_insights_dashboard; macros/metric_expense; grafana/provisioning/dashboards/executive-dashboard.json relevant panels",
     "effort": "medium",
     "status": "pending"
@@ -286,20 +186,10 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "id": 28,
     "category": "dashboard-fix",
     "title": "Improve Week-to-Date Spending Pace readability",
-    "description": "SQL: add pace_ratio = wtd_spending / NULLIF(expected_spend_to_date,0) * 100 and return expected_spend_to_date. Grafana stat: set main value to pace_ratio (unit percent, thresholds <90 green, 90\u2013110 yellow, >110 red); show secondaries Week Spent, Weekly Budget, Daily Budget Left, Days Left; hide raw pace_status field.",
+    "description": "SQL: add pace_ratio = wtd_spending / NULLIF(expected_spend_to_date,0) * 100 and return expected_spend_to_date. Grafana stat: set main value to pace_ratio (unit percent, thresholds <90 green, 90–110 yellow, >110 red); show secondaries Week Spent, Weekly Budget, Daily Budget Left, Days Left; hide raw pace_status field.",
     "scope": "reporting.rpt_weekly_spending_pace; grafana/provisioning/dashboards/executive-dashboard.json (Week-to-Date Spending Pace stat)",
     "effort": "small",
     "status": "pending"
-  },
-  {
-    "id": 29,
-    "category": "dashboard-fix",
-    "title": "Tighten Emergency Fund Coverage gauge",
-    "description": "SQL: months_essential_expenses_covered = liquid_assets / NULLIF(essential_expenses_last_month,0); return coverage_status. Grafana gauge: set max 6, unit month, thresholds at 0/1/3/6 (red/orange/yellow/green), show status text as secondary label.",
-    "scope": "reporting.rpt_emergency_fund_coverage; grafana/provisioning/dashboards/executive-dashboard.json (Emergency Fund Coverage gauge)",
-    "effort": "small",
-    "status": "done",
-    "notes": "SQL capped at 6 via LEAST(); gauge thresholds 0/1/3/6 already configured. Renders green at 6 months."
   },
   {
     "id": 30,
@@ -318,7 +208,7 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "scope": "seeds/category_mappings + dbt run",
     "effort": "small",
     "status": "in-progress",
-    "notes": "Use scripts/categorize_transactions.py interactive tool. 19 patterns (1004 transactions) categorized in previous session. 2026-02-05: discovered categorization join was over-restrictive (account_name) and using memo instead of description; loosened join and switched to description matching, reducing uncategorized to ~8.1k/12.7k but majority still uncategorized\u2014needs new merchant patterns in banking_categories.csv."
+    "notes": "Use scripts/categorize_transactions.py interactive tool. 19 patterns (1004 transactions) categorized in previous session. 2026-02-05: discovered categorization join was over-restrictive (account_name) and using memo instead of description; loosened join and switched to description matching, reducing uncategorized to ~8.1k/12.7k but majority still uncategorized—needs new merchant patterns in banking_categories.csv."
   },
   {
     "id": 2,
@@ -329,36 +219,6 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "effort": "small",
     "status": "pending",
     "notes": "Add subcategory mappings in banking_categories.csv with subcategory='Childcare & Early Education'"
-  },
-  {
-    "id": 3,
-    "category": "family-insights",
-    "title": "Add 'Family Essentials' cost panel to Executive dashboard",
-    "description": "Create a single stat row showing monthly totals for: Childcare, Groceries, Kids Activities, Family Medical. These are the non-negotiable costs parents need to see first",
-    "scope": "Grafana Executive dashboard + new SQL panel",
-    "effort": "medium",
-    "status": "done",
-    "notes": "Created rpt_family_essentials.sql model and added 'Family Essentials (Last Month)' stat panel to Executive dashboard"
-  },
-  {
-    "id": 4,
-    "category": "emergency-fund",
-    "title": "Add emergency fund coverage panel to Executive dashboard",
-    "description": "Calculate months of essential expenses covered by liquid assets (target: 3-6 months). Show as gauge with red/yellow/green zones",
-    "scope": "Grafana panel + SQL calculation",
-    "effort": "small",
-    "status": "done",
-    "notes": "Created rpt_emergency_fund_coverage.sql model and added gauge panel to Executive dashboard with red/orange/yellow/green thresholds at 0/1/3/6 months"
-  },
-  {
-    "id": 5,
-    "category": "weekly-pacing",
-    "title": "Add 'Week-to-Date Spending Pace' panel",
-    "description": "Show current week spending vs weekly budget target (monthly budget / weeks in month). Include 'days remaining' and 'daily budget remaining' for easy mental math",
-    "scope": "New Grafana panel on Executive or new Weekly Review dashboard",
-    "effort": "medium",
-    "status": "done",
-    "notes": "Created rpt_weekly_spending_pace.sql model and added 'Week-to-Date Spending Pace' stat panel to Executive dashboard showing weekly budget, spending, and daily budget remaining"
   },
   {
     "id": 6,
@@ -481,16 +341,6 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "effort": "medium"
   },
   {
-    "id": 46,
-    "category": "dashboard-fix",
-    "title": "Resolve public dashboard 404 error",
-    "description": "Grafana console shows 404 on GET /api/dashboards/uid/executive_dashboard/public-dashboards. Audit Public Dashboards/NG plugin config and share settings; either enable the feature with correct endpoint or disable the share toggle to avoid broken requests.",
-    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Grafana public dashboards/plugin settings",
-    "effort": "small",
-    "status": "done",
-    "notes": "The 404 is Grafana proactively checking for a public dashboard. Normal behaviour when none is created. No action needed."
-  },
-  {
     "id": 47,
     "category": "dashboard-fix",
     "title": "Restore data to Family Essentials, Emergency Fund, and MTD Pace panels",
@@ -513,7 +363,7 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "id": 49,
     "category": "dashboard-fix",
     "title": "Fix text encoding/emoji in summary and KPI tables",
-    "description": "Panel text renders mojibake (e.g., '\u00f0\u0178\u201c\u0160', '\u00ce\u201d Ratio'). Ensure dashboard JSON saved in UTF-8, remove or replace emojis, and verify Grafana text panels/tables don't double-encode strings.",
+    "description": "Panel text renders mojibake (e.g., 'ðŸ“Š', 'Î” Ratio'). Ensure dashboard JSON saved in UTF-8, remove or replace emojis, and verify Grafana text panels/tables don't double-encode strings.",
     "scope": "grafana/provisioning/dashboards/executive-dashboard.json (Executive Summary, KPI tables)",
     "effort": "tiny",
     "status": "pending"
@@ -540,7 +390,7 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "id": 68,
     "category": "dashboard-consolidation",
     "title": "Consolidate Year-over-Year and Four-Year comparison dashboards",
-    "description": "Year-over-Year Financial Comparison and Four-Year Financial Comparison both present annual performance deltas, multi-year averages, and income/expense/net worth trends. Create a single 'Annual Performance & Trends' dashboard that supports 1\u20134 year views via a toggle, keeps the annual scorecard, and removes duplicate layouts and instructions blocks.",
+    "description": "Year-over-Year Financial Comparison and Four-Year Financial Comparison both present annual performance deltas, multi-year averages, and income/expense/net worth trends. Create a single 'Annual Performance & Trends' dashboard that supports 1–4 year views via a toggle, keeps the annual scorecard, and removes duplicate layouts and instructions blocks.",
     "scope": "grafana/provisioning/dashboards/year-over-year-comparison-dashboard.json; grafana/provisioning/dashboards/four-year-financial-comparison-dashboard.json",
     "effort": "medium",
     "status": "pending"
