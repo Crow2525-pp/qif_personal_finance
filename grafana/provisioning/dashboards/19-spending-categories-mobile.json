@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udcb3 Spending & Categories\n\nAnalyze spending patterns, categories, and transaction insights in mobile-friendly format.",
+        "content": "# 💳 Spending & Categories\n\nAnalyze spending patterns, categories, and transaction insights in mobile-friendly format.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -610,7 +610,7 @@
       },
       "id": 101,
       "options": {
-        "content": "## \ud83d\uded2 Grocery Spending Analysis\n\nDetailed breakdown of grocery spending across major retailers (Coles, Woolworths, Gaskos, ALDI).",
+        "content": "## 🛒 Grocery Spending Analysis\n\nDetailed breakdown of grocery spending across major retailers (Coles, Woolworths, Gaskos, ALDI).",
         "mode": "markdown"
       },
       "title": "Grocery Analysis",
@@ -853,7 +853,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "\ud83d\udcb3 Spending & Categories",
+  "title": "19 - Spending & Categories (Mobile)",
   "uid": "spending-categories-mobile",
   "version": 1,
   "weekStart": ""

@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udc8e Assets & Net Worth\n\nTrack account balances, net worth trends, and asset allocation in mobile-optimized format.",
+        "content": "# 💎 Assets & Net Worth\n\nTrack account balances, net worth trends, and asset allocation in mobile-optimized format.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -631,7 +631,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "\ud83d\udc8e Assets & Net Worth",
+  "title": "22 - Assets & Net Worth (Mobile)",
   "uid": "assets-networth-mobile",
   "version": 1,
   "weekStart": ""

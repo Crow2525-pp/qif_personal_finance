@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udcb8 Outflows Insights Dashboard - Spending Analysis\n\n**What This Dashboard Shows:** Deep analysis of spending patterns with categorization and trend detection for optimization opportunities.\n\n**Key Metrics Explained:**\n\u2022 **Monthly Outflow Trends:** Track spending with month-over-month and year-over-year changes\n\u2022 **Category Analysis:** Detailed breakdown across all spending areas\n\u2022 **Large Transactions:** Identify unusual high-value purchases\n\u2022 **Uncategorized Items:** Should be <10% for accurate reporting - these distort analysis\n\n**How to Use:** Focus on largest categories first. Investigate unexpected increases. Categorize unknown transactions for better insights.",
+        "content": "# 💸 Outflows Insights Dashboard - Spending Analysis\n\n**What This Dashboard Shows:** Deep analysis of spending patterns with categorization and trend detection for optimization opportunities.\n\n**Key Metrics Explained:**\n• **Monthly Outflow Trends:** Track spending with month-over-month and year-over-year changes\n• **Category Analysis:** Detailed breakdown across all spending areas\n• **Large Transactions:** Identify unusual high-value purchases\n• **Uncategorized Items:** Should be <10% for accurate reporting - these distort analysis\n\n**How to Use:** Focus on largest categories first. Investigate unexpected increases. Categorize unknown transactions for better insights.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -1382,7 +1382,7 @@
   },
   "timepicker": {},
   "timezone": "Australia/Melbourne",
-  "title": "Outflows Insights Dashboard",
+  "title": "08 - Outflows Insights",
   "uid": "outflows_insights",
   "version": 2,
   "weekStart": ""

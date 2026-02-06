@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udcca Savings & Performance\n\nTrack savings rates, efficiency metrics, and financial performance with mobile-optimized layouts.",
+        "content": "# 📊 Savings & Performance\n\nTrack savings rates, efficiency metrics, and financial performance with mobile-optimized layouts.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -885,7 +885,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "\ud83d\udcca Savings & Performance",
+  "title": "21 - Savings & Performance (Mobile)",
   "uid": "savings-performance-mobile",
   "version": 1,
   "weekStart": ""

@@ -31,7 +31,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udcf1 Executive Overview\n\nKey financial metrics and health indicators at a glance. Optimized for mobile viewing.",
+        "content": "# 📱 Executive Overview\n\nKey financial metrics and health indicators at a glance. Optimized for mobile viewing.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -422,7 +422,7 @@
       },
       "id": 102,
       "options": {
-        "content": "## \ud83d\udd0d Data Quality & Reconciliation\n\nFinancial data validation and reconciliation status across all reporting domains.",
+        "content": "## 🔍 Data Quality & Reconciliation\n\nFinancial data validation and reconciliation status across all reporting domains.",
         "mode": "markdown"
       },
       "title": "Reconciliation Status",
@@ -509,7 +509,7 @@
                 "ALL_PASS": {
                   "color": "green",
                   "index": 0,
-                  "text": "\u2705 ALL PASS"
+                  "text": "✅ ALL PASS"
                 }
               },
               "type": "value"
@@ -519,7 +519,7 @@
                 "SOME_FAIL": {
                   "color": "red",
                   "index": 1,
-                  "text": "\u274c SOME FAIL"
+                  "text": "❌ SOME FAIL"
                 }
               },
               "type": "value"
@@ -766,7 +766,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "\ud83d\udcf1 Executive Overview",
+  "title": "18 - Executive Overview (Mobile)",
   "uid": "exec-mobile-overview",
   "version": 1,
   "weekStart": ""

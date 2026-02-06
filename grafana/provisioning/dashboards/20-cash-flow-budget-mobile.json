@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udcb0 Cash Flow & Budget\n\nTrack income, expenses, and budget performance with mobile-optimized vertical layouts.",
+        "content": "# 💰 Cash Flow & Budget\n\nTrack income, expenses, and budget performance with mobile-optimized vertical layouts.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -616,7 +616,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "\ud83d\udcb0 Cash Flow & Budget",
+  "title": "20 - Cash Flow & Budget (Mobile)",
   "uid": "cashflow-budget-mobile",
   "version": 1,
   "weekStart": ""

@@ -583,12 +583,17 @@
       },
       "id": 6,
       "options": {
-        "displayLabels": ["name", "value"],
+        "displayLabels": [
+          "name",
+          "value"
+        ],
         "legend": {
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
-          "values": ["value"]
+          "values": [
+            "value"
+          ]
         },
         "pieType": "pie",
         "reduceOptions": {
@@ -995,12 +1000,17 @@
       },
       "id": 11,
       "options": {
-        "displayLabels": ["name", "value"],
+        "displayLabels": [
+          "name",
+          "value"
+        ],
         "legend": {
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true,
-          "values": ["value"]
+          "values": [
+            "value"
+          ]
         },
         "pieType": "pie",
         "reduceOptions": {
@@ -1079,7 +1089,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Financial Projections Dashboard",
+  "title": "12 - Financial Projections",
   "uid": "financial_projections",
   "version": 1,
   "weekStart": ""

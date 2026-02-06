@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83c\udfe0 Mortgage Payoff Analysis\n\nTrack your mortgage payoff progress and projected timeline based on current payment patterns.",
+        "content": "# 🏠 Mortgage Payoff Analysis\n\nTrack your mortgage payoff progress and projected timeline based on current payment patterns.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -598,7 +598,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Mortgage Payoff Dashboard",
+  "title": "15 - Mortgage Payoff",
   "uid": "mortgage-payoff",
   "version": 1,
   "weekStart": ""

@@ -376,28 +376,101 @@
       "description": "Performance classifications for key metrics",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#8B0000",
                 "value": null
+              },
+              {
+                "color": "#FF4500",
+                "value": 25
+              },
+              {
+                "color": "#FFD700",
+                "value": 50
+              },
+              {
+                "color": "#32CD32",
+                "value": 75
+              },
+              {
+                "color": "#00FF00",
+                "value": 90
+              }
+            ]
+          },
+          "color": {
+            "mode": "palette-classic-by-name"
+          },
+          "max": 100,
+          "min": 0,
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Annual Progress Score"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#32CD32",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Income Performance"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#4169E1",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Expense Performance"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FFD700",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Net Worth Performance"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FF6347",
+                  "mode": "fixed"
+                }
               }
             ]
           }
-        },
-        "overrides": []
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -406,55 +479,21 @@
         "y": 16
       },
       "id": 4,
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "#8B0000", "value": null },
-              { "color": "#FF4500", "value": 25 },
-              { "color": "#FFD700", "value": 50 },
-              { "color": "#32CD32", "value": 75 },
-              { "color": "#00FF00", "value": 90 }
-            ]
-          },
-          "color": { "mode": "palette-classic-by-name" },
-          "max": 100,
-          "min": 0,
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": { "id": "byName", "options": "Annual Progress Score" },
-            "properties": [
-              { "id": "color", "value": { "fixedColor": "#32CD32", "mode": "fixed" } }
-            ]
-          },
-          {
-            "matcher": { "id": "byName", "options": "Income Performance" },
-            "properties": [
-              { "id": "color", "value": { "fixedColor": "#4169E1", "mode": "fixed" } }
-            ]
-          },
-          {
-            "matcher": { "id": "byName", "options": "Expense Performance" },
-            "properties": [
-              { "id": "color", "value": { "fixedColor": "#FFD700", "mode": "fixed" } }
-            ]
-          },
-          {
-            "matcher": { "id": "byName", "options": "Net Worth Performance" },
-            "properties": [
-              { "id": "color", "value": { "fixedColor": "#FF6347", "mode": "fixed" } }
-            ]
-          }
-        ]
-      },
       "options": {
-        "reduceOptions": { "values": false, "calcs": ["lastNotNull"], "fields": "" },
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
         "orientation": "horizontal",
-        "legend": { "showLegend": false, "displayMode": "list", "placement": "bottom", "calcs": [] },
+        "legend": {
+          "showLegend": false,
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
         "displayMode": "gradient",
         "valueMode": "color",
         "namePlacement": "auto",
@@ -473,7 +512,10 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "postgres", "uid": "PCC52D03280B7034C" },
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
@@ -1740,7 +1782,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Year-over-Year Financial Comparison",
+  "title": "13 - Year-over-Year Comparison",
   "uid": "year_over_year_comparison",
   "version": 1,
   "weekStart": ""
