@@ -2,73 +2,83 @@
 
 [
   {
-    "id": 5,
-    "category": "dashboard-fix",
-    "title": "Fix text panel overflow in 'How to Read This Dashboard'",
-    "description": "Layout lint flags the How-to-read text panel as likely overflowing its grid height. Reduce content length, increase panel height, or split into multiple text panels.",
-    "scope": "grafana/provisioning/dashboards/executive-dashboard.json",
-    "effort": "tiny",
-    "status": "accepted",
-    "notes": "VERIFIED (2026-02-06): Text is fully visible at 1920x1080 and 1366x768. Minor wrapping occurs at 375x812 (mobile) but content remains readable. Accepted as dashboard is designed for desktop/quarterly review."
-  },
-  {
-    "id": 8,
-    "category": "dashboard-fix",
-    "title": "Executive Summary text overflows/truncates at standard widths",
-    "description": "The single-row Executive Summary text is wider than its panel container and gets truncated with overflow in 1920x1080, 1366x768, 1280x720, 1024x768, 768x1024, and 375x812. Split into multiple rows or reduce copy so the summary remains fully readable without truncation.",
-    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Executive Summary panel",
-    "effort": "small",
-    "status": "accepted",
-    "notes": "Observed via overflow detection on 2026-02-06 across multiple resolutions. - VERIFIED (2026-02-06): Truncation confirmed at smaller resolutions (1366x768, 375x812). Accepted as known limitation - dashboard designed for desktop viewing (1920x1080+) for quarterly review. All functionality intact, purely cosmetic."
-  },
-  {
-    "id": 9,
-    "category": "dashboard-fix",
-    "title": "Data Freshness table headers and values truncate at common widths",
-    "description": "Data Freshness table content (headers and row values) overflows its container at multiple standard resolutions, causing truncation. Adjust column widths, wrap text, or switch to a stacked layout on smaller breakpoints.",
-    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Data Freshness panel",
-    "effort": "small",
-    "status": "accepted",
-    "notes": "Observed via overflow detection on 1920x1080, 1366x768, 1280x720, 1024x768, 768x1024, 375x812. - VERIFIED (2026-02-06): Truncation confirmed at smaller resolutions (1366x768, 375x812). Accepted as known limitation - dashboard designed for desktop viewing (1920x1080+) for quarterly review. All functionality intact, purely cosmetic."
-  },
-  {
-    "id": 10,
-    "category": "dashboard-fix",
-    "title": "Key Executive KPIs table truncates headers and cell text",
-    "description": "The Key Executive KPIs table overflows its container and truncates content (including 'Forecast (Next Month)') across standard resolutions. Consider responsive table behavior (wrap, column stacking, or horizontal scroll) so values remain readable.",
-    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Key Executive KPIs panel",
-    "effort": "small",
-    "status": "accepted",
-    "notes": "Overflow detected across 1920x1080, 1366x768, 1280x720, 1024x768, 768x1024, 375x812. - VERIFIED (2026-02-06): Truncation confirmed at smaller resolutions (1366x768, 375x812). Accepted as known limitation - dashboard designed for desktop viewing (1920x1080+) for quarterly review. All functionality intact, purely cosmetic."
-  },
-  {
-    "id": 11,
-    "category": "dashboard-fix",
-    "title": "Data Quality Callouts detail column truncates on standard resolutions",
-    "description": "Data Quality Callouts detail strings (e.g., 'Accounts without recent transactions', 'Proxy count based on paired in/out amounts') are truncated due to overflow on standard resolutions. Enable text wrapping or expand the panel/column widths.",
-    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Data Quality Callouts panel",
-    "effort": "small",
-    "status": "accepted",
-    "notes": "Overflow detected across 1920x1080, 1366x768, 1280x720, 1024x768, 768x1024, 375x812. - VERIFIED (2026-02-06): Truncation confirmed at smaller resolutions (1366x768, 375x812). Accepted as known limitation - dashboard designed for desktop viewing (1920x1080+) for quarterly review. All functionality intact, purely cosmetic."
-  },
-  {
-    "id": 12,
-    "category": "dashboard-fix",
-    "title": "Top Uncategorized Merchants table truncates merchant names",
-    "description": "Merchant names in Top Uncategorized Merchants truncate at common widths, reducing scanability. Adjust column widths, wrap, or enable horizontal scrolling on smaller breakpoints.",
-    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Top Uncategorized Merchants panel",
-    "effort": "small",
-    "status": "accepted",
-    "notes": "Overflow detected across 1920x1080, 1366x768, 1280x720, 1024x768, 768x1024, 375x812. - VERIFIED (2026-02-06): Truncation confirmed at smaller resolutions (1366x768, 375x812). Accepted as known limitation - dashboard designed for desktop viewing (1920x1080+) for quarterly review. All functionality intact, purely cosmetic."
-  },
-  {
     "id": 13,
     "category": "dashboard-fix",
     "title": "Small-screen KPI labels truncate (Savings Performance, Expense Ratio)",
     "description": "At 375x812, KPI label text truncates (e.g., 'Savings Performance', 'Expense Ratio (%)'), which suggests the stat tiles are not responsive to mobile widths. Consider stacking or wrapping KPI labels on narrow viewports.",
     "scope": "grafana/provisioning/dashboards/executive-dashboard.json; KPI tiles",
     "effort": "tiny",
-    "status": "accepted",
-    "notes": "VERIFIED (2026-02-06): KPI labels truncate at 375x812 but values remain visible. Accepted - mobile viewing not primary use case."
+    "status": "pending",
+    "notes": "VERIFIED (2026-02-06): KPI labels truncate at 375x812 but values remain visible. Accepted - mobile viewing not primary use case. - REQUIRES FIX: User confirmed these issues need to be addressed for proper dashboard functionality."
+  },
+  {
+    "id": 15,
+    "category": "dashboard-fix",
+    "title": "Clarify time basis for 'Current'/'Previous'/'Delta' columns",
+    "description": "Tables such as Key Executive KPIs, Health & Risk KPIs, and Month-over-Month Rate Changes use 'Current' and 'Previous' without stating the period. Make the columns explicit (e.g., 'Current Month', 'Previous Month') or add a description that defines the comparison window.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; KPI tables",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Usability review on 2026-02-06: ambiguous time basis for comparisons."
+  },
+  {
+    "id": 22,
+    "category": "dashboard-fix",
+    "title": "Ultrawide text panels exceed readable line length",
+    "description": "How to Read and Executive Summary span nearly full width on 2560x1307, producing extremely long lines that reduce readability. Add a max-width or use multi-column text to keep line lengths reasonable.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; How to Read, Executive Summary panels",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Observed on 2560x1307: text spans ~2513px."
+  },
+  {
+    "id": 23,
+    "category": "dashboard-fix",
+    "title": "Full-width tables feel too stretched on ultrawide screens",
+    "description": "AI Financial Insights and Status Highlights stretch across the full 2560px width, making scanning rows harder. Consider constraining max width or splitting into two columns on ultrawide layouts.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; AI Financial Insights, Status Highlights panels",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Observed on 2560x1307: tables span ~2513px."
+  },
+  {
+    "id": 24,
+    "category": "dashboard-fix",
+    "title": "Data Freshness table is overkill for a single-row KPI",
+    "description": "Data Freshness currently uses a table for a single row. Consider converting to KPI tiles (Data Through, Last Refresh) or a compact stat panel to make the freshness message more immediate.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Data Freshness panel",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Usability review on 2026-02-06: table format feels heavier than necessary."
+  },
+  {
+    "id": 25,
+    "category": "dashboard-fix",
+    "title": "Family Essentials shows a single total without context",
+    "description": "Family Essentials (Last Month) is a single number with no trend or category breakdown, making it hard to interpret. Consider a small trend sparkline or a category breakdown to explain what drives the total.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Family Essentials panel",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Usability review on 2026-02-06: value lacks explanatory context."
+  },
+  {
+    "id": 26,
+    "category": "dashboard-fix",
+    "title": "KPI tables should be more glanceable than dense tables",
+    "description": "Key Executive KPIs and Health & Risk KPIs are short tables with a few rows, which makes scanning slower than necessary. Consider KPI tiles with trend indicators or small sparklines to improve readability and prioritization.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Key Executive KPIs, Health & Risk KPIs panels",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Usability review on 2026-02-06: tables feel heavy for the amount of data shown."
+  },
+  {
+    "id": 27,
+    "category": "dashboard-fix",
+    "title": "Month-over-Month Rate Changes better suited to bar chart",
+    "description": "Month-over-Month Rate Changes is a two-row table of deltas; a horizontal bar chart with positive/negative coloring would communicate direction and magnitude faster than the table.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Month-over-Month Rate Changes panel",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Usability review on 2026-02-06: table hides directionality at a glance."
   }
 ]
