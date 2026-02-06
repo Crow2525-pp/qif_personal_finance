@@ -156,6 +156,10 @@ Test files located in `dagster_finance_tests/` directory. Testing infrastructure
 
 Before committing changes that affect Grafana dashboards or dbt models, verify the dashboards are functioning correctly using Playwright.
 
+### Planning Artifacts
+- Log dashboard issues in `plan-fixes.md`.
+- Log new feature ideas in `plan-features.md`.
+
 ### Verification Process
 
 1. **Navigate to Grafana**:

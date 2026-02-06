@@ -1,0 +1,72 @@
+- generic [ref=e4]:
+  - link "Skip to main content" [ref=e5] [cursor=pointer]:
+    - /url: "#pageContent"
+    - generic [ref=e6]: Skip to main content
+  - banner [ref=e7]:
+    - generic [ref=e8]:
+      - link "Grafana" [ref=e10] [cursor=pointer]:
+        - /url: /
+        - img "Grafana" [ref=e11]
+      - generic [ref=e14]:
+        - img [ref=e16]
+        - button "Search or jump to..." [ref=e18] [cursor=pointer]
+        - generic [ref=e19]:
+          - img [ref=e20]
+          - generic [ref=e22]: ctrl+k
+      - generic [ref=e23]:
+        - button "New" [ref=e24] [cursor=pointer]:
+          - img [ref=e25]
+          - img [ref=e27]
+        - button "Help" [ref=e30] [cursor=pointer]:
+          - img [ref=e31]
+        - button "News" [ref=e33] [cursor=pointer]:
+          - img [ref=e34]
+        - button "Profile" [ref=e36] [cursor=pointer]:
+          - img "User avatar" [ref=e37]
+    - generic [ref=e38]:
+      - button "Open menu" [ref=e40] [cursor=pointer]:
+        - img [ref=e41]
+      - navigation "Breadcrumbs" [ref=e43]:
+        - list [ref=e44]:
+          - listitem [ref=e45]:
+            - link "Home" [ref=e46] [cursor=pointer]:
+              - /url: /
+            - img [ref=e48]
+          - listitem [ref=e50]:
+            - link "Dashboards" [ref=e66] [cursor=pointer]:
+              - /url: /dashboards
+            - img [ref=e68]
+          - listitem [ref=e70]:
+            - generic "Not found" [ref=e71]
+      - button "Toggle top search bar" [ref=e53] [cursor=pointer]:
+        - img [ref=e55]
+  - main [ref=e59]:
+    - generic [ref=e74]:
+      - generic [ref=e77]:
+        - generic [ref=e78]:
+          - 'button "Time range selected: Last 6 hours" [ref=e79] [cursor=pointer]':
+            - img [ref=e80]
+            - generic [ref=e84]: Last 6 hours
+            - img [ref=e85]
+          - button "Zoom out time range" [ref=e87] [cursor=pointer]:
+            - img [ref=e88]
+        - generic [ref=e90]:
+          - button "Refresh" [ref=e91] [cursor=pointer]:
+            - img [ref=e92]
+            - generic [ref=e94]: Refresh
+          - button "Choose refresh time interval with current interval 5 seconds selected" [ref=e96] [cursor=pointer]:
+            - generic [ref=e97]: 5s
+            - img [ref=e98]
+      - generic [ref=e103]:
+        - img [ref=e104]
+        - generic [ref=e153]:
+          - generic [ref=e154]: Dashboard not found
+          - generic [ref=e155]:
+            - text: We're looking but can't seem to find this dashboard. Try returning
+            - link "home" [ref=e156] [cursor=pointer]:
+              - /url: /
+            - text: or seeking help on the
+            - link "community site." [ref=e157] [cursor=pointer]:
+              - /url: https://community.grafana.com
+              - text: community site.
+              - img [ref=e158]

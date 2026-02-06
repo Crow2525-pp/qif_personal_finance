@@ -35,3 +35,7 @@ If dashboards render with empty panels, run the helper script to confirm every S
 The script queries every panel in each dashboard and reports panels that return no rows or SQL errors. It exits non-zero when a panel fails, so it can be wired into a post-provisioning step or CI job. Use `--dashboard` to limit the check to specific dashboard titles or UIDs.
 
 Layout linting (titles vs. panel width) is included by default to catch headings that likely overflow their bounding boxes. If you want to skip that check, add `--no-lint`. You can also tune the heuristic with `--lint-max-chars-per-col` (default 5) and `--lint-min-chars` (default 20).
+
+# Planning Docs
+- `plan-fixes.md`: captured issues found during dashboard reviews (fixes only).
+- `plan-features.md`: feature requests or enhancements to add in future reviews.

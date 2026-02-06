@@ -333,5 +333,15 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "effort": "medium",
     "status": "pending",
     "notes": "Detected via live Grafana review on 2026-02-05."
+  },
+  {
+    "id": 79,
+    "category": "documentation",
+    "title": "Publish monthly review dashboard priority list",
+    "description": "Add and maintain the ranked monthly review order in `dashboard-priority.md`, including priority prefixes in dashboard names and rationale for the ordering.",
+    "scope": "dashboard-priority.md",
+    "effort": "tiny",
+    "status": "pending",
+    "notes": "Added priority-ranked list on 2026-02-06."
   }
 ]

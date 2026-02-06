@@ -1,0 +1,414 @@
+- generic [ref=e4]:
+  - link "Skip to main content" [ref=e12] [cursor=pointer]:
+    - /url: "#pageContent"
+    - generic [ref=e13]: Skip to main content
+  - banner [ref=e14]:
+    - generic [ref=e15]:
+      - link "Grafana" [ref=e17] [cursor=pointer]:
+        - /url: /
+        - img "Grafana" [ref=e18]
+      - generic [ref=e21]:
+        - img [ref=e23]
+        - button "Search or jump to..." [ref=e25] [cursor=pointer]
+        - generic [ref=e26]:
+          - img [ref=e27]
+          - generic [ref=e29]: ctrl+k
+      - generic [ref=e30]:
+        - button "New" [ref=e31] [cursor=pointer]:
+          - img [ref=e32]
+          - img [ref=e34]
+        - button "Help" [ref=e37] [cursor=pointer]:
+          - img [ref=e38]
+        - button "News" [ref=e40] [cursor=pointer]:
+          - img [ref=e41]
+        - button "Profile" [ref=e43] [cursor=pointer]:
+          - img "User avatar" [ref=e44]
+    - generic [ref=e45]:
+      - button "Open menu" [ref=e47] [cursor=pointer]:
+        - img [ref=e48]
+      - navigation "Breadcrumbs" [ref=e50]:
+        - list [ref=e51]:
+          - listitem [ref=e52]:
+            - link "Home" [ref=e53] [cursor=pointer]:
+              - /url: /
+            - img [ref=e55]
+          - listitem [ref=e57]:
+            - generic "Dashboards" [ref=e58]
+      - button "Toggle top search bar" [ref=e60] [cursor=pointer]:
+        - img [ref=e62]
+  - main [ref=e7]:
+    - generic [ref=e65]:
+      - generic [ref=e66]:
+        - generic [ref=e67]:
+          - heading "Dashboards" [level=1] [ref=e70]
+          - button "New" [ref=e72] [cursor=pointer]:
+            - generic [ref=e73]:
+              - text: New
+              - img [ref=e74]
+        - generic [ref=e76]: Create and manage dashboards to visualize your data
+      - generic [ref=e78]:
+        - generic [ref=e81]:
+          - img [ref=e83]
+          - textbox "Search for dashboards and folders" [ref=e85]
+        - generic [ref=e87]:
+          - generic [ref=e88]:
+            - generic [ref=e90] [cursor=pointer]:
+              - log [ref=e92]
+              - generic [ref=e93]:
+                - img [ref=e95]
+                - generic [ref=e97]:
+                  - generic [ref=e98]: Filter by tag
+                  - combobox "Tag filter" [ref=e100]
+                - img [ref=e102]
+            - generic [ref=e105]:
+              - checkbox "Starred" [ref=e107]
+              - generic [ref=e109] [cursor=pointer]: Starred
+          - generic [ref=e110]:
+            - radiogroup [ref=e111]:
+              - generic [ref=e112]:
+                - radio [checked] [ref=e113] [cursor=pointer]
+                - generic "View by folders" [ref=e114] [cursor=pointer]:
+                  - img [ref=e115]
+              - generic [ref=e117]:
+                - radio [ref=e118] [cursor=pointer]
+                - generic "View as list" [ref=e119] [cursor=pointer]:
+                  - img [ref=e120]
+            - generic [ref=e122] [cursor=pointer]:
+              - log [ref=e124]
+              - generic [ref=e125]:
+                - img [ref=e127]
+                - generic [ref=e129]:
+                  - generic [ref=e130]: Sort
+                  - combobox "Sort" [ref=e132]
+                - img [ref=e134]
+        - generic [ref=e136]:
+          - generic:
+            - table:
+              - row "Select all Name Tags" [ref=e137]:
+                - columnheader "Select all" [ref=e138]:
+                  - checkbox "Select all" [ref=e141]
+                - columnheader "Name" [ref=e143]:
+                  - generic [ref=e144]: Name
+                - columnheader "Tags" [ref=e145]
+              - rowgroup:
+                - generic [ref=e147]:
+                  - row "Account Performance" [ref=e148]:
+                    - cell "Select" [ref=e149]:
+                      - checkbox "Select" [ref=e152]
+                    - cell "Account Performance" [ref=e154]:
+                      - generic [ref=e155]:
+                        - img [ref=e156]
+                        - link "Account Performance" [ref=e159] [cursor=pointer]:
+                          - /url: /d/account_performance_dashboard/account-performance
+                    - cell "Tags" [ref=e160]:
+                      - list "Tags" [ref=e161]:
+                        - listitem [ref=e162]: accounts
+                        - listitem [ref=e163]: balances
+                        - listitem [ref=e164]: performance
+                        - listitem [ref=e165]: personal-finance
+                  - row "Amazon Spending Analysis" [ref=e166]:
+                    - cell "Select" [ref=e167]:
+                      - checkbox "Select" [ref=e170]
+                    - cell "Amazon Spending Analysis" [ref=e172]:
+                      - generic [ref=e173]:
+                        - img [ref=e174]
+                        - link "Amazon Spending Analysis" [ref=e177] [cursor=pointer]:
+                          - /url: /d/amazon-spending/amazon-spending-analysis
+                    - cell "Tags" [ref=e178]:
+                      - list "Tags" [ref=e179]:
+                        - listitem [ref=e180]: amazon
+                        - listitem [ref=e181]: ecommerce
+                        - listitem [ref=e182]: spending
+                  - row "Cash Flow Analysis (Most Recent Complete Month)" [ref=e183]:
+                    - cell "Select" [ref=e184]:
+                      - checkbox "Select" [ref=e187]
+                    - cell "Cash Flow Analysis (Most Recent Complete Month)" [ref=e189]:
+                      - generic [ref=e190]:
+                        - img [ref=e191]
+                        - link "Cash Flow Analysis (Most Recent Complete Month)" [ref=e194] [cursor=pointer]:
+                          - /url: /d/cash_flow_analysis/cash-flow-analysis-most-recent-complete-month
+                    - cell "Tags" [ref=e195]:
+                      - list "Tags" [ref=e196]:
+                        - listitem [ref=e197]: analysis
+                        - listitem [ref=e198]: cash-flow
+                        - listitem [ref=e199]: dashboard
+                        - listitem [ref=e200]: personal-finance
+                  - row "Category Spending Analysis" [ref=e201]:
+                    - cell "Select" [ref=e202]:
+                      - checkbox "Select" [ref=e205]
+                    - cell "Category Spending Analysis" [ref=e207]:
+                      - generic [ref=e208]:
+                        - img [ref=e209]
+                        - link "Category Spending Analysis" [ref=e212] [cursor=pointer]:
+                          - /url: /d/category-spending-v2/category-spending-analysis
+                    - cell "Tags" [ref=e213]:
+                      - list "Tags" [ref=e214]:
+                        - listitem [ref=e215]: categories
+                        - listitem [ref=e216]: personal-finance
+                        - listitem [ref=e217]: spending
+                  - row "Executive Financial Overview (Most Recent Complete Month)" [ref=e218]:
+                    - cell "Select" [ref=e219]:
+                      - checkbox "Select" [ref=e222]
+                    - cell "Executive Financial Overview (Most Recent Complete Month)" [ref=e224]:
+                      - generic [ref=e225]:
+                        - img [ref=e226]
+                        - link "Executive Financial Overview (Most Recent Complete Month)" [ref=e229] [cursor=pointer]:
+                          - /url: /d/executive_dashboard/e718165
+                    - cell "Tags" [ref=e230]:
+                      - list "Tags" [ref=e231]:
+                        - listitem [ref=e232]: dashboard
+                        - listitem [ref=e233]: executive
+                        - listitem [ref=e234]: overview
+                        - listitem [ref=e235]: personal-finance
+                  - row "Expense Performance Analysis" [ref=e236]:
+                    - cell "Select" [ref=e237]:
+                      - checkbox "Select" [ref=e240]
+                    - cell "Expense Performance Analysis" [ref=e242]:
+                      - generic [ref=e243]:
+                        - img [ref=e244]
+                        - link "Expense Performance Analysis" [ref=e247] [cursor=pointer]:
+                          - /url: /d/expense_performance/expense-performance-analysis
+                    - cell "Tags" [ref=e248]:
+                      - list "Tags" [ref=e249]:
+                        - listitem [ref=e250]: analysis
+                        - listitem [ref=e251]: expense
+                        - listitem [ref=e252]: performance
+                        - listitem [ref=e253]: spending
+                  - row "Financial Projections Dashboard" [ref=e254]:
+                    - cell "Select" [ref=e255]:
+                      - checkbox "Select" [ref=e258]
+                    - cell "Financial Projections Dashboard" [ref=e260]:
+                      - generic [ref=e261]:
+                        - img [ref=e262]
+                        - link "Financial Projections Dashboard" [ref=e265] [cursor=pointer]:
+                          - /url: /d/financial_projections/financial-projections-dashboard
+                    - cell "Tags" [ref=e266]:
+                      - list "Tags" [ref=e267]:
+                        - listitem [ref=e268]: finance
+                        - listitem [ref=e269]: projections
+                        - listitem [ref=e270]: scenarios
+                  - row "Financial Reconciliation Dashboard" [ref=e271]:
+                    - cell "Select" [ref=e272]:
+                      - checkbox "Select" [ref=e275]
+                    - cell "Financial Reconciliation Dashboard" [ref=e277]:
+                      - generic [ref=e278]:
+                        - img [ref=e279]
+                        - link "Financial Reconciliation Dashboard" [ref=e282] [cursor=pointer]:
+                          - /url: /d/outflows_reconciliation/financial-reconciliation-dashboard
+                    - cell "Tags" [ref=e283]:
+                      - list "Tags" [ref=e284]:
+                        - listitem [ref=e285]: outflows
+                        - listitem [ref=e286]: quality
+                        - listitem [ref=e287]: reconciliation
+                  - row "Four-Year Financial Comparison - Prior Year vs Previous 3" [ref=e288]:
+                    - cell "Select" [ref=e289]:
+                      - checkbox "Select" [ref=e292]
+                    - cell "Four-Year Financial Comparison - Prior Year vs Previous 3" [ref=e294]:
+                      - generic [ref=e295]:
+                        - img [ref=e296]
+                        - link "Four-Year Financial Comparison - Prior Year vs Previous 3" [ref=e299] [cursor=pointer]:
+                          - /url: /d/four_year_financial_comparison/94d1169
+                    - cell "Tags" [ref=e300]:
+                      - list "Tags" [ref=e301]:
+                        - listitem [ref=e302]: comparison
+                        - listitem [ref=e303]: dashboard
+                        - listitem [ref=e304]: four-year
+                        - listitem [ref=e305]: historical
+                        - listitem [ref=e306]: personal-finance
+                        - listitem [ref=e307]: prior-year
+                        - listitem [ref=e308]: trends
+                  - row "Grocery Spending Analysis" [ref=e309]:
+                    - cell "Select" [ref=e310]:
+                      - checkbox "Select" [ref=e313]
+                    - cell "Grocery Spending Analysis" [ref=e315]:
+                      - generic [ref=e316]:
+                        - img [ref=e317]
+                        - link "Grocery Spending Analysis" [ref=e320] [cursor=pointer]:
+                          - /url: /d/grocery_spending_analysis/grocery-spending-analysis
+                    - cell "Tags" [ref=e321]:
+                      - list "Tags" [ref=e322]:
+                        - listitem [ref=e323]: groceries
+                        - listitem [ref=e324]: spending
+                  - row "Household Net Worth Analysis (Most Recent Complete Month)" [ref=e325]:
+                    - cell "Select" [ref=e326]:
+                      - checkbox "Select" [ref=e329]
+                    - cell "Household Net Worth Analysis (Most Recent Complete Month)" [ref=e331]:
+                      - generic [ref=e332]:
+                        - img [ref=e333]
+                        - link "Household Net Worth Analysis (Most Recent Complete Month)" [ref=e336] [cursor=pointer]:
+                          - /url: /d/household_net_worth/2dd8675
+                    - cell "Tags" [ref=e337]:
+                      - list "Tags" [ref=e338]:
+                        - listitem [ref=e339]: assets
+                        - listitem [ref=e340]: dashboard
+                        - listitem [ref=e341]: household
+                        - listitem [ref=e342]: liabilities
+                        - listitem [ref=e343]: net-worth
+                        - listitem [ref=e344]: personal-finance
+                  - row "Monthly Budget Summary" [ref=e345]:
+                    - cell "Select" [ref=e346]:
+                      - checkbox "Select" [ref=e349]
+                    - cell "Monthly Budget Summary" [ref=e351]:
+                      - generic [ref=e352]:
+                        - img [ref=e353]
+                        - link "Monthly Budget Summary" [ref=e356] [cursor=pointer]:
+                          - /url: /d/monthly_budget_summary/monthly-budget-summary
+                    - cell "Tags" [ref=e357]:
+                      - list "Tags" [ref=e358]:
+                        - listitem [ref=e359]: budget
+                        - listitem [ref=e360]: dashboard
+                        - listitem [ref=e361]: expenses
+                        - listitem [ref=e362]: income
+                        - listitem [ref=e363]: monthly
+                        - listitem [ref=e364]: personal-finance
+                        - listitem [ref=e365]: summary
+                  - row "Mortgage Payoff Dashboard" [ref=e366]:
+                    - cell "Select" [ref=e367]:
+                      - checkbox "Select" [ref=e370]
+                    - cell "Mortgage Payoff Dashboard" [ref=e372]:
+                      - generic [ref=e373]:
+                        - img [ref=e374]
+                        - link "Mortgage Payoff Dashboard" [ref=e377] [cursor=pointer]:
+                          - /url: /d/mortgage-payoff/mortgage-payoff-dashboard
+                    - cell "Tags" [ref=e378]:
+                      - list "Tags" [ref=e379]:
+                        - listitem [ref=e380]: home-loan
+                        - listitem [ref=e381]: mortgage
+                        - listitem [ref=e382]: payoff
+                  - row "Outflows Insights Dashboard" [ref=e383]:
+                    - cell "Select" [ref=e384]:
+                      - checkbox "Select" [ref=e387]
+                    - cell "Outflows Insights Dashboard" [ref=e389]:
+                      - generic [ref=e390]:
+                        - img [ref=e391]
+                        - link "Outflows Insights Dashboard" [ref=e394] [cursor=pointer]:
+                          - /url: /d/outflows_insights/outflows-insights-dashboard
+                    - cell "Tags" [ref=e395]:
+                      - list "Tags" [ref=e396]:
+                        - listitem [ref=e397]: analysis
+                        - listitem [ref=e398]: insights
+                        - listitem [ref=e399]: outflows
+                  - row "Savings Analysis" [ref=e400]:
+                    - cell "Select" [ref=e401]:
+                      - checkbox "Select" [ref=e404]
+                    - cell "Savings Analysis" [ref=e406]:
+                      - generic [ref=e407]:
+                        - img [ref=e408]
+                        - link "Savings Analysis" [ref=e411] [cursor=pointer]:
+                          - /url: /d/savings_analysis/savings-analysis
+                    - cell "Tags" [ref=e412]:
+                      - list "Tags" [ref=e413]:
+                        - listitem [ref=e414]: analysis
+                        - listitem [ref=e415]: dashboard
+                        - listitem [ref=e416]: goals
+                        - listitem [ref=e417]: personal-finance
+                        - listitem [ref=e418]: rates
+                        - listitem [ref=e419]: savings
+                  - row "Transaction Analysis" [ref=e420]:
+                    - cell "Select" [ref=e421]:
+                      - checkbox "Select" [ref=e424]
+                    - cell "Transaction Analysis" [ref=e426]:
+                      - generic [ref=e427]:
+                        - img [ref=e428]
+                        - link "Transaction Analysis" [ref=e431] [cursor=pointer]:
+                          - /url: /d/transaction_analysis_dashboard/transaction-analysis
+                    - cell "Tags" [ref=e432]:
+                      - list "Tags" [ref=e433]:
+                        - listitem [ref=e434]: analysis
+                        - listitem [ref=e435]: personal-finance
+                        - listitem [ref=e436]: transactions
+                  - row "Year-over-Year Financial Comparison" [ref=e437]:
+                    - cell "Select" [ref=e438]:
+                      - checkbox "Select" [ref=e441]
+                    - cell "Year-over-Year Financial Comparison" [ref=e443]:
+                      - generic [ref=e444]:
+                        - img [ref=e445]
+                        - link "Year-over-Year Financial Comparison" [ref=e448] [cursor=pointer]:
+                          - /url: /d/year_over_year_comparison/year-over-year-financial-comparison
+                    - cell "Tags" [ref=e449]:
+                      - list "Tags" [ref=e450]:
+                        - listitem [ref=e451]: annual
+                        - listitem [ref=e452]: comparison
+                        - listitem [ref=e453]: dashboard
+                        - listitem [ref=e454]: performance
+                        - listitem [ref=e455]: personal-finance
+                        - listitem [ref=e456]: trends
+                        - listitem [ref=e457]: year-over-year
+                  - row "💎 Assets & Net Worth" [ref=e458]:
+                    - cell "Select" [ref=e459]:
+                      - checkbox "Select" [ref=e462]
+                    - cell "💎 Assets & Net Worth" [ref=e464]:
+                      - generic [ref=e465]:
+                        - img [ref=e466]
+                        - link "💎 Assets & Net Worth" [ref=e469] [cursor=pointer]:
+                          - /url: /d/assets-networth-mobile/f09f928e-assets-and-net-worth
+                    - cell "Tags" [ref=e470]:
+                      - list "Tags" [ref=e471]:
+                        - listitem [ref=e472]: assets
+                        - listitem [ref=e473]: mobile
+                        - listitem [ref=e474]: net-worth
+                  - row "💰 Cash Flow & Budget" [ref=e475]:
+                    - cell "Select" [ref=e476]:
+                      - checkbox "Select" [ref=e479]
+                    - cell "💰 Cash Flow & Budget" [ref=e481]:
+                      - generic [ref=e482]:
+                        - img [ref=e483]
+                        - link "💰 Cash Flow & Budget" [ref=e486] [cursor=pointer]:
+                          - /url: /d/cashflow-budget-mobile/f09f92b0-cash-flow-and-budget
+                    - cell "Tags" [ref=e487]:
+                      - list "Tags" [ref=e488]:
+                        - listitem [ref=e489]: budget
+                        - listitem [ref=e490]: cash-flow
+                        - listitem [ref=e491]: mobile
+                  - row "💳 Spending & Categories" [ref=e492]:
+                    - cell "Select" [ref=e493]:
+                      - checkbox "Select" [ref=e496]
+                    - cell "💳 Spending & Categories" [ref=e498]:
+                      - generic [ref=e499]:
+                        - img [ref=e500]
+                        - link "💳 Spending & Categories" [ref=e503] [cursor=pointer]:
+                          - /url: /d/spending-categories-mobile/f09f92b3-spending-and-categories
+                    - cell "Tags" [ref=e504]:
+                      - list "Tags" [ref=e505]:
+                        - listitem [ref=e506]: categories
+                        - listitem [ref=e507]: mobile
+                        - listitem [ref=e508]: spending
+                  - row "📊 Savings & Performance" [ref=e509]:
+                    - cell "Select" [ref=e510]:
+                      - checkbox "Select" [ref=e513]
+                    - cell "📊 Savings & Performance" [ref=e515]:
+                      - generic [ref=e516]:
+                        - img [ref=e517]
+                        - link "📊 Savings & Performance" [ref=e520] [cursor=pointer]:
+                          - /url: /d/savings-performance-mobile/f09f938a-savings-and-performance
+                    - cell "Tags" [ref=e521]:
+                      - list "Tags" [ref=e522]:
+                        - listitem [ref=e523]: mobile
+                        - listitem [ref=e524]: performance
+                        - listitem [ref=e525]: savings
+                  - row "📱 Executive Overview" [ref=e526]:
+                    - cell "Select" [ref=e527]:
+                      - checkbox "Select" [ref=e530]
+                    - cell "📱 Executive Overview" [ref=e532]:
+                      - generic [ref=e533]:
+                        - img [ref=e534]
+                        - link "📱 Executive Overview" [ref=e537] [cursor=pointer]:
+                          - /url: /d/exec-mobile-overview/f09f93b1-executive-overview
+                    - cell "Tags" [ref=e538]:
+                      - list "Tags" [ref=e539]:
+                        - listitem [ref=e540]: executive
+                        - listitem [ref=e541]: mobile
+                        - listitem [ref=e542]: overview
+                  - row "🔮 Projections & Analysis" [ref=e543]:
+                    - cell "Select" [ref=e544]:
+                      - checkbox "Select" [ref=e547]
+                    - cell "🔮 Projections & Analysis" [ref=e549]:
+                      - generic [ref=e550]:
+                        - img [ref=e551]
+                        - link "🔮 Projections & Analysis" [ref=e554] [cursor=pointer]:
+                          - /url: /d/projections-analysis-mobile/f09f94ae-projections-and-analysis
+                    - cell "Tags" [ref=e555]:
+                      - list "Tags" [ref=e556]:
+                        - listitem [ref=e557]: analysis
+                        - listitem [ref=e558]: mobile
+                        - listitem [ref=e559]: projections
