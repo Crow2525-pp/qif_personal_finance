@@ -13,7 +13,7 @@ Tasks that have been completed and verified.
     "scope": "grafana/provisioning/dashboards/executive-dashboard.json; reporting.rpt_monthly_budget_summary; reporting.rpt_cash_flow_analysis",
     "effort": "medium",
     "status": "done",
-    "notes": "16 panels updated via window_range CTE. Key Executive KPIs uses previous_window_range for period comparison. Family Essentials SUM is wired but rpt_family_essentials model still materialises latest month only — needs model update to expose all months (see task 45 scope)."
+    "notes": "16 panels updated via window_range CTE. Key Executive KPIs uses previous_window_range for period comparison. Family Essentials SUM is wired but rpt_family_essentials model still materialises latest month only \u00e2\u20ac\u201d needs model update to expose all months (see task 45 scope)."
   },
   {
     "id": 42,
@@ -39,11 +39,11 @@ Tasks that have been completed and verified.
     "id": 44,
     "category": "dashboard-fix",
     "title": "Normalize percent units across rate panels",
-    "description": "Standardize all percent outputs to 0–100 numeric scale. SQL: multiply ratios by 100 and alias without '%' chars. Panels to update: Savings & Expense Performance bars, MoM Rate Changes, Expense Ratio stats, uncategorized_pct in Data Quality Callouts. JSON: set fieldConfig.defaults.unit='percent', thresholds numeric (e.g., 5/10/20/30 or red>15 yellow>10 for data-quality), remove any suffix text '%'.",
+    "description": "Standardize all percent outputs to 0\u00e2\u20ac\u201c100 numeric scale. SQL: multiply ratios by 100 and alias without '%' chars. Panels to update: Savings & Expense Performance bars, MoM Rate Changes, Expense Ratio stats, uncategorized_pct in Data Quality Callouts. JSON: set fieldConfig.defaults.unit='percent', thresholds numeric (e.g., 5/10/20/30 or red>15 yellow>10 for data-quality), remove any suffix text '%'.",
     "scope": "reporting.rpt_monthly_budget_summary; reporting.rpt_outflows_insights_dashboard; grafana/provisioning/dashboards/executive-dashboard.json (Savings & Expense Performance, MoM Rate Changes, Data Quality Callouts, related stats)",
     "effort": "small",
     "status": "done",
-    "notes": "Panel 101 MoM Rate Changes: SQL ×100 for current/previous/delta, JSON unit changed to percent. Consistent with Savings & Expense Performance bars."
+    "notes": "Panel 101 MoM Rate Changes: SQL \u00c3\u2014100 for current/previous/delta, JSON unit changed to percent. Consistent with Savings & Expense Performance bars."
   },
   {
     "id": 45,
@@ -229,7 +229,7 @@ Tasks that have been completed and verified.
     "id": 37,
     "category": "dashboard-fix",
     "title": "Reorder hero row for monthly cadence",
-    "description": "Top layout order: Data Freshness → Monthly Financial Snapshot → Family Essentials → Emergency Fund → Cash Flow Drivers; move Data Quality Callouts directly under hero; fold detailed KPI tables into a collapsible section.",
+    "description": "Top layout order: Data Freshness \u00e2\u2020\u2019 Monthly Financial Snapshot \u00e2\u2020\u2019 Family Essentials \u00e2\u2020\u2019 Emergency Fund \u00e2\u2020\u2019 Cash Flow Drivers; move Data Quality Callouts directly under hero; fold detailed KPI tables into a collapsible section.",
     "scope": "grafana/provisioning/dashboards/executive-dashboard.json layout",
     "effort": "small",
     "status": "done",
@@ -309,7 +309,7 @@ Tasks that have been completed and verified.
     "id": 28,
     "category": "dashboard-fix",
     "title": "Improve Week-to-Date Spending Pace readability",
-    "description": "SQL: add pace_ratio = wtd_spending / NULLIF(expected_spend_to_date,0) * 100 and return expected_spend_to_date. Grafana stat: set main value to pace_ratio (unit percent, thresholds <90 green, 90–110 yellow, >110 red); show secondaries Week Spent, Weekly Budget, Daily Budget Left, Days Left; hide raw pace_status field.",
+    "description": "SQL: add pace_ratio = wtd_spending / NULLIF(expected_spend_to_date,0) * 100 and return expected_spend_to_date. Grafana stat: set main value to pace_ratio (unit percent, thresholds <90 green, 90\u00e2\u20ac\u201c110 yellow, >110 red); show secondaries Week Spent, Weekly Budget, Daily Budget Left, Days Left; hide raw pace_status field.",
     "scope": "reporting.rpt_weekly_spending_pace; grafana/provisioning/dashboards/executive-dashboard.json (Week-to-Date Spending Pace stat)",
     "effort": "small",
     "status": "done",
@@ -364,5 +364,16 @@ Tasks that have been completed and verified.
     "effort": "medium",
     "status": "done",
     "notes": "Observed 2026-02-05 on http://localhost:3001/d/executive_dashboard/e718165. FIXED: No 400 query errors, only harmless 404 for public-dashboards"
+  },
+  {
+    "id": 100,
+    "category": "dashboard-fix",
+    "title": "Fix localhost Grafana datasource to show dashboard data",
+    "description": "All 4 dashboard issues from plan-fixes.md (Data Freshness 'No data', Top Uncategorized Merchants 'No data', Uncategorized spend showing 100% instead of 87.1%, PostgreSQL datasource query errors) were caused by localhost Grafana pointing to development database (dagster_postgres:5432) missing critical dbt tables. Root cause: dev database had 83 reporting tables vs production's 101, missing rpt_executive_dashboard and viz_uncategorized_transactions_with_original_memo. Solution: Updated grafana/provisioning/datasources/postgres.yml to point to production database at 192.168.1.103:5432. Applied via Grafana API without container restart.",
+    "scope": "grafana/provisioning/datasources/postgres.yml; localhost development environment",
+    "effort": "medium",
+    "status": "done",
+    "completed_date": "2026-02-06",
+    "notes": "Fixed by changing datasource URL from dagster_postgres:5432 to 192.168.1.103:5432. All 4 panels now working correctly. Verified: Data Freshness shows Jan 2026 data, Top Uncategorized shows 4 merchants, Uncategorized spend correctly shows 87.1%, console shows 0 errors. Screenshots: localhost-data-freshness-fixed.png, localhost-data-quality-fixed.png"
   }
 ]
