@@ -1704,32 +1704,36 @@
       ],
       "options": {
         "orientation": "horizontal",
-        "displayMode": "gradient",
+        "displayMode": "basic",
         "showUnfilled": true,
         "minVizWidth": 0,
         "minVizHeight": 10,
         "namePlacement": "left",
-        "valueMode": "color"
+        "valueMode": "text"
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "percentunit",
+          "unit": "percent",
           "color": {
-            "mode": "continuous-GrYlRd"
+            "mode": "thresholds"
           },
           "thresholds": {
-            "mode": "percentage",
+            "mode": "absolute",
             "steps": [
               {
                 "value": null,
                 "color": "red"
               },
               {
-                "value": 50,
+                "value": -10,
+                "color": "orange"
+              },
+              {
+                "value": 0,
                 "color": "yellow"
               },
               {
-                "value": 80,
+                "value": 10,
                 "color": "green"
               }
             ]
