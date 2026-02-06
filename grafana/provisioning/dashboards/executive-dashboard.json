@@ -53,12 +53,12 @@
       "gridPos": {
         "x": 0,
         "y": 0,
-        "w": 8,
+        "w": 10,
         "h": 3
       },
       "id": 101,
       "options": {
-        "cellHeight": "sm",
+        "cellHeight": "md",
         "footer": {
           "countRows": false,
           "fields": "",
@@ -120,7 +120,7 @@
         "x": 6,
         "y": 0,
         "w": 16,
-        "h": 4
+        "h": 5
       },
       "id": 20,
       "options": {
@@ -150,7 +150,8 @@
         }
       ],
       "title": "Executive Summary",
-      "type": "table"
+      "type": "table",
+      "description": "One-line summary of latest financial position, forecast, and dashboard refresh cadence."
     },
     {
       "datasource": {
@@ -318,10 +319,10 @@
         "x": 12,
         "y": 14,
         "w": 12,
-        "h": 5
+        "h": 6
       },
       "options": {
-        "cellHeight": "sm",
+        "cellHeight": "md",
         "showHeader": true
       },
       "fieldConfig": {
@@ -1311,7 +1312,7 @@
         "x": 12,
         "y": 31,
         "w": 12,
-        "h": 9
+        "h": 11
       },
       "id": 9,
       "options": {
@@ -1972,7 +1973,7 @@
         "x": 0,
         "y": 0,
         "w": 24,
-        "h": 6
+        "h": 7
       },
       "id": 100,
       "options": {
@@ -2077,7 +2078,7 @@
       },
       "id": 901,
       "options": {
-        "cellHeight": "sm",
+        "cellHeight": "md",
         "showHeader": true
       },
       "targets": [
@@ -2177,7 +2178,7 @@
       },
       "id": 902,
       "options": {
-        "cellHeight": "sm",
+        "cellHeight": "md",
         "showHeader": true
       },
       "targets": [
