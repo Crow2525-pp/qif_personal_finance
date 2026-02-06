@@ -145,7 +145,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nbounds AS (\n  SELECT MIN(month_date) AS min_month, MAX(month_date) AS max_month\n  FROM available_months\n),\nselected_period AS (\n  SELECT COALESCE(\n    (SELECT MAX(month_date) FROM available_months WHERE month_date <= date_trunc('month', ($__timeTo()::timestamptz - INTERVAL '1 day'))),\n    (SELECT max_month FROM bounds)\n  ) AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\ncurrent_month AS (\n  SELECT net_cash_flow, total_income\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month = (SELECT month_key FROM selected_key)\n),\nforecast AS (\n  SELECT forecasted_next_month_net_flow\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n)\nSELECT CONCAT(\n  '**Latest Month:** ', to_char((SELECT month_date FROM selected_period), 'Mon YYYY'),\n  ', E'\\n**Net Cash Flow:** ', CASE WHEN cm.net_cash_flow >= 0 THEN '+$' ELSE '-$' END, ROUND(ABS(cm.net_cash_flow))::text,\n  ', E'\\n**Savings Rate:** ', ROUND((cm.net_cash_flow / NULLIF(cm.total_income, 0)) * 100, 1)::text, '%',\n  ', E'\\n**Forecast (', to_char((SELECT month_date FROM selected_period) + INTERVAL '1 month', 'Mon YYYY'), '): ', CASE WHEN COALESCE(fc.forecasted_next_month_net_flow, 0) >= 0 THEN '+$' ELSE '-$' END, ROUND(ABS(COALESCE(fc.forecasted_next_month_net_flow, 0)))::text,\n  ', E'\\n\\n_Refreshed monthly, reviewed quarterly._'\n) AS summary\nFROM current_month cm\nLEFT JOIN forecast fc ON TRUE;",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nbounds AS (\n  SELECT MIN(month_date) AS min_month, MAX(month_date) AS max_month\n  FROM available_months\n),\nselected_period AS (\n  SELECT COALESCE(\n    (SELECT MAX(month_date) FROM available_months WHERE month_date <= date_trunc('month', ($__timeTo()::timestamptz - INTERVAL '1 day'))),\n    (SELECT max_month FROM bounds)\n  ) AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\ncurrent_month AS (\n  SELECT net_cash_flow, total_income\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month = (SELECT month_key FROM selected_key)\n),\nforecast AS (\n  SELECT forecasted_next_month_net_flow\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n)\nSELECT CONCAT(\n  '**Latest Month:** ', to_char((SELECT month_date FROM selected_period), 'Mon YYYY'),\n  ', CHR(10), '**Net Cash Flow:** ', CASE WHEN cm.net_cash_flow >= 0 THEN '+$' ELSE '-$' END, ROUND(ABS(cm.net_cash_flow))::text,\n  ', CHR(10), '**Savings Rate:** ', ROUND((cm.net_cash_flow / NULLIF(cm.total_income, 0)) * 100, 1)::text, '%',\n  ', CHR(10), '**Forecast (', to_char((SELECT month_date FROM selected_period) + INTERVAL '1 month', 'Mon YYYY'), '): ', CASE WHEN COALESCE(fc.forecasted_next_month_net_flow, 0) >= 0 THEN '+$' ELSE '-$' END, ROUND(ABS(COALESCE(fc.forecasted_next_month_net_flow, 0)))::text,\n  ', CHR(10), CHR(10), '_Refreshed monthly, reviewed quarterly._'\n) AS summary\nFROM current_month cm\nLEFT JOIN forecast fc ON TRUE;",
           "refId": "A"
         }
       ],
@@ -2114,8 +2114,12 @@
       "description": "Monthly spending on family essentials: Groceries, Family & Kids, Health, Household View the Category Spending dashboard for detailed breakdown of essential expenses. Note: Value reflects the selected time range. Set time picker to 'Last Month' for monthly view.",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -2126,10 +2130,22 @@
                 "value": null
               }
             ]
-          },
-          "unit": "currencyUSD"
+          }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Amount"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "x": 0,
@@ -2139,18 +2155,16 @@
       },
       "id": 1001,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": true,
+          "reducer": [
+            "sum"
           ],
-          "fields": "Total Essentials",
-          "values": true
-        },
-        "textMode": "auto"
+          "fields": "",
+          "countRows": false
+        }
       },
       "targets": [
         {
@@ -2161,12 +2175,12 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_family_essentials\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nbounds AS (\n  SELECT MIN(month_date) AS min_month, MAX(month_date) AS max_month\n  FROM available_months\n),\nselected_period AS (\n  SELECT COALESCE(\n    (SELECT MAX(month_date) FROM available_months WHERE month_date <= date_trunc('month', ($__timeTo()::timestamptz - INTERVAL '1 day'))),\n    (SELECT max_month FROM bounds)\n  ) AS month_date\n),\nwindow_range AS (\n  SELECT\n    GREATEST(date_trunc('day', $__timeFrom()::timestamptz)::date, (SELECT min_month FROM bounds)) AS start_date,\n    LEAST(date_trunc('day', $__timeTo()::timestamptz)::date,   (SELECT max_month FROM bounds)) AS end_date\n),\nagg AS (\n  SELECT\n    COALESCE(SUM(groceries_spending), 0)      AS \"Groceries\",\n    COALESCE(SUM(family_kids_spending), 0)    AS \"Family & Kids\",\n    COALESCE(SUM(health_spending), 0)         AS \"Health\",\n    COALESCE(SUM(household_spending), 0)      AS \"Household\",\n    COALESCE(SUM(total_family_essentials), 0) AS \"Total Essentials\"\n  FROM reporting.rpt_family_essentials\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD')\n        BETWEEN (SELECT start_date FROM window_range)\n        AND     (SELECT end_date   FROM window_range)\n)\nSELECT * FROM agg\nWHERE \"Total Essentials\" > 0;",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nbounds AS (\n  SELECT MIN(month_date) AS min_month, MAX(month_date) AS max_month\n  FROM available_months\n),\nselected_period AS (\n  SELECT COALESCE(\n    (SELECT MAX(month_date) FROM available_months WHERE month_date <= date_trunc('month', ($__timeTo()::timestamptz - INTERVAL '1 day'))),\n    (SELECT max_month FROM bounds)\n  ) AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nwindow_range AS (\n  SELECT\n    GREATEST(date_trunc('day', $__timeFrom()::timestamptz)::date, (SELECT min_month FROM bounds)) AS start_date,\n    LEAST(date_trunc('day', $__timeTo()::timestamptz)::date, (SELECT max_month FROM bounds)) AS end_date\n),\nessentials AS (\n  SELECT\n    category,\n    SUM(amount) AS total_amount\n  FROM reporting.rpt_category_spending\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') BETWEEN (SELECT start_date FROM window_range) AND (SELECT end_date FROM window_range)\n    AND is_essential = TRUE\n  GROUP BY category\n)\nSELECT\n  category AS \"Category\",\n  ROUND(total_amount) AS \"Amount\"\nFROM essentials\nORDER BY total_amount DESC;",
           "refId": "A"
         }
       ],
       "title": "Family Essentials",
-      "type": "stat"
+      "type": "table"
     },
     {
       "datasource": {
