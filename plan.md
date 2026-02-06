@@ -28,7 +28,8 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "description": "Ensure the Grafana dashboard time range follows the chosen month in $dashboard_period: set timepicker.hidden=true (dashboard-level) and programmatically set panel queries to use the selected period window instead of the URL time range now-1M/M..now/M. Prevents mismatches where panels show the selected month but the global range stays on the previous one.",
     "scope": "grafana/provisioning/dashboards/executive-dashboard.json (timepicker block, defaults); reporting queries already windowed after task 41",
     "effort": "small",
-    "status": "pending"
+    "status": "done",
+    "notes": "Timepicker hidden; all panels already windowed via window_range CTE from task 41."
   },
   {
     "id": 43,
@@ -406,5 +407,52 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "description": "Auto-generated plain English summary: 'In December, your family spent $X on essentials and $Y on discretionary items. Emergency fund covers N months. Biggest increase: Groceries (+$Z).'",
     "scope": "SQL text generation + Grafana text panel",
     "effort": "medium"
+  },
+  {
+    "id": 46,
+    "category": "dashboard-fix",
+    "title": "Resolve public dashboard 404 error",
+    "description": "Grafana console shows 404 on GET /api/dashboards/uid/executive_dashboard/public-dashboards. Audit Public Dashboards/NG plugin config and share settings; either enable the feature with correct endpoint or disable the share toggle to avoid broken requests.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Grafana public dashboards/plugin settings",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Observed 2026-02-03 in Executive Financial Overview."
+  },
+  {
+    "id": 47,
+    "category": "dashboard-fix",
+    "title": "Restore data to Family Essentials, Emergency Fund, and MTD Pace panels",
+    "description": "Family Essentials stat shows 'No data', Emergency Fund gauge reads 0 months, and Month-to-Date pace panel is empty. Ensure models return rows for selected month with COALESCE fallbacks and that panels refresh on variable change.",
+    "scope": "reporting.rpt_family_essentials; reporting.rpt_emergency_fund_coverage; reporting.rpt_weekly_spending_pace; grafana/provisioning/dashboards/executive-dashboard.json",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Issues visible on Feb 2026 view."
+  },
+  {
+    "id": 48,
+    "category": "dashboard-fix",
+    "title": "Correct uncategorized spend percent in Data Quality Callouts",
+    "description": "Callouts show 100% / $14,100 uncategorized for Jan 2026, likely due to divide-by-zero or wrong window. Recalculate contribution within selected window with zero-safe denominators and numeric percent units.",
+    "scope": "reporting.rpt_outflows_insights_dashboard; grafana/provisioning/dashboards/executive-dashboard.json (Data Quality Callouts)",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 49,
+    "category": "dashboard-fix",
+    "title": "Fix text encoding/emoji in summary and KPI tables",
+    "description": "Panel text renders mojibake (e.g., 'ðŸ“Š', 'Î” Ratio'). Ensure dashboard JSON saved in UTF-8, remove or replace emojis, and verify Grafana text panels/tables don't double-encode strings.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json (Executive Summary, KPI tables)",
+    "effort": "tiny",
+    "status": "pending"
+  },
+  {
+    "id": 50,
+    "category": "dashboard-fix",
+    "title": "Dedupe and mask Top Uncategorized Merchants table",
+    "description": "Table shows duplicated $2.90K merchants with internal payer labels. Add DISTINCT/deduping, recalc contribution_pct for current window, and apply friendly merchant display names or masking where appropriate.",
+    "scope": "reporting.viz_uncategorized_transactions_with_original_memo; grafana/provisioning/dashboards/executive-dashboard.json (Top Uncategorized Merchants)",
+    "effort": "small",
+    "status": "pending"
   }
 ]
