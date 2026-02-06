@@ -434,7 +434,7 @@
           "refId": "A"
         }
       ],
-      "description": "Month-over-month comparison of key executive metrics. Current = latest closed month, Previous = prior month, Delta = change amount, Delta Ratio = percentage change. Focus on large negative deltas for attention areas."
+      "description": "Current = Latest closed month, Previous = Prior month. Month-over-month comparison of key executive metrics. Current = latest closed month, Previous = prior month, Delta = change amount, Delta Ratio = percentage change. Focus on large negative deltas for attention areas."
     },
     {
       "datasource": {
@@ -799,7 +799,7 @@
           }
         ]
       },
-      "description": "Score and risk KPIs expressed as raw values; Delta Ratio captures relative change where applicable."
+      "description": "Current = Latest closed month, Previous = Prior month. Score and risk KPIs expressed as raw values; Delta Ratio captures relative change where applicable."
     },
     {
       "datasource": {
@@ -1678,7 +1678,7 @@
     {
       "id": 103,
       "title": "Month-over-Month Rate Changes",
-      "type": "table",
+      "type": "bargauge",
       "gridPos": {
         "x": 12,
         "y": 38,
@@ -1703,142 +1703,42 @@
         }
       ],
       "options": {
-        "cellHeight": "sm",
-        "showHeader": true
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "showUnfilled": true,
+        "minVizWidth": 0,
+        "minVizHeight": 10,
+        "namePlacement": "left",
+        "valueMode": "color"
       },
       "fieldConfig": {
         "defaults": {
+          "unit": "percentunit",
           "color": {
-            "mode": "thresholds"
+            "mode": "continuous-GrYlRd"
           },
-          "custom": {
-            "align": "left"
-          }
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "value": null,
+                "color": "red"
+              },
+              {
+                "value": 50,
+                "color": "yellow"
+              },
+              {
+                "value": 80,
+                "color": "green"
+              }
+            ]
+          },
+          "custom": {}
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "metric"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Metric"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "current_value"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Current"
-              },
-              {
-                "id": "unit",
-                "value": "percent"
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "red",
-                      "value": null
-                    },
-                    {
-                      "color": "yellow",
-                      "value": 5
-                    },
-                    {
-                      "color": "green",
-                      "value": 10
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "previous_value"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Previous"
-              },
-              {
-                "id": "unit",
-                "value": "percent"
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "red",
-                      "value": null
-                    },
-                    {
-                      "color": "yellow",
-                      "value": 5
-                    },
-                    {
-                      "color": "green",
-                      "value": 10
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "delta_value"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Delta"
-              },
-              {
-                "id": "unit",
-                "value": "percent"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "delta_ratio"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Delta Ratio"
-              },
-              {
-                "id": "unit",
-                "value": "percentunit"
-              },
-              {
-                "id": "decimals",
-                "value": 1
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
-      "description": "Rate metrics on a 0-100 percent scale. Delta Ratio remains a raw ratio for relative change."
+      "description": "Current = Latest closed month, Previous = Prior month. Rate metrics on a 0-100 percent scale. Delta Ratio remains a raw ratio for relative change."
     },
     {
       "datasource": {
@@ -1879,9 +1779,9 @@
         "overrides": []
       },
       "gridPos": {
-        "x": 0,
+        "x": 2,
         "y": 44,
-        "w": 24,
+        "w": 20,
         "h": 6
       },
       "id": 7,
@@ -1933,9 +1833,9 @@
         "overrides": []
       },
       "gridPos": {
-        "x": 0,
+        "x": 2,
         "y": 50,
-        "w": 24,
+        "w": 20,
         "h": 6
       },
       "id": 10,
@@ -1970,9 +1870,9 @@
         "overrides": []
       },
       "gridPos": {
-        "x": 0,
+        "x": 2,
         "y": 3,
-        "w": 24,
+        "w": 20,
         "h": 7
       },
       "id": 100,
@@ -2203,7 +2103,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Monthly spending on family essentials: Groceries, Family & Kids, Health, Household",
+      "description": "Monthly spending on family essentials: Groceries, Family & Kids, Health, Household View the Category Spending dashboard for detailed breakdown of essential expenses.",
       "fieldConfig": {
         "defaults": {
           "color": {
