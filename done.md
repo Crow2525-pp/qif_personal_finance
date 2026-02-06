@@ -640,6 +640,17 @@ Tasks that have been completed and verified.
     "notes": "16 panels updated via window_range CTE. Key Executive KPIs uses previous_window_range for period comparison. Family Essentials SUM is wired but rpt_family_essentials model still materialises latest month only â€” needs model update to expose all months (see task 45 scope)."
   },
   {
+    "id": 41,
+    "category": "dashboard-fix",
+    "title": "Family Essentials total lacks category breakdown",
+    "description": "Family Essentials (Last Month) shows a single total with no category breakdown or drivers. Consider a small stacked bar or top categories list to explain the total.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Family Essentials panel",
+    "effort": "small",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, family essentials breakdown):\nConverted Family Essentials from single stat to table with category breakdown.\n\nCommit: 4e11183\n\nNow shows individual essential expense categories with amounts instead of just\na total, making it actionable and transparent.",
+    "completed_date": "2026-02-06"
+  },
+  {
     "id": 42,
     "category": "dashboard-fix",
     "title": "Sync dashboard time picker with selected period",
