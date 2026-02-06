@@ -370,11 +370,22 @@ Tasks that have been completed and verified.
     "id": 28,
     "category": "dashboard-fix",
     "title": "Improve Week-to-Date Spending Pace readability",
-    "description": "SQL: add pace_ratio = wtd_spending / NULLIF(expected_spend_to_date,0) * 100 and return expected_spend_to_date. Grafana stat: set main value to pace_ratio (unit percent, thresholds <90 green, 90\u00e2\u20ac\u201c110 yellow, >110 red); show secondaries Week Spent, Weekly Budget, Daily Budget Left, Days Left; hide raw pace_status field.",
+    "description": "SQL: add pace_ratio = wtd_spending / NULLIF(expected_spend_to_date,0) * 100 and return expected_spend_to_date. Grafana stat: set main value to pace_ratio (unit percent, thresholds <90 green, 90â€“110 yellow, >110 red); show secondaries Week Spent, Weekly Budget, Daily Budget Left, Days Left; hide raw pace_status field.",
     "scope": "reporting.rpt_weekly_spending_pace; grafana/provisioning/dashboards/executive-dashboard.json (Week-to-Date Spending Pace stat)",
     "effort": "small",
     "status": "done",
     "notes": "Not applicable - no WTD Spending Pace panel exists in dashboard"
+  },
+  {
+    "id": 28,
+    "category": "dashboard-fix",
+    "title": "Cash Flow Drivers panel renders without visible data",
+    "description": "Cash Flow Drivers (Month-over-Month) shows only the title with no visible chart or table content. Ensure the visualization is rendered (or show an explicit 'No data' state) so users know whether it is blank by design or broken.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Cash Flow Drivers panel",
+    "effort": "small",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
   },
   {
     "id": 29,
@@ -387,6 +398,17 @@ Tasks that have been completed and verified.
     "notes": "SQL capped at 6 via LEAST(); gauge thresholds 0/1/3/6 already configured. Renders green at 6 months."
   },
   {
+    "id": 29,
+    "category": "dashboard-fix",
+    "title": "How-to-Read text references a Month selector that is not present",
+    "description": "The How to Read section says the Month selector swaps the anchored month, but no Month selector control is visible on the dashboard. Either add the selector or update the instructions to match the actual UI.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; How to Read panel; dashboard variables",
+    "effort": "tiny",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
+  },
+  {
     "id": 30,
     "category": "dashboard-fix",
     "title": "Replace MoM Cash table with drivers waterfall",
@@ -395,6 +417,17 @@ Tasks that have been completed and verified.
     "effort": "medium",
     "status": "done",
     "notes": "Already complete - Cash Flow Drivers panel (id=13) is a barchart showing income/expense/transfers/net deltas as waterfall visualization"
+  },
+  {
+    "id": 30,
+    "category": "dashboard-fix",
+    "title": "Monthly Savings duplicates Net Cash Flow value",
+    "description": "Monthly Financial Snapshot shows 'Net Cash Flow' and 'Monthly Savings' with the same value, which is confusing without a definition. Either differentiate the measures or add a note explaining why they are identical.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Monthly Financial Snapshot panel",
+    "effort": "tiny",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
   },
   {
     "id": 31,
@@ -407,6 +440,17 @@ Tasks that have been completed and verified.
     "notes": "Monthly Income/Expenses populate correctly for Jan 2026 (see screenshots/executive-dashboard-full-2026-02-04.png)."
   },
   {
+    "id": 31,
+    "category": "dashboard-fix",
+    "title": "Executive Summary formatting is hard to scan",
+    "description": "The Executive Summary is a single long pipe-delimited sentence. Replace with a short list or key-value layout so critical metrics are scannable, especially on large screens.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Executive Summary panel",
+    "effort": "tiny",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
+  },
+  {
     "id": 32,
     "category": "dashboard-fix",
     "title": "Return real percentages in Savings & Expense Performance",
@@ -415,6 +459,17 @@ Tasks that have been completed and verified.
     "effort": "small",
     "status": "done",
     "notes": "Savings Rate and Expense Ratio now show scaled % values (-10.2%, 4.2%, 110%) in UI (screenshots/executive-dashboard-full-2026-02-04.png)."
+  },
+  {
+    "id": 32,
+    "category": "dashboard-fix",
+    "title": "Data Quality Callouts headers are inconsistent with other tables",
+    "description": "Data Quality Callouts uses lowercase headers ('metric', 'value', 'detail') while other tables use title case. Standardize header casing for visual consistency.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Data Quality Callouts panel",
+    "effort": "tiny",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
   },
   {
     "id": 33,
@@ -427,6 +482,17 @@ Tasks that have been completed and verified.
     "notes": "Panel rewritten to use a base driver list LEFT JOINed to rpt_mom_cash_flow_waterfall so it always returns four rows with 0 defaults when data is missing. Removed reliance on $__timeTo to avoid macro casting errors; now keyed solely on dashboard_period (Latest -> max available month). Provisioned to Grafana; API test returns rows."
   },
   {
+    "id": 33,
+    "category": "dashboard-fix",
+    "title": "Data Quality Callouts percentages lack definition",
+    "description": "Percentages in Data Quality Callouts (e.g., 1%, 3%, 87.1%) do not define the denominator (by count, by spend, or by accounts). Add a brief note or tooltip clarifying what each percentage represents.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Data Quality Callouts panel",
+    "effort": "tiny",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
+  },
+  {
     "id": 34,
     "category": "dashboard-fix",
     "title": "Align liquid assets and net worth signs",
@@ -435,6 +501,17 @@ Tasks that have been completed and verified.
     "effort": "small",
     "status": "done",
     "notes": "Verified: Asset & Liability shows correct values (.22M / 28K / 93K / 43.2%)"
+  },
+  {
+    "id": 34,
+    "category": "dashboard-fix",
+    "title": "Top Uncategorized Merchants lacks time window context",
+    "description": "Top Uncategorized Merchants doesn't state the period the list covers (current month vs last 30 days). Add a subtitle or description that clarifies the date window and whether it follows the global time picker or a fixed month.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Top Uncategorized Merchants panel",
+    "effort": "tiny",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
   },
   {
     "id": 35,
@@ -447,6 +524,17 @@ Tasks that have been completed and verified.
     "notes": "Verified: Cash Flow Trend shows 12 months (2025-04 to 2026-02) with timeFrom/timeTo override"
   },
   {
+    "id": 35,
+    "category": "dashboard-fix",
+    "title": "Top Uncategorized Merchants 'Contribution %' ambiguous",
+    "description": "The Contribution % column does not clarify whether it is a share of total uncategorized spend, all spend, or a category subset. Add a column description or rename to specify the denominator.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Top Uncategorized Merchants panel",
+    "effort": "tiny",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
+  },
+  {
     "id": 36,
     "category": "dashboard-fix",
     "title": "Replace WTD pace with Month-to-Date pace",
@@ -457,14 +545,36 @@ Tasks that have been completed and verified.
     "notes": "Not applicable - no WTD pace panel exists to replace"
   },
   {
+    "id": 36,
+    "category": "dashboard-fix",
+    "title": "AI Financial Insights uses generic 'None flagged' without criteria",
+    "description": "AI Financial Insights shows 'None flagged' for Accounts Needing Attention but doesn't define the criteria or threshold for being flagged. Add a description that explains what triggers a flag and what 'None flagged' means.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; AI Financial Insights panel",
+    "effort": "tiny",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
+  },
+  {
     "id": 37,
     "category": "dashboard-fix",
     "title": "Reorder hero row for monthly cadence",
-    "description": "Top layout order: Data Freshness \u00e2\u2020\u2019 Monthly Financial Snapshot \u00e2\u2020\u2019 Family Essentials \u00e2\u2020\u2019 Emergency Fund \u00e2\u2020\u2019 Cash Flow Drivers; move Data Quality Callouts directly under hero; fold detailed KPI tables into a collapsible section.",
+    "description": "Top layout order: Data Freshness â†’ Monthly Financial Snapshot â†’ Family Essentials â†’ Emergency Fund â†’ Cash Flow Drivers; move Data Quality Callouts directly under hero; fold detailed KPI tables into a collapsible section.",
     "scope": "grafana/provisioning/dashboards/executive-dashboard.json layout",
     "effort": "small",
     "status": "done",
     "notes": "Completed: Hero section reordered - Monthly Snapshot prominent at y=3, Essentials/Fund/Expense at y=10, Data Quality at y=19"
+  },
+  {
+    "id": 37,
+    "category": "dashboard-fix",
+    "title": "AI Financial Insights recommendation lacks actionable link or owner",
+    "description": "The priority recommendation is phrased as advice but doesn't link to a supporting drill-down or indicate an owner. Add a link to the relevant analysis or include a 'why' note so it is actionable.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; AI Financial Insights panel",
+    "effort": "small",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
   },
   {
     "id": 38,
@@ -477,6 +587,17 @@ Tasks that have been completed and verified.
     "notes": "Already complete: Thresholds green/yellow(10)/red(15), uncategorized amount shown, drill-down link present"
   },
   {
+    "id": 38,
+    "category": "dashboard-fix",
+    "title": "Status Highlights table headers are lowercase and vague",
+    "description": "Status Highlights uses lowercase headers ('metric', 'status', 'detail') and generic wording. Standardize header casing and consider renaming to clearer labels (e.g., 'Signal', 'Status', 'Explanation').",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Status Highlights panel",
+    "effort": "tiny",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
+  },
+  {
     "id": 39,
     "category": "dashboard-fix",
     "title": "Update Executive Summary text for monthly/quarterly cadence",
@@ -487,6 +608,28 @@ Tasks that have been completed and verified.
     "notes": "Completed: Executive Summary enriched with net cash flow amount, savings rate, forecast with month name, refresh cadence"
   },
   {
+    "id": 39,
+    "category": "dashboard-fix",
+    "title": "Asset & Liability Snapshot lacks trend or comparison",
+    "description": "Asset & Liability Snapshot is a set of static totals without a comparison to previous month/year. Add deltas or sparklines so users can interpret movement, not just current size.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Asset & Liability Snapshot panel",
+    "effort": "small",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
+  },
+  {
+    "id": 40,
+    "category": "dashboard-fix",
+    "title": "Monthly Financial Snapshot lacks variance context",
+    "description": "Monthly Financial Snapshot shows current values without showing variance vs prior month/target. Add delta indicators or a small trend to help users understand if values are improving or worsening.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Monthly Financial Snapshot panel",
+    "effort": "small",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
+  },
+  {
     "id": 41,
     "category": "dashboard-fix",
     "title": "Make time_window variable drive all Executive panels",
@@ -494,7 +637,7 @@ Tasks that have been completed and verified.
     "scope": "grafana/provisioning/dashboards/executive-dashboard.json; reporting.rpt_monthly_budget_summary; reporting.rpt_cash_flow_analysis",
     "effort": "medium",
     "status": "done",
-    "notes": "16 panels updated via window_range CTE. Key Executive KPIs uses previous_window_range for period comparison. Family Essentials SUM is wired but rpt_family_essentials model still materialises latest month only \u00e2\u20ac\u201d needs model update to expose all months (see task 45 scope)."
+    "notes": "16 panels updated via window_range CTE. Key Executive KPIs uses previous_window_range for period comparison. Family Essentials SUM is wired but rpt_family_essentials model still materialises latest month only â€” needs model update to expose all months (see task 45 scope)."
   },
   {
     "id": 42,
@@ -507,6 +650,17 @@ Tasks that have been completed and verified.
     "notes": "Timepicker hidden; all panels already windowed via window_range CTE from task 41."
   },
   {
+    "id": 42,
+    "category": "dashboard-fix",
+    "title": "Data Freshness does not show timezone or refresh cadence",
+    "description": "Data Freshness lists dates/times without indicating timezone or refresh cadence. Add timezone (e.g., local vs UTC) and a short note on refresh frequency so users can interpret staleness correctly.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Data Freshness panel",
+    "effort": "tiny",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
+  },
+  {
     "id": 43,
     "category": "dashboard-fix",
     "title": "Zero-safe deltas and ratios in Executive KPI tables",
@@ -517,14 +671,36 @@ Tasks that have been completed and verified.
     "notes": "Fixed integer division in Health & Risk delta_ratio (cast to ::numeric). Added nullTextValue for 0/0 cases."
   },
   {
+    "id": 43,
+    "category": "dashboard-fix",
+    "title": "Executive Summary mixes multiple time bases in one sentence",
+    "description": "Executive Summary combines latest closed month, a forecast for next month, and a review cadence in a single sentence, which is hard to parse. Split into labeled fields or separate lines with explicit time basis.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Executive Summary panel",
+    "effort": "tiny",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
+  },
+  {
     "id": 44,
     "category": "dashboard-fix",
     "title": "Normalize percent units across rate panels",
-    "description": "Standardize all percent outputs to 0\u00e2\u20ac\u201c100 numeric scale. SQL: multiply ratios by 100 and alias without '%' chars. Panels to update: Savings & Expense Performance bars, MoM Rate Changes, Expense Ratio stats, uncategorized_pct in Data Quality Callouts. JSON: set fieldConfig.defaults.unit='percent', thresholds numeric (e.g., 5/10/20/30 or red>15 yellow>10 for data-quality), remove any suffix text '%'.",
+    "description": "Standardize all percent outputs to 0â€“100 numeric scale. SQL: multiply ratios by 100 and alias without '%' chars. Panels to update: Savings & Expense Performance bars, MoM Rate Changes, Expense Ratio stats, uncategorized_pct in Data Quality Callouts. JSON: set fieldConfig.defaults.unit='percent', thresholds numeric (e.g., 5/10/20/30 or red>15 yellow>10 for data-quality), remove any suffix text '%'.",
     "scope": "reporting.rpt_monthly_budget_summary; reporting.rpt_outflows_insights_dashboard; grafana/provisioning/dashboards/executive-dashboard.json (Savings & Expense Performance, MoM Rate Changes, Data Quality Callouts, related stats)",
     "effort": "small",
     "status": "done",
-    "notes": "Panel 101 MoM Rate Changes: SQL \u00c3\u2014100 for current/previous/delta, JSON unit changed to percent. Consistent with Savings & Expense Performance bars."
+    "notes": "Panel 101 MoM Rate Changes: SQL Ã—100 for current/previous/delta, JSON unit changed to percent. Consistent with Savings & Expense Performance bars."
+  },
+  {
+    "id": 44,
+    "category": "dashboard-fix",
+    "title": "Savings & Expense Performance lacks targets/benchmarks",
+    "description": "Savings Rate and Expense Ratio values appear without target ranges or benchmarks, making it unclear whether performance is good or bad. Add thresholds or contextual labels (e.g., 'Target > 10%').",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Savings & Expense Performance panel",
+    "effort": "tiny",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
   },
   {
     "id": 45,
@@ -537,6 +713,17 @@ Tasks that have been completed and verified.
     "notes": "Panel 901 unixEpoch macros replaced; uncategorized now reads 87.1%. Panel 902 merchant names normalised via SPLIT_PART and aggregated across periods."
   },
   {
+    "id": 45,
+    "category": "dashboard-fix",
+    "title": "Health & Risk KPIs mixes scores and counts without units",
+    "description": "Health & Risk KPIs combines a score (Net Worth Health Score) and a count (Accounts At Risk) in the same table without units or definitions. Add units/definitions or split into separate panels so the metrics are comparable.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Health & Risk KPIs panel",
+    "effort": "small",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
+  },
+  {
     "id": 46,
     "category": "dashboard-fix",
     "title": "Resolve public dashboard 404 error",
@@ -545,6 +732,116 @@ Tasks that have been completed and verified.
     "effort": "small",
     "status": "done",
     "notes": "The 404 is Grafana proactively checking for a public dashboard. Normal behaviour when none is created. No action needed."
+  },
+  {
+    "id": 46,
+    "category": "dashboard-fix",
+    "title": "Data Quality Callouts lacks remediation guidance",
+    "description": "Callouts flag issues but do not indicate what action to take or where to drill down. Add short remediation guidance or explicit 'Next step' links to the relevant dashboards.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Data Quality Callouts panel",
+    "effort": "small",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
+  },
+  {
+    "id": 47,
+    "category": "dashboard-fix",
+    "title": "Expense Control Score lacks definition and scale",
+    "description": "Expense Control Score is a single number with no scale or explanation. Add a description of how it is calculated and what range constitutes good vs bad.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Expense Control Score panel",
+    "effort": "tiny",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
+  },
+  {
+    "id": 48,
+    "category": "dashboard-fix",
+    "title": "Cash Flow Trend legend uses a single 'Name' header",
+    "description": "Cash Flow Trend (12 Months) legend table only shows the header 'Name' and lacks explicit series labels or units. Add a clearer legend (series names with units) or embed labels directly on the chart.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Cash Flow Trend panel",
+    "effort": "tiny",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
+  },
+  {
+    "id": 49,
+    "category": "dashboard-fix",
+    "title": "Data Quality Callouts links drop time context",
+    "description": "Links in Data Quality Callouts navigate to dashboards without carrying the current time range or month context. Propagate time range variables in the URLs so drill-downs match the summary panel’s timeframe.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Data Quality Callouts panel links",
+    "effort": "small",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
+  },
+  {
+    "id": 50,
+    "category": "dashboard-fix",
+    "title": "Uncategorized drill-down links rely on implicit variable naming",
+    "description": "Links to transaction analysis use `var_category=Uncategorized` but do not include time range or account context, making drill-downs ambiguous. Add time range params and consider more explicit variable naming to avoid confusion.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Data Quality Callouts & Top Uncategorized Merchants links",
+    "effort": "small",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
+  },
+  {
+    "id": 51,
+    "category": "dashboard-fix",
+    "title": "AI Financial Insights links point back to the same dashboard",
+    "description": "AI Financial Insights links resolve to `/d/executive_dashboard?`, which doesn’t help users drill down. Replace with a relevant dashboard or remove the link if no drill-down exists.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; AI Financial Insights panel links",
+    "effort": "tiny",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, batch UX improvements):\nApplied comprehensive text, description, and formatting improvements across all dashboard panels.\n\nCommits: f65d76c, de02ac8\n\nKey improvements:\n- Removed non-existent Month selector references\n- Reformatted Executive Summary with labeled fields and newlines\n- Standardized table headers to title case (Data Quality, Status Highlights)\n- Added percentage/unit definitions and clarifications\n- Added time window context and timezone info\n- Added target benchmarks and scale definitions\n- Added remediation guidance and drill-down pointers\n- Improved legend displays and column names\n- Removed self-referencing links",
+    "completed_date": "2026-02-06"
+  },
+  {
+    "id": 52,
+    "category": "dashboard-fix",
+    "title": "Monthly Financial Snapshot labels become misleading after time range change",
+    "description": "After changing the time range to Last 6 months, 'Monthly Income/Expenses/Net Cash Flow/Monthly Savings' jump to multi-month totals (e.g., $90.8K) while labels still say Monthly. Either lock this panel to latest month or relabel to reflect the selected range.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Monthly Financial Snapshot panel",
+    "effort": "small",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, time picker and currency labeling):\nAdded clear notes about time picker behavior and currency units across panels.\n\nCommit: e6c9852\n\nImprovements:\n- Task #52: Added time range clarification to Monthly Financial Snapshot\n- Task #53: Renamed Family Essentials title (removed \"Last Month\") and added time range note\n- Task #54: Added time picker behavior notes to all panels (fixed vs. time-range-sensitive)\n- Task #55: Added AUD currency indicator to dashboard title and Financial Health Scores",
+    "completed_date": "2026-02-06"
+  },
+  {
+    "id": 53,
+    "category": "dashboard-fix",
+    "title": "Family Essentials (Last Month) ignores/contradicts time picker",
+    "description": "When the time range is set to Last 6 months, Family Essentials value changes substantially but the title still says 'Last Month'. Either keep the value fixed to last closed month or update the title to match the selected range.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; Family Essentials panel",
+    "effort": "tiny",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, time picker and currency labeling):\nAdded clear notes about time picker behavior and currency units across panels.\n\nCommit: e6c9852\n\nImprovements:\n- Task #52: Added time range clarification to Monthly Financial Snapshot\n- Task #53: Renamed Family Essentials title (removed \"Last Month\") and added time range note\n- Task #54: Added time picker behavior notes to all panels (fixed vs. time-range-sensitive)\n- Task #55: Added AUD currency indicator to dashboard title and Financial Health Scores",
+    "completed_date": "2026-02-06"
+  },
+  {
+    "id": 54,
+    "category": "dashboard-fix",
+    "title": "Time picker affects some panels but not others without disclosure",
+    "description": "After changing the time range to Last 6 months, some panels update (Monthly Financial Snapshot, Data Quality Callouts), while others appear anchored (Executive Summary, Data Freshness). Add clear panel notes indicating whether each panel follows the global time picker or a fixed 'latest closed month' window.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; multiple panels",
+    "effort": "small",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, time picker and currency labeling):\nAdded clear notes about time picker behavior and currency units across panels.\n\nCommit: e6c9852\n\nImprovements:\n- Task #52: Added time range clarification to Monthly Financial Snapshot\n- Task #53: Renamed Family Essentials title (removed \"Last Month\") and added time range note\n- Task #54: Added time picker behavior notes to all panels (fixed vs. time-range-sensitive)\n- Task #55: Added AUD currency indicator to dashboard title and Financial Health Scores",
+    "completed_date": "2026-02-06"
+  },
+  {
+    "id": 55,
+    "category": "dashboard-fix",
+    "title": "Currency unit is ambiguous across panels",
+    "description": "Values are displayed with a `$` symbol while merchant strings include AUD. The dashboard never states the currency used for KPIs or tables. Add a currency indicator (e.g., AUD) near the top or in panel descriptions.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; global labeling",
+    "effort": "tiny",
+    "status": "done",
+    "notes": "FIXED (2026-02-06, time picker and currency labeling):\nAdded clear notes about time picker behavior and currency units across panels.\n\nCommit: e6c9852\n\nImprovements:\n- Task #52: Added time range clarification to Monthly Financial Snapshot\n- Task #53: Renamed Family Essentials title (removed \"Last Month\") and added time range note\n- Task #54: Added time picker behavior notes to all panels (fixed vs. time-range-sensitive)\n- Task #55: Added AUD currency indicator to dashboard title and Financial Health Scores",
+    "completed_date": "2026-02-06"
   },
   {
     "id": 60,
