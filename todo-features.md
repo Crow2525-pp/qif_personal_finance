@@ -341,7 +341,7 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "description": "Add and maintain the ranked monthly review order in `dashboard-priority.md`, including priority prefixes in dashboard names and rationale for the ordering.",
     "scope": "dashboard-priority.md",
     "effort": "tiny",
-    "status": "pending",
-    "notes": "Added priority-ranked list on 2026-02-06."
+    "status": "done",
+    "notes": "COMPLETED (2026-02-06): Renamed all 23 dashboard files with priority prefixes (01-23) according to dashboard-priority.md. Desktop dashboards 01-17, mobile dashboards 18-23. Commit: 86ad299"
   }
 ]
