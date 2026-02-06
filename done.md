@@ -430,5 +430,16 @@ Tasks that have been completed and verified.
     "status": "done",
     "notes": "FIXED (2026-02-06): Updated SQL query to use NULLIF to handle empty string in accounts_with_issues column. Now displays 'None flagged' instead of empty cell.",
     "completed_date": "2026-02-06"
+  },
+  {
+    "id": 106,
+    "category": "dashboard-fix",
+    "title": "Fix Executive dashboard queries failing with syntax error near ')'",
+    "description": "API check shows many Executive dashboard panels failing with SQL syntax errors where time macros render as empty parentheses (e.g., ()::timestamptz). Ensure Grafana macros/time variables are correctly substituted so queries execute without errors.",
+    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; time macro usage in panel SQL",
+    "effort": "medium",
+    "status": "done",
+    "notes": "VERIFIED (2026-02-06): Console shows 0 errors. All queries execute successfully. No SQL syntax errors observed.",
+    "completed_date": "2026-02-06"
   }
 ]
