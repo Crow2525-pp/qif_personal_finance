@@ -27,7 +27,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Shows the time window of data included in this dashboard and when it was last refreshed.",
+      "description": "Shows the time window of data included in this dashboard and when it was last refreshed. Times shown in local timezone (Australia/Melbourne). Data refreshes monthly when new transactions are processed.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -441,7 +441,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Key financial metrics for the latest closed month: income, expenses, net cash flow, savings, net worth, and liquid assets.",
+      "description": "Key financial metrics for the latest closed month: income, expenses, net cash flow, savings, net worth, and liquid assets. Targets: Savings Rate > 10%, Expense Ratio < 90%.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -799,14 +799,14 @@
           }
         ]
       },
-      "description": "Current = Latest closed month, Previous = Prior month. Score and risk KPIs expressed as raw values; Delta Ratio captures relative change where applicable."
+      "description": "Current = Latest closed month, Previous = Prior month. Score and risk KPIs expressed as raw values; Delta Ratio captures relative change where applicable. Net Worth Health Score (0-100): Measures overall financial health. Accounts At Risk (count): Number of accounts with concerning patterns."
     },
     {
       "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Savings rate and expense ratio trends. Savings Rate: percent of income saved. Expense Ratio: expenses as percent of income. Lower expense ratio and higher savings rate are better. Monthly, 3-month average, and year-to-date views show trend consistency.",
+      "description": "Savings rate and expense ratio trends. Savings Rate: percent of income saved. Expense Ratio: expenses as percent of income. Lower expense ratio and higher savings rate are better. Monthly, 3-month average, and year-to-date views show trend consistency. Scale: 0-100 (higher is better). Calculated based on expense volatility, budget adherence, and savings consistency.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -920,7 +920,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Shows months of emergency fund coverage based on average monthly expenses. Target: 6+ months (green). Thresholds: 0-1 months (red), 1-3 months (orange), 3-6 months (yellow), 6+ months (green). This gauge helps you assess financial resilience.",
+      "description": "Shows months of emergency fund coverage based on average monthly expenses. Target: 6+ months (green). Thresholds: 0-1 months (red), 1-3 months (orange), 3-6 months (yellow), 6+ months (green). This gauge helps you assess financial resilience. Note: Monthly Savings and Net Cash Flow are identical in this view (savings = net income - expenses). For month-over-month trends, see Cash Flow Trend panel below.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1318,7 +1318,11 @@
       "options": {
         "legend": {
           "displayMode": "table",
-          "placement": "bottom"
+          "placement": "right",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
         },
         "tooltip": {
           "mode": "single"
@@ -1349,7 +1353,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Total assets, total liabilities, net worth, and debt-to-asset ratio. Net Worth = Assets - Liabilities. Lower debt-to-asset ratio is better. Monitor net worth growth and debt reduction progress.",
+      "description": "Total assets, total liabilities, net worth, and debt-to-asset ratio. Net Worth = Assets - Liabilities. Lower debt-to-asset ratio is better. Monitor net worth growth and debt reduction progress. Shows current balances as of latest month. For trends over time, see Account Performance dashboard.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1749,7 +1753,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Financial health metrics scored 0-100. Financial Health: overall composite score. Savings Performance: savings rate vs target. Net Worth Progress: growth trajectory. Cash Flow Status: income/expense balance. Higher scores indicate better financial health. Use these to prioritize improvement areas.",
+      "description": "Financial health metrics scored 0-100. Financial Health: overall composite score. Savings Performance: savings rate vs target. Net Worth Progress: growth trajectory. Cash Flow Status: income/expense balance. Higher scores indicate better financial health. Use these to prioritize improvement areas. Accounts are flagged when they show concerning patterns: negative trends, approaching limits, or unusual activity. Priority recommendation is based on current financial patterns and opportunities for optimization.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1857,7 +1861,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nbounds AS (\n  SELECT MIN(month_date) AS min_month, MAX(month_date) AS max_month\n  FROM available_months\n),\nselected_period AS (\n  SELECT COALESCE(\n    (SELECT MAX(month_date) FROM available_months WHERE month_date <= date_trunc('month', ($__timeTo()::timestamptz - INTERVAL '1 day'))),\n    (SELECT max_month FROM bounds)\n  ) AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nwindow_range AS (\n  SELECT\n    GREATEST(date_trunc('day', $__timeFrom()::timestamptz)::date, (SELECT min_month FROM bounds)) AS start_date,\n    LEAST(date_trunc('day', $__timeTo()::timestamptz)::date,   (SELECT max_month FROM bounds)) AS end_date\n),\ncurrent_cf AS (\n  SELECT cash_flow_status\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\ncurrent_nw AS (\n  SELECT wealth_milestone\n  FROM reporting.rpt_household_net_worth\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\naccount_alerts AS (\n  SELECT COALESCE(COUNT(*) FILTER (WHERE needs_attention_flag), 0) AS accounts_needing_attention\n  FROM reporting.rpt_account_performance\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\nexec_view AS (\n  SELECT *\n  FROM reporting.rpt_executive_dashboard\n  WHERE dashboard_month = (SELECT month_key FROM selected_key)\n)\nSELECT 'Overall Rating' AS metric, COALESCE(ev.overall_financial_health_rating, 'n/a') AS status, 'Composite of savings, cash flow, and net worth signals.' AS detail\nFROM exec_view ev\nUNION ALL\nSELECT 'Savings Tier', COALESCE(ev.current_savings_tier, 'n/a'), 'Benchmark category for latest savings rate.'\nFROM exec_view ev\nUNION ALL\nSELECT 'Cash Flow Status', COALESCE(ccf.cash_flow_status, 'n/a'), 'Health of current month cash flow vs historical pattern.'\nFROM current_cf ccf\nUNION ALL\nSELECT 'Net Worth Phase', COALESCE(cnw.wealth_milestone, 'n/a'), 'Stage of wealth-building progress based on assets and liabilities.'\nFROM current_nw cnw\nUNION ALL\nSELECT 'Accounts Requiring Attention', COALESCE(CAST(aa.accounts_needing_attention AS TEXT), '0'), 'Number of accounts flagged for manual review.'\nFROM account_alerts aa;",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nbounds AS (\n  SELECT MIN(month_date) AS min_month, MAX(month_date) AS max_month\n  FROM available_months\n),\nselected_period AS (\n  SELECT COALESCE(\n    (SELECT MAX(month_date) FROM available_months WHERE month_date <= date_trunc('month', ($__timeTo()::timestamptz - INTERVAL '1 day'))),\n    (SELECT max_month FROM bounds)\n  ) AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nwindow_range AS (\n  SELECT\n    GREATEST(date_trunc('day', $__timeFrom()::timestamptz)::date, (SELECT min_month FROM bounds)) AS start_date,\n    LEAST(date_trunc('day', $__timeTo()::timestamptz)::date,   (SELECT max_month FROM bounds)) AS end_date\n),\ncurrent_cf AS (\n  SELECT cash_flow_status\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\ncurrent_nw AS (\n  SELECT wealth_milestone\n  FROM reporting.rpt_household_net_worth\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\naccount_alerts AS (\n  SELECT COALESCE(COUNT(*) FILTER (WHERE needs_attention_flag), 0) AS accounts_needing_attention\n  FROM reporting.rpt_account_performance\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n),\nexec_view AS (\n  SELECT *\n  FROM reporting.rpt_executive_dashboard\n  WHERE dashboard_month = (SELECT month_key FROM selected_key)\n)\nSELECT 'Overall Rating' AS \"Signal\", COALESCE(ev.overall_financial_health_rating, 'n/a') AS \"Status\", 'Composite of savings, cash flow, and net worth signals.' AS \"Explanation\"\nFROM exec_view ev\nUNION ALL\nSELECT 'Savings Tier', COALESCE(ev.current_savings_tier, 'n/a'), 'Benchmark category for latest savings rate.'\nFROM exec_view ev\nUNION ALL\nSELECT 'Cash Flow Status', COALESCE(ccf.cash_flow_status, 'n/a'), 'Health of current month cash flow vs historical pattern.'\nFROM current_cf ccf\nUNION ALL\nSELECT 'Net Worth Phase', COALESCE(cnw.wealth_milestone, 'n/a'), 'Stage of wealth-building progress based on assets and liabilities.'\nFROM current_nw cnw\nUNION ALL\nSELECT 'Accounts Requiring Attention', COALESCE(CAST(aa.accounts_needing_attention AS TEXT), '0'), 'Number of accounts flagged for manual review.'\nFROM account_alerts aa;",
           "refId": "A"
         }
       ],
@@ -1894,7 +1898,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Data quality issues requiring attention. Stale accounts: no recent transactions. Unmatched transfers: transfers without matching counterparty. Uncategorized spend: transactions without categories. High uncategorized % reduces insight accuracy.",
+      "description": "Data quality issues requiring attention. Stale accounts: no recent transactions. Unmatched transfers: transfers without matching counterparty. Uncategorized spend: transactions without categories. High uncategorized % reduces insight accuracy. Percentages represent the share of total transaction spend (not count) affected by each data quality issue. Next steps: Click issue names to drill down. Prioritize uncategorized transactions for categorization.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -1995,7 +1999,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nbounds AS (\n  SELECT MIN(month_date) AS min_month, MAX(month_date) AS max_month\n  FROM available_months\n),\nselected_period AS (\n  SELECT COALESCE(\n    (SELECT MAX(month_date) FROM available_months WHERE month_date <= date_trunc('month', ($__timeTo()::timestamptz - INTERVAL '1 day')) ),\n    (SELECT max_month FROM bounds)\n  ) AS month_date\n),\nwindow_range AS (\n  SELECT\n    GREATEST(date_trunc('day', $__timeFrom()::timestamptz)::date, (SELECT min_month FROM bounds)) AS start_date,\n    LEAST(date_trunc('day', $__timeTo()::timestamptz)::date,   (SELECT max_month FROM bounds)) AS end_date\n),\nperiod_bounds AS (\n  SELECT (SELECT start_date FROM window_range) AS window_start,\n         (SELECT end_date   FROM window_range) AS window_end,\n         ((SELECT end_date FROM window_range) + INTERVAL '1 month' - INTERVAL '1 day')::date AS window_end_day\n),\nstale_accounts AS (\n  SELECT COUNT(*) AS stale_accounts\n  FROM reporting.dim_accounts_enhanced\n  WHERE account_last_transaction_date < (SELECT window_end_day FROM period_bounds) - INTERVAL '45 days'\n),\ntransfer_pairs AS (\n  SELECT\n    transaction_date::date AS txn_date,\n    transaction_amount_abs AS amount_abs,\n    SUM(CASE WHEN transaction_amount < 0 THEN 1 ELSE 0 END) AS out_count,\n    SUM(CASE WHEN transaction_amount > 0 THEN 1 ELSE 0 END) AS in_count\n  FROM reporting.fct_transactions_enhanced\n  WHERE COALESCE(is_internal_transfer, FALSE)\n    AND transaction_date >= (SELECT window_start FROM period_bounds)\n    AND transaction_date <= (SELECT window_end_day FROM period_bounds)\n  GROUP BY 1,2\n),\nunmatched_transfers AS (\n  SELECT COALESCE(SUM(ABS(out_count - in_count)), 0) AS unmatched_count\n  FROM transfer_pairs\n),\nuncategorized AS (\n  SELECT\n    COALESCE(SUM(uncategorized_amount), 0) AS uncategorized_amount,\n    CASE\n      WHEN COALESCE(SUM(total_outflows), 0) > 0\n      THEN (COALESCE(SUM(uncategorized_amount), 0) / SUM(total_outflows)) * 100\n      ELSE 0\n    END AS uncategorized_pct\n  FROM reporting.rpt_outflows_insights_dashboard\n  WHERE period_date BETWEEN (SELECT window_start FROM period_bounds)\n                        AND (SELECT window_end   FROM period_bounds)\n)\nSELECT 'Stale accounts (45d+ no activity)' AS metric,\n       COALESCE((SELECT stale_accounts FROM stale_accounts), 0)::text AS value,\n       'Accounts without recent transactions' AS detail\nUNION ALL\nSELECT 'Unmatched internal transfers',\n       COALESCE((SELECT unmatched_count FROM unmatched_transfers), 0)::text,\n       'Proxy count based on paired in/out amounts'\nUNION ALL\nSELECT 'Uncategorized spend',\n       ROUND(COALESCE((SELECT uncategorized_pct FROM uncategorized), 0), 1)::text,\n       CONCAT('$', ROUND(COALESCE((SELECT uncategorized_amount FROM uncategorized), 0), 0)::text, ' uncategorized');",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nbounds AS (\n  SELECT MIN(month_date) AS min_month, MAX(month_date) AS max_month\n  FROM available_months\n),\nselected_period AS (\n  SELECT COALESCE(\n    (SELECT MAX(month_date) FROM available_months WHERE month_date <= date_trunc('month', ($__timeTo()::timestamptz - INTERVAL '1 day')) ),\n    (SELECT max_month FROM bounds)\n  ) AS month_date\n),\nwindow_range AS (\n  SELECT\n    GREATEST(date_trunc('day', $__timeFrom()::timestamptz)::date, (SELECT min_month FROM bounds)) AS start_date,\n    LEAST(date_trunc('day', $__timeTo()::timestamptz)::date,   (SELECT max_month FROM bounds)) AS end_date\n),\nperiod_bounds AS (\n  SELECT (SELECT start_date FROM window_range) AS window_start,\n         (SELECT end_date   FROM window_range) AS window_end,\n         ((SELECT end_date FROM window_range) + INTERVAL '1 month' - INTERVAL '1 day')::date AS window_end_day\n),\nstale_accounts AS (\n  SELECT COUNT(*) AS stale_accounts\n  FROM reporting.dim_accounts_enhanced\n  WHERE account_last_transaction_date < (SELECT window_end_day FROM period_bounds) - INTERVAL '45 days'\n),\ntransfer_pairs AS (\n  SELECT\n    transaction_date::date AS txn_date,\n    transaction_amount_abs AS amount_abs,\n    SUM(CASE WHEN transaction_amount < 0 THEN 1 ELSE 0 END) AS out_count,\n    SUM(CASE WHEN transaction_amount > 0 THEN 1 ELSE 0 END) AS in_count\n  FROM reporting.fct_transactions_enhanced\n  WHERE COALESCE(is_internal_transfer, FALSE)\n    AND transaction_date >= (SELECT window_start FROM period_bounds)\n    AND transaction_date <= (SELECT window_end_day FROM period_bounds)\n  GROUP BY 1,2\n),\nunmatched_transfers AS (\n  SELECT COALESCE(SUM(ABS(out_count - in_count)), 0) AS unmatched_count\n  FROM transfer_pairs\n),\nuncategorized AS (\n  SELECT\n    COALESCE(SUM(uncategorized_amount), 0) AS uncategorized_amount,\n    CASE\n      WHEN COALESCE(SUM(total_outflows), 0) > 0\n      THEN (COALESCE(SUM(uncategorized_amount), 0) / SUM(total_outflows)) * 100\n      ELSE 0\n    END AS uncategorized_pct\n  FROM reporting.rpt_outflows_insights_dashboard\n  WHERE period_date BETWEEN (SELECT window_start FROM period_bounds)\n                        AND (SELECT window_end   FROM period_bounds)\n)\nSELECT 'Stale accounts (45d+ no activity)' AS \"Metric\",\n       COALESCE((SELECT stale_accounts FROM stale_accounts), 0)::text AS \"Value\",\n       'Accounts without recent transactions' AS \"Detail\"\nUNION ALL\nSELECT 'Unmatched internal transfers',\n       COALESCE((SELECT unmatched_count FROM unmatched_transfers), 0)::text,\n       'Proxy count based on paired in/out amounts'\nUNION ALL\nSELECT 'Uncategorized spend',\n       ROUND(COALESCE((SELECT uncategorized_pct FROM uncategorized), 0), 1)::text,\n       CONCAT('$', ROUND(COALESCE((SELECT uncategorized_amount FROM uncategorized), 0), 0)::text, ' uncategorized');",
           "refId": "A"
         }
       ],
@@ -2007,7 +2011,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Top merchants with uncategorized transactions. Focus categorization efforts here for maximum impact on data quality. Links to transaction detail for quick categorization.",
+      "description": "Top merchants with uncategorized transactions. Focus categorization efforts here for maximum impact on data quality. Links to transaction detail for quick categorization. Covers all historical transactions (not limited by dashboard time picker). Click merchant names to view detailed transactions.",
       "fieldConfig": {
         "defaults": {
           "custom": {
