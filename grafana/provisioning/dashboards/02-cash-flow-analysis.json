@@ -28,14 +28,14 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 8,
-        "w": 18,
-        "x": 6,
+        "h": 5,
+        "w": 16,
+        "x": 8,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# 💰 Cash Flow Analysis Dashboard - Financial Health Assessment\n\n**What This Dashboard Shows:** Comprehensive cash flow health with trend-aware metrics and recommendations.\n\n**Key Metrics Explained:**\n• **Cash Flow Efficiency Score (1-100):** Overall cash flow health (higher is better).\n• **Status Ranking (1-5):** Combined state + trend (1=critical … 5=excellent).\n• **Rolling Averages:** Gauges use the last 3 complete months to avoid one-off spikes.\n• **Cash Flow Margin (%):** (Net Cash Flow / Total Inflows) — the share of your inflows you retain after outflows. Positive = surplus; <0% = deficit. 10%+ is typically healthy.\n• **Outflow-to-Inflow Ratio (%):** (Total Outflows / Total Inflows) — how much of your inflows are consumed by spending. Lower is better; >100% indicates overspending.\n\n**Flow Category Definitions**\n• **Operating:** Day-to-day household activity — salary/wages and core living expenses (Food & Drink, Household & Services, Family & Kids, other routine bills). Operating Cash Flow = operating inflows − operating outflows.\n• **Financing:** Debt and funding flows — mortgage/home-loan repayments, other loan servicing, and internal transfers between your own accounts.\n• **Investing:** Buying/selling investments or contributing to investment accounts (e.g., brokerage, super, ETFs). Identified via Investment categories or accounts named with ‘invest’.\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- Trend panels cover the trailing 18 months unless noted.\n- YTD panels reflect year-to-date totals.\n- Rolling averages use the last 3 complete months.\n\n**How to Use:** Focus on 3‑month gauges for trend, then drill into the latest month and categories. Red indicates persistent stress; look for high outflow-to-inflow ratio and declining trend.",
+        "content": "# Cash Flow Analysis\n\n**At a glance:** Gauges use 3-month averages, KPI tables use latest closed month, trend charts show trailing windows.\n\n**How to read quickly:**\n- Start with Efficiency / Status / Trend gauges.\n- Check `MoM Changes` for direction vs prior month.\n- Use `Cash Flow Trends (18M)` and `Cash Flow by Category (18M)` for context.\n\n> Dashboard is anchored to the **latest closed month**; time picker is hidden to avoid conflicting ranges.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -47,11 +47,11 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Data recency for the current dashboard context.",
+      "description": "Data freshness for the latest closed month. All timestamps are shown in AEST (Australia Eastern Standard Time).",
       "fieldConfig": {
         "defaults": {
-          "custom": {
-            "align": "auto",
+        "custom": {
+            "align": "left",
             "cellOptions": {
               "type": "auto"
             },
@@ -68,20 +68,92 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Period Scope"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 140
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Data Through (AEST)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last Refresh (AEST)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Refresh Cadence"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 140
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ytd_months_included"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "YTD Months Included"
+              },
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
-        "w": 6,
+        "w": 8,
         "x": 0,
         "y": 0
       },
       "id": 101,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
+    "options": {
+      "cellHeight": "md",
+      "footer": {
+        "countRows": false,
+        "fields": "",
           "reducer": [
             "sum"
           ],
@@ -99,7 +171,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n)\nSELECT\n  to_char((SELECT month_date FROM latest_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_cash_flow_analysis\nWHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM latest_period);",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n)\nSELECT\n  'Latest Closed Month' AS \"Period Scope\",\n  to_char((SELECT month_date FROM latest_period), 'Mon YYYY') AS \"Data Through (AEST)\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') || ' AEST' AS \"Last Refresh (AEST)\",\n  'Daily ~06:00 AEST' AS \"Refresh Cadence\"\nFROM reporting.rpt_cash_flow_analysis\nWHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM latest_period);",
           "refId": "A"
         }
       ],
@@ -117,58 +189,7 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [
-            {
-              "options": {
-                "from": 0,
-                "result": {
-                  "text": "Critical"
-                },
-                "to": 40
-              },
-              "type": "range"
-            },
-            {
-              "options": {
-                "from": 40,
-                "result": {
-                  "text": "Poor"
-                },
-                "to": 50
-              },
-              "type": "range"
-            },
-            {
-              "options": {
-                "from": 50,
-                "result": {
-                  "text": "Fair"
-                },
-                "to": 75
-              },
-              "type": "range"
-            },
-            {
-              "options": {
-                "from": 75,
-                "result": {
-                  "text": "Good"
-                },
-                "to": 90
-              },
-              "type": "range"
-            },
-            {
-              "options": {
-                "from": 90,
-                "result": {
-                  "text": "Excellent"
-                },
-                "to": 100
-              },
-              "type": "range"
-            }
-          ],
+          "mappings": [],
           "max": 100,
           "min": 0,
           "thresholds": {
@@ -208,7 +229,7 @@
           "fields": "",
           "values": false
         },
-        "showThresholdLabels": false,
+        "showThresholdLabels": true,
         "showThresholdMarkers": true
       },
       "pluginVersion": "10.0.0",
@@ -239,28 +260,7 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [
-            {
-              "options": {
-                "1": {
-                  "text": "Critical"
-                },
-                "2": {
-                  "text": "Poor"
-                },
-                "3": {
-                  "text": "Fair"
-                },
-                "4": {
-                  "text": "Good"
-                },
-                "5": {
-                  "text": "Excellent"
-                }
-              },
-              "type": "value"
-            }
-          ],
+          "mappings": [],
           "max": 5,
           "min": 1,
           "thresholds": {
@@ -312,7 +312,7 @@
           "fields": "",
           "values": false
         },
-        "showThresholdLabels": false,
+        "showThresholdLabels": true,
         "showThresholdMarkers": true
       },
       "pluginVersion": "10.0.0",
@@ -343,22 +343,7 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [
-            {
-              "options": {
-                "1": {
-                  "text": "Declining"
-                },
-                "2": {
-                  "text": "Stable"
-                },
-                "3": {
-                  "text": "Improving"
-                }
-              },
-              "type": "value"
-            }
-          ],
+          "mappings": [],
           "max": 3,
           "min": 1,
           "thresholds": {
@@ -402,8 +387,9 @@
           "fields": "",
           "values": false
         },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true,
+        "textMode": "value_and_name"
       },
       "pluginVersion": "10.0.0",
       "targets": [
@@ -427,7 +413,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "MOST RECENT COMPLETE MONTH: Inflows, outflows, and net cash flow data excludes current incomplete month for accurate analysis. Updated with corrected categorizations.",
+      "description": "Latest complete-month inflows, outflows, and net cash flow.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -443,7 +429,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "locale"
         },
         "overrides": [
           {
@@ -557,11 +543,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_inflows,\n  total_outflows,\n  net_cash_flow\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "WITH ranked AS (\n  SELECT \n    total_inflows,\n    total_outflows,\n    net_cash_flow,\n    ROW_NUMBER() OVER (ORDER BY transaction_year DESC, transaction_month DESC) AS rn\n  FROM reporting.rpt_cash_flow_analysis \n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n)\nSELECT \n  cur.total_inflows,\n  cur.total_outflows,\n  cur.net_cash_flow,\n  prev.net_cash_flow AS \"Prior Month Net\"\nFROM ranked cur\nLEFT JOIN ranked prev ON prev.rn = 2\nWHERE cur.rn = 1;",
           "refId": "A"
         }
       ],
-      "title": "Latest Complete Month Cash Flow",
+      "title": "Latest Month Cash Flow",
       "type": "stat"
     },
     {
@@ -569,7 +555,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Monthly cash flow trends over time",
+      "description": "Trailing 18 months",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -590,12 +576,12 @@
               "vis": false
             },
             "lineInterpolation": "linear",
-            "lineWidth": 2,
+          "lineWidth": 3,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
+          "showPoints": "never",
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -615,7 +601,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "locale"
         },
         "overrides": [
           {
@@ -673,7 +659,7 @@
         ]
       },
       "gridPos": {
-        "h": 8,
+        "h": 10,
         "w": 12,
         "x": 0,
         "y": 16
@@ -704,7 +690,7 @@
           "refId": "A"
         }
       ],
-      "title": "Cash Flow Trends",
+      "title": "Cash Flow Trends (18M)",
       "type": "timeseries"
     },
     {
@@ -712,7 +698,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Breakdown of cash flows by operating, financing, and investing activities",
+      "description": "Trailing 18 months",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -724,8 +710,8 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "bars",
-            "fillOpacity": 80,
+          "drawStyle": "line",
+          "fillOpacity": 20,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -733,16 +719,16 @@
               "vis": false
             },
             "lineInterpolation": "linear",
-            "lineWidth": 1,
+          "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
+          "showPoints": "never",
             "spanNulls": false,
             "stacking": {
               "group": "A",
-              "mode": "normal"
+            "mode": "none"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -758,7 +744,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "locale"
         },
         "overrides": [
           {
@@ -821,7 +807,7 @@
         ]
       },
       "gridPos": {
-        "h": 8,
+        "h": 10,
         "w": 12,
         "x": 12,
         "y": 16
@@ -852,7 +838,7 @@
           "refId": "A"
         }
       ],
-      "title": "Cash Flow by Category",
+      "title": "Cash Flow by Category (18M)",
       "type": "timeseries"
     },
     {
@@ -860,7 +846,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Key cash flow metrics and ratios",
+      "description": "MoM changes compare the most recent closed month to the immediately prior closed month. Positive = improvement.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1026,7 +1012,8 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Year-to-date cash flow progression",
+      "description": "Year-to-Date totals. In January, YTD equals the single month. Values accumulate as the year progresses.",
+      "description": "Year-to-date totals recomputed from monthly cash-flow rows (Jan through latest closed month).",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1042,7 +1029,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "locale"
         },
         "overrides": [
           {
@@ -1156,7 +1143,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  ytd_inflows,\n  ytd_outflows,\n  ytd_net_cash_flow\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "WITH monthly AS (\n  SELECT\n    to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date,\n    total_inflows,\n    total_outflows,\n    net_cash_flow\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n), latest AS (\n  SELECT MAX(month_date) AS latest_month\n  FROM monthly\n), ytd AS (\n  SELECT\n    SUM(m.total_inflows) AS ytd_inflows,\n    SUM(m.total_outflows) AS ytd_outflows,\n    SUM(m.net_cash_flow) AS ytd_net_cash_flow,\n    COUNT(*) AS ytd_months_included\n  FROM monthly m\n  CROSS JOIN latest l\n  WHERE date_trunc('year', m.month_date) = date_trunc('year', l.latest_month)\n    AND m.month_date <= l.latest_month\n)\nSELECT\n  ytd_inflows,\n  ytd_outflows,\n  ytd_net_cash_flow,\n  ytd_months_included\nFROM ytd;",
           "refId": "A"
         }
       ],
@@ -1168,7 +1155,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Month-over-month cash flow changes with summary and links to variance drivers",
+      "description": "Compares the most recent closed month to the immediately prior closed month. Status thresholds: >10% improvement = Improving, <-10% = Declining, else Stable.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1196,12 +1183,12 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Net Flow Change ($)"
+              "options": "Net Flow Change"
             },
             "properties": [
               {
                 "id": "unit",
-                "value": "currencyUSD"
+                "value": "locale"
               },
               {
                 "id": "color",
@@ -1228,6 +1215,54 @@
                     }
                   ]
                 }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "(?i)(flow|income|expenses|Amount)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "(?i)(%|Change)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Period Compared"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 170
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Summary"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 220
               }
             ]
           }
@@ -1262,11 +1297,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  latest_month as \"Latest Month\",\n  prior_month as \"Prior Month\",\n  ROUND(latest_month_net_flow, 0) as \"Latest Net Flow\",\n  ROUND(prior_month_net_flow, 0) as \"Prior Net Flow\",\n  ROUND(net_flow_change_dollars, 0) as \"Net Flow Change ($)\",\n  net_flow_change_pct as \"Change %\",\n  status_change as \"Status\",\n  change_summary as \"Summary\"\nFROM reporting.rpt_mom_cash_flow_summary;",
+          "rawSql": "SELECT \n  CONCAT(latest_month, ' vs ', prior_month) as \"Period Compared\",\n  ROUND(latest_month_net_flow, 0) as \"Latest Net Flow\",\n  ROUND(prior_month_net_flow, 0) as \"Prior Net Flow\",\n  ROUND(net_flow_change_dollars, 0) as \"Net Flow Change\",\n  net_flow_change_pct as \"Net Flow Change (%)\",\n  CASE \n    WHEN net_flow_change_pct > 10 THEN 'Improving'\n    WHEN net_flow_change_pct < -10 THEN 'Declining'\n    ELSE 'Stable'\n  END as \"Status\",\n  CASE \n    WHEN net_flow_change_pct > 10 THEN 'Net cash flow improved vs prior month'\n    WHEN net_flow_change_pct < -10 THEN 'Net cash flow declined vs prior month'\n    ELSE 'Net cash flow broadly stable vs prior month'\n  END as \"Summary\"\nFROM reporting.rpt_mom_cash_flow_summary;",
           "refId": "A"
         }
       ],
-      "title": "What Changed This Month",
+      "title": "MoM Changes",
       "type": "table"
     },
     {
@@ -1274,7 +1309,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Actionable cash flow recommendations linked to specific categories and top drivers",
+      "description": "Primary recommendation driver and top spend category for the latest recommendation snapshot.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1307,24 +1342,48 @@
             "properties": [
               {
                 "id": "unit",
-                "value": "currencyUSD"
+                "value": "locale"
               }
             ]
           },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Primary Income"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              }
-            ]
-          }
-        ]
-      },
+        {
+          "matcher": {
+            "id": "byName",
+            "options": "Recommendation"
+          },
+          "properties": [
+            {
+              "id": "custom.width",
+              "value": 220
+            }
+          ]
+        },
+        {
+          "matcher": {
+            "id": "byName",
+            "options": "Primary Driver"
+          },
+          "properties": [
+            {
+              "id": "custom.width",
+              "value": 180
+            }
+          ]
+        },
+        {
+          "matcher": {
+            "id": "byName",
+            "options": "Top Spend Category"
+          },
+          "properties": [
+            {
+              "id": "custom.width",
+              "value": 150
+            }
+          ]
+        }
+      ]
+    },
       "gridPos": {
         "h": 5,
         "w": 12,
@@ -1332,11 +1391,11 @@
         "y": 30
       },
       "id": 302,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
+    "options": {
+      "cellHeight": "md",
+      "footer": {
+        "countRows": false,
+        "fields": "",
           "reducer": [
             "sum"
           ],
@@ -1354,11 +1413,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  cash_flow_recommendation as \"Recommendation\",\n  recommendation_driver as \"Action Focus\",\n  top_category_1 as \"Top Category\",\n  ROUND(top_category_1_amount, 0) as \"Top Category Amount\",\n  top_category_1_flag as \"Category Status\",\n  primary_income_source as \"Primary Income\",\n  ROUND(primary_income_amount, 0) as \"Income Amount\"\nFROM reporting.rpt_recommendation_drivers;",
+          "rawSql": "SELECT \n  cash_flow_recommendation as \"Recommendation\",\n  recommendation_driver as \"Primary Driver\",\n  top_category_1 as \"Top Spend Category\",\n  ROUND(top_category_1_amount, 0) as \"Top Category Amount\",\n  top_category_1_flag as \"Spend Signal\"\nFROM reporting.rpt_recommendation_drivers;",
           "refId": "A"
         }
       ],
-      "title": "Recommendation Drivers & Action Items",
+      "title": "Recommendations",
       "type": "table"
     },
     {
@@ -1399,7 +1458,7 @@
             "properties": [
               {
                 "id": "unit",
-                "value": "currencyUSD"
+                "value": "locale"
               }
             ]
           },
@@ -1411,7 +1470,7 @@
             "properties": [
               {
                 "id": "unit",
-                "value": "currencyUSD"
+                "value": "locale"
               }
             ]
           },
@@ -1492,7 +1551,7 @@
           "refId": "A"
         }
       ],
-      "title": "Next Month Recurring Bills & Projected Impact",
+      "title": "Recurring Bills Forecast",
       "type": "table"
     },
     {
@@ -1555,11 +1614,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  cash_flow_recommendation as \"Cash Flow Recommendation\",\n  CASE \n    WHEN forecasted_next_month_net_flow > 0 \n    THEN 'Positive: $' || ROUND(forecasted_next_month_net_flow, 0)\n    ELSE 'Negative: $' || ROUND(ABS(forecasted_next_month_net_flow), 0)\n  END as \"Forecasted Next Month\",\n  CASE \n    WHEN days_expenses_covered IS NOT NULL \n    THEN ROUND(days_expenses_covered, 1) || ' days'\n    ELSE 'N/A'\n  END as \"Days Expenses Covered\"\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  cash_flow_recommendation as \"Cash Flow Recommendation\",\n  CASE \n    WHEN forecasted_next_month_net_flow > 0 \n    THEN 'Positive: ' || ROUND(forecasted_next_month_net_flow, 0)\n    ELSE 'Negative: ' || ROUND(ABS(forecasted_next_month_net_flow), 0)\n  END as \"Forecasted Next Month\",\n  CASE \n    WHEN days_expenses_covered IS NOT NULL \n    THEN ROUND(days_expenses_covered, 1) || ' days'\n    ELSE 'N/A'\n  END as \"Days Expenses Covered\"\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
-      "title": "Cash Flow Recommendations & Forecast",
+      "title": "Cash Flow Forecast",
       "type": "table"
     },
     {
@@ -1613,7 +1672,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "locale"
         },
         "overrides": [
           {
@@ -1724,7 +1783,7 @@
           "refId": "A"
         }
       ],
-      "title": "Last 12 Months Cashflow Trend",
+      "title": "Cash Flow Trend (12M)",
       "type": "timeseries"
     },
     {
@@ -1805,7 +1864,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "**CURRENT MONTH OUTFLOW BREAKDOWN & RISK ANALYSIS**\n\n**What This Shows:** Complete breakdown of spending by category for the most recent complete month.\n\n**Column Definitions:**\n• **Current Month ($):** Total amount spent in this category THIS MONTH (sum of all transactions)\n• **# Transactions:** Number of individual transactions in this category this month\n• **Largest Transaction ($):** Single biggest transaction amount within this category this month\n• **% of Total:** This category's share of total monthly outflows\n• **% Change vs Historical:** How much this month's total differs from the 6-month average (>100% = significantly above normal)\n• **Risk Flag:** Automated assessment based on spending patterns\n\n**Risk Flag Meanings:**\n🔴 **High Uncategorized Spending:** >$500 in uncategorized transactions (needs review)\n🔴 **Significantly Above Historical Average:** >200% of normal spending for this category\n🟠 **Contains Large Transaction:** Includes transaction >$1,000\n🟢 **Normal:** Spending within expected ranges\n\n**Example:** If 'Food & Drink' shows $1,065 with 29 transactions, that's $1,065 TOTAL spent across 29 separate purchases this month.",
+      "description": "**CURRENT MONTH OUTFLOW BREAKDOWN & RISK ANALYSIS**\n\n**What This Shows:** Complete breakdown of spending by category for the most recent complete month.\n\n**Column Definitions:**\n• **Current Month:** Total amount spent in this category THIS MONTH (sum of all transactions)\n• **# Transactions:** Number of individual transactions in this category this month\n• **Largest Transaction:** Single biggest transaction amount within this category this month\n• **% of Total:** This category's share of total monthly outflows\n• **% Change vs Historical:** How much this month's total differs from the 6-month average (>100% = significantly above normal)\n• **Risk Flag:** Automated assessment based on spending patterns\n\n**Risk Flag Meanings:**\n🔴 **High Uncategorized Spending:** >500 in uncategorized transactions (needs review)\n🔴 **Significantly Above Historical Average:** >200% of normal spending for this category\n🟠 **Contains Large Transaction:** Includes transaction >1000\n🟢 **Normal:** Spending within expected ranges\n\n**Example:** If 'Food & Drink' shows 1,065 with 29 transactions, that's 1,065 TOTAL spent across 29 separate purchases this month.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1832,7 +1891,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "locale"
         },
         "overrides": [
           {
@@ -1977,11 +2036,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  category as \"Category\",\n  subcategory as \"Subcategory\",\n  current_month_outflows as \"Current Month ($)\",\n  transaction_count as \"# Transactions\",\n  largest_transaction as \"Largest Transaction ($)\",\n  pct_of_total_outflows as \"% of Total\",\n  pct_change_vs_historical as \"% Change vs Historical\",\n  risk_flag as \"Risk Flag\"\nFROM reporting.rpt_current_month_outflow_analysis\nORDER BY current_month_outflows DESC\nLIMIT 15;",
+          "rawSql": "SELECT \n  category as \"Category\",\n  subcategory as \"Subcategory\",\n  current_month_outflows as \"Current Month\",\n  transaction_count as \"# Transactions\",\n  largest_transaction as \"Largest Transaction\",\n  pct_of_total_outflows as \"% of Total\",\n  pct_change_vs_historical as \"% Change vs Historical\",\n  risk_flag as \"Risk Flag\"\nFROM reporting.rpt_current_month_outflow_analysis\nORDER BY current_month_outflows DESC\nLIMIT 15;",
           "refId": "A"
         }
       ],
-      "title": "💸 Current Month Outflow Breakdown & Risk Analysis",
+      "title": "Outflow Breakdown",
       "type": "table"
     },
     {
@@ -1989,7 +2048,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "**MONTH-OVER-MONTH VARIANCE ANALYSIS**\n\n**What This Shows:** How spending in each category changed compared to last month and recent trends.\n\n**Column Definitions:**\n• **Current Month ($):** Total spent in this category this month (same as above panel)\n• **MoM Variance ($):** Dollar change vs last month (positive = spent more, negative = spent less)\n• **MoM % Change:** Percentage change vs last month (e.g., +50% = spent 50% more than last month)\n• **vs 3-Month Avg ($):** Dollar difference vs rolling 3-month average\n• **Spending Flag:** Alert level based on variance patterns\n\n**Spending Flag Meanings:**\n🔴 **High vs Average:** Current month >150% of 3-month rolling average\n🟠 **High vs Prior Month:** Current month >200% of last month\n🔴 **High Uncategorized:** >$1,000 in uncategorized spending\n🟢 **Normal:** Spending within normal variance ranges\n\n**How to Read:** If 'Entertainment' shows MoM Variance of +$932 (+458%), you spent $932 MORE this month than last month (458% increase).",
+      "description": "**MONTH-OVER-MONTH VARIANCE ANALYSIS**\n\n**What This Shows:** How spending in each category changed compared to last month and recent trends.\n\n**Column Definitions:**\n• **Current Month:** Total spent in this category this month (same as above panel)\n• **MoM Variance:** Dollar change vs last month (positive = spent more, negative = spent less)\n• **MoM % Change:** Percentage change vs last month (e.g., +50% = spent 50% more than last month)\n• **vs 3-Month Avg:** Dollar difference vs rolling 3-month average\n• **Spending Flag:** Alert level based on variance patterns\n\n**Spending Flag Meanings:**\n🔴 **High vs Average:** Current month >150% of 3-month rolling average\n🟠 **High vs Prior Month:** Current month >200% of last month\n🔴 **High Uncategorized:** >1000 in uncategorized spending\n🟢 **Normal:** Spending within normal variance ranges\n\n**How to Read:** If 'Entertainment' shows MoM Variance of +932 (+458%), you spent 932 MORE this month than last month (458% increase).",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2016,7 +2075,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "locale"
         },
         "overrides": [
           {
@@ -2137,11 +2196,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  category as \"Category\",\n  subcategory as \"Subcategory\",\n  total_outflows as \"Current Month ($)\",\n  mom_variance as \"MoM Variance ($)\",\n  mom_pct_change as \"MoM % Change\",\n  rolling_avg_variance as \"vs 3-Month Avg ($)\",\n  spending_flag as \"Spending Flag\"\nFROM reporting.rpt_cash_flow_drivers_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_cash_flow_drivers_analysis)\n  AND total_outflows > 100\nORDER BY ABS(mom_variance) DESC\nLIMIT 12;",
+          "rawSql": "SELECT \n  category as \"Category\",\n  subcategory as \"Subcategory\",\n  total_outflows as \"Current Month\",\n  mom_variance as \"MoM Variance\",\n  mom_pct_change as \"MoM % Change\",\n  rolling_avg_variance as \"vs 3-Month Avg\",\n  spending_flag as \"Spending Flag\"\nFROM reporting.rpt_cash_flow_drivers_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_cash_flow_drivers_analysis)\n  AND total_outflows > 100\nORDER BY ABS(mom_variance) DESC\nLIMIT 12;",
           "refId": "A"
         }
       ],
-      "title": "📈 Month-over-Month Variance Analysis",
+      "title": "MoM Variance",
       "type": "table"
     },
     {
@@ -2149,7 +2208,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "**Shows monthly spending categories with unusual risk patterns** - All amounts are TOTAL MONTHLY spending by category/subcategory, not individual transactions.\n\n**Risk Level Definitions:**\n• **HIGH:** Categories requiring immediate attention (Uncategorized >$500 OR spending >200% of historical average)\n• **MEDIUM:** Contains large transactions (>$1000) or single transaction >$1000 total\n• **LOW:** Normal variations within expected ranges\n\n**Column Explanations:**\n• **Amount ($):** Total monthly outflows for this category (e.g., $225 = spent $225 total in this category this month)\n• **Risk Description:** Specific reason for flagging (e.g., 'Significantly Above Historical Average')\n• **Details:** Memo from largest transaction in the category for context\n\n**Example:** If 'Zona' shows $225 with HIGH risk, this means you spent $225 total on Zona-related transactions this month, which is significantly higher than your historical monthly average for this category.",
+      "description": "**Shows monthly spending categories with unusual risk patterns** - All amounts are TOTAL MONTHLY spending by category/subcategory, not individual transactions.\n\n**Risk Level Definitions:**\n• **HIGH:** Categories requiring immediate attention (Uncategorized >500 OR spending >200% of historical average)\n• **MEDIUM:** Contains large transactions (>1000) or single transaction >1000 total\n• **LOW:** Normal variations within expected ranges\n\n**Column Explanations:**\n• **Amount:** Total monthly outflows for this category (e.g., 225 = spent 225 total in this category this month)\n• **Risk Description:** Specific reason for flagging (e.g., 'Significantly Above Historical Average')\n• **Details:** Memo from largest transaction in the category for context\n\n**Example:** If 'Zona' shows 225 with HIGH risk, this means you spent 225 total on Zona-related transactions this month, which is significantly higher than your historical monthly average for this category.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2176,7 +2235,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "locale"
         },
         "overrides": [
           {
@@ -2251,11 +2310,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  category as \"Category\",\n  subcategory as \"Subcategory\",\n  current_month_outflows as \"Amount ($)\",\n  CASE \n    WHEN risk_flag = 'High Uncategorized Spending' THEN 'HIGH'\n    WHEN risk_flag = 'Significantly Above Historical Average' THEN 'HIGH'\n    WHEN risk_flag = 'Contains Large Transaction' THEN 'MEDIUM'\n    WHEN risk_flag = 'Single Large Transaction' THEN 'MEDIUM'\n    ELSE 'LOW'\n  END as \"Risk Level\",\n  risk_flag as \"Risk Description\",\n  largest_transaction_memo as \"Details\"\nFROM reporting.rpt_current_month_outflow_analysis\nWHERE risk_flag != 'Normal'\nORDER BY \n  CASE \n    WHEN risk_flag = 'High Uncategorized Spending' THEN 1\n    WHEN risk_flag = 'Significantly Above Historical Average' THEN 2\n    WHEN risk_flag = 'Contains Large Transaction' THEN 3\n    ELSE 4\n  END,\n  current_month_outflows DESC;",
+          "rawSql": "SELECT \n  category as \"Category\",\n  subcategory as \"Subcategory\",\n  current_month_outflows as \"Amount\",\n  CASE \n    WHEN risk_flag = 'High Uncategorized Spending' THEN 'HIGH'\n    WHEN risk_flag = 'Significantly Above Historical Average' THEN 'HIGH'\n    WHEN risk_flag = 'Contains Large Transaction' THEN 'MEDIUM'\n    WHEN risk_flag = 'Single Large Transaction' THEN 'MEDIUM'\n    ELSE 'LOW'\n  END as \"Risk Level\",\n  risk_flag as \"Risk Description\",\n  largest_transaction_memo as \"Details\"\nFROM reporting.rpt_current_month_outflow_analysis\nWHERE risk_flag != 'Normal'\nORDER BY \n  CASE \n    WHEN risk_flag = 'High Uncategorized Spending' THEN 1\n    WHEN risk_flag = 'Significantly Above Historical Average' THEN 2\n    WHEN risk_flag = 'Contains Large Transaction' THEN 3\n    ELSE 4\n  END,\n  current_month_outflows DESC;",
           "refId": "A"
         }
       ],
-      "title": "🚨 Spending Risk Alerts & Large Transactions",
+      "title": "Risk Alerts",
       "type": "table"
     },
     {
@@ -2352,7 +2411,7 @@
             "properties": [
               {
                 "id": "unit",
-                "value": "currencyUSD"
+                "value": "locale"
               }
             ]
           },
@@ -2390,7 +2449,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH data AS (\n  SELECT\n    original_memo AS merchant,\n    transaction_count AS txn_count,\n    ROUND(total_amount, 2) AS total_spend,\n    last_transaction_date AS last_seen,\n    priority_level\n  FROM reporting.viz_uncategorized_transactions_with_original_memo\n  ORDER BY total_amount DESC, transaction_count DESC\n  LIMIT 10\n)\nSELECT\n  merchant AS \"Merchant\",\n  txn_count AS \"Txn Count\",\n  total_spend AS \"Total Spend\",\n  last_seen AS \"Last Seen\",\n  priority_level AS \"Priority\"\nFROM data\nUNION ALL\nSELECT 'None', 0, 0, NULL::date, 'N/A'\nWHERE NOT EXISTS (SELECT 1 FROM data);",
+          "rawSql": "WITH data AS (\n  SELECT\n    original_memo AS merchant,\n    txn_count,\n    ROUND(total_amount, 2) AS total_spend,\n    last_transaction_date AS last_seen,\n    priority_level\n  FROM reporting.viz_uncategorized_transactions_with_original_memo\n  ORDER BY total_amount DESC, txn_count DESC\n  LIMIT 10\n)\nSELECT\n  merchant AS \"Merchant\",\n  txn_count AS \"Txn Count\",\n  total_spend AS \"Total Spend\",\n  last_seen AS \"Last Seen\",\n  priority_level AS \"Priority\"\nFROM data\nUNION ALL\nSELECT 'None', 0, 0, NULL::date, 'N/A'\nWHERE NOT EXISTS (SELECT 1 FROM data);",
           "refId": "A"
         }
       ],
@@ -2408,40 +2467,7 @@
     "dashboard"
   ],
   "templating": {
-    "list": [
-      {
-        "name": "time_window",
-        "label": "Time Window",
-        "type": "custom",
-        "hide": 0,
-        "current": {
-          "text": "Latest Month",
-          "value": "latest_month",
-          "selected": true
-        },
-        "options": [
-          {
-            "text": "Latest Month",
-            "value": "latest_month",
-            "selected": true
-          },
-          {
-            "text": "Year to Date",
-            "value": "ytd",
-            "selected": false
-          },
-          {
-            "text": "Trailing 12 Months",
-            "value": "trailing_12m",
-            "selected": false
-          }
-        ],
-        "query": "latest_month,ytd,trailing_12m",
-        "includeAll": false,
-        "multi": false,
-        "skipUrlSync": false
-      }
-    ]
+    "list": []
   },
   "time": {
     "from": "now-1M/M",
@@ -2464,7 +2490,8 @@
         "to": "now/M",
         "display": "Trailing 12 months"
       }
-    ]
+    ],
+    "hidden": true
   },
   "timezone": "",
   "title": "02 - Cash Flow Analysis",
@@ -2472,3 +2499,4 @@
   "version": 1,
   "weekStart": ""
 }
+

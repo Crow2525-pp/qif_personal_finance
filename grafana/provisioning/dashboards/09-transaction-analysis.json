@@ -28,14 +28,14 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 5,
+        "h": 4,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# 📋 Transaction Analysis Dashboard\n\n**Purpose**: Identify spending patterns, recurring merchants, and transactions that need categorisation.\n\n**Workflow**\n1. Check the KPI row to understand overall activity for the last 12 closed months.\n2. Use the inflow/outflow trend to confirm monthly cash movement.\n3. Review top spending categories and drill into large uncategorised items.\n4. Inspect recurring merchants for unexpected subscriptions or fees.\n5. Use the account summary to see where activity concentrates.\n\n_All panels exclude internal transfers and the current, incomplete month._",
+        "content": "# Transaction Analysis\n\n**At a glance:** Review transaction volume, recurring merchants, and uncategorized hotspots.\n\n**Workflow:**\n1. Scan KPI totals and 12-month trend.\n2. Inspect top categories and uncategorized spend.\n3. Review recurring merchants for cleanup or action.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -838,11 +838,87 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH data AS (\n  SELECT\n    original_memo AS merchant,\n    transaction_count AS txn_count,\n    ROUND(total_amount, 2) AS total_spend,\n    last_transaction_date AS last_seen,\n    priority_level\n  FROM reporting.viz_uncategorized_transactions_with_original_memo\n  ORDER BY total_amount DESC, transaction_count DESC\n  LIMIT 10\n)\nSELECT\n  merchant AS \"Merchant\",\n  txn_count AS \"Txn Count\",\n  total_spend AS \"Total Spend\",\n  last_seen AS \"Last Seen\",\n  priority_level AS \"Priority\"\nFROM data\nUNION ALL\nSELECT 'None', 0, 0, NULL::date, 'N/A'\nWHERE NOT EXISTS (SELECT 1 FROM data);",
+          "rawSql": "WITH data AS (\n  SELECT\n    original_memo AS merchant,\n    txn_count,\n    ROUND(total_amount, 2) AS total_spend,\n    last_transaction_date AS last_seen,\n    priority_level\n  FROM reporting.viz_uncategorized_transactions_with_original_memo\n  ORDER BY total_amount DESC, txn_count DESC\n  LIMIT 10\n)\nSELECT\n  merchant AS \"Merchant\",\n  txn_count AS \"Txn Count\",\n  total_spend AS \"Total Spend\",\n  last_seen AS \"Last Seen\",\n  priority_level AS \"Priority\"\nFROM data\nUNION ALL\nSELECT 'None', 0, 0, NULL::date, 'N/A'\nWHERE NOT EXISTS (SELECT 1 FROM data);",
           "refId": "A"
         }
       ],
       "title": "Top Uncategorized Merchants",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Latest transaction month represented and reporting refresh timestamp.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 42
+      },
+      "id": 909,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH base AS (\n  SELECT DATE_TRUNC('month', MAX(transaction_date)) AS data_through\n  FROM reporting.fct_transactions_enhanced\n), refresh AS (\n  SELECT MAX(report_generated_at) AS last_refresh\n  FROM reporting.rpt_monthly_budget_summary\n)\nSELECT\n  COALESCE(TO_CHAR((SELECT data_through FROM base), 'YYYY-MM'), 'N/A') AS \"Data Through\",\n  COALESCE(TO_CHAR((SELECT last_refresh FROM refresh), 'YYYY-MM-DD HH24:MI'), 'N/A') AS \"Last Refresh\"",
+          "refId": "A",
+          "sql": {
+            "columns": [],
+            "groupBy": [],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Data Freshness",
       "type": "table"
     }
   ],
@@ -861,7 +937,9 @@
     "from": "now-1y",
     "to": "now"
   },
-  "timepicker": {},
+  "timepicker": {
+    "hidden": true
+  },
   "timezone": "",
   "title": "09 - Transaction Analysis",
   "uid": "transaction_analysis_dashboard",

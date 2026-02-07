@@ -110,7 +110,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT expense_to_income_ratio_pct as \"Expense to Income Ratio (%)\"\nFROM reporting.rpt_executive_dashboard \nORDER BY dashboard_year DESC, dashboard_month_num DESC \nLIMIT 1",
+          "rawSql": "SELECT ROUND(COALESCE(expense_ratio_percent, 0) * 100, 1) as \"Expense to Income Ratio (%)\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC\nLIMIT 1",
           "refId": "A"
         }
       ],
@@ -539,11 +539,87 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest_data AS (\n  SELECT *\n  FROM reporting.rpt_executive_dashboard \n  ORDER BY dashboard_year DESC, dashboard_month_num DESC \n  LIMIT 1\n)\nSELECT \n  'Expense-to-Income Ratio' as \"Efficiency Metric\",\n  ROUND(expense_to_income_ratio_pct, 1) as \"Current Value\",\n  '%' as \"Unit\",\n  CASE \n    WHEN expense_to_income_ratio_pct <= 70 THEN 'Excellent'\n    WHEN expense_to_income_ratio_pct <= 80 THEN 'Good'\n    WHEN expense_to_income_ratio_pct <= 90 THEN 'Fair'\n    WHEN expense_to_income_ratio_pct <= 100 THEN 'Poor'\n    ELSE 'Critical'\n  END as \"Performance Rating\",\n  'Lower is better. Target <80%' as \"Notes\"\nFROM latest_data\nUNION ALL\nSELECT \n  'Monthly Savings Rate',\n  ROUND(monthly_savings_rate_percent_pct, 1),\n  '%',\n  CASE \n    WHEN monthly_savings_rate_percent_pct >= 20 THEN 'Excellent'\n    WHEN monthly_savings_rate_percent_pct >= 15 THEN 'Good'\n    WHEN monthly_savings_rate_percent_pct >= 10 THEN 'Fair'\n    WHEN monthly_savings_rate_percent_pct >= 5 THEN 'Poor'\n    ELSE 'Critical'\n  END,\n  'Higher is better. Target >15%'\nFROM latest_data\nUNION ALL\nSELECT \n  'Cash Flow Score',\n  cash_flow_score,\n  'pts',\n  CASE \n    WHEN cash_flow_score >= 80 THEN 'Excellent'\n    WHEN cash_flow_score >= 70 THEN 'Good'\n    WHEN cash_flow_score >= 60 THEN 'Fair'\n    WHEN cash_flow_score >= 50 THEN 'Poor'\n    ELSE 'Critical'\n  END,\n  'Composite efficiency score'\nFROM latest_data",
+          "rawSql": "WITH latest_data AS (\n  SELECT \n    COALESCE(expense_ratio_percent, 0) * 100 AS expense_ratio_pct,\n    COALESCE(savings_rate_percent, 0) * 100 AS savings_rate_pct,\n    CASE\n      WHEN COALESCE(savings_rate_percent, 0) >= 0.20 THEN 90\n      WHEN COALESCE(savings_rate_percent, 0) >= 0.15 THEN 80\n      WHEN COALESCE(savings_rate_percent, 0) >= 0.10 THEN 70\n      WHEN COALESCE(savings_rate_percent, 0) >= 0.05 THEN 60\n      ELSE 45\n    END AS cash_flow_score\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n  ORDER BY budget_year DESC, budget_month DESC\n  LIMIT 1\n)\nSELECT \n  'Expense-to-Income Ratio' as \"Efficiency Metric\",\n  ROUND(expense_ratio_pct, 1) as \"Current Value\",\n  '%' as \"Unit\",\n  CASE \n    WHEN expense_ratio_pct <= 70 THEN 'Excellent'\n    WHEN expense_ratio_pct <= 80 THEN 'Good'\n    WHEN expense_ratio_pct <= 90 THEN 'Fair'\n    WHEN expense_ratio_pct <= 100 THEN 'Poor'\n    ELSE 'Critical'\n  END as \"Performance Rating\",\n  'Lower is better. Target <80%' as \"Notes\"\nFROM latest_data\nUNION ALL\nSELECT \n  'Monthly Savings Rate',\n  ROUND(savings_rate_pct, 1),\n  '%',\n  CASE \n    WHEN savings_rate_pct >= 20 THEN 'Excellent'\n    WHEN savings_rate_pct >= 15 THEN 'Good'\n    WHEN savings_rate_pct >= 10 THEN 'Fair'\n    WHEN savings_rate_pct >= 5 THEN 'Poor'\n    ELSE 'Critical'\n  END,\n  'Higher is better. Target >15%'\nFROM latest_data\nUNION ALL\nSELECT \n  'Cash Flow Score',\n  cash_flow_score,\n  'pts',\n  CASE \n    WHEN cash_flow_score >= 80 THEN 'Excellent'\n    WHEN cash_flow_score >= 70 THEN 'Good'\n    WHEN cash_flow_score >= 60 THEN 'Fair'\n    WHEN cash_flow_score >= 50 THEN 'Poor'\n    ELSE 'Critical'\n  END,\n  'Derived from latest monthly savings rate'\nFROM latest_data",
           "refId": "A"
         }
       ],
       "title": "Expense Performance Metrics Summary",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Latest completed expense-performance month and reporting refresh timestamp.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 36
+      },
+      "id": 101,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH base AS (\n  SELECT MAX(budget_year_month) AS data_through\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\n), refresh AS (\n  SELECT MAX(report_generated_at) AS last_refresh\n  FROM reporting.rpt_monthly_budget_summary\n)\nSELECT\n  COALESCE((SELECT data_through FROM base), 'N/A') AS \"Data Through\",\n  COALESCE(TO_CHAR((SELECT last_refresh FROM refresh), 'YYYY-MM-DD HH24:MI'), 'N/A') AS \"Last Refresh\"",
+          "refId": "A",
+          "sql": {
+            "columns": [],
+            "groupBy": [],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Data Freshness",
       "type": "table"
     }
   ],
@@ -563,7 +639,9 @@
     "from": "now-1y",
     "to": "now"
   },
-  "timepicker": {},
+  "timepicker": {
+    "hidden": true
+  },
   "timezone": "",
   "title": "07 - Expense Performance Analysis",
   "uid": "expense_performance",

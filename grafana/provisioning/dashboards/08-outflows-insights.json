@@ -28,14 +28,14 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 8,
+        "h": 5,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# 💸 Outflows Insights Dashboard - Spending Analysis\n\n**What This Dashboard Shows:** Deep analysis of spending patterns with categorization and trend detection for optimization opportunities.\n\n**Key Metrics Explained:**\n• **Monthly Outflow Trends:** Track spending with month-over-month and year-over-year changes\n• **Category Analysis:** Detailed breakdown across all spending areas\n• **Large Transactions:** Identify unusual high-value purchases\n• **Uncategorized Items:** Should be <10% for accurate reporting - these distort analysis\n\n**How to Use:** Focus on largest categories first. Investigate unexpected increases. Categorize unknown transactions for better insights.",
+        "content": "# Outflows Insights\n\n**At a glance:** Track outflow trend, key categories, large transactions, and uncategorized share.\n\n**How to use quickly:**\n- Review top categories and month-over-month shifts.\n- Investigate large or unusual spikes.\n- Prioritize uncategorized cleanup to improve reporting quality.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -412,7 +412,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    'Food & Dining' as category, food_dining as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Housing & Mortgage' as category, housing_mortgage as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Utilities' as category, household_utilities as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Transportation' as category, transportation as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Shopping & Retail' as category, shopping_retail as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Uncategorized' as category, uncategorized as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nORDER BY amount DESC;",
+          "rawSql": "SELECT \n    'Food & Dining' as category, food_dining as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Housing & Mortgage' as category, housing_mortgage as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Utilities' as category, household_utilities as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Transportation' as category, transportation as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Shopping & Retail' as category, shopping_retail as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Uncategorized' as category, uncategorized_amount as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nORDER BY amount DESC;",
           "refId": "A"
         }
       ],
@@ -590,7 +590,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n    period_date as time,\n    food_dining as \"Food & Dining\",\n    housing_mortgage as \"Housing & Mortgage\",\n    household_utilities as \"Utilities\",\n    transportation as \"Transportation\",\n    shopping_retail as \"Shopping & Retail\",\n    uncategorized as \"Uncategorized\"\nFROM reporting.rpt_outflows_insights_dashboard\nORDER BY period_date;",
+          "rawSql": "SELECT \n    period_date as time,\n    food_dining as \"Food & Dining\",\n    housing_mortgage as \"Housing & Mortgage\",\n    household_utilities as \"Utilities\",\n    transportation as \"Transportation\",\n    shopping_retail as \"Shopping & Retail\",\n    uncategorized_amount as \"Uncategorized\"\nFROM reporting.rpt_outflows_insights_dashboard\nORDER BY period_date;",
           "refId": "A"
         }
       ],
@@ -873,7 +873,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n    period_date as time,\n    uncategorized as \"Uncategorized Amount\"\nFROM reporting.rpt_outflows_insights_dashboard\nORDER BY period_date;",
+          "rawSql": "SELECT \n    period_date as time,\n    uncategorized_amount as \"Uncategorized Amount\"\nFROM reporting.rpt_outflows_insights_dashboard\nORDER BY period_date;",
           "refId": "A"
         }
       ],
@@ -1358,11 +1358,87 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH data AS (\n  SELECT\n    SPLIT_PART(original_memo, ' - ', 1) AS merchant,\n    SUM(transaction_count) AS txn_count,\n    ROUND(SUM(total_amount), 2) AS total_spend,\n    MAX(last_transaction_date) AS last_seen\n  FROM reporting.viz_uncategorized_transactions_with_original_memo\n  GROUP BY SPLIT_PART(original_memo, ' - ', 1)\n  ORDER BY SUM(total_amount) DESC\n  LIMIT 10\n)\nSELECT\n  merchant AS \"Merchant\",\n  txn_count AS \"Txn Count\",\n  total_spend AS \"Total Spend\",\n  last_seen AS \"Last Seen\"\nFROM data\nUNION ALL\nSELECT 'None', 0, 0, NULL::date\nWHERE NOT EXISTS (SELECT 1 FROM data);",
+          "rawSql": "WITH data AS (\n  SELECT\n    SPLIT_PART(original_memo, ' - ', 1) AS merchant,\n    SUM(txn_count) AS txn_count,\n    ROUND(SUM(total_amount), 2) AS total_spend,\n    MAX(last_transaction_date) AS last_seen\n  FROM reporting.viz_uncategorized_transactions_with_original_memo\n  GROUP BY SPLIT_PART(original_memo, ' - ', 1)\n  ORDER BY SUM(total_amount) DESC\n  LIMIT 10\n)\nSELECT\n  merchant AS \"Merchant\",\n  txn_count AS \"Txn Count\",\n  total_spend AS \"Total Spend\",\n  last_seen AS \"Last Seen\"\nFROM data\nUNION ALL\nSELECT 'None', 0, 0, NULL::date\nWHERE NOT EXISTS (SELECT 1 FROM data);",
           "refId": "A"
         }
       ],
       "title": "Top Uncategorized Merchants",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Latest outflows period and reporting refresh timestamp.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 74
+      },
+      "id": 907,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH base AS (\n  SELECT MAX(period_date) AS data_through\n  FROM reporting.rpt_outflows_insights_dashboard\n), refresh AS (\n  SELECT MAX(report_generated_at) AS last_refresh\n  FROM reporting.rpt_monthly_budget_summary\n)\nSELECT\n  COALESCE(TO_CHAR((SELECT data_through FROM base), 'YYYY-MM'), 'N/A') AS \"Data Through\",\n  COALESCE(TO_CHAR((SELECT last_refresh FROM refresh), 'YYYY-MM-DD HH24:MI'), 'N/A') AS \"Last Refresh\"",
+          "refId": "A",
+          "sql": {
+            "columns": [],
+            "groupBy": [],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Data Freshness",
       "type": "table"
     }
   ],
@@ -1380,10 +1456,13 @@
     "from": "now-6M",
     "to": "now"
   },
-  "timepicker": {},
+  "timepicker": {
+    "hidden": true
+  },
   "timezone": "Australia/Melbourne",
   "title": "08 - Outflows Insights",
   "uid": "outflows_insights",
   "version": 2,
   "weekStart": ""
 }
+

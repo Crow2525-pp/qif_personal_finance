@@ -28,14 +28,14 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 8,
+        "h": 5,
         "w": 18,
         "x": 6,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# 🏠 Household Net Worth Dashboard - Wealth Tracking\n\n**What This Dashboard Shows:** Tracks wealth accumulation and net worth progression over time with health scoring and milestone tracking.\n\n**Key Metrics Explained:**\n• **Net Worth Health Score:** Classification from critical to excellent based on assets vs liabilities\n• **Assets vs Liabilities:** Breakdown with liquidity analysis showing readily accessible funds\n• **Debt-to-Asset Ratio:** Lower percentages indicate stronger financial position\n• **Monthly Progress:** Consistent increases indicate successful wealth building\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- Trend panels cover the trailing 12 months unless noted.\n- Annual progress panels use complete years only.\n\n**How to Use:** Track wealth building progress with milestone goals. Focus on increasing assets and reducing debt-to-asset ratios over time.",
+        "content": "# Household Net Worth\n\n**At a glance:** Track total net worth, assets vs liabilities, and debt ratio trend.\n\n**How to use quickly:**\n- Check current net worth and debt-to-asset ratio.\n- Use 12-month trend panels to confirm direction.\n- Watch for sustained liability growth versus asset growth.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -111,7 +111,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "MOST RECENT COMPLETE MONTH (August 2025): Household net worth data excludes current incomplete month for accurate quarterly review",
+      "description": "Latest closed month net worth. Excludes current incomplete month for accurate quarterly review. See Data Freshness panel for the exact period.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -176,7 +176,7 @@
           "refId": "A"
         }
       ],
-      "title": "Current Net Worth (Aug 2025)",
+      "title": "Current Net Worth",
       "type": "gauge"
     },
     {
@@ -1380,7 +1380,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH account_balances AS (\n  SELECT \n    ft.transaction_year,\n    ft.transaction_month,\n    ft.account_key,\n    da.account_name,\n    da.account_type,\n    da.is_liability,\n    make_date(ft.transaction_year, ft.transaction_month, 1) AS period_start,\n    MAX(ft.account_balance) AS end_of_month_balance\n  FROM reporting.fct_transactions ft\n  LEFT JOIN reporting.dim_accounts da\n    ON ft.account_key = da.account_key\n  WHERE make_date(ft.transaction_year, ft.transaction_month, 1) >= date_trunc('month', CURRENT_DATE)::date - INTERVAL '2 months'\n    AND make_date(ft.transaction_year, ft.transaction_month, 1) < date_trunc('month', CURRENT_DATE)::date\n  GROUP BY ft.transaction_year, ft.transaction_month, ft.account_key, da.account_name, da.account_type, da.is_liability\n),\naccount_changes AS (\n  SELECT\n    b.account_name,\n    b.account_type,\n    b.is_liability,\n    b.period_start,\n    (b.end_of_month_balance - LAG(b.end_of_month_balance) OVER (PARTITION BY b.account_key ORDER BY b.period_start)) as monthly_change\n  FROM account_balances b\n)\nSELECT\n  account_name as \"Account\",\n  account_type as \"Type\",\n  CASE WHEN is_liability THEN 'Liability' ELSE 'Asset' END as \"Category\",\n  ROUND(CAST(ABS(monthly_change) as numeric), 2) as \"Change\",\n  CASE\n    WHEN monthly_change > 0 AND is_liability THEN 'Increase (Worse)'\n    WHEN monthly_change < 0 AND is_liability THEN 'Decrease (Better)'\n    WHEN monthly_change > 0 AND NOT is_liability THEN 'Increase (Better)'\n    WHEN monthly_change < 0 AND NOT is_liability THEN 'Decrease (Worse)'\n    ELSE 'Stable'\n  END as \"Impact\"\nFROM account_changes\nWHERE period_start = date_trunc('month', CURRENT_DATE)::date - INTERVAL '1 month'\n  AND ABS(monthly_change) > 100\nORDER BY ABS(monthly_change) DESC\nLIMIT 10;",
+          "rawSql": "WITH account_balances AS (\n  SELECT \n    ft.transaction_year,\n    ft.transaction_month,\n    ft.account_key,\n    da.account_name,\n    da.account_type,\n    da.is_liability,\n    make_date(ft.transaction_year::integer, ft.transaction_month::integer, 1) AS period_start,\n    MAX(ft.account_balance) AS end_of_month_balance\n  FROM reporting.fct_transactions ft\n  LEFT JOIN reporting.dim_accounts da\n    ON ft.account_key = da.account_key\n  WHERE make_date(ft.transaction_year::integer, ft.transaction_month::integer, 1) >= date_trunc('month', CURRENT_DATE)::date - INTERVAL '2 months'\n    AND make_date(ft.transaction_year::integer, ft.transaction_month::integer, 1) < date_trunc('month', CURRENT_DATE)::date\n  GROUP BY ft.transaction_year, ft.transaction_month, ft.account_key, da.account_name, da.account_type, da.is_liability\n),\naccount_changes AS (\n  SELECT\n    b.account_name,\n    b.account_type,\n    b.is_liability,\n    b.period_start,\n    (b.end_of_month_balance - LAG(b.end_of_month_balance) OVER (PARTITION BY b.account_key ORDER BY b.period_start)) as monthly_change\n  FROM account_balances b\n)\nSELECT\n  account_name as \"Account\",\n  account_type as \"Type\",\n  CASE WHEN is_liability THEN 'Liability' ELSE 'Asset' END as \"Category\",\n  ROUND(CAST(ABS(monthly_change) as numeric), 2) as \"Change\",\n  CASE\n    WHEN monthly_change > 0 AND is_liability THEN 'Increase (Worse)'\n    WHEN monthly_change < 0 AND is_liability THEN 'Decrease (Better)'\n    WHEN monthly_change > 0 AND NOT is_liability THEN 'Increase (Better)'\n    WHEN monthly_change < 0 AND NOT is_liability THEN 'Decrease (Worse)'\n    ELSE 'Stable'\n  END as \"Impact\"\nFROM account_changes\nWHERE period_start = date_trunc('month', CURRENT_DATE)::date - INTERVAL '1 month'\n  AND ABS(monthly_change) > 100\nORDER BY ABS(monthly_change) DESC\nLIMIT 10;",
           "refId": "A"
         }
       ],
@@ -2047,40 +2047,7 @@
     "dashboard"
   ],
   "templating": {
-    "list": [
-      {
-        "name": "time_window",
-        "label": "Time Window",
-        "type": "custom",
-        "hide": 0,
-        "current": {
-          "text": "Latest Month",
-          "value": "latest_month",
-          "selected": true
-        },
-        "options": [
-          {
-            "text": "Latest Month",
-            "value": "latest_month",
-            "selected": true
-          },
-          {
-            "text": "Year to Date",
-            "value": "ytd",
-            "selected": false
-          },
-          {
-            "text": "Trailing 12 Months",
-            "value": "trailing_12m",
-            "selected": false
-          }
-        ],
-        "query": "latest_month,ytd,trailing_12m",
-        "includeAll": false,
-        "multi": false,
-        "skipUrlSync": false
-      }
-    ]
+    "list": []
   },
   "time": {
     "from": "now-1M/M",
@@ -2103,7 +2070,8 @@
         "to": "now/M",
         "display": "Trailing 12 months"
       }
-    ]
+    ],
+    "hidden": true
   },
   "timezone": "",
   "title": "04 - Household Net Worth Analysis",

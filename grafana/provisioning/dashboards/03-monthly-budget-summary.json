@@ -253,7 +253,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Savings rate and expense ratio for last complete month (scaled 0â€“100%, negatives allowed)",
+      "description": "Savings rate and expense ratio for last complete month (scaled 0-100%, negatives allowed)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2188,7 +2188,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest_two_months AS (\n  SELECT budget_year_month, ROW_NUMBER() OVER (ORDER BY budget_year_month DESC) as rn\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\n  GROUP BY budget_year_month\n  ORDER BY budget_year_month DESC\n  LIMIT 2\n),\nvariance_categories AS (\n  SELECT level_1_category, ABS(SUM(CASE WHEN budget_year_month = (SELECT budget_year_month FROM latest_two_months WHERE rn = 1) THEN monthly_spending ELSE -COALESCE(monthly_spending, 0) END)) as variance\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month IN (SELECT budget_year_month FROM latest_two_months)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n  GROUP BY level_1_category\n  ORDER BY variance DESC\n  LIMIT 1\n)\nSELECT\n  DATE(f.transaction_date) as transaction_date,\n  f.merchant_name as merchant,\n  ABS(f.amount) as amount,\n  f.category_l1 as category\nFROM reporting.fct_transactions f\nWHERE f.category_l1 = (SELECT level_1_category FROM variance_categories)\n  AND DATE_TRUNC('month', f.transaction_date) = (SELECT TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') FROM latest_two_months WHERE rn = 1)\nORDER BY ABS(f.amount) DESC\nLIMIT 5;",
+          "rawSql": "WITH latest_two_months AS (\n  SELECT budget_year_month, ROW_NUMBER() OVER (ORDER BY budget_year_month DESC) as rn\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\n  GROUP BY budget_year_month\n  ORDER BY budget_year_month DESC\n  LIMIT 2\n),\nvariance_categories AS (\n  SELECT level_1_category, ABS(SUM(CASE WHEN budget_year_month = (SELECT budget_year_month FROM latest_two_months WHERE rn = 1) THEN monthly_spending ELSE -COALESCE(monthly_spending, 0) END)) as variance\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month IN (SELECT budget_year_month FROM latest_two_months)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n  GROUP BY level_1_category\n  ORDER BY variance DESC\n  LIMIT 1\n)\nSELECT\n  DATE(f.transaction_date) as transaction_date,\n  COALESCE(NULLIF(f.transaction_description, ''), NULLIF(f.transaction_memo, ''), 'Unknown') as merchant,\n  ABS(f.transaction_amount) as amount,\n  c.level_1_category as category\nFROM reporting.fct_transactions f\nLEFT JOIN reporting.dim_categories c ON f.category_key = c.category_key\nWHERE c.level_1_category = (SELECT level_1_category FROM variance_categories)\n  AND DATE_TRUNC('month', f.transaction_date) = (SELECT TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') FROM latest_two_months WHERE rn = 1)\nORDER BY ABS(f.transaction_amount) DESC\nLIMIT 5;",
           "refId": "A"
         }
       ],
@@ -2420,7 +2420,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest_month AS (\n  SELECT MAX(budget_year_month) AS budget_year_month\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\n),\nprior_year_month AS (\n  SELECT TO_CHAR(TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') - INTERVAL '1 year', 'YYYY-MM') AS budget_year_month\n  FROM latest_month\n),\ncomparison_months AS (\n  SELECT budget_year_month FROM latest_month\n  UNION ALL\n  SELECT budget_year_month FROM prior_year_month\n),\nvariance_categories AS (\n  SELECT level_1_category, \n    ABS(SUM(CASE WHEN budget_year_month = (SELECT budget_year_month FROM latest_month) THEN monthly_spending ELSE -COALESCE(monthly_spending, 0) END)) as variance\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month IN (SELECT budget_year_month FROM comparison_months)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n  GROUP BY level_1_category\n  ORDER BY variance DESC\n  LIMIT 1\n)\nSELECT\n  DATE(f.transaction_date) as transaction_date,\n  f.merchant_name as merchant,\n  ABS(f.amount) as amount,\n  f.category_l1 as category\nFROM reporting.fct_transactions f\nWHERE f.category_l1 = (SELECT level_1_category FROM variance_categories)\n  AND DATE_TRUNC('month', f.transaction_date) = (SELECT TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') FROM latest_month)\nORDER BY ABS(f.amount) DESC\nLIMIT 5;",
+          "rawSql": "WITH latest_month AS (\n  SELECT MAX(budget_year_month) AS budget_year_month\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\n),\nprior_year_month AS (\n  SELECT TO_CHAR(TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') - INTERVAL '1 year', 'YYYY-MM') AS budget_year_month\n  FROM latest_month\n),\ncomparison_months AS (\n  SELECT budget_year_month FROM latest_month\n  UNION ALL\n  SELECT budget_year_month FROM prior_year_month\n),\nvariance_categories AS (\n  SELECT level_1_category, \n    ABS(SUM(CASE WHEN budget_year_month = (SELECT budget_year_month FROM latest_month) THEN monthly_spending ELSE -COALESCE(monthly_spending, 0) END)) as variance\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month IN (SELECT budget_year_month FROM comparison_months)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n  GROUP BY level_1_category\n  ORDER BY variance DESC\n  LIMIT 1\n)\nSELECT\n  DATE(f.transaction_date) as transaction_date,\n  COALESCE(NULLIF(f.transaction_description, ''), NULLIF(f.transaction_memo, ''), 'Unknown') as merchant,\n  ABS(f.transaction_amount) as amount,\n  c.level_1_category as category\nFROM reporting.fct_transactions f\nLEFT JOIN reporting.dim_categories c ON f.category_key = c.category_key\nWHERE c.level_1_category = (SELECT level_1_category FROM variance_categories)\n  AND DATE_TRUNC('month', f.transaction_date) = (SELECT TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') FROM latest_month)\nORDER BY ABS(f.transaction_amount) DESC\nLIMIT 5;",
           "refId": "A"
         }
       ],
@@ -2441,40 +2441,7 @@
     "dashboard"
   ],
   "templating": {
-    "list": [
-      {
-        "name": "time_window",
-        "label": "Time Window",
-        "type": "custom",
-        "hide": 0,
-        "current": {
-          "text": "Latest Month",
-          "value": "latest_month",
-          "selected": true
-        },
-        "options": [
-          {
-            "text": "Latest Month",
-            "value": "latest_month",
-            "selected": true
-          },
-          {
-            "text": "Year to Date",
-            "value": "ytd",
-            "selected": false
-          },
-          {
-            "text": "Trailing 12 Months",
-            "value": "trailing_12m",
-            "selected": false
-          }
-        ],
-        "query": "latest_month,ytd,trailing_12m",
-        "includeAll": false,
-        "multi": false,
-        "skipUrlSync": false
-      }
-    ]
+    "list": []
   },
   "time": {
     "from": "now-1M/M",
@@ -2497,7 +2464,8 @@
         "to": "now/M",
         "display": "Trailing 12 months"
       }
-    ]
+    ],
+    "hidden": true
   },
   "timezone": "",
   "title": "03 - Monthly Budget Summary",

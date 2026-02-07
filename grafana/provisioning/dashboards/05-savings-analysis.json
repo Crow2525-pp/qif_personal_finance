@@ -28,14 +28,14 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 8,
+        "h": 5,
         "w": 18,
         "x": 6,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# 💎 Savings Analysis Dashboard - Wealth Building Progress\n\n**What This Dashboard Shows:** Net cash savings vs. contribution-driven savings, with trend and goal tracking.\n\n**Key Metrics**\n• **Savings Health Score (1-100):** Assess net cash flow vs. contribution consistency.\n• **Net vs Traditional Savings Rate:** Net cash retained after expenses vs. targeted contributions (cash/invest).\n• **Contribution Mix:** Track cash savings, offset top-ups, and investment contributions separately.\n• **Rolling Averages:** Smooth the net rate to spot sustained improvement.\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- YTD panels reflect year-to-date totals.\n- Trend charts cover the trailing 12 months.\n- Rolling averages use the last 3 complete months.\n\n**How to Use:** Net savings shows what actually stayed in your accounts. Traditional savings highlights how much you purposely set aside (cash/invest). Align both with your goals.",
+        "content": "# Savings Analysis\n\n**At a glance:** Compare net savings outcomes with planned contribution savings.\n\n**How to use quickly:**\n- Check savings health and current rates.\n- Compare net vs contribution-based savings trends.\n- Use YTD and 12-month views to confirm consistency.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -1695,40 +1695,7 @@
     "dashboard"
   ],
   "templating": {
-    "list": [
-      {
-        "name": "time_window",
-        "label": "Time Window",
-        "type": "custom",
-        "hide": 0,
-        "current": {
-          "text": "Latest Month",
-          "value": "latest_month",
-          "selected": true
-        },
-        "options": [
-          {
-            "text": "Latest Month",
-            "value": "latest_month",
-            "selected": true
-          },
-          {
-            "text": "Year to Date",
-            "value": "ytd",
-            "selected": false
-          },
-          {
-            "text": "Trailing 12 Months",
-            "value": "trailing_12m",
-            "selected": false
-          }
-        ],
-        "query": "latest_month,ytd,trailing_12m",
-        "includeAll": false,
-        "multi": false,
-        "skipUrlSync": false
-      }
-    ]
+    "list": []
   },
   "time": {
     "from": "now-1M/M",
@@ -1751,7 +1718,8 @@
         "to": "now/M",
         "display": "Trailing 12 months"
       }
-    ]
+    ],
+    "hidden": true
   },
   "timezone": "",
   "title": "05 - Savings Analysis",

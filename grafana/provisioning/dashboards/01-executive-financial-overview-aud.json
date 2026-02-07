@@ -2011,7 +2011,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Top merchants with uncategorized transactions. Focus categorization efforts here for maximum impact on data quality. Links to transaction detail for quick categorization. Covers all historical transactions (not limited by dashboard time picker). Click merchant names to view detailed transactions.",
+      "description": "Top merchants with uncategorized transactions. Focus categorization efforts here for maximum impact on data quality. Links to transaction detail for quick categorization. Covers the dashboard-selected time window. Click merchant names to view detailed transactions.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -2114,12 +2114,10 @@
       "description": "Monthly spending on family essentials: Groceries, Family & Kids, Health, Household View the Category Spending dashboard for detailed breakdown of essential expenses. Note: Value reflects the selected time range. Set time picker to 'Last Month' for monthly view.",
       "fieldConfig": {
         "defaults": {
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
+          "unit": "currencyUSD",
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
           },
           "mappings": [],
           "thresholds": {
@@ -2128,24 +2126,19 @@
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 500
+              },
+              {
+                "color": "orange",
+                "value": 1000
               }
             ]
           }
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Amount"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 120
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "x": 0,
@@ -2155,15 +2148,15 @@
       },
       "id": 1001,
       "options": {
-        "showHeader": true,
-        "cellHeight": "sm",
-        "footer": {
-          "show": true,
-          "reducer": [
-            "sum"
-          ],
-          "fields": "",
-          "countRows": false
+        "graphMode": "none",
+        "colorMode": "background",
+        "justifyMode": "center",
+        "textMode": "value_and_name",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"],
+          "fields": ""
         }
       },
       "targets": [
@@ -2175,12 +2168,12 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nbounds AS (\n  SELECT MIN(month_date) AS min_month, MAX(month_date) AS max_month\n  FROM available_months\n),\nselected_period AS (\n  SELECT COALESCE(\n    (SELECT MAX(month_date) FROM available_months WHERE month_date <= date_trunc('month', ($__timeTo()::timestamptz - INTERVAL '1 day'))),\n    (SELECT max_month FROM bounds)\n  ) AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nwindow_range AS (\n  SELECT\n    GREATEST(date_trunc('day', $__timeFrom()::timestamptz)::date, (SELECT min_month FROM bounds)) AS start_date,\n    LEAST(date_trunc('day', $__timeTo()::timestamptz)::date, (SELECT max_month FROM bounds)) AS end_date\n)\nSELECT\n  'Essential Expenses' AS \"Category\",\n  SUM(total_essential_expenses) AS \"Amount\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') BETWEEN (SELECT start_date FROM window_range) AND (SELECT end_date FROM window_range)\nUNION ALL\nSELECT\n  'Total Monthly Expenses' AS \"Category\",\n  SUM(total_expenses) AS \"Amount\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') BETWEEN (SELECT start_date FROM window_range) AND (SELECT end_date FROM window_range);",
+          "rawSql": "SELECT total_family_essentials AS \"Monthly Essentials\"\nFROM reporting.rpt_family_essentials\nWHERE budget_year_month = (\n  SELECT MAX(budget_year_month)\n  FROM reporting.rpt_family_essentials\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n);",
           "refId": "A"
         }
       ],
       "title": "Family Essentials",
-      "type": "table"
+      "type": "stat"
     },
     {
       "datasource": {

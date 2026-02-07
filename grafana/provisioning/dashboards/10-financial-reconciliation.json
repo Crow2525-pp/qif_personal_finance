@@ -28,14 +28,14 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 3,
+        "h": 2,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "### Financial Reconciliation\n\nCross-dashboard pass/fail checks (Outflows, Budget, Income/Expense, Cash Flow, Executive, Net Worth). Aim for all PASS. Use tables to triage discrepancies.",
+        "content": "### Financial Reconciliation\n\nCross-dashboard pass/fail checks. Prioritize non-PASS rows and resolve root causes in source models or panel SQL.",
         "mode": "markdown"
       },
       "title": "Overview",
@@ -238,7 +238,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest AS (SELECT MAX(period_date) AS p FROM reporting.rpt_financials_reconciliation_tests) SELECT period_date, domain, test_name, left_value, right_value, delta, pass, notes FROM reporting.rpt_financials_reconciliation_tests WHERE period_date = (SELECT p FROM latest) ORDER BY domain, test_name;",
+          "rawSql": "WITH latest AS (SELECT MAX(period_date) AS p FROM reporting.rpt_financials_reconciliation_tests) SELECT period_date, domain, CASE test_name\n  WHEN 'cash_flow_margin_derivation' THEN 'Cash Flow Margin Calculation'\n  WHEN 'category_sum_coverage_ok' THEN 'Category Sum Coverage'\n  WHEN 'cat_family_alignment' THEN 'Family Category Alignment'\n  WHEN 'cat_food_alignment' THEN 'Food Category Alignment'\n  WHEN 'cat_household_alignment' THEN 'Household Category Alignment'\n  WHEN 'cat_mortgage_alignment' THEN 'Mortgage Category Alignment'\n  WHEN 'daily_eom_matches_fact_eom (sum across accounts)' THEN 'Daily EOM vs Fact EOM Balance'\n  WHEN 'equation_assets_minus_liabilities' THEN 'Assets - Liabilities = Net Worth'\n  WHEN 'expense_pct_matches_mbs' THEN 'Expense % Matches Budget'\n  WHEN 'expense_ratio_derivation' THEN 'Expense Ratio Calculation'\n  WHEN 'expense_ratio_within_bounds' THEN 'Expense Ratio Within Bounds'\n  WHEN 'income_uncategorized_pct_within_threshold' THEN 'Uncategorized Income %'\n  WHEN 'mbs_expenses_matches_fact' THEN 'Budget Expenses Match Fact'\n  WHEN 'mbs_income_matches_fact' THEN 'Budget Income Match Fact'\n  WHEN 'mbs_net_matches_fact' THEN 'Budget Net Match Fact'\n  WHEN 'net_equals_components' THEN 'Net = Inflows - Outflows'\n  WHEN 'net_equals_income_minus_expenses' THEN 'Net = Income - Expenses'\n  WHEN 'outflow_to_inflow_ratio_derivation' THEN 'Outflow/Inflow Ratio Calculation'\n  WHEN 'savings_pct_matches_mbs' THEN 'Savings % Matches Budget'\n  WHEN 'savings_rate_derivation' THEN 'Savings Rate Calculation'\n  WHEN 'savings_rate_within_bounds' THEN 'Savings Rate Within Bounds'\n  WHEN 'total_matches_fact' THEN 'Total Matches Fact Table'\n  WHEN 'transaction_count_matches_fact' THEN 'Transaction Count Match'\n  WHEN 'txn_amount_abs_consistency' THEN 'Transaction Amount Consistency'\n  WHEN 'uncategorized_matches_fact' THEN 'Uncategorized Matches Fact'\n  WHEN 'uncategorized_pct_within_threshold' THEN 'Uncategorized % Within Threshold'\n  WHEN 'viz_outflows_match_budget_expenses' THEN 'Viz Outflows Match Budget'\n  WHEN 'viz_vs_budget_expense' THEN 'Viz vs Budget Expense'\n  WHEN 'viz_vs_budget_income' THEN 'Viz vs Budget Income'\n  WHEN 'yoy_expenses_within_bounds' THEN 'YoY Expenses Within Bounds'\n  WHEN 'yoy_income_within_bounds' THEN 'YoY Income Within Bounds'\n  ELSE test_name\nEND AS \"Test\", left_value, right_value, delta, pass, notes FROM reporting.rpt_financials_reconciliation_tests WHERE period_date = (SELECT p FROM latest) ORDER BY domain, test_name;",
           "refId": "A"
         }
       ],
@@ -325,7 +325,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT period_date, domain, test_name, left_value, right_value, delta, pass, notes FROM reporting.rpt_financials_reconciliation_tests WHERE period_date >= (DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '6 months') ORDER BY period_date DESC, domain, test_name;",
+          "rawSql": "SELECT period_date, domain, CASE test_name\n  WHEN 'cash_flow_margin_derivation' THEN 'Cash Flow Margin Calculation'\n  WHEN 'category_sum_coverage_ok' THEN 'Category Sum Coverage'\n  WHEN 'cat_family_alignment' THEN 'Family Category Alignment'\n  WHEN 'cat_food_alignment' THEN 'Food Category Alignment'\n  WHEN 'cat_household_alignment' THEN 'Household Category Alignment'\n  WHEN 'cat_mortgage_alignment' THEN 'Mortgage Category Alignment'\n  WHEN 'daily_eom_matches_fact_eom (sum across accounts)' THEN 'Daily EOM vs Fact EOM Balance'\n  WHEN 'equation_assets_minus_liabilities' THEN 'Assets - Liabilities = Net Worth'\n  WHEN 'expense_pct_matches_mbs' THEN 'Expense % Matches Budget'\n  WHEN 'expense_ratio_derivation' THEN 'Expense Ratio Calculation'\n  WHEN 'expense_ratio_within_bounds' THEN 'Expense Ratio Within Bounds'\n  WHEN 'income_uncategorized_pct_within_threshold' THEN 'Uncategorized Income %'\n  WHEN 'mbs_expenses_matches_fact' THEN 'Budget Expenses Match Fact'\n  WHEN 'mbs_income_matches_fact' THEN 'Budget Income Match Fact'\n  WHEN 'mbs_net_matches_fact' THEN 'Budget Net Match Fact'\n  WHEN 'net_equals_components' THEN 'Net = Inflows - Outflows'\n  WHEN 'net_equals_income_minus_expenses' THEN 'Net = Income - Expenses'\n  WHEN 'outflow_to_inflow_ratio_derivation' THEN 'Outflow/Inflow Ratio Calculation'\n  WHEN 'savings_pct_matches_mbs' THEN 'Savings % Matches Budget'\n  WHEN 'savings_rate_derivation' THEN 'Savings Rate Calculation'\n  WHEN 'savings_rate_within_bounds' THEN 'Savings Rate Within Bounds'\n  WHEN 'total_matches_fact' THEN 'Total Matches Fact Table'\n  WHEN 'transaction_count_matches_fact' THEN 'Transaction Count Match'\n  WHEN 'txn_amount_abs_consistency' THEN 'Transaction Amount Consistency'\n  WHEN 'uncategorized_matches_fact' THEN 'Uncategorized Matches Fact'\n  WHEN 'uncategorized_pct_within_threshold' THEN 'Uncategorized % Within Threshold'\n  WHEN 'viz_outflows_match_budget_expenses' THEN 'Viz Outflows Match Budget'\n  WHEN 'viz_vs_budget_expense' THEN 'Viz vs Budget Expense'\n  WHEN 'viz_vs_budget_income' THEN 'Viz vs Budget Income'\n  WHEN 'yoy_expenses_within_bounds' THEN 'YoY Expenses Within Bounds'\n  WHEN 'yoy_income_within_bounds' THEN 'YoY Income Within Bounds'\n  ELSE test_name\nEND AS \"Test\", left_value, right_value, delta, pass, notes FROM reporting.rpt_financials_reconciliation_tests WHERE period_date >= (DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '6 months') ORDER BY period_date DESC, domain, test_name;",
           "refId": "A"
         }
       ],
@@ -426,7 +426,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest AS (SELECT MAX(period_date) AS p FROM reporting.rpt_outflows_reconciliation_tests) SELECT period_date, test_name, left_value, right_value, delta, pass, notes FROM reporting.rpt_outflows_reconciliation_tests WHERE period_date = (SELECT p FROM latest) ORDER BY test_name;",
+          "rawSql": "WITH latest AS (SELECT MAX(period_date) AS p FROM reporting.rpt_outflows_reconciliation_tests) SELECT period_date, CASE test_name\n  WHEN 'cash_flow_margin_derivation' THEN 'Cash Flow Margin Calculation'\n  WHEN 'category_sum_coverage_ok' THEN 'Category Sum Coverage'\n  WHEN 'cat_family_alignment' THEN 'Family Category Alignment'\n  WHEN 'cat_food_alignment' THEN 'Food Category Alignment'\n  WHEN 'cat_household_alignment' THEN 'Household Category Alignment'\n  WHEN 'cat_mortgage_alignment' THEN 'Mortgage Category Alignment'\n  WHEN 'daily_eom_matches_fact_eom (sum across accounts)' THEN 'Daily EOM vs Fact EOM Balance'\n  WHEN 'equation_assets_minus_liabilities' THEN 'Assets - Liabilities = Net Worth'\n  WHEN 'expense_pct_matches_mbs' THEN 'Expense % Matches Budget'\n  WHEN 'expense_ratio_derivation' THEN 'Expense Ratio Calculation'\n  WHEN 'expense_ratio_within_bounds' THEN 'Expense Ratio Within Bounds'\n  WHEN 'income_uncategorized_pct_within_threshold' THEN 'Uncategorized Income %'\n  WHEN 'mbs_expenses_matches_fact' THEN 'Budget Expenses Match Fact'\n  WHEN 'mbs_income_matches_fact' THEN 'Budget Income Match Fact'\n  WHEN 'mbs_net_matches_fact' THEN 'Budget Net Match Fact'\n  WHEN 'net_equals_components' THEN 'Net = Inflows - Outflows'\n  WHEN 'net_equals_income_minus_expenses' THEN 'Net = Income - Expenses'\n  WHEN 'outflow_to_inflow_ratio_derivation' THEN 'Outflow/Inflow Ratio Calculation'\n  WHEN 'savings_pct_matches_mbs' THEN 'Savings % Matches Budget'\n  WHEN 'savings_rate_derivation' THEN 'Savings Rate Calculation'\n  WHEN 'savings_rate_within_bounds' THEN 'Savings Rate Within Bounds'\n  WHEN 'total_matches_fact' THEN 'Total Matches Fact Table'\n  WHEN 'transaction_count_matches_fact' THEN 'Transaction Count Match'\n  WHEN 'txn_amount_abs_consistency' THEN 'Transaction Amount Consistency'\n  WHEN 'uncategorized_matches_fact' THEN 'Uncategorized Matches Fact'\n  WHEN 'uncategorized_pct_within_threshold' THEN 'Uncategorized % Within Threshold'\n  WHEN 'viz_outflows_match_budget_expenses' THEN 'Viz Outflows Match Budget'\n  WHEN 'viz_vs_budget_expense' THEN 'Viz vs Budget Expense'\n  WHEN 'viz_vs_budget_income' THEN 'Viz vs Budget Income'\n  WHEN 'yoy_expenses_within_bounds' THEN 'YoY Expenses Within Bounds'\n  WHEN 'yoy_income_within_bounds' THEN 'YoY Income Within Bounds'\n  ELSE test_name\nEND AS \"Test\", left_value, right_value, delta, pass, notes FROM reporting.rpt_outflows_reconciliation_tests WHERE period_date = (SELECT p FROM latest) ORDER BY test_name;",
           "refId": "A"
         }
       ],
@@ -605,7 +605,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT priority_rank, domain, test_name, affected_dashboard, recommended_action, financial_impact, status FROM reporting.rpt_reconciliation_fix_order ORDER BY priority_rank;",
+          "rawSql": "SELECT priority_rank, domain, CASE test_name\n  WHEN 'cash_flow_margin_derivation' THEN 'Cash Flow Margin Calculation'\n  WHEN 'category_sum_coverage_ok' THEN 'Category Sum Coverage'\n  WHEN 'cat_family_alignment' THEN 'Family Category Alignment'\n  WHEN 'cat_food_alignment' THEN 'Food Category Alignment'\n  WHEN 'cat_household_alignment' THEN 'Household Category Alignment'\n  WHEN 'cat_mortgage_alignment' THEN 'Mortgage Category Alignment'\n  WHEN 'daily_eom_matches_fact_eom (sum across accounts)' THEN 'Daily EOM vs Fact EOM Balance'\n  WHEN 'equation_assets_minus_liabilities' THEN 'Assets - Liabilities = Net Worth'\n  WHEN 'expense_pct_matches_mbs' THEN 'Expense % Matches Budget'\n  WHEN 'expense_ratio_derivation' THEN 'Expense Ratio Calculation'\n  WHEN 'expense_ratio_within_bounds' THEN 'Expense Ratio Within Bounds'\n  WHEN 'income_uncategorized_pct_within_threshold' THEN 'Uncategorized Income %'\n  WHEN 'mbs_expenses_matches_fact' THEN 'Budget Expenses Match Fact'\n  WHEN 'mbs_income_matches_fact' THEN 'Budget Income Match Fact'\n  WHEN 'mbs_net_matches_fact' THEN 'Budget Net Match Fact'\n  WHEN 'net_equals_components' THEN 'Net = Inflows - Outflows'\n  WHEN 'net_equals_income_minus_expenses' THEN 'Net = Income - Expenses'\n  WHEN 'outflow_to_inflow_ratio_derivation' THEN 'Outflow/Inflow Ratio Calculation'\n  WHEN 'savings_pct_matches_mbs' THEN 'Savings % Matches Budget'\n  WHEN 'savings_rate_derivation' THEN 'Savings Rate Calculation'\n  WHEN 'savings_rate_within_bounds' THEN 'Savings Rate Within Bounds'\n  WHEN 'total_matches_fact' THEN 'Total Matches Fact Table'\n  WHEN 'transaction_count_matches_fact' THEN 'Transaction Count Match'\n  WHEN 'txn_amount_abs_consistency' THEN 'Transaction Amount Consistency'\n  WHEN 'uncategorized_matches_fact' THEN 'Uncategorized Matches Fact'\n  WHEN 'uncategorized_pct_within_threshold' THEN 'Uncategorized % Within Threshold'\n  WHEN 'viz_outflows_match_budget_expenses' THEN 'Viz Outflows Match Budget'\n  WHEN 'viz_vs_budget_expense' THEN 'Viz vs Budget Expense'\n  WHEN 'viz_vs_budget_income' THEN 'Viz vs Budget Income'\n  WHEN 'yoy_expenses_within_bounds' THEN 'YoY Expenses Within Bounds'\n  WHEN 'yoy_income_within_bounds' THEN 'YoY Income Within Bounds'\n  ELSE test_name\nEND AS \"Test\", affected_dashboard, recommended_action, financial_impact, status FROM reporting.rpt_reconciliation_fix_order ORDER BY priority_rank;",
           "refId": "A"
         }
       ],
@@ -759,11 +759,87 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT domain, test_name, affected_entity_type, entity_category, delta, notes, recommended_dashboard, status FROM reporting.rpt_reconciliation_check_details WHERE NOT pass ORDER BY domain, test_name;",
+          "rawSql": "SELECT domain, CASE test_name\n  WHEN 'cash_flow_margin_derivation' THEN 'Cash Flow Margin Calculation'\n  WHEN 'category_sum_coverage_ok' THEN 'Category Sum Coverage'\n  WHEN 'cat_family_alignment' THEN 'Family Category Alignment'\n  WHEN 'cat_food_alignment' THEN 'Food Category Alignment'\n  WHEN 'cat_household_alignment' THEN 'Household Category Alignment'\n  WHEN 'cat_mortgage_alignment' THEN 'Mortgage Category Alignment'\n  WHEN 'daily_eom_matches_fact_eom (sum across accounts)' THEN 'Daily EOM vs Fact EOM Balance'\n  WHEN 'equation_assets_minus_liabilities' THEN 'Assets - Liabilities = Net Worth'\n  WHEN 'expense_pct_matches_mbs' THEN 'Expense % Matches Budget'\n  WHEN 'expense_ratio_derivation' THEN 'Expense Ratio Calculation'\n  WHEN 'expense_ratio_within_bounds' THEN 'Expense Ratio Within Bounds'\n  WHEN 'income_uncategorized_pct_within_threshold' THEN 'Uncategorized Income %'\n  WHEN 'mbs_expenses_matches_fact' THEN 'Budget Expenses Match Fact'\n  WHEN 'mbs_income_matches_fact' THEN 'Budget Income Match Fact'\n  WHEN 'mbs_net_matches_fact' THEN 'Budget Net Match Fact'\n  WHEN 'net_equals_components' THEN 'Net = Inflows - Outflows'\n  WHEN 'net_equals_income_minus_expenses' THEN 'Net = Income - Expenses'\n  WHEN 'outflow_to_inflow_ratio_derivation' THEN 'Outflow/Inflow Ratio Calculation'\n  WHEN 'savings_pct_matches_mbs' THEN 'Savings % Matches Budget'\n  WHEN 'savings_rate_derivation' THEN 'Savings Rate Calculation'\n  WHEN 'savings_rate_within_bounds' THEN 'Savings Rate Within Bounds'\n  WHEN 'total_matches_fact' THEN 'Total Matches Fact Table'\n  WHEN 'transaction_count_matches_fact' THEN 'Transaction Count Match'\n  WHEN 'txn_amount_abs_consistency' THEN 'Transaction Amount Consistency'\n  WHEN 'uncategorized_matches_fact' THEN 'Uncategorized Matches Fact'\n  WHEN 'uncategorized_pct_within_threshold' THEN 'Uncategorized % Within Threshold'\n  WHEN 'viz_outflows_match_budget_expenses' THEN 'Viz Outflows Match Budget'\n  WHEN 'viz_vs_budget_expense' THEN 'Viz vs Budget Expense'\n  WHEN 'viz_vs_budget_income' THEN 'Viz vs Budget Income'\n  WHEN 'yoy_expenses_within_bounds' THEN 'YoY Expenses Within Bounds'\n  WHEN 'yoy_income_within_bounds' THEN 'YoY Income Within Bounds'\n  ELSE test_name\nEND AS \"Test\", affected_entity_type, entity_category, delta, notes, recommended_dashboard, status FROM reporting.rpt_reconciliation_check_details WHERE NOT pass ORDER BY domain, test_name;",
           "refId": "A"
         }
       ],
       "title": "Failed Checks Detail (Links to Dashboards)",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Latest reconciliation test period and reporting refresh timestamp.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 85
+      },
+      "id": 306,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH base AS (\n  SELECT MAX(period_date) AS data_through\n  FROM reporting.rpt_financials_reconciliation_summary\n), refresh AS (\n  SELECT MAX(report_generated_at) AS last_refresh\n  FROM reporting.rpt_monthly_budget_summary\n)\nSELECT\n  COALESCE(TO_CHAR((SELECT data_through FROM base), 'YYYY-MM'), 'N/A') AS \"Data Through\",\n  COALESCE(TO_CHAR((SELECT last_refresh FROM refresh), 'YYYY-MM-DD HH24:MI'), 'N/A') AS \"Last Refresh\"",
+          "refId": "A",
+          "sql": {
+            "columns": [],
+            "groupBy": [],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Data Freshness",
       "type": "table"
     }
   ],
@@ -785,5 +861,8 @@
   "title": "10 - Financial Reconciliation",
   "uid": "outflows_reconciliation",
   "version": 2,
-  "weekStart": ""
+  "weekStart": "",
+  "timepicker": {
+    "hidden": true
+  }
 }
