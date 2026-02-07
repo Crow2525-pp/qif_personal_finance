@@ -2,36 +2,6 @@
 
 [
   {
-    "id": 9,
-    "title": "Cash Flow Trends and Category panels readability is poor",
-    "scope": "grafana/provisioning/dashboards/cash-flow-analysis-dashboard.json",
-    "description": "Visual signal is weak at normal sizes; increase panel height or reduce series complexity.",
-    "category": "dashboard-fix",
-    "effort": "small",
-    "status": "in_progress",
-    "notes": "Partially addressed 2026-02-07 in `grafana/provisioning/dashboards/02-cash-flow-analysis.json`: improved trend labeling and readability; further visual-density tuning may still be needed at narrower widths."
-  },
-  {
-    "id": 15,
-    "title": "YTD Cash Flow appears identical to latest month values",
-    "scope": "grafana/provisioning/dashboards/cash-flow-analysis-dashboard.json",
-    "description": "YTD labels appear inconsistent with value behavior; verify query semantics.",
-    "category": "dashboard-fix",
-    "effort": "small",
-    "status": "in_progress",
-    "notes": "Partially addressed 2026-02-07 in `grafana/provisioning/dashboards/02-cash-flow-analysis.json`: added `YTD Months Included` indicator; underlying model semantics still need validation against source aggregates."
-  },
-  {
-    "id": 17,
-    "title": "Recommendation Drivers uses unclear category naming",
-    "scope": "reporting models + cash flow dashboard",
-    "description": "Category naming like Bank Transaction is not user-meaningful in recommendation context.",
-    "category": "dashboard-fix",
-    "effort": "small",
-    "status": "in_progress",
-    "notes": "Partially addressed 2026-02-07 in `grafana/provisioning/dashboards/02-cash-flow-analysis.json`: recommendation wording now uses clearer action/category framing; further model-level naming cleanup remains."
-  },
-  {
     "id": 23,
     "title": "Backfill or relabel stale Net Worth headline month",
     "scope": "grafana/provisioning/dashboards/04-household-net-worth-analysis.json",
@@ -456,6 +426,46 @@
     "title": "Replace technical account labels in 22-mobile account table",
     "scope": "grafana/provisioning/dashboards/22-assets-networth-mobile.json; panel id 5",
     "description": "Account names like `BillsBillsBills` and `Homeloan` reduce readability and trust for non-technical users. Map to user-facing labels or aliases in SQL/view layer.",
+    "category": "dashboard-fix",
+    "effort": "tiny",
+    "status": "pending",
+    "notes": "Found via Playwright MCP on 2026-02-07 at 3440x1440."
+  },
+  {
+    "id": 101,
+    "title": "Fix dashboard checker macro substitution for $__timeFrom/$__timeTo",
+    "scope": "scripts/check_grafana_dashboards.py",
+    "description": "Current checker substitutes Grafana macros into empty expressions (`()::timestamptz`) and generates false dashboard failures. Add explicit macro handling or skip macro replacement so script reflects real Grafana execution.",
+    "category": "dashboard-fix",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Observed on 2026-02-07 when dashboard 01 failed in checker but rendered successfully in Playwright UI."
+  },
+  {
+    "id": 102,
+    "title": "Fix incomplete drilldown links in Executive Financial Overview tables",
+    "scope": "grafana/provisioning/dashboards/01-executive-financial-overview-aud.json; panels 901 and 902",
+    "description": "Playwright shows link targets ending with incomplete query strings (e.g., `/d/outflows_reconciliation?` and `/d/transaction_analysis_dashboard?var_category=Uncategorized&`). Ensure links include required variable values and clean URL formatting.",
+    "category": "dashboard-fix",
+    "effort": "tiny",
+    "status": "pending",
+    "notes": "Found via Playwright MCP on 2026-02-07 at 3440x1440."
+  },
+  {
+    "id": 103,
+    "title": "Add percent unit/label clarity to Executive Data Quality Callouts",
+    "scope": "grafana/provisioning/dashboards/01-executive-financial-overview-aud.json; panel 901",
+    "description": "`Uncategorized spend` value is displayed as `29.1` without `%` suffix in the callout table, which is ambiguous. Apply explicit percent formatting and label.",
+    "category": "dashboard-fix",
+    "effort": "tiny",
+    "status": "pending",
+    "notes": "Found via Playwright MCP on 2026-02-07 at 3440x1440."
+  },
+  {
+    "id": 104,
+    "title": "Disambiguate Monthly Savings vs Net Cash Flow in executive KPI row",
+    "scope": "grafana/provisioning/dashboards/01-executive-financial-overview-aud.json; Monthly Financial Snapshot panel",
+    "description": "Dashboard presents both `Net Cash Flow` and `Monthly Savings` with identical values, which appears duplicative. Either distinguish definitions or collapse to one metric.",
     "category": "dashboard-fix",
     "effort": "tiny",
     "status": "pending",
