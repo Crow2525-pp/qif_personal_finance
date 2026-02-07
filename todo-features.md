@@ -343,5 +343,213 @@ Once those fixes land, move to family-first quick-glance views (childcare, groce
     "effort": "tiny",
     "status": "done",
     "notes": "COMPLETED (2026-02-06): Renamed all 23 dashboard files with priority prefixes (01-23) according to dashboard-priority.md. Desktop dashboards 01-17, mobile dashboards 18-23. Commit: 86ad299"
+  },
+  {
+    "id": 80,
+    "category": "dashboard-feature",
+    "title": "Add explicit budget target vs actual framework to Monthly Budget Summary",
+    "description": "Dashboard 03 shows spending levels and ratios but does not clearly answer budget adherence because planned targets are missing. Add category-level monthly budget targets and variance KPIs (actual, target, variance $, variance %) with red/amber/green thresholds.",
+    "scope": "reporting budget target model + grafana/provisioning/dashboards/03-monthly-budget-summary.json",
+    "effort": "medium",
+    "status": "pending"
+  },
+  {
+    "id": 81,
+    "category": "dashboard-feature",
+    "title": "Add net worth movement attribution bridge",
+    "description": "Dashboard 04 should explain what changed net worth month-over-month (savings contribution, debt paydown, valuation/other). Add a bridge/decomposition panel so users can act on drivers rather than just seeing totals.",
+    "scope": "reporting model for net worth drivers + grafana/provisioning/dashboards/04-household-net-worth-analysis.json",
+    "effort": "medium",
+    "status": "pending"
+  },
+  {
+    "id": 82,
+    "category": "dashboard-feature",
+    "title": "Add savings driver attribution (income effect vs spending effect)",
+    "description": "Dashboard 05 reports savings outcomes but weakly explains causality. Add a panel decomposing savings-rate change into income increase, expense decrease, and one-off effects.",
+    "scope": "reporting model for savings attribution + grafana/provisioning/dashboards/05-savings-analysis.json",
+    "effort": "medium",
+    "status": "pending"
+  },
+  {
+    "id": 83,
+    "category": "dashboard-feature",
+    "title": "Add category drill-through from Category Spending to Transaction Analysis",
+    "description": "Dashboard 06 highlights variance drivers but lacks direct drill-down to underlying transactions. Add click-through links with category/month parameters into Dashboard 09.",
+    "scope": "grafana/provisioning/dashboards/06-category-spending-analysis.json; grafana/provisioning/dashboards/09-transaction-analysis.json links/variables",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 84,
+    "category": "dashboard-feature",
+    "title": "Add outlier transactions panel to Expense Performance",
+    "description": "Dashboard 07 is expected to identify outliers but currently emphasizes ratios and top categories. Add a ranked table of statistically unusual transactions (z-score/IQR threshold) with merchant, amount, and category.",
+    "scope": "outlier detection SQL model + grafana/provisioning/dashboards/07-expense-performance-analysis.json",
+    "effort": "medium",
+    "status": "pending"
+  },
+  {
+    "id": 85,
+    "category": "dashboard-feature",
+    "title": "Add concentration risk metrics to Outflows Insights",
+    "description": "Dashboard 08 should answer concentration risk (dependency on few categories/merchants). Add Top-3 share, Top-5 share, and a concentration index trend with thresholds.",
+    "scope": "reporting concentration metrics + grafana/provisioning/dashboards/08-outflows-insights.json",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 86,
+    "category": "dashboard-feature",
+    "title": "Add interactive filters to Transaction Analysis dashboard",
+    "description": "Dashboard 09 is a drilldown surface but lacks first-class filters for account, category, merchant, and review status. Add template variables and query bindings so anomaly triage can be done in-dashboard.",
+    "scope": "grafana/provisioning/dashboards/09-transaction-analysis.json; reporting.viz_transaction_filter_options",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 87,
+    "category": "dashboard-feature",
+    "title": "Add reconciliation fix-priority queue with owner/SLA",
+    "description": "Dashboard 10 shows failing tests but does not operationalize remediation. Add a queue view ranked by impact/severity with owner, due date, and linked dashboard/table to fix first.",
+    "scope": "reporting.rpt_reconciliation_fix_order + grafana/provisioning/dashboards/10-financial-reconciliation.json",
+    "effort": "medium",
+    "status": "pending"
+  },
+  {
+    "id": 88,
+    "category": "dashboard-feature",
+    "title": "Create cross-dashboard monthly review scorecard",
+    "description": "Add one summary panel that rates readiness of dashboards 1-10 (data freshness, query health, no-data count, unresolved blockers) so review can start with confidence checks before financial interpretation.",
+    "scope": "new reporting model + executive/reconciliation dashboard panel",
+    "effort": "medium",
+    "status": "pending"
+  },
+  {
+    "id": 89,
+    "category": "dashboard-feature",
+    "title": "Add dashboard confidence badges per panel",
+    "description": "Introduce lightweight confidence badges (Fresh, Stale, Partial, Error) based on freshness age and query errors so users can quickly judge whether each panel should influence decisions.",
+    "scope": "shared Grafana panel conventions across dashboards 01-10",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 90,
+    "category": "dashboard-feature",
+    "title": "Add account-level drilldowns and normalized comparison metrics to Account Performance",
+    "description": "Add transaction drilldowns from account trend panels and percent-change companion series so users can compare movements across accounts of different scale.",
+    "scope": "grafana/provisioning/dashboards/11-account-performance.json; linked transaction drillthrough",
+    "effort": "medium",
+    "status": "pending"
+  },
+  {
+    "id": 91,
+    "category": "dashboard-feature",
+    "title": "Add forecast confidence and backtesting to Financial Projections",
+    "description": "Introduce uncertainty bands, model version/timestamp, and backtest error views (e.g., MAPE/residual trend) to improve trust in scenario outputs.",
+    "scope": "reporting projection QA models + grafana/provisioning/dashboards/12-financial-projections.json",
+    "effort": "medium",
+    "status": "pending"
+  },
+  {
+    "id": 92,
+    "category": "dashboard-feature",
+    "title": "Add benchmark and outlier context to Year-over-Year dashboard",
+    "description": "Add target benchmark lines, outlier-year annotations, and annual-to-monthly reconciliation indicators to make YoY results actionable.",
+    "scope": "grafana/provisioning/dashboards/13-year-over-year-comparison.json",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 93,
+    "category": "dashboard-feature",
+    "title": "Add decomposition and drilldowns to Four-Year comparison",
+    "description": "Add assets-vs-liabilities decomposition and direct links into YoY/monthly dashboards for metric root-cause analysis.",
+    "scope": "grafana/provisioning/dashboards/14-four-year-financial-comparison.json",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 94,
+    "category": "dashboard-feature",
+    "title": "Enhance Mortgage Payoff with uncertainty and recommendation outputs",
+    "description": "Add payoff forecast extension with uncertainty band, cumulative interest-saved by scenario, and an action-oriented recommendation summary.",
+    "scope": "reporting mortgage scenario models + grafana/provisioning/dashboards/15-mortgage-payoff.json",
+    "effort": "medium",
+    "status": "pending"
+  },
+  {
+    "id": 95,
+    "category": "dashboard-feature",
+    "title": "Add anomaly detection and reconciliation checks to Grocery Spending dashboard",
+    "description": "Add month-spike alerts and a grocery-to-total-expense reconciliation panel to improve decision confidence.",
+    "scope": "grafana/provisioning/dashboards/16-grocery-spending-analysis.json",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 96,
+    "category": "dashboard-feature",
+    "title": "Add classification-confidence and anomaly alerting to Amazon Spending dashboard",
+    "description": "Add confidence score for Amazon merchant parsing and alerts for unusual order frequency or basket inflation.",
+    "scope": "grafana/provisioning/dashboards/17-amazon-spending-analysis.json",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 97,
+    "category": "dashboard-feature",
+    "title": "Add actionability layer to Executive Overview mobile dashboard",
+    "description": "Add failed-check drillthrough links, compact next-actions list, and deep links to desktop dashboards for each KPI domain.",
+    "scope": "grafana/provisioning/dashboards/18-executive-overview-mobile.json",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 98,
+    "category": "dashboard-feature",
+    "title": "Add comparative and drillthrough capabilities to Spending & Categories mobile dashboard",
+    "description": "Add current-vs-previous comparator views, anomaly indicators, and row-level drillthrough to transaction details.",
+    "scope": "grafana/provisioning/dashboards/19-spending-categories-mobile.json",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 99,
+    "category": "dashboard-feature",
+    "title": "Add budget-performance diagnostic layer to Cash Flow & Budget mobile dashboard",
+    "description": "Add budget target overlays, variance decomposition by category, smoothing options, and recommendation text tied to current savings outcomes.",
+    "scope": "grafana/provisioning/dashboards/20-cash-flow-budget-mobile.json",
+    "effort": "medium",
+    "status": "pending"
+  },
+  {
+    "id": 100,
+    "category": "dashboard-feature",
+    "title": "Add assumptions/definitions strip to mobile analytical dashboards 21-23",
+    "description": "Add compact per-dashboard assumptions block (YTD basis, savings-rate formula, projection horizon, sign conventions) so mobile users can interpret KPIs without opening desktop dashboards.",
+    "scope": "grafana/provisioning/dashboards/21-savings-performance-mobile.json; grafana/provisioning/dashboards/22-assets-networth-mobile.json; grafana/provisioning/dashboards/23-projections-analysis-mobile.json",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 101,
+    "category": "dashboard-feature",
+    "title": "Add diagnostic drilldowns from mobile KPI anomalies",
+    "description": "When KPIs show suspect values (e.g., 0% savings with large projected annual savings), provide one-tap drilldowns to source tables/panels that explain the calculation inputs.",
+    "scope": "mobile dashboards 21-23 plus linked desktop dashboards",
+    "effort": "small",
+    "status": "pending"
+  },
+  {
+    "id": 102,
+    "category": "dashboard-feature",
+    "title": "Add projection quality panel to 23-mobile",
+    "description": "Add a compact quality panel showing scenario coverage horizon, last model run timestamp, and confidence/backtest indicator to improve trust in projection outputs.",
+    "scope": "grafana/provisioning/dashboards/23-projections-analysis-mobile.json; projection QA model",
+    "effort": "medium",
+    "status": "pending"
   }
 ]
+
