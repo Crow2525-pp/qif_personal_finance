@@ -114,10 +114,10 @@ dbt commands should be executed within the containerized environment or by acces
 
 ## Grafana Dashboards
 
-### Currency Formatting
-- **Important**: Currency formatting should use USD ($) instead of AUD (A$) in Grafana dashboards
-- When creating or updating dashboard visualizations, ensure currency fields display as USD format
-- This applies to all financial metrics including income, expenses, balances, and projections
+### Currency Convention
+- **Important**: Treat all monetary values as AUD by default.
+- Do not display currency notation in dashboards: no `$`, no `AUD`, and no currency unit formatting.
+- Use neutral numeric display formatting so values remain readable without an explicit currency label.
 
 ### Percentage Formatting Standards
 - **Critical**: Always maintain consistency between SQL data format and Grafana display units
@@ -159,6 +159,17 @@ Before committing changes that affect Grafana dashboards or dbt models, verify t
 ### Planning Artifacts
 - Log dashboard issues in `plan-fixes.md`.
 - Log new feature ideas in `plan-features.md`.
+
+### Dashboard Query Migration Checklist
+
+When changing dashboard SQL sources (table/view/model migrations), verify all items below before merge:
+
+- Table/view rename is applied in every affected panel query.
+- Column renames are fully mapped (no stale legacy names left in SQL).
+- Join keys are validated against active schema relations.
+- Units and labels still match returned data shape.
+- `scripts/check_grafana_dashboards.py` passes for impacted dashboard ranges.
+- Live panel verification is captured (API run, screenshot, or equivalent evidence).
 
 ### Verification Process
 

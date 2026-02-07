@@ -54,3 +54,6 @@ mind:
 - **Manual ingestion is intentional.** Do not add automated file
   watchers, cron jobs, or scheduled Dagster triggers unless
   explicitly requested.
+- **Currency display convention.** Assume all monetary values are AUD,
+  but do not show currency notation in dashboards (no `$`, no `AUD`,
+  and no explicit currency units).

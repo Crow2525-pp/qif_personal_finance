@@ -59,3 +59,28 @@ After running the tool:
 5. Writes new mappings to `banking_categories.csv`
 
 The tool uses the same normalization logic as dbt's categorization models, so patterns you add will match the same transactions.
+
+## check_grafana_dashboards.py
+
+Panel-level Grafana smoke checker that executes dashboard SQL targets via Grafana API and fails when panels return errors or no data.
+
+### Usage
+
+```bash
+# Check all dashboards
+uv run python scripts/check_grafana_dashboards.py
+
+# Check priority dashboards 1-10
+uv run python scripts/check_grafana_dashboards.py --dashboard-range 1-10
+
+# Check extended dashboards 11-23
+uv run python scripts/check_grafana_dashboards.py --dashboard-range 11-23
+
+# Run both core and extended sets in one command
+uv run python scripts/check_grafana_dashboards.py --dashboard-range 1-10 --dashboard-range 11-23
+```
+
+### Notes
+
+- Requires Grafana credentials via `GRAFANA_TOKEN` or `GRAFANA_USER`/`GRAFANA_PASSWORD`.
+- Failure output includes panel title, target refId diagnostics, and extracted request IDs (for example `SQR113`) when present.

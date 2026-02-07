@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import json
 import os
 import re
 import sys
@@ -128,6 +129,41 @@ def flatten_panels(panels: Iterable[Dict]) -> Iterable[Dict]:
             yield panel
 
 
+def parse_dashboard_number(title: str) -> int | None:
+    """Extract numeric dashboard prefix from titles like '02 - Cash Flow Analysis'."""
+    if not title:
+        return None
+    match = re.match(r"^\s*(\d{1,2})\s*-", title)
+    if not match:
+        return None
+    return int(match.group(1))
+
+
+def parse_range_spec(spec: str) -> Tuple[int, int]:
+    """Parse a dashboard range spec like '1-10' or '7'."""
+    text = (spec or "").strip()
+    if not text:
+        raise ValueError("Empty dashboard range")
+
+    if "-" not in text:
+        value = int(text)
+        return value, value
+
+    start_text, end_text = text.split("-", 1)
+    start, end = int(start_text.strip()), int(end_text.strip())
+    if end < start:
+        raise ValueError(f"Invalid dashboard range '{spec}' (end < start)")
+    return start, end
+
+
+def matches_dashboard_ranges(title: str, ranges: List[Tuple[int, int]]) -> bool:
+    """Return True when dashboard title numeric prefix falls in any configured range."""
+    number = parse_dashboard_number(title)
+    if number is None:
+        return False
+    return any(start <= number <= end for start, end in ranges)
+
+
 def extract_row_count(result: Dict) -> int:
     """Return number of rows/points from a Grafana query result."""
     total = 0
@@ -154,6 +190,36 @@ def result_has_values(result: Dict, min_rows: int) -> Tuple[bool, str]:
         return True, f"{rows} rows"
 
     return False, f"empty ({rows} rows)"
+
+
+def extract_request_ids(text: str) -> List[str]:
+    """Extract Grafana query request identifiers (e.g. SQR113) from text."""
+    if not text:
+        return []
+    ids = re.findall(r"\bSQR\d+\b", text)
+    return list(dict.fromkeys(ids))
+
+
+def compact_error_text(raw_text: str) -> str:
+    """Normalize noisy HTTP/API error payloads into a readable single line."""
+    text = (raw_text or "").strip()
+    if not text:
+        return "unknown error"
+
+    try:
+        payload = json.loads(text)
+        # Typical Grafana error payloads include message/error fields.
+        parts = []
+        for key in ("message", "error", "status"):
+            if key in payload and payload[key]:
+                parts.append(str(payload[key]))
+        if parts:
+            return " | ".join(parts)
+    except json.JSONDecodeError:
+        pass
+
+    # Strip line breaks to keep panel diagnostics single-line.
+    return re.sub(r"\s+", " ", text)
 
 
 def _quote_sql_value(value) -> str:
@@ -186,6 +252,10 @@ def render_sql(raw_sql: str, scoped_vars: Dict) -> str:
 
     def replacer(match: re.Match) -> str:
         var = match.group("var") or match.group("plain")
+        # Preserve Grafana built-in macros like $__timeFrom / $__timeTo.
+        # Grafana datasource handles these at execution time.
+        if var.startswith("__"):
+            return match.group(0)
         fmt = match.group("fmt")
         values = render_value(var, fmt)
         start, end = match.start(), match.end()
@@ -206,6 +276,147 @@ def render_sql(raw_sql: str, scoped_vars: Dict) -> str:
         return ",".join(_quote_sql_value(v) for v in values_list if v is not None)
 
     return pattern.sub(replacer, raw_sql)
+
+
+def parse_table_alias_map(sql: str) -> Dict[str, str]:
+    """
+    Build alias->table mapping for schema-qualified FROM/JOIN relations.
+
+    Returns entries where the table is of form schema.table, keyed by alias if
+    present, otherwise the table name.
+    """
+    alias_map: Dict[str, str] = {}
+    pattern = re.compile(
+        r"\b(?:from|join)\s+([A-Za-z0-9_\.\"']+)(?:\s+(?:as\s+)?([A-Za-z_][A-Za-z0-9_]*))?",
+        re.IGNORECASE,
+    )
+    for table_token, alias in pattern.findall(sql):
+        table = table_token.strip().strip('"')
+        # Only validate physical relations that are schema-qualified.
+        if "." not in table:
+            continue
+        key = alias or table.split(".")[-1]
+        alias_map[key] = table
+    return alias_map
+
+
+def parse_schema_tables(sql: str) -> List[str]:
+    """Extract schema-qualified relations used in FROM/JOIN clauses."""
+    tables = []
+    for table in parse_table_alias_map(sql).values():
+        if table not in tables:
+            tables.append(table)
+    return tables
+
+
+def parse_alias_column_refs(sql: str, alias_map: Dict[str, str]) -> Dict[str, set]:
+    """
+    Extract alias.column references and map them to physical schema-qualified tables.
+    """
+    refs: Dict[str, set] = {}
+    pattern = re.compile(r"\b([A-Za-z_][A-Za-z0-9_]*)\.([A-Za-z_][A-Za-z0-9_]*)\b")
+    for alias, col in pattern.findall(sql):
+        table = alias_map.get(alias)
+        if not table:
+            continue
+        refs.setdefault(table, set()).add(col)
+    return refs
+
+
+def fetch_table_columns(
+    client: GrafanaClient,
+    datasource: Dict,
+    table: str,
+    cache: Dict[str, set],
+    time_from: dt.datetime,
+    time_to: dt.datetime,
+) -> set:
+    """Fetch available columns for schema-qualified relation from information_schema."""
+    if table in cache:
+        return cache[table]
+
+    schema, rel = table.split(".", 1)
+    sql = (
+        "SELECT column_name "
+        "FROM information_schema.columns "
+        f"WHERE table_schema = '{schema}' AND table_name = '{rel}' "
+        "ORDER BY ordinal_position;"
+    )
+    response = client.query(
+        datasource,
+        sql,
+        time_from=time_from,
+        time_to=time_to,
+        scoped_vars={},
+        ref_id="SCHEMA",
+        format_hint="table",
+    )
+    result = response.get("results", {}).get("SCHEMA", {})
+    if result.get("error"):
+        raise ValueError(f"schema lookup failed for {table}: {result.get('error')}")
+
+    columns: set = set()
+    for frame in result.get("frames", []) or []:
+        values = frame.get("data", {}).get("values") or []
+        if not values:
+            continue
+        # One-column result expected: column_name
+        for item in values[0]:
+            if item:
+                columns.add(str(item))
+
+    cache[table] = columns
+    return columns
+
+
+def validate_sql_schema(
+    client: GrafanaClient,
+    datasource: Dict,
+    sql: str,
+    cache: Dict[str, set],
+    time_from: dt.datetime,
+    time_to: dt.datetime,
+) -> Tuple[bool, str]:
+    """
+    Best-effort schema validation for dashboard SQL.
+
+    Validates existence of schema-qualified FROM/JOIN relations and alias.column
+    references bound to those relations.
+    """
+    alias_map = parse_table_alias_map(sql)
+    tables = parse_schema_tables(sql)
+    if not tables:
+        return True, "schema validation skipped (no schema-qualified relations)"
+
+    missing_tables: List[str] = []
+    missing_cols: List[str] = []
+
+    for table in tables:
+        cols = fetch_table_columns(
+            client,
+            datasource,
+            table,
+            cache=cache,
+            time_from=time_from,
+            time_to=time_to,
+        )
+        if not cols:
+            missing_tables.append(table)
+
+    if missing_tables:
+        return False, "missing tables: " + ", ".join(missing_tables)
+
+    refs = parse_alias_column_refs(sql, alias_map)
+    for table, referenced in refs.items():
+        available = cache.get(table, set())
+        for col in sorted(referenced):
+            if col not in available:
+                missing_cols.append(f"{table}.{col}")
+
+    if missing_cols:
+        return False, "missing columns: " + ", ".join(missing_cols)
+
+    return True, "schema ok"
 
 
 def resolve_variable_options(
@@ -287,6 +498,8 @@ def check_dashboard(
     time_from: dt.datetime,
     time_to: dt.datetime,
     min_rows: int,
+    schema_validate: bool,
+    schema_cache: Dict[str, set],
 ) -> Tuple[List[Dict], List[Dict]]:
     dashboard = client.dashboard(dashboard_meta["uid"])
     scoped_vars = build_scoped_vars(client, dashboard, datasources, time_from, time_to)
@@ -306,6 +519,8 @@ def check_dashboard(
 
         panel_ok = False
         messages = []
+        target_diagnostics: List[Dict] = []
+        panel_request_ids: List[str] = []
 
         for target in targets:
             raw_sql = target.get("rawSql")
@@ -317,6 +532,28 @@ def check_dashboard(
 
             try:
                 rendered_sql = render_sql(raw_sql, scoped_vars)
+                if schema_validate:
+                    schema_ok, schema_msg = validate_sql_schema(
+                        client,
+                        datasources[ds_uid],
+                        rendered_sql,
+                        cache=schema_cache,
+                        time_from=time_from,
+                        time_to=time_to,
+                    )
+                    if not schema_ok:
+                        has_data = False
+                        messages.append(f"{ref_id}: schema {schema_msg}")
+                        target_diagnostics.append(
+                            {
+                                "ref_id": ref_id,
+                                "status": "schema_error",
+                                "message": schema_msg,
+                                "request_ids": [],
+                            }
+                        )
+                        continue
+
                 query_response = client.query(
                     datasources[ds_uid],
                     rendered_sql,
@@ -329,20 +566,46 @@ def check_dashboard(
                 result = query_response.get("results", {}).get(ref_id, {})
                 has_data, msg = result_has_values(result, min_rows)
                 messages.append(f"{ref_id}: {msg}")
+                request_ids = extract_request_ids(msg)
+                panel_request_ids.extend(request_ids)
+                target_diagnostics.append(
+                    {
+                        "ref_id": ref_id,
+                        "status": "ok" if has_data else "no_data_or_error",
+                        "message": msg,
+                        "request_ids": request_ids,
+                    }
+                )
             except requests.HTTPError as exc:  # pragma: no cover - diagnostic path
                 detail = exc.response.text if exc.response is not None else str(exc)
-                messages.append(f"{ref_id}: HTTP {exc.response.status_code if exc.response else ''} {detail}")
+                compact = compact_error_text(detail)
+                request_ids = extract_request_ids(compact)
+                panel_request_ids.extend(request_ids)
+                messages.append(
+                    f"{ref_id}: HTTP {exc.response.status_code if exc.response else ''} {compact}"
+                )
+                target_diagnostics.append(
+                    {
+                        "ref_id": ref_id,
+                        "status": "http_error",
+                        "message": compact,
+                        "request_ids": request_ids,
+                    }
+                )
                 has_data = False
 
             if has_data:
                 panel_ok = True
                 break
 
+        panel_request_ids = list(dict.fromkeys(panel_request_ids))
         status = {
             "dashboard": dashboard.get("title"),
             "panel_id": panel.get("id"),
             "panel_title": panel.get("title"),
             "messages": "; ".join(messages),
+            "request_ids": panel_request_ids,
+            "target_diagnostics": target_diagnostics,
         }
 
         if panel_ok:
@@ -445,6 +708,15 @@ def parse_args() -> argparse.Namespace:
         help="Dashboard title or UID to include (can be set multiple times).",
     )
     parser.add_argument(
+        "--dashboard-range",
+        action="append",
+        default=[],
+        help=(
+            "Dashboard numeric range filter based on title prefix, e.g. "
+            "'1-10', '11-23', or '7'. Can be set multiple times."
+        ),
+    )
+    parser.add_argument(
         "--min-rows",
         type=int,
         default=1,
@@ -454,6 +726,14 @@ def parse_args() -> argparse.Namespace:
         "--no-lint",
         action="store_true",
         help="Skip layout linting (e.g., long titles vs. panel width).",
+    )
+    parser.add_argument(
+        "--schema-validate",
+        action="store_true",
+        help=(
+            "Validate schema-qualified table/column references against "
+            "information_schema before running panel queries."
+        ),
     )
     parser.add_argument(
         "--lint-max-chars-per-col",
@@ -510,12 +790,24 @@ def main() -> int:
 
         dashboards = [d for d in dashboards if keep(d)]
 
+    if args.dashboard_range:
+        ranges: List[Tuple[int, int]] = []
+        try:
+            ranges = [parse_range_spec(spec) for spec in args.dashboard_range]
+        except ValueError as exc:
+            print(f"Invalid --dashboard-range value: {exc}", file=sys.stderr)
+            return 1
+        dashboards = [
+            d for d in dashboards if matches_dashboard_ranges(d.get("title", ""), ranges)
+        ]
+
     if not dashboards:
         print("No dashboards found matching the provided filters.", file=sys.stderr)
         return 1
 
     total_failures = 0
     total_lint = 0
+    schema_cache: Dict[str, set] = {}
     for dash in dashboards:
         ok_panels, failing_panels = check_dashboard(
             client,
@@ -524,6 +816,8 @@ def main() -> int:
             time_from=time_from,
             time_to=time_to,
             min_rows=args.min_rows,
+            schema_validate=args.schema_validate,
+            schema_cache=schema_cache,
         )
 
         lint_issues: List[Dict] = []
@@ -543,10 +837,19 @@ def main() -> int:
         )
         for panel in failing_panels:
             total_failures += 1
+            req = (
+                f" [requestIds: {', '.join(panel['request_ids'])}]"
+                if panel.get("request_ids")
+                else ""
+            )
             print(
                 f"  - Panel {panel['panel_id']} '{panel['panel_title']}': "
-                f"{panel['messages']}"
+                f"{panel['messages']}{req}"
             )
+            for target in panel.get("target_diagnostics", []):
+                print(
+                    f"      ref {target.get('ref_id')}: {target.get('status')} - {target.get('message')}"
+                )
         for issue in lint_issues:
             total_lint += 1
             title_len = issue.get("title_len") or issue.get("content_len")
