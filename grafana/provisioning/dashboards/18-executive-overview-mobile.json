@@ -19,6 +19,58 @@
   "liveNow": false,
   "panels": [
     {
+      "id": 103.0,
+      "type": "table",
+      "title": "Data Freshness",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PCC52D03280B7034C"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
+          "rawQuery": true,
+          "rawSql": "SELECT\n  MAX(budget_year_month) AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_monthly_budget_summary;"
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "footer": {
+          "show": false
+        },
+        "cellHeight": "sm"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
       "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
@@ -27,7 +79,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 3
       },
       "id": 100,
       "options": {
@@ -73,7 +125,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 2
+        "y": 5
       },
       "id": 1,
       "options": {
@@ -153,7 +205,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 2
+        "y": 5
       },
       "id": 2,
       "options": {
@@ -243,7 +295,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 8
+        "y": 11
       },
       "id": 3,
       "options": {
@@ -310,7 +362,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 19
       },
       "id": 4,
       "options": {
@@ -377,7 +429,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 19
       },
       "id": 5,
       "options": {
@@ -418,7 +470,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 24
+        "y": 27
       },
       "id": 102,
       "options": {
@@ -460,7 +512,7 @@
         "h": 4,
         "w": 8,
         "x": 0,
-        "y": 26
+        "y": 29
       },
       "id": 6,
       "options": {
@@ -541,7 +593,7 @@
         "h": 4,
         "w": 8,
         "x": 8,
-        "y": 26
+        "y": 29
       },
       "id": 7,
       "options": {
@@ -640,7 +692,7 @@
         "h": 4,
         "w": 8,
         "x": 16,
-        "y": 26
+        "y": 29
       },
       "id": 8,
       "options": {
@@ -719,7 +771,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 30
+        "y": 33
       },
       "id": 9,
       "options": {
@@ -764,7 +816,9 @@
     "from": "now-12M",
     "to": "now"
   },
-  "timepicker": {},
+  "timepicker": {
+    "hidden": true
+  },
   "timezone": "",
   "title": "18 - Executive Overview (Mobile)",
   "uid": "exec-mobile-overview",

@@ -23,6 +23,58 @@
   "liveNow": false,
   "panels": [
     {
+      "id": 101.0,
+      "type": "table",
+      "title": "Data Freshness",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PCC52D03280B7034C"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
+          "rawQuery": true,
+          "rawSql": "SELECT\n  MAX(budget_year_month) AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_monthly_budget_summary;"
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "footer": {
+          "show": false
+        },
+        "cellHeight": "sm"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
       "datasource": {
         "type": "text",
         "uid": "-- Text --"
@@ -31,7 +83,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 3
       },
       "id": 100,
       "options": {
@@ -130,7 +182,7 @@
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 2
+        "y": 5
       },
       "id": 1,
       "options": {
@@ -209,7 +261,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 14
+        "y": 17
       },
       "id": 2,
       "options": {
@@ -270,7 +322,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 14
+        "y": 17
       },
       "id": 3,
       "options": {
@@ -393,7 +445,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 22
+        "y": 25
       },
       "id": 4,
       "options": {
@@ -498,7 +550,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 35
       },
       "id": 5,
       "options": {
@@ -588,7 +640,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 42
+        "y": 45
       },
       "id": 6,
       "options": {
@@ -633,7 +685,9 @@
     "from": "now-4y",
     "to": "now+1y"
   },
-  "timepicker": {},
+  "timepicker": {
+    "hidden": true
+  },
   "timezone": "",
   "title": "23 - Projections & Analysis (Mobile)",
   "uid": "projections-analysis-mobile",
