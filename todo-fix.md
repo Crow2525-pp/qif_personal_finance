@@ -23,48 +23,6 @@
     "notes": "Pattern confirmed during Playwright run on 2026-02-07."
   },
   {
-    "id": 25,
-    "priority": 7,
-    "category": "dashboard-fix",
-    "title": "Add automated panel-level smoke test for priority dashboards 1-10",
-    "description": "Current regressions reached production dashboards despite existing checks. Add CI/local smoke tests that fail on datasource 4xx/5xx or visible `No data` in dashboards 1-10, using Grafana API or Playwright MCP automation.",
-    "scope": "scripts/check_grafana_dashboards.py; dashboard validation workflow",
-    "effort": "medium",
-    "status": "pending",
-    "notes": "Playwright review on 2026-02-07 found multiple live failures not caught earlier."
-  },
-  {
-    "id": 26,
-    "priority": 8,
-    "category": "dashboard-fix",
-    "title": "Expose panel query/request IDs in TODO notes for faster triage",
-    "description": "Triaging dashboard failures is slow without direct mapping between panel and failing request. Extend diagnostics to capture panel title + requestId + SQL error for each failed query so fixes can be assigned quickly.",
-    "scope": "dashboard validation scripts and troubleshooting docs",
-    "effort": "small",
-    "status": "pending",
-    "notes": "During Playwright review, failures were visible as `SQR***` ids but not mapped to panel names."
-  },
-  {
-    "id": 40,
-    "title": "Humanize reconciliation test names in Financial Reconciliation dashboard",
-    "scope": "grafana/provisioning/dashboards/10-financial-reconciliation.json",
-    "description": "Raw test identifiers are difficult for monthly review; map to user-facing labels and action text.",
-    "category": "dashboard-fix",
-    "effort": "small",
-    "status": "pending",
-    "notes": "Restored 2026-02-07 during backlog recovery."
-  },
-  {
-    "id": 56,
-    "category": "dashboard-fix",
-    "title": "Extend automated smoke tests to dashboards 11-23",
-    "description": "Recent review found live query failures in non-core dashboards that were not pre-caught. Extend dashboard validation to include 11-23 and fail on datasource 4xx/5xx, unresolved variables, or visible `No data` in required panels.",
-    "scope": "scripts/check_grafana_dashboards.py; Playwright/Grafana API validation workflow",
-    "effort": "medium",
-    "status": "pending",
-    "notes": "Observed issues on dashboards 11, 15, and 17 during 2026-02-07 run."
-  },
-  {
     "id": 59,
     "title": "Finish Amazon schema migration beyond table rename",
     "scope": "grafana/provisioning/dashboards/17-amazon-spending-analysis.json",
@@ -85,126 +43,6 @@
     "notes": "Restored 2026-02-07 during backlog recovery."
   },
   {
-    "id": 61,
-    "category": "dashboard-fix",
-    "title": "Add pre-merge dashboard SQL schema validation (table+column existence)",
-    "description": "Recent commit-level fixes changed table references but missed column/join-key migrations, causing runtime regressions. Add automated validation that parses dashboard SQL and checks referenced tables/columns against `information_schema` before merge.",
-    "scope": "scripts/check_grafana_dashboards.py; CI workflow",
-    "effort": "medium",
-    "status": "pending",
-    "notes": "Regression pattern identified while reviewing commit `e63eb93`."
-  },
-  {
-    "id": 62,
-    "category": "dashboard-fix",
-    "title": "Add checklist for dashboard query migrations to prevent partial fixes",
-    "description": "When migrating a dashboard query source, require a checklist: table rename, column mapping, join-key validation, unit tests, and live panel verification. This prevents partial migrations that pass review but fail in Grafana.",
-    "scope": "contribution docs + PR template for dashboard changes",
-    "effort": "tiny",
-    "status": "pending",
-    "notes": "Process gap observed in commit review on 2026-02-07."
-  },
-  {
-    "status": "pending",
-    "notes": "Verified 2026-02-07 (2560x1307 and 3440x1440): /api/ds/query SQR118, error pq: column \"transaction_count\" does not exist.",
-    "scope": "grafana/provisioning/dashboards/02-cash-flow-analysis.json; panel id 904",
-    "category": "dashboard-fix",
-    "effort": "tiny",
-    "id": 67,
-    "title": "Fix Cash Flow Analysis Top Uncategorized Merchants schema mismatch",
-    "description": "Dashboard 02 panel 904 still references transaction_count in reporting.viz_uncategorized_transactions_with_original_memo, causing datasource failures and No data at wide resolutions."
-  },
-  {
-    "status": "pending",
-    "notes": "Verified 2026-02-07 (2560x1307 and 3440x1440): /api/ds/query SQR113, error pq: column \"transaction_count\" does not exist.",
-    "scope": "grafana/provisioning/dashboards/08-outflows-insights.json; panel id 906",
-    "category": "dashboard-fix",
-    "effort": "tiny",
-    "id": 68,
-    "title": "Fix Outflows Insights Top Uncategorized Merchants schema mismatch",
-    "description": "Dashboard 08 panel 906 aggregates SUM(transaction_count), but active view exposes txn_count. Query fails and leaves panel empty."
-  },
-  {
-    "status": "pending",
-    "notes": "Observed 2026-02-07 via Playwright markdown overflow + checker lint (len 546 allowed~5).",
-    "scope": "grafana/provisioning/dashboards/02-cash-flow-analysis.json; panel id 100",
-    "category": "dashboard-fix",
-    "effort": "small",
-    "id": 69,
-    "title": "Reduce Dashboard Instructions overflow in Cash Flow Analysis at wide screens",
-    "description": "At 2560x1307 and 3440x1440, instructions text still overflows its panel height and truncates content. Split content or increase panel height."
-  },
-  {
-    "status": "pending",
-    "notes": "Observed 2026-02-07 via checker lint (len 675 allowed~8) and wide-screen pass.",
-    "scope": "grafana/provisioning/dashboards/08-outflows-insights.json; panel id 100",
-    "category": "dashboard-fix",
-    "effort": "small",
-    "id": 70,
-    "title": "Reduce Dashboard Instructions overflow in Outflows Insights at wide screens",
-    "description": "Instructions markdown overflows and is hard to scan even on ultrawide. Reformat to concise bullets and/or expand panel height."
-  },
-  {
-    "status": "pending",
-    "notes": "Observed 2026-02-07 at 2560x1307 and 3440x1440 (markdown overflow sample captured).",
-    "scope": "grafana/provisioning/dashboards/04-household-net-worth-analysis.json; instructions markdown panel",
-    "category": "dashboard-fix",
-    "effort": "small",
-    "id": 71,
-    "title": "Shrink Household Net Worth instruction block to fit wide-layout panel",
-    "description": "Dashboard 04 instruction markdown overflows panel height at wide resolutions, forcing hidden guidance text."
-  },
-  {
-    "status": "pending",
-    "notes": "Observed 2026-02-07 at 2560x1307 and 3440x1440 (markdown overflow sample captured).",
-    "scope": "grafana/provisioning/dashboards/05-savings-analysis.json; instructions markdown panel",
-    "category": "dashboard-fix",
-    "effort": "small",
-    "id": 72,
-    "title": "Shrink Savings Analysis instruction block to fit wide-layout panel",
-    "description": "Dashboard 05 instruction markdown overflows panel height at wide resolutions, reducing readability for first-time users."
-  },
-  {
-    "status": "pending",
-    "notes": "Observed 2026-02-07 via Playwright markdown overflow and checker lint.",
-    "scope": "grafana/provisioning/dashboards/09-transaction-analysis.json; instructions markdown panel",
-    "category": "dashboard-fix",
-    "effort": "small",
-    "id": 73,
-    "title": "Reduce Transaction Analysis instruction panel overflow on wide screens",
-    "description": "Dashboard 09 instructions still overflow despite large viewport. Shorten copy or increase panel height to avoid clipped guidance."
-  },
-  {
-    "status": "pending",
-    "notes": "Observed 2026-02-07 via Playwright markdown overflow and checker lint warnings.",
-    "scope": "grafana/provisioning/dashboards/10-financial-reconciliation.json; section text panels ids 300/302/304",
-    "category": "dashboard-fix",
-    "effort": "small",
-    "id": 74,
-    "title": "Fix overflow in Financial Reconciliation section intro text panels",
-    "description": "Dashboard 10 section text panels (Actionable Fix List, Data Quality Blockers, Check Details) overflow their 2-row containers on wide screens, reducing discoverability."
-  },
-  {
-    "status": "pending",
-    "notes": "Observed 2026-02-07 at 2560x1307 and 3440x1440 (markdown overflow sample captured).",
-    "scope": "grafana/provisioning/dashboards/12-financial-projections.json; panel id 8",
-    "category": "dashboard-fix",
-    "effort": "small",
-    "id": 75,
-    "title": "Refactor Scenario Assumptions panel to avoid overflow in Financial Projections",
-    "description": "Dashboard 12 Scenario Assumptions block overflows the panel on wide screens, burying assumptions users need for interpretation."
-  },
-  {
-    "status": "pending",
-    "notes": "Observed 2026-02-07 at 2560x1307 and 3440x1440 (markdown overflow sample captured).",
-    "scope": "grafana/provisioning/dashboards/15-mortgage-payoff.json; guide markdown panel",
-    "category": "dashboard-fix",
-    "effort": "tiny",
-    "id": 76,
-    "title": "Tighten Mortgage Payoff guide text for wide-layout readability",
-    "description": "Dashboard 15 guide markdown overflows available panel height even at wide resolutions; reduce copy and move details to secondary panel."
-  },
-  {
     "status": "pending",
     "notes": "Observed 2026-02-07 during Playwright runs across wide resolutions.",
     "scope": "Grafana dashboard JSON field options/mappings across dashboards 02-16",
@@ -221,18 +59,8 @@
     "description": "Large mixed commits are obscuring intent and increasing regression risk. Enforce commit hygiene so rename-only, logic-only, and artifact-only changes are separated.",
     "category": "dashboard-fix",
     "effort": "small",
-    "status": "pending",
-    "notes": "Migrated from todo.md commit review faults (2026-02-07)."
-  },
-  {
-    "id": 79,
-    "title": "Require commit-level dashboard verification evidence",
-    "scope": "PR template and dashboard validation workflow",
-    "description": "For any multi-dashboard JSON edit, require before/after panel failure counts and query error summary attached to commit or PR.",
-    "category": "dashboard-fix",
-    "effort": "small",
-    "status": "pending",
-    "notes": "Migrated from todo.md commit review faults (2026-02-07)."
+    "status": "in_progress",
+    "notes": "In progress 2026-02-07: added atomic-scope guidance to `.github/pull_request_template.md`; hard enforcement remains process-based."
   },
   {
     "id": 80,
@@ -432,16 +260,6 @@
     "notes": "Found via Playwright MCP on 2026-02-07 at 3440x1440."
   },
   {
-    "id": 101,
-    "title": "Fix dashboard checker macro substitution for $__timeFrom/$__timeTo",
-    "scope": "scripts/check_grafana_dashboards.py",
-    "description": "Current checker substitutes Grafana macros into empty expressions (`()::timestamptz`) and generates false dashboard failures. Add explicit macro handling or skip macro replacement so script reflects real Grafana execution.",
-    "category": "dashboard-fix",
-    "effort": "small",
-    "status": "pending",
-    "notes": "Observed on 2026-02-07 when dashboard 01 failed in checker but rendered successfully in Playwright UI."
-  },
-  {
     "id": 102,
     "title": "Fix incomplete drilldown links in Executive Financial Overview tables",
     "scope": "grafana/provisioning/dashboards/01-executive-financial-overview-aud.json; panels 901 and 902",
@@ -472,4 +290,3 @@
     "notes": "Found via Playwright MCP on 2026-02-07 at 3440x1440."
   }
 ]
-
