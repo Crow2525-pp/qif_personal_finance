@@ -31,14 +31,14 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 5,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# 📈 Financial Projections Dashboard - Strategic Planning\n\n**What This Dashboard Shows:** Forward-looking financial modeling with scenario planning to help you make informed decisions about work and life changes. Compare full-time vs part-time work scenarios.\n\n**Key Metrics Explained:**\n• **Monthly Projections:** Predicted income, expenses, and net flow based on historical patterns and scenario assumptions\n• **Cumulative Net Flow:** Running total showing wealth accumulation over 12 months under different scenarios\n• **Opportunity Cost Analysis:** Financial impact of choosing part-time over full-time work (pie chart shows annual and cumulative costs)\n• **Historical vs Projected:** Compare your actual financial performance with forward-looking projections\n\n**How to Use:** Use scenario planning to evaluate major life decisions like career changes, family planning, or lifestyle adjustments. The opportunity cost analysis helps quantify the financial trade-offs of different choices. Positive net flows indicate sustainable financial paths.",
+        "content": "# Financial Projections\n\n**At a glance:** Compare projected inflow/outflow/net outcomes across scenarios.\n\n**How to use quickly:**\n- Start with base vs alternate scenario monthly net.\n- Check cumulative gap over the projection horizon.\n- Use assumptions panel before acting on scenario differences.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -1040,6 +1040,58 @@
       ],
       "title": "Scenario Range: Annual Net Flow Impact (Best/Base/Worst Case)",
       "type": "piechart"
+    },
+    {
+      "id": 101,
+      "type": "table",
+      "title": "Data Freshness",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PCC52D03280B7034C"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
+          "rawQuery": true,
+          "rawSql": "SELECT\n  to_char(MAX(projection_date), 'Mon YYYY') AS \"Data Through\",\n  to_char((SELECT MAX(report_generated_at) FROM reporting.rpt_monthly_budget_summary), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.projection_data\nWHERE scenario = '$scenario';"
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "footer": {
+          "show": false
+        },
+        "cellHeight": "sm"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 64
+      }
     }
   ],
   "refresh": "",
@@ -1087,7 +1139,9 @@
     "from": "now-6M",
     "to": "now+1y"
   },
-  "timepicker": {},
+  "timepicker": {
+    "hidden": true
+  },
   "timezone": "",
   "title": "12 - Financial Projections",
   "uid": "financial_projections",

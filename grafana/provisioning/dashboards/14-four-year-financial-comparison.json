@@ -1524,6 +1524,58 @@
       ],
       "title": "Four-Year Financial Comparison Summary",
       "type": "table"
+    },
+    {
+      "id": 101,
+      "type": "table",
+      "title": "Data Freshness",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PCC52D03280B7034C"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
+          "rawQuery": true,
+          "rawSql": "WITH latest_complete_year AS (\n  SELECT MAX(comparison_year) AS latest_year\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n)\nSELECT\n  COALESCE((SELECT latest_year::text FROM latest_complete_year), 'N/A') AS \"Latest Complete Year\",\n  COALESCE(to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI'), 'N/A') AS \"Last Refresh\"\nFROM reporting.rpt_year_over_year_comparison;"
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "footer": {
+          "show": false
+        },
+        "cellHeight": "sm"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 64
+      }
     }
   ],
   "refresh": "",
@@ -1545,7 +1597,9 @@
     "from": "now-5y",
     "to": "now"
   },
-  "timepicker": {},
+  "timepicker": {
+    "hidden": true
+  },
   "timezone": "",
   "title": "14 - Four-Year Financial Comparison",
   "uid": "four_year_financial_comparison",

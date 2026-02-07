@@ -59,7 +59,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nexec_view AS (\n  SELECT dashboard_generated_at\n  FROM reporting.rpt_executive_dashboard\n  WHERE dashboard_month = (SELECT month_key FROM selected_key)\n),\ntime_window_label AS (\n  SELECT CASE '${time_window}'\n    WHEN 'ytd' THEN 'Year to Date'\n    WHEN 'trailing_12m' THEN 'Trailing 12 Months'\n    ELSE 'Latest Month'\n  END AS window_label\n)\nSELECT\n  (SELECT window_label FROM time_window_label) AS \"Time Window\",\n  to_char((SELECT month_date FROM selected_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(exec_view.dashboard_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM exec_view;"
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_input AS (\n  SELECT\n    NULLIF(TRIM($$${dashboard_period}$$), '') AS period_input,\n    COALESCE(NULLIF(TRIM($$${time_window}$$), ''), 'latest') AS time_window\n),\nselected_period AS (\n  SELECT\n    CASE\n      WHEN period_input IS NULL OR LOWER(period_input) = 'latest' THEN (SELECT month_date FROM latest_period)\n      WHEN period_input ~ '^[0-9]{4}-[0-9]{2}$' THEN to_date(period_input || '-01', 'YYYY-MM-DD')\n      ELSE (SELECT month_date FROM latest_period)\n    END AS month_date,\n    time_window\n  FROM selected_input\n),\naccount_refresh AS (\n  SELECT MAX(report_generated_at) AS last_refresh\n  FROM reporting.rpt_account_performance\n  WHERE budget_year_month = to_char((SELECT month_date FROM selected_period), 'YYYY-MM')\n)\nSELECT\n  CASE (SELECT time_window FROM selected_period)\n    WHEN 'ytd' THEN 'Year to Date'\n    WHEN 'trailing_12m' THEN 'Trailing 12 Months'\n    ELSE 'Latest Month'\n  END AS \"Time Window\",\n  to_char((SELECT month_date FROM selected_period), 'Mon YYYY') AS \"Data Through\",\n  to_char((SELECT last_refresh FROM account_refresh), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\";"
         }
       ],
       "options": {
@@ -972,9 +972,8 @@
           "type": "grafana-postgresql-datasource",
           "uid": "PCC52D03280B7034C"
         },
-        "query": "SELECT budget_year_month AS text, budget_year_month AS value\\nFROM reporting.rpt_monthly_budget_summary\\nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\\nORDER BY budget_year_month DESC;",
-        "includeAll": true,
-        "allValue": "Latest",
+        "query": "SELECT text, value\nFROM (\n  SELECT 'Latest'::text AS text, 'Latest'::text AS value, 0 AS sort_order\n  UNION ALL\n  SELECT budget_year_month AS text, budget_year_month AS value, 1 AS sort_order\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n  GROUP BY budget_year_month\n) s\nORDER BY sort_order, value DESC;",
+        "includeAll": false,
         "multi": false,
         "current": {
           "selected": true,

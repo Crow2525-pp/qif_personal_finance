@@ -1571,7 +1571,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  'Top Expense Driver 1' as \"Category\",\n  top_expense_driver_1 as \"Driver\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1\nUNION ALL\nSELECT \n  'Top Expense Driver 2' as \"Category\",\n  top_expense_driver_2 as \"Driver\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1\nUNION ALL\nSELECT \n  'Top Net Worth Driver' as \"Category\",\n  top_net_worth_driver_1 as \"Driver\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
+          "rawSql": "WITH latest_year AS (\n  SELECT *\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n  ORDER BY comparison_year DESC\n  LIMIT 1\n)\nSELECT \n  'Top Expense Driver 1' as \"Category\",\n  top_expense_driver_1 as \"Driver\"\nFROM latest_year\nUNION ALL\nSELECT \n  'Top Expense Driver 2' as \"Category\",\n  top_expense_driver_2 as \"Driver\"\nFROM latest_year\nUNION ALL\nSELECT \n  'Top Net Worth Driver' as \"Category\",\n  top_net_worth_driver_1 as \"Driver\"\nFROM latest_year;",
           "refId": "A"
         }
       ],
@@ -1759,6 +1759,58 @@
       ],
       "title": "Year-over-Year Comparison Summary",
       "type": "table"
+    },
+    {
+      "id": 101,
+      "type": "table",
+      "title": "Data Freshness",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PCC52D03280B7034C"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
+          "rawQuery": true,
+          "rawSql": "WITH latest_year AS (\n  SELECT MAX(comparison_year) AS y\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n)\nSELECT\n  COALESCE((SELECT y::text FROM latest_year), 'N/A') AS \"Latest Complete Year\",\n  to_char((SELECT MAX(report_generated_at) FROM reporting.rpt_year_over_year_comparison), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\";"
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "footer": {
+          "show": false
+        },
+        "cellHeight": "sm"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 72
+      }
     }
   ],
   "refresh": "",
@@ -1780,7 +1832,9 @@
     "from": "now-5y",
     "to": "now"
   },
-  "timepicker": {},
+  "timepicker": {
+    "hidden": true
+  },
   "timezone": "",
   "title": "13 - Year-over-Year Comparison",
   "uid": "year_over_year_comparison",

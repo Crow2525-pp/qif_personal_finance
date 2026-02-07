@@ -794,7 +794,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH store_averages AS (\n  SELECT \n    grocery_store,\n    ROUND(AVG(monthly_spend), 2) AS avg_monthly_spend,\n    COUNT(*) AS months_tracked\n  FROM reporting.viz_grocery_spending_analysis\n  WHERE year_month >= NOW() - INTERVAL '12 months'\n  GROUP BY grocery_store\n), min_store AS (\n  SELECT \n    grocery_store,\n    avg_monthly_spend,\n    FIRST_VALUE(grocery_store) OVER (ORDER BY avg_monthly_spend) AS cheapest_store,\n    FIRST_VALUE(avg_monthly_spend) OVER (ORDER BY avg_monthly_spend) AS cheapest_price\n  FROM store_averages\n)\nSELECT \n  grocery_store AS \"Store\",\n  avg_monthly_spend AS \"Avg Spend\",\n  ROUND(avg_monthly_spend - cheapest_price, 2) AS \"Premium Over Cheapest\",\n  months_tracked AS \"Months\"\nFROM min_store\nORDER BY avg_monthly_spend ASC",
+          "rawSql": "WITH store_averages AS (\n  SELECT \n    grocery_store,\n    ROUND(AVG(monthly_spend), 2) AS avg_monthly_spend,\n    COUNT(*) AS months_tracked\n  FROM reporting.viz_grocery_spending_analysis\n  WHERE year_month >= NOW() - INTERVAL '12 months'\n  GROUP BY grocery_store\n), min_store AS (\n  SELECT \n    grocery_store,\n    avg_monthly_spend,\n    months_tracked,\n    FIRST_VALUE(grocery_store) OVER (ORDER BY avg_monthly_spend) AS cheapest_store,\n    FIRST_VALUE(avg_monthly_spend) OVER (ORDER BY avg_monthly_spend) AS cheapest_price\n  FROM store_averages\n)\nSELECT \n  grocery_store AS \"Store\",\n  avg_monthly_spend AS \"Avg Spend\",\n  ROUND(avg_monthly_spend - cheapest_price, 2) AS \"Premium Over Cheapest\",\n  months_tracked AS \"Months\"\nFROM min_store\nORDER BY avg_monthly_spend ASC",
           "refId": "A"
         }
       ],
@@ -1008,12 +1008,64 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, grocery_store, average_order_value FROM reporting.viz_grocery_order_context WHERE year_month >= NOW() - INTERVAL '18 months' ORDER BY grocery_store, year_month",
+          "rawSql": "SELECT year_month as time, grocery_store, average_order_value FROM reporting.viz_grocery_order_context WHERE year_month >= NOW() - INTERVAL '18 months' ORDER BY year_month, grocery_store",
           "refId": "A"
         }
       ],
       "title": "Basket Size Trend by Store (Price Inflation/Volume)",
       "type": "timeseries"
+    },
+    {
+      "id": 101,
+      "type": "table",
+      "title": "Data Freshness",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PCC52D03280B7034C"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
+          "rawQuery": true,
+          "rawSql": "SELECT\n  COALESCE(to_char(MAX(year_month), 'Mon YYYY'), 'N/A') AS \"Data Through\",\n  to_char((SELECT MAX(report_generated_at) FROM reporting.rpt_monthly_budget_summary), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.viz_grocery_monthly_summary;"
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "footer": {
+          "show": false
+        },
+        "cellHeight": "sm"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 80
+      }
     }
   ],
   "refresh": "5m",
@@ -1029,7 +1081,9 @@
     "from": "now-18M",
     "to": "now"
   },
-  "timepicker": {},
+  "timepicker": {
+    "hidden": true
+  },
   "timezone": "Australia/Melbourne",
   "title": "16 - Grocery Spending Analysis",
   "uid": "grocery_spending_analysis",
