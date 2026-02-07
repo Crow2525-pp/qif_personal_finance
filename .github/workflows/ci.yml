@@ -5,6 +5,13 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      run_dashboard_smoke:
+        description: "Run Grafana dashboard smoke checks"
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   validate:
@@ -57,3 +64,32 @@ jobs:
         run: |
           docker compose build dagster_webserver
           docker compose build dagster_daemon
+
+  dashboard-smoke:
+    name: Dashboard Smoke Checks
+    runs-on: ubuntu-latest
+    if: ${{ (github.event_name == 'workflow_dispatch' && inputs.run_dashboard_smoke) || vars.RUN_GRAFANA_SMOKE == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Check core dashboards (1-10)
+        env:
+          GRAFANA_URL: ${{ secrets.GRAFANA_URL }}
+          GRAFANA_TOKEN: ${{ secrets.GRAFANA_TOKEN }}
+          GRAFANA_USER: ${{ secrets.GRAFANA_USER }}
+          GRAFANA_PASSWORD: ${{ secrets.GRAFANA_PASSWORD }}
+        run: uv run python scripts/check_grafana_dashboards.py --dashboard-range 1-10 --schema-validate
+
+      - name: Check extended dashboards (11-23)
+        env:
+          GRAFANA_URL: ${{ secrets.GRAFANA_URL }}
+          GRAFANA_TOKEN: ${{ secrets.GRAFANA_TOKEN }}
+          GRAFANA_USER: ${{ secrets.GRAFANA_USER }}
+          GRAFANA_PASSWORD: ${{ secrets.GRAFANA_PASSWORD }}
+        run: uv run python scripts/check_grafana_dashboards.py --dashboard-range 11-23 --schema-validate

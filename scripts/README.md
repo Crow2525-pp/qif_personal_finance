@@ -76,6 +76,9 @@ uv run python scripts/check_grafana_dashboards.py --dashboard-range 1-10
 # Check extended dashboards 11-23
 uv run python scripts/check_grafana_dashboards.py --dashboard-range 11-23
 
+# Include schema-qualified table/column validation
+uv run python scripts/check_grafana_dashboards.py --dashboard-range 1-10 --schema-validate
+
 # Run both core and extended sets in one command
 uv run python scripts/check_grafana_dashboards.py --dashboard-range 1-10 --dashboard-range 11-23
 ```
@@ -84,3 +87,6 @@ uv run python scripts/check_grafana_dashboards.py --dashboard-range 1-10 --dashb
 
 - Requires Grafana credentials via `GRAFANA_TOKEN` or `GRAFANA_USER`/`GRAFANA_PASSWORD`.
 - Failure output includes panel title, target refId diagnostics, and extracted request IDs (for example `SQR113`) when present.
+- CI smoke checks are gated in `.github/workflows/ci.yml` and run when:
+  - manual dispatch sets `run_dashboard_smoke=true`, or
+  - repository variable `RUN_GRAFANA_SMOKE=true`.

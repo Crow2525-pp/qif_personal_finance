@@ -1,11 +1,19 @@
 ## Summary
 
 - Describe what changed and why.
+- Commit scope is atomic (separate rename-only, logic-only, and artifact/docs-only changes where practical).
 
 ## Validation
 
 - [ ] Local checks/tests were run (list commands in PR body)
 - [ ] If dashboards changed, panel data and query errors were verified
+
+### Dashboard Verification Evidence (Required for dashboard JSON changes)
+
+- Before failures:
+- After failures:
+- Request IDs / key query errors observed:
+- Dashboards/ranges validated (e.g. `1-10`, `11-23`):
 
 ## Dashboard Query Migration Checklist
 
