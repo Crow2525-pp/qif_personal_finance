@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# 📈 Year-over-Year Comparison Dashboard - Annual Progress Tracking\n\n**What This Dashboard Shows:** Annual financial performance assessment with multi-year trends and comprehensive benchmarking.\n\n**Key Metrics Explained:**\n• **Annual Progress Score:** Financial improvement measurement year-over-year\n• **YoY Changes:** Income, expenses, net worth, and savings rate annual comparisons\n• **Performance Classification:** Tier-based assessment of financial trajectory\n• **Trend Analysis:** Multi-year patterns showing long-term financial health\n\n**How to Use:** Annual trends show long-term financial trajectory. Focus on areas with declining year-over-year performance for improvement.",
+        "content": "### Dashboard Instructions\nCompare latest complete year vs prior years and focus on declining metrics.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -110,7 +110,7 @@
           "refId": "A"
         }
       ],
-      "title": "Annual Financial Progress Score (Latest Complete Year)",
+      "title": "Annual Progress Score (Latest Year)",
       "type": "gauge"
     },
     {
@@ -1841,4 +1841,5 @@
   "version": 1,
   "weekStart": ""
 }
+
 

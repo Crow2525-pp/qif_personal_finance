@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# Account Performance Dashboard - Account Health Monitoring\n\n**What This Dashboard Shows:** Individual bank account balances, performance metrics, and mortgage loan details to track account health and mortgage paydown progress.\n\n**Key Metrics Explained:**\n- **Account Balance Trends:** Track balances across all accounts (Bendigo Offset, ING Bills, Bendigo Home Loan, ING Countdown)\n- **Net Position:** Your total position after offset account benefits against home loan\n- **Month-over-Month Changes:** Identify unusual balance fluctuations requiring attention\n- **Mortgage Tracking:** Monitor interest payments and principal reduction progress\n\n**How to Use:** Monitor offset account efficiency - every dollar in offset saves mortgage interest. Look for consistent balance growth in offset accounts and declining home loan balances over time.",
+        "content": "### Dashboard Instructions\nReview latest balances, net position, and mortgage trends; then inspect MoM changes.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",

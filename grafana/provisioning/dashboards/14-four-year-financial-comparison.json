@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# 📊 Four-Year Financial Comparison Dashboard - Prior Year vs Previous 3 Years\n\n**Dashboard Overview:** Compare the most recent completed year against the previous 3 years to identify trends, improvements, and areas of concern.\n\n**Key Analysis Areas:**\n• **Financial Performance:** Income, expenses, and net cash flow across 4 years\n• **Wealth Accumulation:** Net worth progression and annual changes\n• **Savings Efficiency:** Savings rates and total savings comparisons\n• **Expense Management:** Category-wise spending patterns and control\n\n**How to Interpret:** Focus on consistent trends across years and significant deviations. Use the 4-year view to distinguish between anomalies and genuine trends.",
+        "content": "### Dashboard Guide\nCompare latest year against prior three years and focus on persistent trend shifts.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -1275,7 +1275,7 @@
       },
       "id": 11,
       "options": {
-        "content": "## Narrative Summary - Latest Year\n\nBelow is a summary of key wins, identified risks, and recommended next actions based on the latest complete year's performance.",
+        "content": "## Narrative Summary\nLatest year wins, risks, and next actions.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",

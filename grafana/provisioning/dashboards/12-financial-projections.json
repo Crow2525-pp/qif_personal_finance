@@ -38,7 +38,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# Financial Projections\n\n**At a glance:** Compare projected inflow/outflow/net outcomes across scenarios.\n\n**How to use quickly:**\n- Start with base vs alternate scenario monthly net.\n- Check cumulative gap over the projection horizon.\n- Use assumptions panel before acting on scenario differences.",
+        "content": "### Dashboard Instructions\nCompare scenarios, check cumulative gaps, then review sensitivity ranges.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -706,7 +706,7 @@
       },
       "id": 8,
       "options": {
-        "content": "## Scenario Assumptions\n\n**Full-Time Scenario:**\n- Work Factor: 100% (full-time employment)\n- Monthly QBE Income: $3,800\n- Monthly Education Income: $420 (30% of months active)\n- Partner Income: $2,900\n- Annual Bonus: $12,000\n- Annual Tax Refund: $2,000\n- Income Growth Rate: 5% annually\n- Expense Growth Rate: 4% annually\n\n**Part-Time Scenario:**\n- Work Factor: 60% (3 days per week)\n- Monthly QBE Income: $2,280 (60% of full-time)\n- Monthly Education Income: $420 (30% of months active)\n- Partner Income: $2,900\n- Annual Bonus: $7,000 (reduced for part-time)\n- Annual Tax Refund: $2,000\n- Income Growth Rate: 3% annually\n- Expense Growth Rate: 4% annually\n\n**General Assumptions:**\n- Inflation Rate: 2% annually\n- Based on 24-month historical baseline\n- Expense projections use confidence intervals",
+        "content": "## Scenario Assumptions\nBase assumptions for full-time and part-time projection paths.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
