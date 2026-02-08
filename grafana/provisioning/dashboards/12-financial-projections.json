@@ -148,7 +148,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n  projection_date as time,\n  projected_monthly_income,\n  projected_monthly_expenses,\n  projected_net_flow\nFROM reporting.projection_data \nWHERE scenario = '$scenario'\nORDER BY projection_date",
+          "rawSql": "SELECT \n  projection_date as time,\n  projected_monthly_income,\n  projected_monthly_expenses,\n  projected_net_flow\nFROM reporting.projection_data \nWHERE scenario = 'full_time'\nORDER BY projection_date",
           "refId": "A",
           "sql": {
             "columns": [
@@ -842,7 +842,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n  projection_date as time,\n  projected_net_flow as \"Base Projection\",\n  worst_case_net_flow as \"Conservative (-10%)\",\n  best_case_net_flow as \"Optimistic (+10%)\"\nFROM reporting.fct_projection_sensitivity \nWHERE scenario = '$scenario'\nORDER BY projection_date",
+          "rawSql": "SELECT \n  projection_date as time,\n  projected_net_flow as \"Base Projection\",\n  worst_case_net_flow as \"Conservative (-10%)\",\n  best_case_net_flow as \"Optimistic (+10%)\"\nFROM reporting.fct_projection_sensitivity \nWHERE scenario = 'full_time'\nORDER BY projection_date",
           "refId": "A"
         }
       ],
@@ -963,7 +963,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n  projection_date as time,\n  income_gap as \"Income Gap (Projected - Actual)\",\n  expense_gap as \"Expense Gap (Projected - Actual)\",\n  net_flow_gap as \"Net Flow Gap\"\nFROM reporting.fct_projection_sensitivity \nWHERE scenario = '$scenario'\nAND prev_year_actual_income IS NOT NULL\nORDER BY projection_date",
+          "rawSql": "SELECT \n  projection_date as time,\n  income_gap as \"Income Gap (Projected - Actual)\",\n  expense_gap as \"Expense Gap (Projected - Actual)\",\n  net_flow_gap as \"Net Flow Gap\"\nFROM reporting.fct_projection_sensitivity \nWHERE scenario = 'full_time'\nAND prev_year_actual_income IS NOT NULL\nORDER BY projection_date",
           "refId": "A"
         }
       ],
@@ -1034,7 +1034,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH horizon AS (\n  SELECT COALESCE(MAX(projection_month), 12) AS projection_horizon_month\n  FROM reporting.fct_projection_sensitivity\n  WHERE scenario = '$scenario'\n),\nscenario_point AS (\n  SELECT s.*\n  FROM reporting.fct_projection_sensitivity s\n  CROSS JOIN horizon h\n  WHERE s.scenario = '$scenario'\n    AND s.projection_month = h.projection_horizon_month\n)\nSELECT \n  'Optimistic Case' as metric,\n  COALESCE(best_case_net_flow, 0) * 12 as value\nFROM scenario_point\nUNION ALL\nSELECT \n  'Base Case' as metric,\n  COALESCE(projected_net_flow, 0) * 12 as value\nFROM scenario_point\nUNION ALL\nSELECT \n  'Conservative Case' as metric,\n  COALESCE(worst_case_net_flow, 0) * 12 as value\nFROM scenario_point\nUNION ALL\nSELECT 'Optimistic Case', 0\nWHERE NOT EXISTS (SELECT 1 FROM scenario_point)\nUNION ALL\nSELECT 'Base Case', 0\nWHERE NOT EXISTS (SELECT 1 FROM scenario_point)\nUNION ALL\nSELECT 'Conservative Case', 0\nWHERE NOT EXISTS (SELECT 1 FROM scenario_point)",
+          "rawSql": "WITH horizon AS (\n  SELECT COALESCE(MAX(projection_month), 12) AS projection_horizon_month\n  FROM reporting.fct_projection_sensitivity\n  WHERE scenario = 'full_time'\n),\nscenario_point AS (\n  SELECT s.*\n  FROM reporting.fct_projection_sensitivity s\n  CROSS JOIN horizon h\n  WHERE s.scenario = 'full_time'\n    AND s.projection_month = h.projection_horizon_month\n)\nSELECT \n  'Optimistic Case' as metric,\n  COALESCE(best_case_net_flow, 0) * 12 as value\nFROM scenario_point\nUNION ALL\nSELECT \n  'Base Case' as metric,\n  COALESCE(projected_net_flow, 0) * 12 as value\nFROM scenario_point\nUNION ALL\nSELECT \n  'Conservative Case' as metric,\n  COALESCE(worst_case_net_flow, 0) * 12 as value\nFROM scenario_point\nUNION ALL\nSELECT 'Optimistic Case', 0\nWHERE NOT EXISTS (SELECT 1 FROM scenario_point)\nUNION ALL\nSELECT 'Base Case', 0\nWHERE NOT EXISTS (SELECT 1 FROM scenario_point)\nUNION ALL\nSELECT 'Conservative Case', 0\nWHERE NOT EXISTS (SELECT 1 FROM scenario_point)",
           "refId": "A"
         }
       ],
@@ -1058,7 +1058,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "rawQuery": true,
-          "rawSql": "WITH projection_meta AS (\n  SELECT MAX(projection_date) AS data_through\n  FROM reporting.projection_data\n  WHERE scenario = '$scenario'\n), calibration_meta AS (\n  SELECT MAX(projection_date) AS calibration_data_through\n  FROM reporting.fct_projection_sensitivity\n  WHERE scenario = '$scenario'\n    AND prev_year_actual_income IS NOT NULL\n)\nSELECT\n  to_char((SELECT data_through FROM projection_meta), 'Mon YYYY') AS \"Data Through\",\n  to_char((SELECT MAX(report_generated_at) FROM reporting.rpt_monthly_budget_summary), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\",\n  COALESCE(to_char((SELECT calibration_data_through FROM calibration_meta), 'Mon YYYY'), 'N/A') AS \"Calibration Through\",\n  'Australia/Melbourne' AS \"Timezone\",\n  'Monthly (review quarterly)' AS \"Expected Cadence\";"
+          "rawSql": "WITH projection_meta AS (\n  SELECT MAX(projection_date) AS data_through\n  FROM reporting.projection_data\n  WHERE scenario = 'full_time'\n), calibration_meta AS (\n  SELECT MAX(projection_date) AS calibration_data_through\n  FROM reporting.fct_projection_sensitivity\n  WHERE scenario = 'full_time'\n    AND prev_year_actual_income IS NOT NULL\n)\nSELECT\n  to_char((SELECT data_through FROM projection_meta), 'Mon YYYY') AS \"Data Through\",\n  to_char((SELECT MAX(report_generated_at) FROM reporting.rpt_monthly_budget_summary), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\",\n  COALESCE(to_char((SELECT calibration_data_through FROM calibration_meta), 'Mon YYYY'), 'N/A') AS \"Calibration Through\",\n  'Australia/Melbourne' AS \"Timezone\",\n  'Monthly (review quarterly)' AS \"Expected Cadence\";"
         }
       ],
       "options": {
@@ -1104,36 +1104,7 @@
     "scenarios"
   ],
   "templating": {
-    "list": [
-      {
-        "current": {
-          "selected": false,
-          "text": "full_time",
-          "value": "full_time"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Work Scenario",
-        "multi": false,
-        "name": "scenario",
-        "options": [
-          {
-            "selected": true,
-            "text": "full_time",
-            "value": "full_time"
-          },
-          {
-            "selected": false,
-            "text": "part_time",
-            "value": "part_time"
-          }
-        ],
-        "query": "full_time,part_time",
-        "queryValue": "",
-        "skipUrlSync": false,
-        "type": "custom"
-      }
-    ]
+    "list": []
   },
   "time": {
     "from": "now-6M",
@@ -1148,3 +1119,4 @@
   "version": 1,
   "weekStart": ""
 }
+
