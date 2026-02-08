@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# Cash Flow Analysis\n\n**At a glance:** Gauges use 3-month averages, KPI tables use latest closed month, trend charts show trailing windows.\n\n**How to read quickly:**\n- Start with Efficiency / Status / Trend gauges.\n- Check `MoM Changes` for direction vs prior month.\n- Use `Cash Flow Trends (18M)` and `Cash Flow by Category (18M)` for context.\n\n> Dashboard is anchored to the **latest closed month**; time picker is hidden to avoid conflicting ranges.",
+        "content": "### Dashboard Instructions\nStart with gauges, check MoM deltas, then review 18-month trends for context.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",

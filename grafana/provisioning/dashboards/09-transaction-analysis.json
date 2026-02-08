@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# Transaction Analysis\n\n**At a glance:** Review transaction volume, recurring merchants, and uncategorized hotspots.\n\n**Workflow:**\n1. Scan KPI totals and 12-month trend.\n2. Inspect top categories and uncategorized spend.\n3. Review recurring merchants for cleanup or action.",
+        "content": "### Dashboard Instructions\nCheck transaction trends, recurring merchants, and uncategorized hotspots.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",

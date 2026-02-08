@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# Savings Analysis\n\n**At a glance:** Compare net savings outcomes with planned contribution savings.\n\n**How to use quickly:**\n- Check savings health and current rates.\n- Compare net vs contribution-based savings trends.\n- Use YTD and 12-month views to confirm consistency.",
+        "content": "### Dashboard Instructions\nCompare savings rates and consistency across current, YTD, and 12-month views.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",

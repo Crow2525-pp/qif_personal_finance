@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# Monthly Budget Cockpit - Decision-Ready Budget Dashboard\n\n**What This Dashboard Shows:** Budget performance with pace tracking, spending classification, and recommended adjustments for the next month.\n\n**Key Metrics Explained:**\n- **Pace Tracker:** Daily spending target vs actual burn rate\n- **Fixed vs Discretionary:** Distinguish flexible vs committed spending\n- **Budget Adjustments:** Recommendations based on recent overruns\n- **Monthly Summary:** Income/expense trends and savings rate tracking\n- **Category Breakdown:** Major expense areas (mortgage, household, food, family)\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- YTD panels reflect year-to-date totals.\n- Trend charts cover the trailing 12 months.\n\n**How to Use:** Check daily pace tracker to adjust discretionary spending. Review budget adjustments monthly to stay ahead of overrun patterns.",
+        "content": "### Dashboard Instructions\nReview pace tracker, category overruns, and next-month adjustment suggestions.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",

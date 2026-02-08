@@ -1847,7 +1847,7 @@
       },
       "id": 100,
       "options": {
-        "content": "### How to Read\n- Use the Grafana time picker (top right) to set the analysis window; the dashboard defaults to the newest closed month.\n- MoM Rate Changes and Savings bars use percent scale (0-100); delta ratios in KPI tables use 0-1 with percentunit formatting.\n- Start with low scores or large negative deltas, then drill into linked dashboards for root-cause detail.\n- Forecasts show next-month cash expectations; plan around the trajectory, not a single month.",
+        "content": "### How to Read\nUse the time picker, review top KPIs, then drill into linked panels for root causes.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",

@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "### Financial Reconciliation\n\nCross-dashboard pass/fail checks. Prioritize non-PASS rows and resolve root causes in source models or panel SQL.",
+        "content": "### Reconciliation Overview\nInvestigate non-PASS checks first.",
         "mode": "markdown"
       },
       "title": "Overview",
@@ -539,7 +539,7 @@
       },
       "id": 300,
       "options": {
-        "content": "## Actionable Fix List\nPrioritized fixes sorted by financial impact. Click through affected_dashboard to navigate and address issues.",
+        "content": "## Fix List\nPrioritized remediation queue.",
         "mode": "markdown"
       },
       "title": "Fix List Section",
@@ -625,7 +625,7 @@
       },
       "id": 302,
       "options": {
-        "content": "## Data Quality Blockers\nTop blockers preventing accurate reporting across dashboards.",
+        "content": "## Data Blockers\nHighest-impact blockers first.",
         "mode": "markdown"
       },
       "title": "Blockers Section",
@@ -717,7 +717,7 @@
       },
       "id": 304,
       "options": {
-        "content": "## Check Details\nDetailed failed checks with links to affected dashboards.",
+        "content": "## Check Details\nFailed checks and affected dashboards.",
         "mode": "markdown"
       },
       "title": "Details Section",

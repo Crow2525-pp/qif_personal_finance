@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# Household Net Worth\n\n**At a glance:** Track total net worth, assets vs liabilities, and debt ratio trend.\n\n**How to use quickly:**\n- Check last complete month net worth and debt-to-asset ratio.\n- Use 12-month trend panels to confirm direction.\n- Watch for sustained liability growth versus asset growth.",
+        "content": "### Dashboard Instructions\nCheck latest net worth and debt ratio, then confirm direction in 12-month trends.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",

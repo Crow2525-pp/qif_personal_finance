@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# Outflows Insights\n\n**At a glance:** Track outflow trend, key categories, large transactions, and uncategorized share.\n\n**How to use quickly:**\n- Review top categories and month-over-month shifts.\n- Investigate large or unusual spikes.\n- Prioritize uncategorized cleanup to improve reporting quality.",
+        "content": "### Dashboard Instructions\nReview outflow mix, investigate spikes, and reduce uncategorized leakage.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",

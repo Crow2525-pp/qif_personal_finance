@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# 🛍️ Category Spending Dashboard - Spending Pattern Analysis\n\n**What This Dashboard Shows:** Analyzes spending patterns across expense categories with trend identification to help control spending.\n\n**Key Metrics Explained:**\n• **Top 10 Categories:** Highest spending areas with month-over-month percentage changes\n• **Spending Trends:** 2-year patterns showing seasonal and structural changes\n• **Variance Analysis:** Current spending vs 3-month averages to identify unusual patterns\n• **Category Changes:** Month-over-month increases >20% warrant investigation\n\n**How to Use:** Monitor largest categories first as they have biggest impact. Look for trend changes over 3+ months rather than single-month spikes.",
+        "content": "### Dashboard Instructions\nPrioritize top categories, inspect trend shifts, and investigate sustained overruns.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
