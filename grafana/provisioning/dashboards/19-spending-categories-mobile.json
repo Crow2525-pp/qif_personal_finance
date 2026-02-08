@@ -39,7 +39,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "rawQuery": true,
-          "rawSql": "SELECT\n  MAX(budget_year_month) AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_monthly_budget_summary;"
+          "rawSql": "SELECT\n  MAX(budget_year_month) AS \"Data Through\",\n  to_char(MAX(report_generated_at) AT TIME ZONE 'Australia/Melbourne', 'YYYY-MM-DD HH24:MI') AS \"Last Refresh (Australia/Melbourne)\",\n  'Monthly (within 24h of month-end close)' AS \"Expected Cadence\"\nFROM reporting.rpt_monthly_budget_summary;"
         }
       ],
       "options": {
@@ -120,7 +120,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": [
           {
@@ -196,7 +196,7 @@
           "refId": "A"
         }
       ],
-      "title": "Top 10 Categories with Month-over-Month Change",
+      "title": "Top 10 Level 1 Categories (Month-over-Month)",
       "type": "table"
     },
     {
@@ -221,7 +221,7 @@
             "value"
           ],
           "mappings": [],
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": []
       },
@@ -267,7 +267,7 @@
           "refId": "A"
         }
       ],
-      "title": "Current Month Spending Breakdown",
+      "title": "Current Month Spending Breakdown (Level 1)",
       "type": "piechart"
     },
     {
@@ -320,7 +320,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": []
       },
@@ -409,7 +409,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": []
       },
@@ -445,7 +445,7 @@
           "refId": "A"
         }
       ],
-      "title": "Top 5 Categories - 12-Month Trends",
+      "title": "Top 5 Level 1 Category Trends (12 Months)",
       "type": "timeseries"
     },
     {
@@ -475,7 +475,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": []
       },
@@ -542,9 +542,22 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*Share.*"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -575,11 +588,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    transaction_memo as \"High Value External Merchants\",\n    ABS(transaction_amount) as \"Amount\"\nFROM reporting.fct_transactions\nWHERE transaction_amount <= -500\nAND transaction_date >= CURRENT_DATE - INTERVAL '90 days'\nAND transaction_memo NOT ILIKE '%osko payment%'\nAND transaction_memo NOT ILIKE '%transfer%'\nAND transaction_memo NOT ILIKE '%phil pay%'\nORDER BY ABS(transaction_amount) DESC\nLIMIT 8;",
+          "rawSql": "WITH latest AS (\n  SELECT MAX(budget_year_month) AS max_month\n  FROM reporting.rpt_category_spending_trends\n), base AS (\n  SELECT\n    level_1_category,\n    monthly_spending\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month = (SELECT max_month FROM latest)\n    AND monthly_spending > 0\n), totals AS (\n  SELECT SUM(monthly_spending) AS total_spend\n  FROM base\n)\nSELECT\n  level_1_category AS \"Category (Level 1)\",\n  ROUND(monthly_spending, 2) AS \"Spend\",\n  ROUND(CASE WHEN total_spend > 0 THEN (monthly_spending / total_spend) * 100 ELSE 0 END, 1) AS \"Share %\"\nFROM base\nCROSS JOIN totals\nORDER BY monthly_spending DESC\nLIMIT 8;",
           "refId": "A"
         }
       ],
-      "title": "Large Transactions (>$500) - External Only",
+      "title": "Category Concentration (Latest Month)",
       "type": "table"
     },
     {
@@ -691,7 +704,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": []
       },
@@ -753,7 +766,7 @@
             "value"
           ],
           "mappings": [],
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": []
       },
@@ -851,7 +864,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": []
       },
@@ -906,7 +919,7 @@
   "timepicker": {
     "hidden": true
   },
-  "timezone": "",
+  "timezone": "Australia/Melbourne",
   "title": "19 - Spending & Categories (Mobile)",
   "uid": "spending-categories-mobile",
   "version": 1,
