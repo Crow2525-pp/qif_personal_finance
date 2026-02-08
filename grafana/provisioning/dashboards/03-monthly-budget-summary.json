@@ -1481,7 +1481,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  level_1_category as \"Category\",\n  months_of_consecutive_overspend as \"Consecutive Months\",\n  ROUND(suggested_budget_amount, 0) as \"Suggested Budget\",\n  ROUND(total_overspend, 0) as \"Total Overspend\",\n  ROUND(reduction_pct, 1) as \"Reduction %\",\n  adjustment_rationale as \"Rationale\",\n  priority\nFROM reporting.rpt_budget_cockpit_adjustment_suggestions\nORDER BY priority ASC, total_overspend DESC;",
+        "rawSql": "WITH suggestions AS (\n  SELECT\n    level_1_category as \"Category\",\n    months_of_consecutive_overspend as \"Consecutive Months\",\n    ROUND(suggested_budget_amount, 0) as \"Suggested Budget\",\n    ROUND(total_overspend, 0) as \"Total Overspend\",\n    ROUND(reduction_pct, 1) as \"Reduction %\",\n    adjustment_rationale as \"Rationale\",\n    priority\n  FROM reporting.rpt_budget_cockpit_adjustment_suggestions\n), ordered_suggestions AS (\n  SELECT *\n  FROM suggestions\n  ORDER BY priority ASC, \"Total Overspend\" DESC\n)\nSELECT *\nFROM ordered_suggestions\n\nUNION ALL\n\nSELECT\n  'No budget adjustments required' AS \"Category\",\n  0 AS \"Consecutive Months\",\n  0 AS \"Suggested Budget\",\n  0 AS \"Total Overspend\",\n  0 AS \"Reduction %\",\n  'Current spending is within expected ranges for the period.' AS \"Rationale\",\n  4 AS priority\nWHERE NOT EXISTS (SELECT 1 FROM suggestions);",
           "refId": "A"
         }
       ],

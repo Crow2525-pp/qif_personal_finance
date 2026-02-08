@@ -2100,7 +2100,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT total_family_essentials AS \"Monthly Essentials\"\nFROM reporting.rpt_family_essentials_compat\nWHERE budget_year_month = (\n  SELECT MAX(budget_year_month)\n  FROM reporting.rpt_family_essentials_compat\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n);",
+          "rawSql": "SELECT COALESCE((\n  SELECT total_family_essentials\n  FROM reporting.rpt_family_essentials_compat\n  WHERE budget_year_month = (\n    SELECT MAX(budget_year_month)\n    FROM reporting.rpt_family_essentials_compat\n    WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n  )\n), 0) AS \"Monthly Essentials\";",
           "refId": "A"
         }
       ],
@@ -2193,12 +2193,62 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  LEAST(months_essential_expenses_covered, 6) AS \"Months Covered\",\n  coverage_status AS \"Status\"\nFROM reporting.rpt_emergency_fund_coverage\nLIMIT 1;",
+          "rawSql": "WITH latest AS (\n  SELECT\n    LEAST(months_essential_expenses_covered, 6) AS months_covered,\n    coverage_status AS status\n  FROM reporting.rpt_emergency_fund_coverage\n  ORDER BY report_generated_at DESC NULLS LAST\n  LIMIT 1\n)\nSELECT\n  COALESCE((SELECT months_covered FROM latest), 0) AS \"Months Covered\",\n  COALESCE((SELECT status FROM latest), 'No data available') AS \"Status\";",
           "refId": "A"
         }
       ],
       "title": "Emergency Fund Coverage",
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "left"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 56,
+        "w": 24,
+        "h": 5
+      },
+      "id": 904,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH selected_month AS (\n  SELECT MAX(budget_year_month) AS month_key\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n), month_date AS (\n  SELECT to_date(month_key || '-01', 'YYYY-MM-DD') AS month_start\n  FROM selected_month\n), baseline AS (\n  SELECT\n    COALESCE(total_income, 0) AS total_income,\n    COALESCE(total_expenses, 0) AS total_expenses,\n    COALESCE(net_cash_flow, 0) AS net_cash_flow\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month = (SELECT month_key FROM selected_month)\n), essentials AS (\n  SELECT COALESCE(total_family_essentials, 0) AS essentials_spend\n  FROM reporting.rpt_family_essentials_compat\n  WHERE budget_year_month = (SELECT month_key FROM selected_month)\n), uncategorized AS (\n  SELECT COALESCE(SUM(uncategorized_amount), 0) AS uncategorized_amount,\n         COALESCE(SUM(total_outflows), 0) AS total_outflows\n  FROM reporting.rpt_outflows_insights_dashboard_compat\n  WHERE date_trunc('month', period_date)::date = (SELECT month_start FROM month_date)\n), emergency AS (\n  SELECT COALESCE(months_essential_expenses_covered, 0) AS months_covered\n  FROM reporting.rpt_emergency_fund_coverage\n  ORDER BY report_generated_at DESC NULLS LAST\n  LIMIT 1\n), actions AS (\n  SELECT 1 AS priority,\n         'Reduce uncategorized spend to improve tracking accuracy' AS \"Action\",\n         CONCAT(ROUND(CASE WHEN u.total_outflows > 0 THEN (u.uncategorized_amount / u.total_outflows) * 100 ELSE 0 END, 1), '% uncategorized this month') AS \"Why\"\n  FROM uncategorized u\n  WHERE CASE WHEN u.total_outflows > 0 THEN (u.uncategorized_amount / u.total_outflows) * 100 ELSE 0 END >= 10\n\n  UNION ALL\n\n  SELECT 2,\n         'Bring monthly cash flow back to positive territory',\n         CONCAT('Net cash flow is -$', ROUND(ABS(b.net_cash_flow), 0))\n  FROM baseline b\n  WHERE b.net_cash_flow < 0\n\n  UNION ALL\n\n  SELECT 3,\n         'Trim essentials spend ratio under 60% of income',\n         CONCAT('Essentials at ', ROUND(CASE WHEN b.total_income > 0 THEN (e.essentials_spend / b.total_income) * 100 ELSE 0 END, 1), '% of income')\n  FROM baseline b\n  CROSS JOIN essentials e\n  WHERE b.total_income > 0\n    AND (e.essentials_spend / b.total_income) > 0.60\n\n  UNION ALL\n\n  SELECT 4,\n         'Increase emergency buffer contributions',\n         CONCAT('Emergency coverage at ', ROUND(em.months_covered, 1), ' months')\n  FROM emergency em\n  WHERE em.months_covered < 3\n), top_actions AS (\n  SELECT priority AS \"Priority\", \"Action\", \"Why\"\n  FROM actions\n  ORDER BY priority\n  LIMIT 3\n)\nSELECT *\nFROM top_actions\nUNION ALL\nSELECT 99, 'No urgent actions this month', 'All tracked KPIs are within target ranges'\nWHERE NOT EXISTS (SELECT 1 FROM top_actions);",
+          "refId": "A"
+        }
+      ],
+      "title": "Top 3 Actions This Month",
+      "type": "table"
     }
   ],
   "refresh": "",
