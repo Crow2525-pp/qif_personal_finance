@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# Household Net Worth\n\n**At a glance:** Track total net worth, assets vs liabilities, and debt ratio trend.\n\n**How to use quickly:**\n- Check current net worth and debt-to-asset ratio.\n- Use 12-month trend panels to confirm direction.\n- Watch for sustained liability growth versus asset growth.",
+        "content": "# Household Net Worth\n\n**At a glance:** Track total net worth, assets vs liabilities, and debt ratio trend.\n\n**How to use quickly:**\n- Check last complete month net worth and debt-to-asset ratio.\n- Use 12-month trend panels to confirm direction.\n- Watch for sustained liability growth versus asset growth.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -47,7 +47,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Data recency for the current dashboard context.",
+      "description": "Data recency and staleness status for the current dashboard context.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -99,7 +99,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_household_net_worth\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n)\nSELECT\n  to_char((SELECT month_date FROM latest_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_household_net_worth\nWHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM latest_period);",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_household_net_worth\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nlatest_data AS (\n  SELECT\n    lp.month_date,\n    MAX(r.report_generated_at) AS last_refresh\n  FROM latest_period lp\n  LEFT JOIN reporting.rpt_household_net_worth r\n    ON to_date(r.budget_year_month || '-01', 'YYYY-MM-DD') = lp.month_date\n  GROUP BY lp.month_date\n)\nSELECT\n  to_char(month_date, 'Mon YYYY') AS \"Data Through\",\n  to_char(last_refresh, 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\",\n  DATE_PART('month', age(date_trunc('month', CURRENT_DATE), month_date))::int AS \"Months Behind\",\n  CASE\n    WHEN DATE_PART('month', age(date_trunc('month', CURRENT_DATE), month_date))::int <= 1 THEN 'On Cadence (Last Complete Month)'\n    WHEN DATE_PART('month', age(date_trunc('month', CURRENT_DATE), month_date))::int = 2 THEN 'Lagging by 1 extra month'\n    ELSE 'Stale (2+ extra months behind)'\n  END AS \"Status\"\nFROM latest_data;",
           "refId": "A"
         }
       ],
@@ -111,7 +111,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Latest closed month net worth. Excludes current incomplete month for accurate quarterly review. See Data Freshness panel for the exact period.",
+      "description": "Last complete month net worth (not current in-progress month). See Data Freshness for period and staleness status.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -176,7 +176,7 @@
           "refId": "A"
         }
       ],
-      "title": "Current Net Worth",
+      "title": "Net Worth (Last Complete Month)",
       "type": "gauge"
     },
     {

@@ -8,8 +8,8 @@
     "description": "Net worth headline recency lags other dashboards; backfill data or clearly label staleness.",
     "category": "dashboard-fix",
     "effort": "small",
-    "status": "pending",
-    "notes": "Restored 2026-02-07 during backlog recovery."
+    "status": "completed",
+    "notes": "Completed 2026-02-08: relabeled headline as last complete month and added explicit staleness status in Data Freshness."
   },
   {
     "id": 24,
@@ -19,8 +19,8 @@
     "description": "Multiple dashboards are breaking due to model/schema drift (`total_essential_expenses`, `uncategorized`, missing legacy relations). Introduce a compatibility layer (views or standardized aliases) to decouple dashboard SQL from frequent model renames.",
     "scope": "reporting schema compatibility views; dashboards 01/07/08",
     "effort": "medium",
-    "status": "pending",
-    "notes": "Pattern confirmed during Playwright run on 2026-02-07."
+    "status": "completed",
+    "notes": "Completed 2026-02-08: added reporting compat views for renamed columns (`uncategorized`/`uncategorized_amount`, `total_essential_expenses`/`total_family_essentials`) and rewired dashboards 01/08 to compat relations; validated 01/07/08 with zero failing panels."
   },
   {
     "id": 59,
@@ -39,8 +39,8 @@
     "description": "Compatibility relations referenced by historical SQL are absent in runtime schema.",
     "category": "dashboard-fix",
     "effort": "small",
-    "status": "pending",
-    "notes": "Restored 2026-02-07 during backlog recovery."
+    "status": "completed",
+    "notes": "Completed 2026-02-08: compat views materialized and granted in active Grafana-connected Postgres (`192.168.1.103`) for runtime availability."
   },
   {
     "status": "pending",
@@ -288,5 +288,75 @@
     "effort": "tiny",
     "status": "pending",
     "notes": "Found via Playwright MCP on 2026-02-07 at 3440x1440."
+  },
+  {
+    "id": 105,
+    "title": "Close remaining decision gaps in Executive dashboard headline section",
+    "scope": "grafana/provisioning/dashboards/01-executive-financial-overview-aud.json",
+    "description": "Two panels still render `No data` in Playwright and headline guidance is split across multiple blocks. Ensure all top-row cards resolve with fallback text, and add one explicit `Top 3 actions this month` panel to make the dashboard immediately decision-driven.",
+    "category": "dashboard-fix",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Found via Playwright MCP on 2026-02-08 during dashboards 01-10 review."
+  },
+  {
+    "id": 106,
+    "title": "Improve Savings Analysis readability and actionability",
+    "scope": "grafana/provisioning/dashboards/05-savings-analysis.json",
+    "description": "Savings dashboard exposes technical field labels (e.g. `total_savings_rate_percent`) and weak action cues. Replace technical labels with user-facing names, add target-band color semantics, and include a short `what to do next` panel tied to current savings rate.",
+    "category": "dashboard-fix",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Found via Playwright MCP on 2026-02-08 during dashboards 01-10 review."
+  },
+  {
+    "id": 107,
+    "title": "Refactor Category Spending dashboard for faster decisions",
+    "scope": "grafana/provisioning/dashboards/06-category-spending-analysis.json",
+    "description": "Dashboard is informative but text-heavy and lacks a concise control surface. Add a compact `largest controllable overruns` table with expected monthly impact, simplify instruction copy, and normalize panel naming for cleaner executive scanability.",
+    "category": "dashboard-fix",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Found via Playwright MCP on 2026-02-08 during dashboards 01-10 review."
+  },
+  {
+    "id": 108,
+    "title": "Add explicit action recommendations to Expense Performance",
+    "scope": "grafana/provisioning/dashboards/07-expense-performance-analysis.json",
+    "description": "Current panels describe performance but do not translate driver values into concrete decisions. Add threshold-based recommendation rows (cut/hold/watch), include expected impact estimates, and prioritize the top 1-2 categories for intervention.",
+    "category": "dashboard-fix",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Found via Playwright MCP on 2026-02-08 during dashboards 01-10 review."
+  },
+  {
+    "id": 109,
+    "title": "Fix Outflows Insights data failures and harden empty states",
+    "scope": "grafana/provisioning/dashboards/08-outflows-insights.json",
+    "description": "Playwright shows 8 `No data` panels and datasource request failures, making the dashboard non-actionable. Repair broken SQL/field references, validate all key panels return rows, and add explicit fallback messages when a period has no transactions.",
+    "category": "dashboard-fix",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Found via Playwright MCP on 2026-02-08 during dashboards 01-10 review."
+  },
+  {
+    "id": 110,
+    "title": "Elevate Transaction Analysis from descriptive to prescriptive",
+    "scope": "grafana/provisioning/dashboards/09-transaction-analysis.json",
+    "description": "Dashboard is clean but mostly descriptive. Add an action queue panel (`top uncategorized to fix`, `new recurring merchants to review`, `high-value anomalies`) with clear thresholds and drilldown links so users know exactly what to do next.",
+    "category": "dashboard-fix",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Found via Playwright MCP on 2026-02-08 during dashboards 01-10 review."
+  },
+  {
+    "id": 111,
+    "title": "Make Financial Reconciliation decision-oriented for non-technical users",
+    "scope": "grafana/provisioning/dashboards/10-financial-reconciliation.json",
+    "description": "Dashboard currently surfaces FAIL signals without clear remediation path. Add severity ranking, likely root-cause hints, and owner/action columns per failed check so users can quickly triage and resolve data quality blockers.",
+    "category": "dashboard-fix",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Found via Playwright MCP on 2026-02-08 during dashboards 01-10 review."
   }
 ]
