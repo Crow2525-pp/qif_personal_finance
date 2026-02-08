@@ -119,7 +119,8 @@
     "description": "Fix mixed units/scale ambiguity, reduce duplicated narrative panels, and clearly indicate complete-year handling in annual charts.",
     "category": "dashboard-fix",
     "effort": "small",
-    "status": "pending"
+    "status": "completed",
+    "notes": "Completed 2026-02-08: standardized complete-year handling by filtering annual trend queries to years before the current year, reduced duplicated narrative copy in the narrative intro panel, and clarified KPI scale by using score units (0-100) for annual progress."
   },
   {
     "id": 86,
@@ -128,7 +129,8 @@
     "description": "Switch currency to AUD, add timezone/cadence, and ensure yearly selection context is shown in panel titles.",
     "category": "dashboard-fix",
     "effort": "small",
-    "status": "pending"
+    "status": "completed",
+    "notes": "Completed 2026-02-08: switched dashboard 13 currency units to AUD, added timezone/cadence metadata to Data Freshness, and updated panel titles to make latest-complete-year/complete-years scope explicit."
   },
   {
     "id": 87,
@@ -397,17 +399,17 @@
     "id": 115,
     "title": "Standardize number formatting: `$` only for currency and fixed percent precision",
     "scope": "grafana/provisioning/dashboards/*.json",
-    "description": "Remove `currencyAUD`-style notation from visible values. Currency must render with `$` only and 0 decimal places; percentage values must render with 2 decimal places (e.g., `0.00`). Apply consistent field overrides/units across all dashboards.",
+    "description": "Remove `currencyAUD`-style notation from visible values. Currency must render with `$` only and 0 decimal places; percentage values must render with 2 decimal places (e.g., `0.00`). Apply consistent field overrides/units across all dashboards.  There shouldn't be any note of AUD or USD within any dashboard title, description, viz text, or information panel.",  
     "category": "dashboard-fix",
     "effort": "small",
     "status": "pending",
     "notes": "Requested 2026-02-08."
-  },
+  }
   {
     "id": 116,
     "title": "Remove non-native dashboard slicers and keep only Grafana time picker",
     "scope": "grafana/provisioning/dashboards/*.json; templating variables",
-    "description": "Remove custom/non-native slicers (dashboard variables used as filters) that are not behaving as intended. Retain Grafana's native time selection control and ensure dashboards still render correctly without extra slicers.",
+    "description": "Remove custom/non-native slicers (dashboard variables used as filters). Retain Grafana's native time selection control and ensure dashboards still render correctly without extra slicers.",
     "category": "dashboard-fix",
     "effort": "small",
     "status": "pending",

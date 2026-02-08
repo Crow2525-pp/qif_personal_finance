@@ -73,7 +73,7 @@
               }
             ]
           },
-          "unit": "percentunit"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -110,7 +110,7 @@
           "refId": "A"
         }
       ],
-      "title": "Annual Financial Progress Score",
+      "title": "Annual Financial Progress Score (Latest Complete Year)",
       "type": "gauge"
     },
     {
@@ -365,7 +365,7 @@
           "refId": "A"
         }
       ],
-      "title": "Year-over-Year Changes",
+      "title": "Year-over-Year Changes (Latest Complete Year)",
       "type": "stat"
     },
     {
@@ -577,7 +577,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": [
           {
@@ -667,11 +667,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  (comparison_year || '-01-01')::date as time,\n  annual_income,\n  annual_expenses,\n  annual_net_cash_flow\nFROM reporting.rpt_year_over_year_comparison \nORDER BY comparison_year;",
+          "rawSql": "SELECT \n  (comparison_year || '-01-01')::date as time,\n  annual_income,\n  annual_expenses,\n  annual_net_cash_flow\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year;",
           "refId": "A"
         }
       ],
-      "title": "Annual Income vs Expenses",
+      "title": "Annual Income vs Expenses (Complete Years)",
       "type": "timeseries"
     },
     {
@@ -725,7 +725,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": [
           {
@@ -800,11 +800,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  (comparison_year || '-01-01')::date as time,\n  year_end_net_worth,\n  annual_net_worth_change\nFROM reporting.rpt_year_over_year_comparison \nORDER BY comparison_year;",
+          "rawSql": "SELECT \n  (comparison_year || '-01-01')::date as time,\n  year_end_net_worth,\n  annual_net_worth_change\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year;",
           "refId": "A"
         }
       ],
-      "title": "Net Worth Annual Progression",
+      "title": "Net Worth Annual Progression (Complete Years)",
       "type": "timeseries"
     },
     {
@@ -828,7 +828,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": [
           {
@@ -1216,11 +1216,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  (comparison_year || '-01-01')::date as time,\n  avg_annual_savings_rate\nFROM reporting.rpt_year_over_year_comparison \nORDER BY comparison_year;",
+          "rawSql": "SELECT \n  (comparison_year || '-01-01')::date as time,\n  avg_annual_savings_rate\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year;",
           "refId": "A"
         }
       ],
-      "title": "Annual Savings Rate Trend",
+      "title": "Annual Savings Rate Trend (Complete Years)",
       "type": "timeseries"
     },
     {
@@ -1274,7 +1274,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": [
           {
@@ -1383,11 +1383,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  (comparison_year || '-01-01')::date as time,\n  annual_mortgage_expenses,\n  annual_household_expenses,\n  annual_food_expenses,\n  annual_family_expenses\nFROM reporting.rpt_year_over_year_comparison \nORDER BY comparison_year;",
+          "rawSql": "SELECT \n  (comparison_year || '-01-01')::date as time,\n  annual_mortgage_expenses,\n  annual_household_expenses,\n  annual_food_expenses,\n  annual_family_expenses\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year;",
           "refId": "A"
         }
       ],
-      "title": "Annual Expense Categories",
+      "title": "Annual Expense Categories (Complete Years)",
       "type": "timeseries"
     },
     {
@@ -1441,7 +1441,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": [
           {
@@ -1512,11 +1512,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  (comparison_year || '-01-01')::date as time,\n  inflation_adjusted_annual_income,\n  inflation_adjusted_annual_expenses\nFROM reporting.rpt_year_over_year_comparison \nORDER BY comparison_year;",
+          "rawSql": "SELECT \n  (comparison_year || '-01-01')::date as time,\n  inflation_adjusted_annual_income,\n  inflation_adjusted_annual_expenses\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year;",
           "refId": "A"
         }
       ],
-      "title": "Inflation-Adjusted Income vs Expenses",
+      "title": "Inflation-Adjusted Income vs Expenses (Complete Years)",
       "type": "timeseries"
     },
     {
@@ -1591,11 +1591,11 @@
       },
       "id": 14,
       "options": {
-        "content": "## Narrative Summary\n\nThe narrative below captures key wins, risk factors, and recommended next actions based on the latest complete year's financial performance.",
+        "content": "## Narrative Summary\n\nLatest complete year wins, risks, and next actions are summarized below.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
-      "title": "Key Insights & Narrative",
+      "title": "Narrative Context",
       "type": "text"
     },
     {
@@ -1763,7 +1763,7 @@
     {
       "id": 101,
       "type": "table",
-      "title": "Data Freshness",
+      "title": "Data Freshness & Cadence",
       "datasource": {
         "type": "grafana-postgresql-datasource",
         "uid": "PCC52D03280B7034C"
@@ -1777,7 +1777,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "rawQuery": true,
-          "rawSql": "WITH latest_year AS (\n  SELECT MAX(comparison_year) AS y\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n)\nSELECT\n  COALESCE((SELECT y::text FROM latest_year), 'N/A') AS \"Latest Complete Year\",\n  to_char((SELECT MAX(report_generated_at) FROM reporting.rpt_year_over_year_comparison), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\";"
+          "rawSql": "WITH latest_year AS (\n  SELECT MAX(comparison_year) AS y\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n)\nSELECT\n  COALESCE((SELECT y::text FROM latest_year), 'N/A') AS \"Latest Complete Year\",\n  to_char((SELECT MAX(report_generated_at) FROM reporting.rpt_year_over_year_comparison), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\",\n  'Australia/Melbourne' AS \"Timezone\",\n  'Monthly data refresh, annual view' AS \"Expected Cadence\";"
         }
       ],
       "options": {
@@ -1841,3 +1841,4 @@
   "version": 1,
   "weekStart": ""
 }
+
