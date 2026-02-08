@@ -39,7 +39,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "rawQuery": true,
-          "rawSql": "SELECT\n  MAX(budget_year_month) AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_monthly_budget_summary;"
+          "rawSql": "SELECT\n  MAX(budget_year_month) AS \"Data Through\",\n  to_char(MAX(report_generated_at) AT TIME ZONE 'Australia/Melbourne', 'YYYY-MM-DD HH24:MI') AS \"Last Refresh (Australia/Melbourne)\",\n  'Monthly (within 24h of month-end close)' AS \"Expected Cadence\"\nFROM reporting.rpt_monthly_budget_summary;"
         }
       ],
       "options": {
@@ -122,7 +122,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": []
       },
@@ -185,7 +185,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": []
       },
@@ -248,7 +248,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": []
       },
@@ -283,11 +283,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    -total_liabilities as \"Total Liabilities\"\nFROM reporting.rpt_household_net_worth\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_household_net_worth);",
+          "rawSql": "SELECT \n    ABS(COALESCE(total_liabilities, 0)) as \"Total Liabilities\"\nFROM reporting.rpt_household_net_worth\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_household_net_worth);",
           "refId": "A"
         }
       ],
-      "title": "Total Liabilities",
+      "title": "Total Liabilities (Debt Magnitude)",
       "type": "stat"
     },
     {
@@ -340,7 +340,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": [
           {
@@ -453,7 +453,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": [
           {
@@ -521,11 +521,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH current_month AS (\n    SELECT \n        account_name,\n        account_type,\n        end_of_month_balance,\n        mom_balance_change\n    FROM reporting.rpt_account_performance\n    WHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_account_performance)\n)\nSELECT \n    account_name as \"Account\",\n    account_type as \"Type\",\n    end_of_month_balance as \"Current Balance\",\n    (end_of_month_balance - COALESCE(mom_balance_change, 0)) as \"Previous Balance\",\n    COALESCE(mom_balance_change, 0) as \"Change\"\nFROM current_month\nORDER BY ABS(end_of_month_balance) DESC;",
+          "rawSql": "WITH current_month AS (\n  SELECT\n    account_name,\n    account_type,\n    end_of_month_balance,\n    COALESCE(mom_balance_change, 0) AS mom_balance_change,\n    (end_of_month_balance - COALESCE(mom_balance_change, 0)) AS previous_balance\n  FROM reporting.rpt_account_performance\n  WHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_account_performance)\n), normalized AS (\n  SELECT\n    CASE\n      WHEN account_name = 'BillsBillsBills' THEN 'Bills'\n      WHEN account_name ILIKE '%homeloan%' THEN 'Home Loan'\n      WHEN account_name ILIKE '%offset%' THEN 'Offset Account'\n      WHEN account_name ILIKE '%credit%' THEN 'Credit Card'\n      ELSE account_name\n    END AS account_label,\n    CASE\n      WHEN account_type ILIKE '%liab%' OR end_of_month_balance < 0 THEN 'Liability'\n      ELSE 'Asset'\n    END AS account_class,\n    CASE\n      WHEN account_type ILIKE '%liab%' OR end_of_month_balance < 0 THEN ABS(end_of_month_balance)\n      ELSE end_of_month_balance\n    END AS current_balance_norm,\n    CASE\n      WHEN account_type ILIKE '%liab%' OR previous_balance < 0 THEN ABS(previous_balance)\n      ELSE previous_balance\n    END AS previous_balance_norm\n  FROM current_month\n)\nSELECT\n  account_label AS \"Account\",\n  account_class AS \"Type\",\n  ROUND(current_balance_norm, 2) AS \"Current Balance\",\n  ROUND(previous_balance_norm, 2) AS \"Previous Balance\",\n  ROUND(\n    CASE\n      WHEN account_class = 'Liability' THEN previous_balance_norm - current_balance_norm\n      ELSE current_balance_norm - previous_balance_norm\n    END,\n    2\n  ) AS \"Change (Positive = Improvement)\"\nFROM normalized\nORDER BY ABS(current_balance_norm) DESC;",
           "refId": "A"
         }
       ],
-      "title": "Account Balances with Month-over-Month Changes",
+      "title": "Account Balances (Positive Change = Improvement)",
       "type": "table"
     },
     {
@@ -550,7 +550,7 @@
             "value"
           ],
           "mappings": [],
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": []
       },
@@ -684,7 +684,7 @@
   "timepicker": {
     "hidden": true
   },
-  "timezone": "",
+  "timezone": "Australia/Melbourne",
   "title": "22 - Assets & Net Worth (Mobile)",
   "uid": "assets-networth-mobile",
   "version": 1,

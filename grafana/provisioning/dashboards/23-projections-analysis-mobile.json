@@ -39,7 +39,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "rawQuery": true,
-          "rawSql": "SELECT\n  MAX(budget_year_month) AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_monthly_budget_summary;"
+          "rawSql": "SELECT\n  MAX(budget_year_month) AS \"Data Through\",\n  to_char(MAX(report_generated_at) AT TIME ZONE 'Australia/Melbourne', 'YYYY-MM-DD HH24:MI') AS \"Last Refresh (Australia/Melbourne)\",\n  'Monthly (within 24h of month-end close)' AS \"Expected Cadence\"\nFROM reporting.rpt_monthly_budget_summary;"
         }
       ],
       "options": {
@@ -688,7 +688,7 @@
   "timepicker": {
     "hidden": true
   },
-  "timezone": "",
+  "timezone": "Australia/Melbourne",
   "title": "23 - Projections & Analysis (Mobile)",
   "uid": "projections-analysis-mobile",
   "version": 1,

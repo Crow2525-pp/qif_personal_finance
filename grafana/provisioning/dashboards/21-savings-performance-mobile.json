@@ -39,7 +39,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "rawQuery": true,
-          "rawSql": "SELECT\n  MAX(budget_year_month) AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_monthly_budget_summary;"
+          "rawSql": "SELECT\n  MAX(budget_year_month) AS \"Data Through\",\n  to_char(MAX(report_generated_at) AT TIME ZONE 'Australia/Melbourne', 'YYYY-MM-DD HH24:MI') AS \"Last Refresh (Australia/Melbourne)\",\n  'Monthly (within 24h of month-end close)' AS \"Expected Cadence\"\nFROM reporting.rpt_monthly_budget_summary;"
         }
       ],
       "options": {
@@ -408,7 +408,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": []
       },
@@ -705,13 +705,13 @@
         "overrides": [
           {
             "matcher": {
-              "id": "byName",
-              "options": "Change %"
+            "id": "byRegexp",
+            "options": ".*(Change %|Savings Rate).*"
             },
             "properties": [
               {
-                "id": "unit",
-                "value": "percentunit"
+              "id": "unit",
+              "value": "percentunit"
               },
               {
                 "id": "color",
@@ -772,7 +772,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    'Total Expenses' as \"Performance Metric\",\n    total_expenses as \"Current Month\",\n    (prev_month_income - prev_month_total_savings) as \"Previous Month\",\n    CASE \n        WHEN (prev_month_income - prev_month_total_savings) > 0 THEN \n            (total_expenses - (prev_month_income - prev_month_total_savings)) / (prev_month_income - prev_month_total_savings)\n        ELSE NULL\n    END as \"Change %\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis)\nUNION ALL\nSELECT \n    'Savings Rate',\n    total_savings_rate_percent,\n    COALESCE(prev_month_savings_rate, 0),\n    CASE \n        WHEN prev_month_savings_rate != 0 THEN \n            mom_savings_rate_change\n        ELSE NULL\n    END\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis);",
+          "rawSql": "SELECT\n  total_expenses AS \"Expenses (Current Month)\",\n  (prev_month_income - prev_month_total_savings) AS \"Expenses (Previous Month)\",\n  CASE\n    WHEN (prev_month_income - prev_month_total_savings) > 0\n      THEN (total_expenses - (prev_month_income - prev_month_total_savings)) / (prev_month_income - prev_month_total_savings)\n    ELSE NULL\n  END AS \"Expenses Change %\",\n  CASE\n    WHEN ABS(total_savings_rate_percent) > 1 THEN total_savings_rate_percent / 100.0\n    ELSE total_savings_rate_percent\n  END AS \"Savings Rate (Current Month)\",\n  CASE\n    WHEN ABS(COALESCE(prev_month_savings_rate, 0)) > 1 THEN COALESCE(prev_month_savings_rate, 0) / 100.0\n    ELSE COALESCE(prev_month_savings_rate, 0)\n  END AS \"Savings Rate (Previous Month)\",\n  CASE\n    WHEN prev_month_savings_rate != 0 THEN\n      CASE\n        WHEN ABS(mom_savings_rate_change) > 1 THEN mom_savings_rate_change / 100.0\n        ELSE mom_savings_rate_change\n      END\n    ELSE NULL\n  END AS \"Savings Rate Change %\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis);",
           "refId": "A"
         }
       ],
@@ -938,7 +938,7 @@
   "timepicker": {
     "hidden": true
   },
-  "timezone": "",
+  "timezone": "Australia/Melbourne",
   "title": "21 - Savings & Performance (Mobile)",
   "uid": "savings-performance-mobile",
   "version": 1,
