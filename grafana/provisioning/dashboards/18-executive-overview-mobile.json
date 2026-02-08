@@ -35,7 +35,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "rawQuery": true,
-          "rawSql": "SELECT\n  MAX(budget_year_month) AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_monthly_budget_summary;"
+          "rawSql": "SELECT\n  MAX(budget_year_month) AS \"Data Through\",\n  to_char(MAX(report_generated_at) AT TIME ZONE 'Australia/Melbourne', 'YYYY-MM-DD HH24:MI') AS \"Last Refresh (Australia/Melbourne)\",\n  'Monthly (within 24h of month-end close)' AS \"Expected Cadence\"\nFROM reporting.rpt_monthly_budget_summary;"
         }
       ],
       "options": {
@@ -123,7 +123,7 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 12,
+        "w": 8,
         "x": 0,
         "y": 5
       },
@@ -184,7 +184,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": [
           {
@@ -203,8 +203,8 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 12,
-        "x": 12,
+        "w": 16,
+        "x": 8,
         "y": 5
       },
       "id": 2,
@@ -230,7 +230,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    'Net Flow' as \"Metric\",\n    monthly_net_cash_flow as \"Value\"\nFROM reporting.rpt_executive_dashboard\nWHERE dashboard_month = (SELECT MAX(dashboard_month) FROM reporting.rpt_executive_dashboard)\nUNION ALL\nSELECT \n    'Income',\n    monthly_income\nFROM reporting.rpt_executive_dashboard\nWHERE dashboard_month = (SELECT MAX(dashboard_month) FROM reporting.rpt_executive_dashboard)\nUNION ALL\nSELECT \n    'Expenses',\n    -monthly_expenses\nFROM reporting.rpt_executive_dashboard\nWHERE dashboard_month = (SELECT MAX(dashboard_month) FROM reporting.rpt_executive_dashboard)\nUNION ALL\nSELECT\n    'Savings Rate',\n    monthly_savings_rate_percent\nFROM reporting.rpt_executive_dashboard\nWHERE dashboard_month = (SELECT MAX(dashboard_month) FROM reporting.rpt_executive_dashboard);",
+          "rawSql": "SELECT\n  monthly_net_cash_flow AS \"Net Flow\",\n  monthly_income AS \"Income\",\n  -monthly_expenses AS \"Expenses\",\n  monthly_savings_rate_percent / 100.0 AS \"Savings Rate\"\nFROM reporting.rpt_executive_dashboard\nWHERE dashboard_month = (SELECT MAX(dashboard_month) FROM reporting.rpt_executive_dashboard);",
           "refId": "A"
         }
       ],
@@ -287,7 +287,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": []
       },
@@ -354,7 +354,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": []
       },
@@ -421,7 +421,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": []
       },
@@ -750,7 +750,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": [
           {
@@ -819,7 +819,7 @@
   "timepicker": {
     "hidden": true
   },
-  "timezone": "",
+  "timezone": "Australia/Melbourne",
   "title": "18 - Executive Overview (Mobile)",
   "uid": "exec-mobile-overview",
   "version": 1,
