@@ -29,8 +29,8 @@
     "description": "Dashboard 17 still has residual legacy field/join assumptions despite table rename.",
     "category": "dashboard-fix",
     "effort": "medium",
-    "status": "pending",
-    "notes": "Restored 2026-02-07 during backlog recovery."
+    "status": "completed",
+    "notes": "Completed 2026-02-08: removed legacy `fct_transactions + dim_categories.store='Amazon'` dependency from dashboard queries; migrated to enhanced relations with resilient Amazon matching (store OR memo/description) and validated dashboard 17 with zero failing panels."
   },
   {
     "id": 60,
@@ -358,5 +358,35 @@
     "effort": "small",
     "status": "pending",
     "notes": "Found via Playwright MCP on 2026-02-08 during dashboards 01-10 review."
+  },
+  {
+    "id": 112,
+    "title": "Harden Budget Adjustments panel empty-state behavior for CI smoke checks",
+    "scope": "grafana/provisioning/dashboards/03-monthly-budget-summary.json; panel `Budget Adjustments for Next Month`; scripts/check_grafana_dashboards.py",
+    "description": "Dashboard 03 panel can validly return zero rows in some months, but smoke checks currently treat empty results as failure. Add panel-level fallback row/message or checker allowlist semantics so valid empty states do not break gated CI.",
+    "category": "dashboard-fix",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Found in commit review on 2026-02-08 after running checker with `--dashboard-range 1-23 --schema-validate`."
+  },
+  {
+    "id": 113,
+    "title": "Reconcile done.md completion claims with current dashboard lint reality",
+    "scope": "done.md; todo-fix.md; tasks 73-76 and related dashboard panels",
+    "description": "Tasks 73-76 are marked done, but current checker output still reports overflow warnings on the same dashboards/panels. Re-verify each claim, either close lint gaps or move tasks back to pending with updated evidence.",
+    "category": "dashboard-fix",
+    "effort": "tiny",
+    "status": "pending",
+    "notes": "Found in commit review on 2026-02-08; mismatch observed between `done.md` and current lint output."
+  },
+  {
+    "id": 114,
+    "title": "Burn down remaining markdown overflow lint warnings across dashboards 01-17",
+    "scope": "grafana/provisioning/dashboards/01-executive-financial-overview-aud.json; grafana/provisioning/dashboards/02-cash-flow-analysis.json; grafana/provisioning/dashboards/03-monthly-budget-summary.json; grafana/provisioning/dashboards/04-household-net-worth-analysis.json; grafana/provisioning/dashboards/05-savings-analysis.json; grafana/provisioning/dashboards/06-category-spending-analysis.json; grafana/provisioning/dashboards/07-expense-performance-analysis.json; grafana/provisioning/dashboards/08-outflows-insights.json; grafana/provisioning/dashboards/09-transaction-analysis.json; grafana/provisioning/dashboards/10-financial-reconciliation.json; grafana/provisioning/dashboards/11-account-performance.json; grafana/provisioning/dashboards/12-financial-projections.json; grafana/provisioning/dashboards/13-year-over-year-comparison.json; grafana/provisioning/dashboards/14-four-year-financial-comparison.json; grafana/provisioning/dashboards/15-mortgage-payoff.json; grafana/provisioning/dashboards/17-amazon-spending-analysis.json",
+    "description": "Current checker reports 22 lint warnings (mostly markdown text overflow) in dashboards touched by recent commits. Reduce copy, resize panels, or split sections so guidance text is readable at wide resolutions and lint baseline is green.",
+    "category": "dashboard-fix",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Found in commit review on 2026-02-08 via `scripts/check_grafana_dashboards.py`."
   }
 ]
