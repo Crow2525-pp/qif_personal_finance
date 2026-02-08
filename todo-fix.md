@@ -69,8 +69,8 @@
     "description": "Panels 1, 3, 4, 5, and 7 fail due to boolean/type macro misuse (period_date/year_month expressions). Correct WHERE clauses and validate each panel renders.",
     "category": "dashboard-fix",
     "effort": "small",
-    "status": "pending",
-    "notes": "Migrated from todo.md wide-screen audit batch 1 (dashboard 11)."
+    "status": "completed",
+    "notes": "Completed 2026-02-08: replaced fragile macro filters on `period_date`/`year_month` with explicit date bounds using `$__timeFrom/$__timeTo`, and hardened latest-month snapshot selection. Validated dashboard 11 with zero failing panels."
   },
   {
     "id": 81,
@@ -79,7 +79,8 @@
     "description": "Replace technical panel names, switch units to AUD, and add explicit scope labels for latest-month vs history panels.",
     "category": "dashboard-fix",
     "effort": "small",
-    "status": "pending"
+    "status": "completed",
+    "notes": "Completed 2026-02-08: switched dashboard 11 currency units to AUD and renamed key panels to explicitly denote history vs latest-month scope."
   },
   {
     "id": 82,

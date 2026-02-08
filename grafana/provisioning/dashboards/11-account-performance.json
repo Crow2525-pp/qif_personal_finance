@@ -146,7 +146,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": [
           {
@@ -195,11 +195,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  period_date::timestamptz AS time,\n  \"offset\",\n  billsbillsbills,\n  homeloan,\n  countdown\nFROM reporting.viz_balance_by_year_month \nWHERE $__timeFilter(period_date)\nORDER BY period_date;",
+          "rawSql": "SELECT \n  period_date::timestamptz AS time,\n  \"offset\",\n  billsbillsbills,\n  homeloan,\n  countdown\nFROM reporting.viz_balance_by_year_month \nWHERE period_date BETWEEN date_trunc('day', $__timeFrom()::timestamptz)::date\n                     AND date_trunc('day', $__timeTo()::timestamptz)::date\nORDER BY period_date;",
           "refId": "A"
         }
       ],
-      "title": "Account Balance Trends",
+      "title": "Account Balances (History)",
       "type": "timeseries"
     },
     {
@@ -223,7 +223,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": [
           {
@@ -335,7 +335,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  \"offset\",\n  billsbillsbills,\n  homeloan,\n  countdown\nFROM reporting.viz_balance_by_year_month \nWHERE period_date = DATE_TRUNC('month', NOW()) - INTERVAL '1 month'\nLIMIT 1;",
+          "rawSql": "WITH latest_complete_month AS (\n  SELECT MAX(period_date) AS period_date\n  FROM reporting.viz_balance_by_year_month\n  WHERE period_date < date_trunc('month', CURRENT_DATE)::date\n)\nSELECT \n  \"offset\",\n  billsbillsbills,\n  homeloan,\n  countdown\nFROM reporting.viz_balance_by_year_month \nWHERE period_date = (SELECT period_date FROM latest_complete_month)\nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -398,7 +398,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": []
       },
@@ -430,11 +430,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month::timestamptz AS time,\n  net_position\nFROM reporting.viz_net_position_after_homeloan \nWHERE $__timeFilter(year_month)\nORDER BY year_month;",
+          "rawSql": "SELECT \n  year_month::timestamptz AS time,\n  net_position\nFROM reporting.viz_net_position_after_homeloan \nWHERE year_month BETWEEN date_trunc('day', $__timeFrom()::timestamptz)::date\n                     AND date_trunc('day', $__timeTo()::timestamptz)::date\nORDER BY year_month;",
           "refId": "A"
         }
       ],
-      "title": "Net Position After Home Loan",
+      "title": "Net Position After Home Loan (History)",
       "type": "timeseries"
     },
     {
@@ -489,7 +489,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": [
           {
@@ -559,11 +559,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  period_date::timestamptz AS time,\n  \"offset_MoM\" as \"offset\",\n  \"billsbillsbills_MoM\" as billsbillsbills,\n  \"homeloan_MoM\" as homeloan,\n  \"countdown_MoM\" as countdown\nFROM reporting.viz_mom_differences \nWHERE $__timeFilter(period_date)\nORDER BY period_date;",
+          "rawSql": "SELECT \n  period_date::timestamptz AS time,\n  \"offset_MoM\" as \"offset\",\n  \"billsbillsbills_MoM\" as billsbillsbills,\n  \"homeloan_MoM\" as homeloan,\n  \"countdown_MoM\" as countdown\nFROM reporting.viz_mom_differences \nWHERE period_date BETWEEN date_trunc('day', $__timeFrom()::timestamptz)::date\n                     AND date_trunc('day', $__timeTo()::timestamptz)::date\nORDER BY period_date;",
           "refId": "A"
         }
       ],
-      "title": "Month-over-Month Balance Changes",
+      "title": "Balance Changes (History)",
       "type": "timeseries"
     },
     {
@@ -618,7 +618,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": []
       },
@@ -654,7 +654,7 @@
           "refId": "A"
         }
       ],
-      "title": "Interest Payments",
+      "title": "Interest Payments (History)",
       "type": "timeseries"
     },
     {
@@ -709,7 +709,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyAUD"
         },
         "overrides": [
           {
@@ -815,11 +815,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  DATE_TRUNC('month', ft.transaction_date)::timestamptz AS time,\n  SUM(CASE WHEN ft.transaction_direction = 'Debit' THEN ft.transaction_amount ELSE 0 END) AS monthly_payment,\n  SUM(CASE WHEN ft.transaction_direction = 'Credit' THEN ABS(ft.transaction_amount) ELSE 0 END) AS total_charges_added,\n  SUM(CASE WHEN ft.transaction_direction = 'Debit' THEN ft.transaction_amount ELSE 0 END) -\n    SUM(CASE WHEN ft.transaction_direction = 'Credit' THEN ABS(ft.transaction_amount) ELSE 0 END) AS net_principal_reduction\nFROM reporting.fct_transactions ft\nJOIN reporting.dim_accounts da ON ft.account_key = da.account_key \nWHERE LOWER(da.account_name) = 'homeloan'\n  AND $__timeFilter(ft.transaction_date)\n  AND DATE_TRUNC('month', ft.transaction_date) < DATE_TRUNC('month', CURRENT_DATE)\nGROUP BY DATE_TRUNC('month', ft.transaction_date) \nORDER BY time;",
+          "rawSql": "SELECT \n  DATE_TRUNC('month', ft.transaction_date)::timestamptz AS time,\n  SUM(CASE WHEN ft.transaction_direction = 'Debit' THEN ft.transaction_amount ELSE 0 END) AS monthly_payment,\n  SUM(CASE WHEN ft.transaction_direction = 'Credit' THEN ABS(ft.transaction_amount) ELSE 0 END) AS total_charges_added,\n  SUM(CASE WHEN ft.transaction_direction = 'Debit' THEN ft.transaction_amount ELSE 0 END) -\n    SUM(CASE WHEN ft.transaction_direction = 'Credit' THEN ABS(ft.transaction_amount) ELSE 0 END) AS net_principal_reduction\nFROM reporting.fct_transactions ft\nJOIN reporting.dim_accounts da ON ft.account_key = da.account_key \nWHERE LOWER(da.account_name) = 'homeloan'\n  AND ft.transaction_date >= date_trunc('day', $__timeFrom()::timestamptz)::date\n  AND ft.transaction_date <= date_trunc('day', $__timeTo()::timestamptz)::date\n  AND DATE_TRUNC('month', ft.transaction_date) < DATE_TRUNC('month', CURRENT_DATE)\nGROUP BY DATE_TRUNC('month', ft.transaction_date) \nORDER BY time;",
           "refId": "A"
         }
       ],
-      "title": "Mortgage Payment vs Interest & Principal Reduction",
+      "title": "Mortgage Payment vs Interest & Principal (History)",
       "transformations": [
         {
           "id": "convertFieldType",
@@ -949,7 +949,7 @@
           "refId": "A"
         }
       ],
-      "title": "Account Summary",
+      "title": "Account Summary (Latest Month)",
       "type": "table"
     }
   ],
@@ -1019,3 +1019,4 @@
   "version": 1,
   "weekStart": ""
 }
+
