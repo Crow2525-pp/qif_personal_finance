@@ -99,7 +99,8 @@
     "description": "Replace hardcoded `2022-01-01`, fixed `projection_month = 12`, and static sensitivity assumptions with parameterized logic and safe fallbacks.",
     "category": "dashboard-fix",
     "effort": "medium",
-    "status": "pending"
+    "status": "completed",
+    "notes": "Completed 2026-02-08: replaced hardcoded historical start date (`2022-01-01`) with dynamic earliest-available month fallback, replaced fixed `projection_month = 12` selectors with dynamic projection horizon logic, and added safe no-data fallbacks in projection sensitivity/opportunity queries. Validated dashboard 12 with zero failing panels."
   },
   {
     "id": 84,
@@ -390,5 +391,15 @@
     "effort": "small",
     "status": "pending",
     "notes": "Found in commit review on 2026-02-08 via `scripts/check_grafana_dashboards.py`."
+  },
+  {
+    "id": 115,
+    "title": "Standardize number formatting: `$` only for currency and fixed percent precision",
+    "scope": "grafana/provisioning/dashboards/*.json",
+    "description": "Remove `currencyAUD`-style notation from visible values. Currency must render with `$` only and 0 decimal places; percentage values must render with 2 decimal places (e.g., `0.00`). Apply consistent field overrides/units across all dashboards.",
+    "category": "dashboard-fix",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Requested 2026-02-08."
   }
 ]
