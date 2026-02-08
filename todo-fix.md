@@ -109,7 +109,8 @@
     "description": "Add timezone in freshness output, expose calibration data-through month, and clarify scenario labels for non-technical users.",
     "category": "dashboard-fix",
     "effort": "small",
-    "status": "pending"
+    "status": "completed",
+    "notes": "Completed 2026-02-08: added timezone and expected cadence to Data Freshness, added calibration data-through month, and replaced technical scenario labels with user-facing names across projections comparison panels. Validated dashboard 12 with zero failing panels."
   },
   {
     "id": 85,
@@ -401,5 +402,15 @@
     "effort": "small",
     "status": "pending",
     "notes": "Requested 2026-02-08."
+  },
+  {
+    "id": 116,
+    "title": "Remove non-native dashboard slicers and keep only Grafana time picker",
+    "scope": "grafana/provisioning/dashboards/*.json; templating variables",
+    "description": "Remove custom/non-native slicers (dashboard variables used as filters) that are not behaving as intended. Retain Grafana's native time selection control and ensure dashboards still render correctly without extra slicers.",
+    "category": "dashboard-fix",
+    "effort": "small",
+    "status": "pending",
+    "notes": "Requested 2026-02-08; clarified to retain native Grafana time selection slicer."
   }
 ]

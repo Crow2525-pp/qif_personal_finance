@@ -290,7 +290,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n  projection_date as time,\n  scenario,\n  projected_monthly_income as value\nFROM reporting.projection_data \nORDER BY projection_date, scenario",
+          "rawSql": "SELECT \n  projection_date as time,\n  CASE\n    WHEN scenario = 'full_time' THEN 'Full-time Work'\n    WHEN scenario = 'part_time' THEN 'Part-time Work'\n    ELSE scenario\n  END as scenario,\n  projected_monthly_income as value\nFROM reporting.projection_data \nORDER BY projection_date, scenario",
           "refId": "A"
         }
       ],
@@ -384,7 +384,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n  projection_date as time,\n  scenario,\n  cumulative_net_flow as value\nFROM reporting.projection_data \nORDER BY projection_date, scenario",
+          "rawSql": "SELECT \n  projection_date as time,\n  CASE\n    WHEN scenario = 'full_time' THEN 'Full-time Work'\n    WHEN scenario = 'part_time' THEN 'Part-time Work'\n    ELSE scenario\n  END as scenario,\n  cumulative_net_flow as value\nFROM reporting.projection_data \nORDER BY projection_date, scenario",
           "refId": "A"
         }
       ],
@@ -452,7 +452,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  scenario,\n  AVG(projected_savings_rate) as avg_savings_rate\nFROM reporting.projection_data \nGROUP BY scenario",
+          "rawSql": "SELECT \n  CASE\n    WHEN scenario = 'full_time' THEN 'Full-time Work'\n    WHEN scenario = 'part_time' THEN 'Part-time Work'\n    ELSE scenario\n  END as scenario,\n  AVG(projected_savings_rate) as avg_savings_rate\nFROM reporting.projection_data \nGROUP BY scenario",
           "refId": "A"
         }
       ],
@@ -683,11 +683,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  scenario,\n  MAX(cumulative_net_flow) as twelve_month_savings\nFROM reporting.projection_data \nGROUP BY scenario",
+          "rawSql": "SELECT \n  CASE\n    WHEN scenario = 'full_time' THEN 'Full-time Work'\n    WHEN scenario = 'part_time' THEN 'Part-time Work'\n    ELSE scenario\n  END as scenario,\n  MAX(cumulative_net_flow) as projected_savings\nFROM reporting.projection_data \nGROUP BY scenario",
           "refId": "A"
         }
       ],
-      "title": "12-Month Projected Savings by Scenario",
+      "title": "Projected Savings by Scenario (Available Horizon)",
       "type": "stat"
     },
     {
@@ -1058,7 +1058,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "rawQuery": true,
-          "rawSql": "SELECT\n  to_char(MAX(projection_date), 'Mon YYYY') AS \"Data Through\",\n  to_char((SELECT MAX(report_generated_at) FROM reporting.rpt_monthly_budget_summary), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.projection_data\nWHERE scenario = '$scenario';"
+          "rawSql": "WITH projection_meta AS (\n  SELECT MAX(projection_date) AS data_through\n  FROM reporting.projection_data\n  WHERE scenario = '$scenario'\n), calibration_meta AS (\n  SELECT MAX(projection_date) AS calibration_data_through\n  FROM reporting.fct_projection_sensitivity\n  WHERE scenario = '$scenario'\n    AND prev_year_actual_income IS NOT NULL\n)\nSELECT\n  to_char((SELECT data_through FROM projection_meta), 'Mon YYYY') AS \"Data Through\",\n  to_char((SELECT MAX(report_generated_at) FROM reporting.rpt_monthly_budget_summary), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\",\n  COALESCE(to_char((SELECT calibration_data_through FROM calibration_meta), 'Mon YYYY'), 'N/A') AS \"Calibration Through\",\n  'Australia/Melbourne' AS \"Timezone\",\n  'Monthly (review quarterly)' AS \"Expected Cadence\";"
         }
       ],
       "options": {
