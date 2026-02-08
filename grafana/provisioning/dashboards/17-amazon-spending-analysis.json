@@ -140,7 +140,7 @@
         "x": 6,
         "y": 0
       },
-      "id": 10,
+      "id": 13,
       "options": {
         "reduceOptions": {
           "values": true,
@@ -295,7 +295,7 @@
           "refId": "A"
         }
       ],
-      "title": "Recurring vs One-Off (Latest Month)",
+      "title": "Recurring vs One-Off",
       "type": "stat"
     },
     {
@@ -360,7 +360,7 @@
           "refId": "A"
         }
       ],
-      "title": "Amazon Spending by Year (2020-2025)",
+      "title": "Amazon Spending by Year (Rolling Window)",
       "type": "bargauge"
     },
     {
@@ -819,7 +819,7 @@
           "refId": "A"
         }
       ],
-      "title": "Amazon Spending by Type (2020-2025)",
+      "title": "Amazon Spending by Type (Rolling Window)",
       "type": "piechart"
     },
     {
@@ -889,7 +889,7 @@
           "refId": "A"
         }
       ],
-      "title": "Amazon Spending by Amount Category (2020-2025)",
+      "title": "Amazon Spending by Amount Category (Rolling Window)",
       "type": "piechart"
     },
     {
@@ -966,7 +966,7 @@
           "refId": "A"
         }
       ],
-      "title": "Recent Amazon Transactions (2024-2025)",
+      "title": "Recent Amazon Transactions",
       "type": "table"
     },
     {
@@ -1002,7 +1002,7 @@
         "x": 0,
         "y": 40
       },
-      "id": 11,
+      "id": 14,
       "options": {
         "showHeader": true,
         "sortBy": [
@@ -1104,7 +1104,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "rawQuery": true,
-          "rawSql": "SELECT\n  COALESCE(to_char(MAX(year_month), 'Mon YYYY'), 'N/A') AS \"Data Through\",\n  to_char((SELECT MAX(report_generated_at) FROM reporting.rpt_monthly_budget_summary), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.viz_amazon_order_context;"
+          "rawSql": "WITH freshness AS (\n  SELECT MAX(year_month) AS max_year_month\n  FROM reporting.viz_amazon_order_context\n), refresh_meta AS (\n  SELECT MAX(report_generated_at) AS last_refresh_utc\n  FROM reporting.rpt_monthly_budget_summary\n)\nSELECT\n  COALESCE(to_char(f.max_year_month, 'Mon YYYY'), 'N/A') AS \"Data Through\",\n  COALESCE(to_char(r.last_refresh_utc AT TIME ZONE 'Australia/Melbourne', 'YYYY-MM-DD HH24:MI'), 'N/A') AS \"Last Refresh (Australia/Melbourne)\",\n  'Monthly (within 24h of month-end close)' AS \"Expected Cadence\",\n  CASE\n    WHEN f.max_year_month IS NULL THEN 'No data available'\n    WHEN f.max_year_month >= DATE_TRUNC('month', NOW()) - INTERVAL '2 months' THEN 'Current'\n    ELSE 'Review pipeline lag'\n  END AS \"Freshness Status\"\nFROM freshness f\nCROSS JOIN refresh_meta r;"
         }
       ],
       "options": {
@@ -1158,7 +1158,7 @@
   "timepicker": {
     "hidden": true
   },
-  "timezone": "",
+  "timezone": "Australia/Melbourne",
   "title": "17 - Amazon Spending Analysis",
   "uid": "amazon-spending",
   "version": 0,
