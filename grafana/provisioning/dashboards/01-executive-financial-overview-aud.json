@@ -158,7 +158,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Score 0-100 indicating expense management effectiveness. Higher scores mean better expense control relative to income. Low scores suggest overspending relative to earnings. All financial values in Australian Dollars (AUD).",
+      "description": "Score 0-100 indicating expense management effectiveness. Higher scores mean better expense control relative to income. Low scores suggest overspending relative to earnings.",
       "fieldConfig": {
         "defaults": {
           "min": 0,
@@ -2288,7 +2288,7 @@
     ]
   },
   "timezone": "",
-  "title": "01 - Executive Financial Overview - AUD",
+  "title": "01 - Executive Financial Overview",
   "uid": "executive_dashboard",
   "version": 2,
   "weekStart": ""
