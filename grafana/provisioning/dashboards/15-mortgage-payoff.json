@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# Mortgage Payoff Analysis\n\nTrack payoff progress, projected completion timing, and sensitivity to payment changes.",
+        "content": "# Mortgage Payoff Analysis\n\nTrack payoff progress, projected completion timing, and payment sensitivity.\n\nAssumptions: uses mortgage-tagged liabilities (`is_mortgage = TRUE`), trailing 12-month average payments, and blended estimated mortgage interest rate from debt tracking.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -121,7 +121,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  year_month as time,\n  ABS(net_position) as \"Remaining Mortgage Balance\"\nFROM reporting.viz_net_position_after_homeloan\nWHERE net_position < 0\nORDER BY year_month",
+          "rawSql": "WITH mortgage_history AS (\n  SELECT\n    period_month AS time,\n    SUM(outstanding_debt_balance) AS remaining_mortgage_balance\n  FROM reporting.rpt_debt_reduction_tracking\n  WHERE is_mortgage = TRUE\n  GROUP BY period_month\n)\nSELECT\n  time,\n  remaining_mortgage_balance AS \"Remaining Mortgage Balance\"\nFROM mortgage_history\nORDER BY time",
           "refId": "A",
           "select": [
             [
@@ -206,7 +206,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH latest_balance AS (\n  SELECT year_month, ABS(COALESCE(homeloan, 0)) AS balance\n  FROM reporting.viz_balance_by_year_month\n  WHERE homeloan IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 1\n),\nmonthly_reductions AS (\n  SELECT COALESCE(\"homeloan_MoM\", 0) AS reduction\n  FROM reporting.viz_mom_differences\n  WHERE COALESCE(\"homeloan_MoM\", 0) IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 12\n),\nagg AS (\n  SELECT\n    COALESCE((SELECT balance FROM latest_balance), 0) AS current_balance,\n    COALESCE(GREATEST(AVG(reduction), 0), 0) AS avg_monthly_reduction\n  FROM monthly_reductions\n)\nSELECT\n  ROUND(\n    CASE WHEN avg_monthly_reduction > 0 AND current_balance > 0\n      THEN (current_balance / avg_monthly_reduction) / 12\n      ELSE 0\n    END::numeric,\n    1\n  ) AS \"Years to Payoff\"\nFROM agg;",
+          "rawSql": "WITH mortgage_history AS (\n  SELECT\n    period_month,\n    SUM(outstanding_debt_balance) AS current_balance,\n    SUM(principal_reduction) AS monthly_principal_reduction,\n    SUM(total_monthly_payment) AS monthly_payment,\n    CASE\n      WHEN SUM(outstanding_debt_balance) > 0\n      THEN SUM(outstanding_debt_balance * (estimated_interest_rate_pct / 100.0)) / SUM(outstanding_debt_balance)\n      ELSE AVG(estimated_interest_rate_pct)\n    END AS blended_interest_rate_pct\n  FROM reporting.rpt_debt_reduction_tracking\n  WHERE is_mortgage = TRUE\n  GROUP BY period_month\n),\nlatest_state AS (\n  SELECT *\n  FROM mortgage_history\n  ORDER BY period_month DESC\n  LIMIT 1\n),\nassumption_window AS (\n  SELECT\n    AVG(GREATEST(monthly_principal_reduction, 0)) AS avg_monthly_principal_reduction,\n    AVG(GREATEST(monthly_payment, 0)) AS avg_monthly_payment\n  FROM (\n    SELECT *\n    FROM mortgage_history\n    ORDER BY period_month DESC\n    LIMIT 12\n  ) w\n),\nassumptions AS (\n  SELECT\n    COALESCE(ls.current_balance, 0) AS current_balance,\n    COALESCE(aw.avg_monthly_principal_reduction, 0) AS avg_monthly_principal_reduction,\n    COALESCE(aw.avg_monthly_payment, 0) AS avg_monthly_payment,\n    COALESCE(ls.blended_interest_rate_pct, 0) / 100.0 / 12.0 AS monthly_interest_rate\n  FROM latest_state ls\n  CROSS JOIN assumption_window aw\n)\nSELECT\n  ROUND(\n    CASE\n      WHEN current_balance <= 0 THEN 0\n      WHEN avg_monthly_payment <= 0 THEN 0\n      WHEN monthly_interest_rate > 0\n           AND avg_monthly_payment > current_balance * monthly_interest_rate\n      THEN (\n        LN(avg_monthly_payment / (avg_monthly_payment - current_balance * monthly_interest_rate))\n        / LN(1 + monthly_interest_rate)\n      ) / 12\n      WHEN monthly_interest_rate = 0 THEN current_balance / NULLIF(avg_monthly_payment, 0) / 12\n      WHEN avg_monthly_principal_reduction > 0 THEN current_balance / avg_monthly_principal_reduction / 12\n      ELSE 0\n    END::numeric,\n    1\n  ) AS \"Years to Payoff\"\nFROM assumptions;",
           "refId": "A",
           "select": [
             [
@@ -288,7 +288,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH latest_balance AS (\n  SELECT year_month, ABS(COALESCE(homeloan, 0)) AS balance\n  FROM reporting.viz_balance_by_year_month\n  WHERE homeloan IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 1\n)\nSELECT COALESCE((SELECT balance FROM latest_balance), 0) AS \"Current Balance\";",
+          "rawSql": "WITH latest_mortgage AS (\n  SELECT period_month, SUM(outstanding_debt_balance) AS balance\n  FROM reporting.rpt_debt_reduction_tracking\n  WHERE is_mortgage = TRUE\n  GROUP BY period_month\n  ORDER BY period_month DESC\n  LIMIT 1\n)\nSELECT COALESCE((SELECT balance FROM latest_mortgage), 0) AS \"Current Balance\";",
           "refId": "A",
           "select": [
             [
@@ -370,7 +370,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH monthly_reductions AS (\n  SELECT COALESCE(\"homeloan_MoM\", 0) AS reduction\n  FROM reporting.viz_mom_differences\n  WHERE COALESCE(\"homeloan_MoM\", 0) IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 12\n)\nSELECT COALESCE(ROUND(AVG(reduction)::numeric, 2), 0) AS \"Average Monthly Reduction\"\nFROM monthly_reductions;",
+          "rawSql": "WITH monthly_reductions AS (\n  SELECT period_month, SUM(principal_reduction) AS reduction\n  FROM reporting.rpt_debt_reduction_tracking\n  WHERE is_mortgage = TRUE\n  GROUP BY period_month\n  ORDER BY period_month DESC\n  LIMIT 12\n)\nSELECT COALESCE(ROUND(AVG(GREATEST(reduction, 0))::numeric, 2), 0) AS \"Average Monthly Reduction\"\nFROM monthly_reductions;",
           "refId": "A",
           "select": [
             [
@@ -452,7 +452,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH latest_balance AS (\n  SELECT year_month, ABS(COALESCE(homeloan, 0)) AS balance\n  FROM reporting.viz_balance_by_year_month\n  WHERE homeloan IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 1\n),\nmonthly_reductions AS (\n  SELECT COALESCE(\"homeloan_MoM\", 0) AS reduction\n  FROM reporting.viz_mom_differences\n  WHERE COALESCE(\"homeloan_MoM\", 0) IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 12\n),\nagg AS (\n  SELECT\n    COALESCE((SELECT balance FROM latest_balance), 0) AS current_balance,\n    COALESCE(GREATEST(AVG(reduction), 0), 0) AS avg_monthly_reduction\n  FROM monthly_reductions\n)\nSELECT\n  CASE\n    WHEN avg_monthly_reduction > 0 AND current_balance > 0\n      THEN EXTRACT(YEAR FROM CURRENT_DATE + (CEIL(current_balance / avg_monthly_reduction)::int * INTERVAL '1 month'))\n    ELSE EXTRACT(YEAR FROM CURRENT_DATE)\n  END AS \"Estimated Payoff Year\"\nFROM agg;",
+          "rawSql": "WITH mortgage_history AS (\n  SELECT\n    period_month,\n    SUM(outstanding_debt_balance) AS current_balance,\n    SUM(principal_reduction) AS monthly_principal_reduction,\n    SUM(total_monthly_payment) AS monthly_payment,\n    CASE\n      WHEN SUM(outstanding_debt_balance) > 0\n      THEN SUM(outstanding_debt_balance * (estimated_interest_rate_pct / 100.0)) / SUM(outstanding_debt_balance)\n      ELSE AVG(estimated_interest_rate_pct)\n    END AS blended_interest_rate_pct\n  FROM reporting.rpt_debt_reduction_tracking\n  WHERE is_mortgage = TRUE\n  GROUP BY period_month\n),\nlatest_state AS (\n  SELECT *\n  FROM mortgage_history\n  ORDER BY period_month DESC\n  LIMIT 1\n),\nassumption_window AS (\n  SELECT\n    AVG(GREATEST(monthly_principal_reduction, 0)) AS avg_monthly_principal_reduction,\n    AVG(GREATEST(monthly_payment, 0)) AS avg_monthly_payment\n  FROM (\n    SELECT *\n    FROM mortgage_history\n    ORDER BY period_month DESC\n    LIMIT 12\n  ) w\n),\nassumptions AS (\n  SELECT\n    COALESCE(ls.current_balance, 0) AS current_balance,\n    COALESCE(aw.avg_monthly_principal_reduction, 0) AS avg_monthly_principal_reduction,\n    COALESCE(aw.avg_monthly_payment, 0) AS avg_monthly_payment,\n    COALESCE(ls.blended_interest_rate_pct, 0) / 100.0 / 12.0 AS monthly_interest_rate\n  FROM latest_state ls\n  CROSS JOIN assumption_window aw\n),\npayoff_projection AS (\n  SELECT\n    CASE\n      WHEN current_balance <= 0 THEN 0\n      WHEN avg_monthly_payment <= 0 THEN 0\n      WHEN monthly_interest_rate > 0\n           AND avg_monthly_payment > current_balance * monthly_interest_rate\n      THEN (\n        LN(avg_monthly_payment / (avg_monthly_payment - current_balance * monthly_interest_rate))\n        / LN(1 + monthly_interest_rate)\n      )\n      WHEN monthly_interest_rate = 0 THEN current_balance / NULLIF(avg_monthly_payment, 0)\n      WHEN avg_monthly_principal_reduction > 0 THEN current_balance / avg_monthly_principal_reduction\n      ELSE 0\n    END AS months_to_payoff\n  FROM assumptions\n)\nSELECT\n  EXTRACT(YEAR FROM CURRENT_DATE + (CEIL(months_to_payoff)::int * INTERVAL '1 month')) AS \"Estimated Payoff Year\"\nFROM payoff_projection;",
           "refId": "A",
           "select": [
             [
@@ -555,7 +555,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH latest_mortgage AS (\n  SELECT\n    outstanding_debt_balance,\n    avg_3month_principal,\n    estimated_interest_rate_pct\n  FROM reporting.rpt_debt_reduction_tracking\n  WHERE is_mortgage = TRUE\n  ORDER BY period_month DESC\n  LIMIT 1\n),\nsensitivity_scenarios AS (\n  SELECT 0 AS extra_payment,\n         CASE WHEN lm.avg_3month_principal > 0\n              THEN CEIL(lm.outstanding_debt_balance / lm.avg_3month_principal) / 12\n              ELSE NULL END AS years_to_payoff\n  FROM latest_mortgage lm\n  UNION ALL\n  SELECT 100,\n         CASE WHEN (lm.avg_3month_principal + 100) > 0\n              THEN CEIL(lm.outstanding_debt_balance / (lm.avg_3month_principal + 100)) / 12\n              ELSE NULL END\n  FROM latest_mortgage lm\n  UNION ALL\n  SELECT 250,\n         CASE WHEN (lm.avg_3month_principal + 250) > 0\n              THEN CEIL(lm.outstanding_debt_balance / (lm.avg_3month_principal + 250)) / 12\n              ELSE NULL END\n  FROM latest_mortgage lm\n  UNION ALL\n  SELECT 500,\n         CASE WHEN (lm.avg_3month_principal + 500) > 0\n              THEN CEIL(lm.outstanding_debt_balance / (lm.avg_3month_principal + 500)) / 12\n              ELSE NULL END\n  FROM latest_mortgage lm\n  UNION ALL\n  SELECT 1000,\n         CASE WHEN (lm.avg_3month_principal + 1000) > 0\n              THEN CEIL(lm.outstanding_debt_balance / (lm.avg_3month_principal + 1000)) / 12\n              ELSE NULL END\n  FROM latest_mortgage lm\n)\nSELECT extra_payment,\n       COALESCE(ROUND(years_to_payoff::numeric, 1), 0) AS \"Years to Payoff\"\nFROM sensitivity_scenarios\nUNION ALL\nSELECT 0 AS extra_payment, 0::numeric AS \"Years to Payoff\"\nWHERE NOT EXISTS (SELECT 1 FROM sensitivity_scenarios)\nORDER BY extra_payment;",
+          "rawSql": "WITH mortgage_history AS (\n  SELECT\n    period_month,\n    SUM(outstanding_debt_balance) AS outstanding_debt_balance,\n    SUM(total_monthly_payment) AS monthly_payment,\n    CASE\n      WHEN SUM(outstanding_debt_balance) > 0\n      THEN SUM(outstanding_debt_balance * (estimated_interest_rate_pct / 100.0)) / SUM(outstanding_debt_balance)\n      ELSE AVG(estimated_interest_rate_pct)\n    END AS blended_interest_rate_pct\n  FROM reporting.rpt_debt_reduction_tracking\n  WHERE is_mortgage = TRUE\n  GROUP BY period_month\n),\nlatest_mortgage AS (\n  SELECT\n    outstanding_debt_balance,\n    monthly_payment,\n    blended_interest_rate_pct / 100.0 / 12.0 AS monthly_interest_rate\n  FROM mortgage_history\n  ORDER BY period_month DESC\n  LIMIT 1\n),\nscenario_inputs AS (\n  SELECT 0::numeric AS extra_payment\n  UNION ALL SELECT 100\n  UNION ALL SELECT 250\n  UNION ALL SELECT 500\n  UNION ALL SELECT 1000\n),\nsensitivity_scenarios AS (\n  SELECT\n    si.extra_payment,\n    CASE\n      WHEN lm.outstanding_debt_balance <= 0 THEN 0\n      WHEN (lm.monthly_payment + si.extra_payment) <= 0 THEN NULL\n      WHEN lm.monthly_interest_rate > 0\n           AND (lm.monthly_payment + si.extra_payment) > lm.outstanding_debt_balance * lm.monthly_interest_rate\n      THEN (\n        LN((lm.monthly_payment + si.extra_payment) /\n          ((lm.monthly_payment + si.extra_payment) - lm.outstanding_debt_balance * lm.monthly_interest_rate))\n        / LN(1 + lm.monthly_interest_rate)\n      ) / 12\n      WHEN lm.monthly_interest_rate = 0 THEN lm.outstanding_debt_balance / NULLIF(lm.monthly_payment + si.extra_payment, 0) / 12\n      ELSE NULL\n    END AS years_to_payoff\n  FROM latest_mortgage lm\n  CROSS JOIN scenario_inputs si\n)\nSELECT extra_payment,\n       COALESCE(ROUND(years_to_payoff::numeric, 1), 0) AS \"Years to Payoff\"\nFROM sensitivity_scenarios\nUNION ALL\nSELECT 0 AS extra_payment, 0::numeric AS \"Years to Payoff\"\nWHERE NOT EXISTS (SELECT 1 FROM sensitivity_scenarios)\nORDER BY extra_payment;",
           "refId": "A",
           "select": [
             [
@@ -597,7 +597,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "rawQuery": true,
-          "rawSql": "SELECT\n  to_char(MAX(to_date(year_month || '-01', 'YYYY-MM-DD')), 'Mon YYYY') AS \"Data Through\",\n  to_char((SELECT MAX(report_generated_at) FROM reporting.rpt_debt_reduction_tracking), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.viz_balance_by_year_month\nWHERE homeloan IS NOT NULL;"
+          "rawSql": "SELECT\n  to_char(MAX(period_month), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\",\n  'Australia/Melbourne' AS \"Timezone\",\n  'Monthly (review quarterly)' AS \"Expected Cadence\"\nFROM reporting.rpt_debt_reduction_tracking\nWHERE is_mortgage = TRUE;"
         }
       ],
       "options": {
