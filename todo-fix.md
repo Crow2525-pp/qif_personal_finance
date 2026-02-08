@@ -139,7 +139,8 @@
     "description": "Fix savings-rate scale mismatch, add divide-by-zero safety messaging, and show completeness indicators when fewer than four years are used.",
     "category": "dashboard-fix",
     "effort": "small",
-    "status": "pending"
+    "status": "completed",
+    "notes": "Completed 2026-02-08: added divide-by-zero safe handling for latest-vs-baseline metrics, surfaced `comparison_years_used` completeness indicator in the panel output, and extended Data Freshness with years-included/completeness status. Validated dashboard 14 with zero failing panels."
   },
   {
     "id": 88,

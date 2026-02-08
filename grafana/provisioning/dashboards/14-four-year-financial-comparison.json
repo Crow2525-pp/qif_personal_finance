@@ -449,6 +449,22 @@
                 "value": "percentunit"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "comparison_years_used"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Years Included in Baseline"
+              },
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
           }
         ]
       },
@@ -485,7 +501,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest_year AS (\n  SELECT MAX(comparison_year) as max_year\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n),\nlatest_data AS (\n  SELECT *\n  FROM reporting.rpt_year_over_year_comparison, latest_year\n  WHERE comparison_year = latest_year.max_year\n),\nprevious_3_years AS (\n  SELECT *\n  FROM reporting.rpt_year_over_year_comparison, latest_year\n  WHERE comparison_year < latest_year.max_year\n  AND comparison_year >= (latest_year.max_year - 3)\n  ORDER BY comparison_year DESC\n  LIMIT 3\n),\navg_3_years AS (\n  SELECT \n    AVG(annual_income) as avg_income,\n    AVG(annual_expenses) as avg_expenses,\n    AVG(annual_net_cash_flow) as avg_net_cash_flow,\n    AVG(avg_annual_savings_rate) as avg_savings_rate\n  FROM previous_3_years\n)\nSELECT \n  (latest_data.annual_income - avg_3_years.avg_income) / NULLIF(avg_3_years.avg_income, 0) as income_vs_3yr_avg,\n  (latest_data.annual_expenses - avg_3_years.avg_expenses) / NULLIF(avg_3_years.avg_expenses, 0) as expenses_vs_3yr_avg,\n  (latest_data.annual_net_cash_flow - avg_3_years.avg_net_cash_flow) / NULLIF(ABS(avg_3_years.avg_net_cash_flow), 0) as net_cash_flow_vs_3yr_avg,\n  (latest_data.avg_annual_savings_rate - avg_3_years.avg_savings_rate) as savings_rate_vs_3yr_avg\nFROM latest_data, avg_3_years;",
+          "rawSql": "WITH latest_year AS (\n  SELECT MAX(comparison_year) as max_year\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n),\nlatest_data AS (\n  SELECT *\n  FROM reporting.rpt_year_over_year_comparison, latest_year\n  WHERE comparison_year = latest_year.max_year\n),\nprevious_3_years AS (\n  SELECT *\n  FROM reporting.rpt_year_over_year_comparison, latest_year\n  WHERE comparison_year < latest_year.max_year\n  AND comparison_year >= (latest_year.max_year - 3)\n  ORDER BY comparison_year DESC\n  LIMIT 3\n),\navg_3_years AS (\n  SELECT \n    AVG(annual_income) as avg_income,\n    AVG(annual_expenses) as avg_expenses,\n    AVG(annual_net_cash_flow) as avg_net_cash_flow,\n    AVG(avg_annual_savings_rate) as avg_savings_rate,\n    COUNT(*) AS comparison_years_used\n  FROM previous_3_years\n)\nSELECT \n  CASE\n    WHEN NULLIF(avg_3_years.avg_income, 0) IS NULL THEN 0\n    ELSE (latest_data.annual_income - avg_3_years.avg_income) / avg_3_years.avg_income\n  END as income_vs_3yr_avg,\n  CASE\n    WHEN NULLIF(avg_3_years.avg_expenses, 0) IS NULL THEN 0\n    ELSE (latest_data.annual_expenses - avg_3_years.avg_expenses) / avg_3_years.avg_expenses\n  END as expenses_vs_3yr_avg,\n  CASE\n    WHEN NULLIF(ABS(avg_3_years.avg_net_cash_flow), 0) IS NULL THEN 0\n    ELSE (latest_data.annual_net_cash_flow - avg_3_years.avg_net_cash_flow) / ABS(avg_3_years.avg_net_cash_flow)\n  END as net_cash_flow_vs_3yr_avg,\n  COALESCE(latest_data.avg_annual_savings_rate - avg_3_years.avg_savings_rate, 0) as savings_rate_vs_3yr_avg,\n  avg_3_years.comparison_years_used\nFROM latest_data, avg_3_years;",
           "refId": "A"
         }
       ],
@@ -1542,7 +1558,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "rawQuery": true,
-          "rawSql": "WITH latest_complete_year AS (\n  SELECT MAX(comparison_year) AS latest_year\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n)\nSELECT\n  COALESCE((SELECT latest_year::text FROM latest_complete_year), 'N/A') AS \"Latest Complete Year\",\n  COALESCE(to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI'), 'N/A') AS \"Last Refresh\"\nFROM reporting.rpt_year_over_year_comparison;"
+          "rawSql": "WITH latest_complete_year AS (\n  SELECT MAX(comparison_year) AS latest_year\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n),\ncomparison_window AS (\n  SELECT COUNT(*) AS available_years\n  FROM reporting.rpt_year_over_year_comparison, latest_complete_year\n  WHERE comparison_year >= (latest_complete_year.latest_year - 3)\n    AND comparison_year <= latest_complete_year.latest_year\n)\nSELECT\n  COALESCE((SELECT latest_year::text FROM latest_complete_year), 'N/A') AS \"Latest Complete Year\",\n  COALESCE((SELECT available_years::text FROM comparison_window), '0') AS \"Years Included\",\n  CASE\n    WHEN COALESCE((SELECT available_years FROM comparison_window), 0) >= 4 THEN 'Full 4-year comparison'\n    WHEN COALESCE((SELECT available_years FROM comparison_window), 0) >= 2 THEN 'Partial comparison (fewer than 4 years)'\n    ELSE 'Insufficient history for full comparison'\n  END AS \"Completeness\",\n  COALESCE(to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI'), 'N/A') AS \"Last Refresh\"\nFROM reporting.rpt_year_over_year_comparison;"
         }
       ],
       "options": {
