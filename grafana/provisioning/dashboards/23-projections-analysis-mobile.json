@@ -206,7 +206,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n    projection_date as time,\n    CASE \n        WHEN scenario = 'full_time' THEN projected_net_flow \n        ELSE NULL \n    END as \"Full-time Net Flow\",\n    CASE \n        WHEN scenario = 'part_time' THEN projected_net_flow \n        ELSE NULL \n    END as \"Part-time Net Flow\"\nFROM reporting.fct_financial_projections\nWHERE projection_date >= CURRENT_DATE\nORDER BY projection_date\nLIMIT 12;",
+          "rawSql": "WITH scenario_months AS (\n  SELECT\n    projection_date,\n    scenario,\n    projected_net_flow,\n    ROW_NUMBER() OVER (\n      PARTITION BY scenario\n      ORDER BY projection_date\n    ) AS projection_month_index\n  FROM reporting.fct_financial_projections\n  WHERE projection_date >= CURRENT_DATE\n), projection_window AS (\n  SELECT\n    projection_date,\n    MAX(CASE WHEN scenario = 'full_time' THEN projected_net_flow END) AS \"Full-time Net Flow\",\n    MAX(CASE WHEN scenario = 'part_time' THEN projected_net_flow END) AS \"Part-time Net Flow\"\n  FROM scenario_months\n  WHERE projection_month_index <= 12\n  GROUP BY projection_date\n)\nSELECT\n  projection_date AS time,\n  \"Full-time Net Flow\",\n  \"Part-time Net Flow\"\nFROM projection_window\nORDER BY projection_date;",
           "refId": "A"
         }
       ],
@@ -286,11 +286,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    CASE \n        WHEN scenario = 'full_time' THEN 'Full-time Scenario'\n        WHEN scenario = 'part_time' THEN 'Part-time Scenario'\n        ELSE 'Other Scenario'\n    END as \"Scenario\",\n    AVG(total_projected_income) as \"Avg Monthly Income\",\n    AVG(projected_net_flow) as \"Avg Net Flow\",\n    AVG(projected_savings_rate) as \"Avg Savings Rate\"\nFROM reporting.fct_financial_projections\nWHERE projection_date >= CURRENT_DATE\nAND projection_date <= CURRENT_DATE + INTERVAL '12 months'\nGROUP BY scenario\nORDER BY scenario DESC;",
+          "rawSql": "WITH scenario_months AS (\n  SELECT\n    scenario,\n    total_projected_income,\n    projected_net_flow,\n    projected_savings_rate,\n    ROW_NUMBER() OVER (\n      PARTITION BY scenario\n      ORDER BY projection_date\n    ) AS projection_month_index\n  FROM reporting.fct_financial_projections\n  WHERE projection_date >= CURRENT_DATE\n)\nSELECT\n  CASE\n    WHEN scenario = 'full_time' THEN 'Full-time Employment'\n    WHEN scenario = 'part_time' THEN 'Part-time Employment'\n    ELSE 'Other Scenario'\n  END AS \"Scenario\",\n  AVG(total_projected_income) AS \"Avg Monthly Income\",\n  AVG(projected_net_flow) AS \"Avg Net Flow\",\n  AVG(\n    CASE\n      WHEN ABS(projected_savings_rate) > 1 THEN projected_savings_rate / 100.0\n      ELSE projected_savings_rate\n    END\n  ) AS \"Avg Savings Rate\"\nFROM scenario_months\nWHERE projection_month_index <= 12\nGROUP BY scenario\nORDER BY scenario DESC;",
           "refId": "A"
         }
       ],
-      "title": "12-Month Average Projections by Scenario",
+      "title": "12-Month Average Projections by Employment Scenario",
       "type": "table"
     },
     {
@@ -575,11 +575,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    'Total Income' as \"Financial Metric\",\n    annual_income as \"Current YTD\",\n    prev_year_income as \"Previous YTD\",\n    yoy_income_change_percent as \"YoY Change %\"\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison)\nUNION ALL\nSELECT \n    'Total Expenses',\n    annual_expenses,\n    prev_year_expenses,\n    yoy_expense_change_percent\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison)\nUNION ALL\nSELECT \n    'Net Cash Flow',\n    annual_net_cash_flow,\n    prev_year_income - prev_year_expenses,\n    CASE WHEN (prev_year_income - prev_year_expenses) != 0 THEN \n        (annual_net_cash_flow - (prev_year_income - prev_year_expenses)) / ABS(prev_year_income - prev_year_expenses)\n        ELSE NULL END\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison)\nUNION ALL\nSELECT \n    'Avg Savings Rate',\n    avg_savings_rate_percent,\n    prev_year_savings_rate,\n    yoy_savings_rate_change\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison);",
+          "rawSql": "WITH latest_year AS (\n  SELECT *\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year = (\n    SELECT MAX(comparison_year)\n    FROM reporting.rpt_year_over_year_comparison\n  )\n)\nSELECT\n  'Total Income' AS \"Financial Metric\",\n  annual_income AS \"Current Year\",\n  prev_year_income AS \"Previous Year\",\n  CASE\n    WHEN ABS(yoy_income_change_percent) > 1 THEN yoy_income_change_percent / 100.0\n    ELSE yoy_income_change_percent\n  END AS \"YoY Change %\"\nFROM latest_year\nUNION ALL\nSELECT\n  'Total Expenses',\n  annual_expenses,\n  prev_year_expenses,\n  CASE\n    WHEN ABS(yoy_expense_change_percent) > 1 THEN yoy_expense_change_percent / 100.0\n    ELSE yoy_expense_change_percent\n  END\nFROM latest_year\nUNION ALL\nSELECT\n  'Net Cash Flow',\n  annual_net_cash_flow,\n  prev_year_income - prev_year_expenses,\n  CASE\n    WHEN (prev_year_income - prev_year_expenses) != 0\n      THEN (annual_net_cash_flow - (prev_year_income - prev_year_expenses)) / ABS(prev_year_income - prev_year_expenses)\n    ELSE NULL\n  END\nFROM latest_year\nUNION ALL\nSELECT\n  'Avg Savings Rate',\n  CASE\n    WHEN ABS(avg_savings_rate_percent) > 1 THEN avg_savings_rate_percent / 100.0\n    ELSE avg_savings_rate_percent\n  END,\n  CASE\n    WHEN ABS(prev_year_savings_rate) > 1 THEN prev_year_savings_rate / 100.0\n    ELSE prev_year_savings_rate\n  END,\n  CASE\n    WHEN ABS(yoy_savings_rate_change) > 1 THEN yoy_savings_rate_change / 100.0\n    ELSE yoy_savings_rate_change\n  END\nFROM latest_year;",
           "refId": "A"
         }
       ],
-      "title": "Year-to-Date Performance vs Previous Year (Same Period)",
+      "title": "Latest Year vs Previous Year",
       "type": "table"
     },
     {
