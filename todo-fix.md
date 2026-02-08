@@ -89,7 +89,8 @@
     "description": "Add no-row fallbacks for last-month panels, stale-data warnings, and timezone/cadence metadata in Data Freshness.",
     "category": "dashboard-fix",
     "effort": "small",
-    "status": "pending"
+    "status": "completed",
+    "notes": "Completed 2026-02-08: added no-row fallback for latest-month balances, added staleness status + timezone + expected cadence metadata in Data Freshness, and revalidated dashboard 11 with zero failing panels."
   },
   {
     "id": 83,
