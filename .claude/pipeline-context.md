@@ -57,3 +57,13 @@ mind:
 - **Currency display convention.** Assume all monetary values are AUD,
   but do not show currency notation in dashboards (no `$`, no `AUD`,
   and no explicit currency units).
+- **User-owned layout is canonical.** Preserve user-defined panel
+  spacing, sizing, and placement. Avoid unsolicited `gridPos`
+  changes; make layout adjustments only when explicitly requested.
+
+## Recent Verification Note
+
+- 2026-02-08: Playwright CLI connectivity check against
+  `http://localhost:3001/dashboards` succeeded; route redirected to
+  `http://localhost:3001/login` as expected for unauthenticated access.
+  Screenshot saved at `screenshots/playwright_dashboard_check.png`.

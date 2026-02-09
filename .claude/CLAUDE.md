@@ -16,6 +16,12 @@ This is a personal finance data pipeline that processes QIF (Quicken Interchange
 
 **Operational context** — the pipeline runs on a manual, monthly cadence and dashboards are reviewed once or twice a quarter. See `.claude/pipeline-context.md` for the full picture and the guardrails Claude should follow when touching the pipeline or dashboards.
 
+## Dashboard Layout Requirement
+
+- Treat user-adjusted panel spacing, size, and placement (`gridPos`) as authoritative.
+- Do not auto-reflow or re-pack dashboard layouts after functional edits.
+- If a panel must move, keep changes minimal and preserve visual grouping and alignment established by the user.
+
 ## Development Commands
 
 ### Setup and Run
@@ -200,21 +206,25 @@ When changing dashboard SQL sources (table/view/model migrations), verify all it
    - Append dated entry to `activity.md`
    - Include: task description, actions taken, findings, screenshot filename
 
-### Using Playwright MCP
+### Using Playwright CLI (Preferred)
 
+Use Playwright CLI for dashboard connectivity and screenshot checks.
+
+```bash
+# Install CLI (if needed)
+npm install -g playwright
+
+# Install browser runtime (if needed)
+playwright install chromium
+
+# Validate local dashboard route and capture evidence
+playwright screenshot --browser=chromium http://localhost:3001/dashboards screenshots/playwright_dashboard_check.png
 ```
-# Navigate to Grafana
-mcp__playwright__browser_navigate(url="http://192.168.1.103:3001")
 
-# Login (fill credentials)
-mcp__playwright__browser_fill_form(fields=[...])
-
-# Take screenshot
-mcp__playwright__browser_take_screenshot(
-  filename="screenshots/dashboard-review.png",
-  fullPage=true
-)
-```
+Latest local check (2026-02-08):
+- Route tested: `http://localhost:3001/dashboards`
+- Result: reachable but redirects to `/login` (`302 -> 200`)
+- Evidence: `screenshots/playwright_dashboard_check.png`
 
 ### Troubleshooting Database Connection
 
