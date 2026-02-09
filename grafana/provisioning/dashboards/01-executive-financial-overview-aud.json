@@ -866,7 +866,7 @@
       },
       "id": 12,
       "title": "Expense Control Score",
-      "type": "bargauge",
+      "type": "stat",
       "gridPos": {
         "x": 16,
         "y": 10,
@@ -879,28 +879,14 @@
             "lastNotNull"
           ],
           "fields": "",
-          "values": true
+          "values": false
         },
-        "showThresholdLabels": true,
-        "showThresholdMarkers": true,
-        "orientation": "horizontal"
+        "orientation": "auto",
+        "textMode": "value_and_name",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center"
       },
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "indexByName": {
-              "metric_label": 0,
-              "value": 1
-            },
-            "renameByName": {
-              "metric_label": "Metric",
-              "value": "Value"
-            }
-          }
-        }
-      ],
       "targets": [
         {
           "datasource": {
@@ -910,7 +896,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nbounds AS (\n  SELECT MIN(month_date) AS min_month, MAX(month_date) AS max_month\n  FROM available_months\n),\nselected_period AS (\n  SELECT COALESCE(\n    (SELECT MAX(month_date) FROM available_months WHERE month_date <= date_trunc('month', ($__timeTo()::timestamptz - INTERVAL '1 day'))),\n    (SELECT max_month FROM bounds)\n  ) AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nwindow_range AS (\n  SELECT\n    GREATEST(date_trunc('day', $__timeFrom()::timestamptz)::date, (SELECT min_month FROM bounds)) AS start_date,\n    LEAST(date_trunc('day', $__timeTo()::timestamptz)::date,   (SELECT max_month FROM bounds)) AS end_date\n),\nwindow_cf AS (\n  SELECT\n    COALESCE(SUM(total_outflows), 0) AS total_outflows,\n    COALESCE(SUM(total_inflows), 0)  AS total_inflows\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD')\n        BETWEEN (SELECT start_date FROM window_range)\n        AND     (SELECT end_date   FROM window_range)\n)\nSELECT 'Expense Control Score' AS metric_label,\n       CASE\n         WHEN NULLIF(wcf.total_inflows, 0) IS NULL            THEN 40\n         WHEN wcf.total_outflows / wcf.total_inflows <= 0.80  THEN 95\n         WHEN wcf.total_outflows / wcf.total_inflows <= 0.90  THEN 85\n         WHEN wcf.total_outflows / wcf.total_inflows <= 1.00  THEN 70\n         WHEN wcf.total_outflows / wcf.total_inflows <= 1.10  THEN 55\n         WHEN wcf.total_outflows / wcf.total_inflows <= 1.25  THEN 40\n         WHEN wcf.total_outflows / wcf.total_inflows <= 1.50  THEN 25\n         ELSE 10\n       END AS value\nFROM window_cf wcf;",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nbounds AS (\n  SELECT MIN(month_date) AS min_month, MAX(month_date) AS max_month\n  FROM available_months\n),\nselected_period AS (\n  SELECT COALESCE(\n    (SELECT MAX(month_date) FROM available_months WHERE month_date <= date_trunc('month', ($__timeTo()::timestamptz - INTERVAL '1 day'))),\n    (SELECT max_month FROM bounds)\n  ) AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nwindow_range AS (\n  SELECT\n    GREATEST(date_trunc('day', $__timeFrom()::timestamptz)::date, (SELECT min_month FROM bounds)) AS start_date,\n    LEAST(date_trunc('day', $__timeTo()::timestamptz)::date,   (SELECT max_month FROM bounds)) AS end_date\n),\nwindow_cf AS (\n  SELECT\n    COALESCE(SUM(total_outflows), 0) AS total_outflows,\n    COALESCE(SUM(total_inflows), 0)  AS total_inflows\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD')\n        BETWEEN (SELECT start_date FROM window_range)\n        AND     (SELECT end_date   FROM window_range)\n)\nSELECT CASE\n         WHEN NULLIF(wcf.total_inflows, 0) IS NULL            THEN 40\n         WHEN wcf.total_outflows / wcf.total_inflows <= 0.80  THEN 95\n         WHEN wcf.total_outflows / wcf.total_inflows <= 0.90  THEN 85\n         WHEN wcf.total_outflows / wcf.total_inflows <= 1.00  THEN 70\n         WHEN wcf.total_outflows / wcf.total_inflows <= 1.10  THEN 55\n         WHEN wcf.total_outflows / wcf.total_inflows <= 1.25  THEN 40\n         WHEN wcf.total_outflows / wcf.total_inflows <= 1.50  THEN 25\n         ELSE 10\n       END AS \"Expense Control Score\"\nFROM window_cf wcf;",
           "refId": "A"
         }
       ]
