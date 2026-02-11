@@ -28,9 +28,9 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 5,
+        "h": 4,
         "w": 18,
-        "x": 6,
+        "x": 0,
         "y": 0
       },
       "id": 100,
@@ -71,9 +71,9 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 4,
         "w": 6,
-        "x": 0,
+        "x": 18,
         "y": 0
       },
       "id": 101,
@@ -170,7 +170,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT savings_health_score\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT savings_health_score AS \"Savings Health Score\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -182,7 +182,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Net savings rate (cash flow) vs traditional savings rate (cash/invest contributions) for the latest complete month.",
+      "description": "Latest complete month comparison.\n• Net Savings Rate = (Income - Expenses) / Income.\n• Traditional Contribution Rate = (Cash + Offset + Investment contributions) / Income.\n• Vanguard outbound payments are treated as Share Account investment contributions.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -190,7 +190,7 @@
           },
           "mappings": [],
           "max": 0.5,
-          "min": 0,
+          "min": -0.5,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -200,7 +200,7 @@
               },
               {
                 "color": "yellow",
-                "value": 0.05
+                "value": 0
               },
               {
                 "color": "green",
@@ -241,7 +241,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_savings_rate_percent,\n  traditional_savings_rate_percent\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_savings_rate_percent AS \"Total Savings Rate\",\n  traditional_savings_rate_percent AS \"Traditional Rate\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -277,7 +277,44 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Performance Tier"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Trend"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Consistency"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -312,7 +349,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Monthly savings rate trends.\n• Total Savings Rate = (Cash + Offset + Investments + Mortgage Principal) / Income.\n• Traditional Savings Rate = (Cash + Offset + Investments) / Income (excludes mortgage principal as forced savings).\n• 3‑Month Average smooths the Total rate to reduce volatility.",
+      "description": "Monthly savings rate trends.\n• Net Savings Rate = (Income - Expenses) / Income.\n• Traditional Contribution Rate = (Cash + Offset + Investments) / Income.\n• 3‑Month Average smooths the net rate.\n• Vanguard outbound payments are treated as Share Account investments.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -369,7 +406,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Total Savings Rate"
+                "value": "Net Savings Rate"
               },
               {
                 "id": "color",
@@ -388,7 +425,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Traditional Savings Rate"
+                "value": "Traditional Contribution Rate"
               },
               {
                 "id": "color",
@@ -760,7 +797,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_savings,\n  cash_savings,\n  offset_savings,\n  investment_contributions\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_savings AS \"Total Savings\",\n  cash_savings AS \"Cash Savings\",\n  offset_savings AS \"Offset Savings\",\n  investment_contributions AS \"Investment Contributions\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -916,7 +953,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  liquid_savings_rate_percent,\n  investment_rate_percent,\n  mom_savings_rate_change,\n  savings_rate_volatility\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  liquid_savings_rate_percent AS \"Liquid Savings Rate Percent\",\n  investment_rate_percent AS \"Investment Rate Percent\",\n  mom_savings_rate_change AS \"Month-over-Month Savings Rate Change\",\n  savings_rate_volatility AS \"Savings Rate Volatility\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1048,7 +1085,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  ytd_total_savings,\n  ytd_total_income,\n  ytd_savings_rate_percent\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  ytd_total_savings AS \"Year-to-Date Total Savings\",\n  ytd_total_income AS \"Year-to-Date Total Income\",\n  ytd_savings_rate_percent AS \"Year-to-Date Savings Rate Percent\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1082,7 +1119,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "estimated_years_to_50k"
+              "options": "Estimated Years to 50K"
             },
             "properties": [
               {
@@ -1098,12 +1135,12 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "additional_monthly_savings_needed_for_15_percent"
+              "options": "Additional Monthly Savings Needed for 15 Percent"
             },
             "properties": [
               {
                 "id": "displayName",
-                "value": "Additional Monthly Savings for 15%"
+                "value": "Monthly for 15% Goal"
               },
               {
                 "id": "unit",
@@ -1114,7 +1151,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "yoy_savings_rate_improvement"
+              "options": "Year-over-Year Savings Rate Improvement"
             },
             "properties": [
               {
@@ -1162,7 +1199,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  estimated_years_to_50k,\n  additional_monthly_savings_needed_for_15_percent,\n  COALESCE(yoy_savings_rate_improvement, 0) AS yoy_savings_rate_improvement\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  estimated_years_to_50k AS \"Estimated Years to 50K\",\n  additional_monthly_savings_needed_for_15_percent AS \"Additional Monthly Savings Needed for 15 Percent\",\n  COALESCE(yoy_savings_rate_improvement, 0) AS \"Year-over-Year Savings Rate Improvement\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1202,88 +1239,40 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "cash_savings"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Cash Savings"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "#2ca02c"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "offset_savings"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Offset Savings"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "#1f77b4"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "investment_contributions"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Investments"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "#9467bd"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "estimated_mortgage_principal_payment"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Mortgage Principal"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "#ff7f0e"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
               "options": "Est. Annual Liquid Savings"
             },
             "properties": [
               {
                 "id": "unit",
                 "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Savings Recommendation"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 500
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Performance Tier"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
               }
             ]
           }
@@ -1389,7 +1378,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT progress_to_20_percent_goal\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT progress_to_20_percent_goal AS \"Progress to 20 Percent Goal\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1460,7 +1449,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT progress_to_fire_goal\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT progress_to_fire_goal AS \"Progress to FIRE Goal\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
