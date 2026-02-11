@@ -172,7 +172,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT net_worth\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT net_worth AS \"Net Worth\"\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -391,7 +391,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  net_worth_health_score,\n  CASE \n    WHEN financial_position = 'Critical Debt' THEN 0\n    WHEN financial_position = 'High Debt' THEN 20\n    WHEN financial_position = 'Negative Net Worth' THEN 40\n    WHEN financial_position = 'Low Net Worth' THEN 60\n    WHEN financial_position = 'Positive Net Worth' THEN 80\n    WHEN financial_position = 'Strong Net Worth' THEN 100\n    ELSE 40\n  END as financial_position_score,\n  CASE \n    WHEN wealth_milestone = 'Crisis Phase' THEN 0\n    WHEN wealth_milestone = 'Recovery Phase' THEN 20\n    WHEN wealth_milestone = 'Rebuilding Phase' THEN 40\n    WHEN wealth_milestone = 'Stability Phase' THEN 60\n    WHEN wealth_milestone = 'Growth Phase' THEN 80\n    WHEN wealth_milestone = 'Wealth Phase' THEN 100\n    ELSE 40\n  END as wealth_milestone_score\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  net_worth_health_score AS \"Net Worth Health Score\",\n  CASE \n    WHEN financial_position = 'Critical Debt' THEN 0\n    WHEN financial_position = 'High Debt' THEN 20\n    WHEN financial_position = 'Negative Net Worth' THEN 40\n    WHEN financial_position = 'Low Net Worth' THEN 60\n    WHEN financial_position = 'Positive Net Worth' THEN 80\n    WHEN financial_position = 'Strong Net Worth' THEN 100\n    ELSE 40\n  END as \"Financial Position Score\",\n  CASE \n    WHEN wealth_milestone = 'Crisis Phase' THEN 0\n    WHEN wealth_milestone = 'Recovery Phase' THEN 20\n    WHEN wealth_milestone = 'Rebuilding Phase' THEN 40\n    WHEN wealth_milestone = 'Stability Phase' THEN 60\n    WHEN wealth_milestone = 'Growth Phase' THEN 80\n    WHEN wealth_milestone = 'Wealth Phase' THEN 100\n    ELSE 40\n  END as \"Wealth Milestone Score\"\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -552,7 +552,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_assets,\n  total_liabilities,\n  liquid_assets,\n  property_assets,\n  non_property_assets\nFROM reporting.rpt_household_net_worth \nWHERE period_end_date < date_trunc('month', CURRENT_DATE)\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_assets AS \"Total Assets\",\n  total_liabilities AS \"Total Liabilities\",\n  liquid_assets AS \"Liquid Assets\",\n  property_assets AS \"Property Assets\",\n  non_property_assets AS \"Non-Property Assets\"\nFROM reporting.rpt_household_net_worth \nWHERE period_end_date < date_trunc('month', CURRENT_DATE)\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1055,7 +1055,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  mom_net_worth_change,\n  mom_net_worth_change_percent,\n  debt_to_asset_ratio,\n  growth_classification\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  mom_net_worth_change AS \"Month-over-Month Net Worth Change\",\n  mom_net_worth_change_percent AS \"Month-over-Month Net Worth Change Percent\",\n  debt_to_asset_ratio AS \"Debt-to-Asset Ratio\",\n  growth_classification AS \"Growth Classification\"\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1203,7 +1203,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  ytd_net_worth_change,\n  yoy_net_worth_change_percent,\n  monthly_mortgage_principal_reduction,\n  estimated_months_expenses_covered\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  ytd_net_worth_change AS \"Year-to-Date Net Worth Change\",\n  yoy_net_worth_change_percent AS \"Year-over-Year Net Worth Change Percent\",\n  monthly_mortgage_principal_reduction AS \"Monthly Mortgage Principal Reduction\",\n  estimated_months_expenses_covered AS \"Estimated Months of Expenses Covered\"\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1567,7 +1567,7 @@
       "options": {
         "legend": {
           "calcs": [
-            "value"
+            "lastNotNull"
           ],
           "displayMode": "table",
           "placement": "right",
@@ -1768,7 +1768,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  liquid_allocation_drift,\n  property_allocation_drift,\n  other_allocation_drift,\n  total_allocation_drift_score\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  liquid_allocation_drift AS \"Liquid Allocation Drift\",\n  property_allocation_drift AS \"Property Allocation Drift\",\n  other_allocation_drift AS \"Other Allocation Drift\",\n  total_allocation_drift_score AS \"Total Allocation Drift Score\"\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1898,7 +1898,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  mom_assets_change,\n  mom_liabilities_change,\n  mom_net_worth_change\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  mom_assets_change AS \"Month-over-Month Assets Change\",\n  mom_liabilities_change AS \"Month-over-Month Liabilities Change\",\n  mom_net_worth_change AS \"Month-over-Month Net Worth Change\"\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],

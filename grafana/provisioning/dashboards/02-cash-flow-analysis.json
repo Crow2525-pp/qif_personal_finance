@@ -867,14 +867,38 @@
         "overrides": [
           {
             "matcher": {
-              "id": "byName",
-              "options": "cash_flow_margin_percent"
+              "id": "byRegexp",
+              "options": ".*(Flow|Income|Expenses|Amount).*"
             },
             "properties": [
               {
-                "id": "displayName",
-                "value": "Cash Flow Margin"
+                "id": "unit",
+                "value": "currencyUSD"
               },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*(%|Change).*"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CF Margin"
+            },
+            "properties": [
               {
                 "id": "color",
                 "value": {
@@ -892,11 +916,11 @@
                     },
                     {
                       "color": "yellow",
-                      "value": 5
+                      "value": 0.05
                     },
                     {
                       "color": "green",
-                      "value": 15
+                      "value": 0.15
                     }
                   ]
                 }
@@ -906,13 +930,9 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "outflow_to_inflow_ratio"
+              "options": "Outflow/Inflow"
             },
             "properties": [
-              {
-                "id": "displayName",
-                "value": "Outflow to Inflow Ratio"
-              },
               {
                 "id": "color",
                 "value": {
@@ -930,38 +950,14 @@
                     },
                     {
                       "color": "yellow",
-                      "value": 80
+                      "value": 0.8
                     },
                     {
                       "color": "red",
-                      "value": 95
+                      "value": 0.95
                     }
                   ]
                 }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "mom_inflow_change_percent"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "MoM Inflow Change (Last vs Prior)"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "mom_outflow_change_percent"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "MoM Outflow Change (Last vs Prior)"
               }
             ]
           }
@@ -1000,7 +996,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  cash_flow_margin_percent,\n  outflow_to_inflow_ratio,\n  mom_inflow_change_percent,\n  mom_outflow_change_percent\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  cash_flow_margin_percent AS \"CF Margin\",\n  outflow_to_inflow_ratio AS \"Outflow/Inflow\",\n  mom_inflow_change_percent AS \"MoM Inflow Change\",\n  mom_outflow_change_percent AS \"MoM Outflow Change\"\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1106,6 +1102,18 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ytd_months_included"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
           }
         ]
       },
@@ -1142,7 +1150,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH monthly AS (\n  SELECT\n    to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date,\n    total_inflows,\n    total_outflows,\n    net_cash_flow\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n), latest AS (\n  SELECT MAX(month_date) AS latest_month\n  FROM monthly\n), ytd AS (\n  SELECT\n    SUM(m.total_inflows) AS ytd_inflows,\n    SUM(m.total_outflows) AS ytd_outflows,\n    SUM(m.net_cash_flow) AS ytd_net_cash_flow,\n    COUNT(*) AS ytd_months_included\n  FROM monthly m\n  CROSS JOIN latest l\n  WHERE date_trunc('year', m.month_date) = date_trunc('year', l.latest_month)\n    AND m.month_date <= l.latest_month\n)\nSELECT\n  ytd_inflows,\n  ytd_outflows,\n  ytd_net_cash_flow,\n  ytd_months_included\nFROM ytd;",
+          "rawSql": "WITH monthly AS (\n  SELECT\n    to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date,\n    total_inflows,\n    total_outflows,\n    net_cash_flow\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n), latest AS (\n  SELECT MAX(month_date) AS latest_month\n  FROM monthly\n), ytd AS (\n  SELECT\n    SUM(m.total_inflows) AS ytd_inflows,\n    SUM(m.total_outflows) AS ytd_outflows,\n    SUM(m.net_cash_flow) AS ytd_net_cash_flow,\n    COUNT(*) AS ytd_months_included\n  FROM monthly m\n  CROSS JOIN latest l\n  WHERE date_trunc('year', m.month_date) = date_trunc('year', l.latest_month)\n    AND m.month_date <= l.latest_month\n)\nSELECT\n  ytd_inflows,\n  ytd_outflows,\n  ytd_net_cash_flow\nFROM ytd;",
           "refId": "A"
         }
       ],
@@ -1220,7 +1228,7 @@
           {
             "matcher": {
               "id": "byRegexp",
-              "options": "(?i)(flow|income|expenses|Amount)"
+              "options": ".*(Flow|Income|Expenses|Amount).*"
             },
             "properties": [
               {
@@ -1232,7 +1240,7 @@
           {
             "matcher": {
               "id": "byRegexp",
-              "options": "(?i)(%|Change)"
+              "options": ".*(%|Change).*"
             },
             "properties": [
               {
@@ -1506,6 +1514,70 @@
                     "type": "value"
                   }
                 ]
+              },
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Merchant/Bill"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 200
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Category"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 130
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Subcategory"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 130
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Frequency"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 90
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Confidence %"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 90
               }
             ]
           }
@@ -1934,6 +2006,10 @@
               {
                 "id": "unit",
                 "value": "string"
+              },
+              {
+                "id": "custom.width",
+                "value": 200
               }
             ]
           },
@@ -2000,6 +2076,30 @@
               {
                 "id": "unit",
                 "value": "short"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Category"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Subcategory"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
               }
             ]
           }
@@ -2160,6 +2260,34 @@
               {
                 "id": "unit",
                 "value": "string"
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Category"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Subcategory"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
               }
             ]
           }
@@ -2274,6 +2402,46 @@
               {
                 "id": "unit",
                 "value": "string"
+              },
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Category"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 130
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Subcategory"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 130
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Risk Description"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 250
               }
             ]
           }
