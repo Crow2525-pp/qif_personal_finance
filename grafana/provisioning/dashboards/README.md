@@ -10,11 +10,15 @@ This folder is mounted into Grafana so dashboards auto-load from versioned JSON,
 1) Edit JSON in this directory (keep UIDs stable so Grafana overwrites the same dashboards).
 2) For quick sync without restarting Grafana, run `python scripts/push_grafana_dashboards.py` (uses Grafana API and defaults to all JSON files).
 3) Verify panels with the pre-commit dashboard checklist in `CLAUDE.md`.
-4) Use the Playwright MCP server to validate dashboards quickly:
-   - `mcp__playwright__browser_navigate(url="http://localhost:3001")`
-   - log in (credentials from your `.env`)
-   - `mcp__playwright__browser_take_screenshot(filename="screenshots/dashboard-review.png", fullPage=true)`
-   - look for “No data”, datasource errors, or console errors; attach the screenshot to `activity.md` for the task.
+4) Use the Playwright CLI to validate dashboards quickly (preferred over MCP for lower token usage):
+   ```bash
+   # Screenshot a specific dashboard
+   playwright screenshot --browser=chromium http://localhost:3001/d/<dashboard_uid> screenshots/dashboard-review.png
+
+   # Full-page screenshot
+   playwright screenshot --browser=chromium --full-page http://localhost:3001/dashboards screenshots/all-dashboards.png
+   ```
+   - Look for "No data", datasource errors, or console errors; attach the screenshot to `activity.md` for the task.
 
 ## Conventions
 - Currency must render as USD ($); avoid AUD labels in panel formatting.

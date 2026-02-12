@@ -79,7 +79,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT ROUND(AVG(coles_spend), 2) as \"Coles Avg\", ROUND(AVG(woolworths_spend), 2) as \"Woolworths Avg\", ROUND(AVG(gaskos_spend), 2) as \"Gaskos Avg\", ROUND(AVG(total_grocery_spend), 2) as \"Total Avg\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= NOW() - INTERVAL '12 months'",
+          "rawSql": "SELECT ROUND(AVG(coles_spend), 2) as \"Coles Avg\", ROUND(AVG(woolworths_spend), 2) as \"Woolworths Avg\", ROUND(AVG(gaskos_spend), 2) as \"Gaskos Avg\", ROUND(AVG(total_grocery_spend), 2) as \"Total Avg\" FROM reporting.viz_grocery_monthly_summary WHERE $__timeFilter(year_month)",
           "refId": "A"
         }
       ],
@@ -314,7 +314,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, coles_percentage as \"Coles\", woolworths_percentage as \"Woolworths\", gaskos_percentage as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= NOW() - INTERVAL '2 month' AND year_month < NOW() - INTERVAL '1 month' ORDER BY year_month DESC LIMIT 1",
+          "rawSql": "SELECT year_month as time, coles_percentage as \"Coles\", woolworths_percentage as \"Woolworths\", gaskos_percentage as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= date_trunc('month', $__timeTo()::timestamptz) - INTERVAL '2 month' AND year_month < date_trunc('month', $__timeTo()::timestamptz) - INTERVAL '1 month' ORDER BY year_month DESC LIMIT 1",
           "refId": "A"
         }
       ],
@@ -405,7 +405,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, coles_spend as \"Coles\", woolworths_spend as \"Woolworths\", gaskos_spend as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= NOW() - INTERVAL '18 months' ORDER BY year_month",
+          "rawSql": "SELECT year_month as time, coles_spend as \"Coles\", woolworths_spend as \"Woolworths\", gaskos_spend as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE $__timeFilter(year_month) ORDER BY year_month",
           "refId": "A"
         }
       ],
@@ -496,7 +496,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, total_grocery_spend as \"Total Grocery Spend\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= NOW() - INTERVAL '18 months' ORDER BY year_month",
+          "rawSql": "SELECT year_month as time, total_grocery_spend as \"Total Grocery Spend\" FROM reporting.viz_grocery_monthly_summary WHERE $__timeFilter(year_month) ORDER BY year_month",
           "refId": "A"
         }
       ],
@@ -587,7 +587,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "WITH monthly_spend AS (\n  SELECT year_month, total_grocery_spend\n  FROM reporting.viz_grocery_monthly_summary\n  WHERE year_month >= NOW() - INTERVAL '18 months'\n)\nSELECT\n  year_month AS time,\n  total_grocery_spend AS \"Monthly Spend\",\n  ROUND(\n    AVG(total_grocery_spend) OVER (\n      ORDER BY year_month\n      ROWS BETWEEN 2 PRECEDING AND CURRENT ROW\n    ),\n    2\n  ) AS \"3-Month Rolling Avg\"\nFROM monthly_spend\nORDER BY year_month",
+          "rawSql": "WITH monthly_spend AS (\n  SELECT year_month, total_grocery_spend\n  FROM reporting.viz_grocery_monthly_summary\n  WHERE $__timeFilter(year_month)\n)\nSELECT\n  year_month AS time,\n  total_grocery_spend AS \"Monthly Spend\",\n  ROUND(\n    AVG(total_grocery_spend) OVER (\n      ORDER BY year_month\n      ROWS BETWEEN 2 PRECEDING AND CURRENT ROW\n    ),\n    2\n  ) AS \"3-Month Rolling Avg\"\nFROM monthly_spend\nORDER BY year_month",
           "refId": "A"
         }
       ],
@@ -678,7 +678,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, coles_percentage/100 as \"Coles\", woolworths_percentage/100 as \"Woolworths\", gaskos_percentage/100 as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= NOW() - INTERVAL '18 months' ORDER BY year_month",
+          "rawSql": "SELECT year_month as time, coles_percentage/100 as \"Coles\", woolworths_percentage/100 as \"Woolworths\", gaskos_percentage/100 as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE $__timeFilter(year_month) ORDER BY year_month",
           "refId": "A"
         }
       ],
@@ -807,7 +807,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH store_averages AS (\n  SELECT \n    grocery_store,\n    ROUND(AVG(monthly_spend), 2) AS avg_monthly_spend,\n    COUNT(*) AS months_tracked\n  FROM reporting.viz_grocery_spending_analysis\n  WHERE year_month >= NOW() - INTERVAL '12 months'\n  GROUP BY grocery_store\n), min_store AS (\n  SELECT \n    grocery_store,\n    avg_monthly_spend,\n    months_tracked,\n    FIRST_VALUE(grocery_store) OVER (ORDER BY avg_monthly_spend) AS cheapest_store,\n    FIRST_VALUE(avg_monthly_spend) OVER (ORDER BY avg_monthly_spend) AS cheapest_price\n  FROM store_averages\n)\nSELECT \n  grocery_store AS \"Store\",\n  avg_monthly_spend AS \"Avg Spend\",\n  ROUND(avg_monthly_spend - cheapest_price, 2) AS \"Premium Over Cheapest\",\n  months_tracked AS \"Months\"\nFROM min_store\nORDER BY avg_monthly_spend ASC",
+          "rawSql": "WITH store_averages AS (\n  SELECT \n    grocery_store,\n    ROUND(AVG(monthly_spend), 2) AS avg_monthly_spend,\n    COUNT(*) AS months_tracked\n  FROM reporting.viz_grocery_spending_analysis\n  WHERE $__timeFilter(year_month)\n  GROUP BY grocery_store\n), min_store AS (\n  SELECT \n    grocery_store,\n    avg_monthly_spend,\n    months_tracked,\n    FIRST_VALUE(grocery_store) OVER (ORDER BY avg_monthly_spend) AS cheapest_store,\n    FIRST_VALUE(avg_monthly_spend) OVER (ORDER BY avg_monthly_spend) AS cheapest_price\n  FROM store_averages\n)\nSELECT \n  grocery_store AS \"Store\",\n  avg_monthly_spend AS \"Avg Spend\",\n  ROUND(avg_monthly_spend - cheapest_price, 2) AS \"Premium Over Cheapest\",\n  months_tracked AS \"Months\"\nFROM min_store\nORDER BY avg_monthly_spend ASC",
           "refId": "A"
         }
       ],
@@ -870,7 +870,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT grocery_store, order_count as \"Order Count\", ROUND(average_order_value, 2) as \"Avg Order Value\", ROUND(largest_order_value, 2) as \"Largest Order\" FROM reporting.viz_grocery_order_context WHERE year_month = (SELECT MAX(year_month) FROM reporting.viz_grocery_order_context) ORDER BY grocery_store",
+          "rawSql": "SELECT grocery_store AS \"Grocery Store\", order_count as \"Order Count\", ROUND(average_order_value, 2) as \"Average Order Value\", ROUND(largest_order_value, 2) as \"Largest Order\" FROM reporting.viz_grocery_order_context WHERE year_month = (SELECT MAX(year_month) FROM reporting.viz_grocery_order_context) ORDER BY grocery_store",
           "refId": "A"
         }
       ],
@@ -933,7 +933,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT grocery_store, ROUND(COALESCE(recurring_spend, 0), 2) as \"Recurring Spend\", ROUND(COALESCE(oneoff_spend, 0), 2) as \"One-Off Spend\" FROM reporting.viz_grocery_order_context WHERE year_month = (SELECT MAX(year_month) FROM reporting.viz_grocery_order_context) ORDER BY grocery_store",
+          "rawSql": "SELECT grocery_store AS \"Grocery Store\", ROUND(COALESCE(recurring_spend, 0), 2) as \"Recurring Spend\", ROUND(COALESCE(oneoff_spend, 0), 2) as \"One-Off Spend\" FROM reporting.viz_grocery_order_context WHERE year_month = (SELECT MAX(year_month) FROM reporting.viz_grocery_order_context) ORDER BY grocery_store",
           "refId": "A"
         }
       ],
@@ -1021,7 +1021,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, grocery_store, average_order_value FROM reporting.viz_grocery_order_context WHERE year_month >= NOW() - INTERVAL '18 months' ORDER BY year_month, grocery_store",
+          "rawSql": "SELECT year_month as time, grocery_store, average_order_value FROM reporting.viz_grocery_order_context WHERE $__timeFilter(year_month) ORDER BY year_month, grocery_store",
           "refId": "A"
         }
       ],
@@ -1095,7 +1095,34 @@
     "to": "now"
   },
   "timepicker": {
-    "hidden": true
+    "hidden": false,
+    "quick_ranges": [
+      {
+        "from": "now-1M/M",
+        "to": "now/M",
+        "display": "Last complete month"
+      },
+      {
+        "from": "now-3M/M",
+        "to": "now/M",
+        "display": "Last quarter"
+      },
+      {
+        "from": "now/y",
+        "to": "now",
+        "display": "Year to date"
+      },
+      {
+        "from": "now-12M/M",
+        "to": "now/M",
+        "display": "Trailing 12 months"
+      },
+      {
+        "from": "now-5y",
+        "to": "now",
+        "display": "All time"
+      }
+    ]
   },
   "timezone": "Australia/Melbourne",
   "title": "16 - Grocery Spending Analysis",

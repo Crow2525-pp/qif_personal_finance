@@ -125,11 +125,11 @@ models:
           - not_null
           - unique
       - name: total_savings_rate_percent
-        description: "Comprehensive savings rate including all forms of savings"
+        description: "Primary net savings rate ratio (net cash flow / income)"
         tests:
           - not_null
       - name: traditional_savings_rate_percent
-        description: "Traditional savings rate excluding mortgage principal payments"
+        description: "Contribution-based savings rate ratio ((cash + offset + investment contributions) / income), including Vanguard share-account contributions"
         tests:
           - not_null
       - name: estimated_annual_liquid_savings

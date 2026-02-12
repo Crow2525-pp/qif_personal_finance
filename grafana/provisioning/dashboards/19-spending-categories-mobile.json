@@ -352,7 +352,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n    period_date as time,\n    (\"Family & Kids\" + \"Food & Drink\" + \"Health & Beauty\" + \"Household & Services\" + \"Leisure\" + \"Mortgage\" + \"Shopping\" + \"Transport\") as \"Total Monthly Expenses\"\nFROM reporting.viz_spending_by_category_by_month\nWHERE period_date >= CURRENT_DATE - INTERVAL '12 months'\nORDER BY period_date;",
+          "rawSql": "SELECT \n    period_date as time,\n    (\"Family & Kids\" + \"Food & Drink\" + \"Health & Beauty\" + \"Household & Services\" + \"Leisure\" + \"Mortgage\" + \"Shopping\" + \"Transport\") as \"Total Monthly Expenses\"\nFROM reporting.viz_spending_by_category_by_month\nWHERE $__timeFilter(period_date)\nORDER BY period_date;",
           "refId": "A"
         }
       ],
@@ -441,7 +441,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n    period_date as time,\n    'Food & Drink' as metric,\n    \"Food & Drink\" as value\nFROM reporting.viz_spending_by_category_by_month\nWHERE period_date >= CURRENT_DATE - INTERVAL '12 months'\nUNION ALL\nSELECT \n    period_date as time,\n    'Household & Services' as metric,\n    \"Household & Services\" as value\nFROM reporting.viz_spending_by_category_by_month\nWHERE period_date >= CURRENT_DATE - INTERVAL '12 months'\nUNION ALL\nSELECT \n    period_date as time,\n    'Transport' as metric,\n    \"Transport\" as value\nFROM reporting.viz_spending_by_category_by_month\nWHERE period_date >= CURRENT_DATE - INTERVAL '12 months'\nUNION ALL\nSELECT \n    period_date as time,\n    'Shopping' as metric,\n    \"Shopping\" as value\nFROM reporting.viz_spending_by_category_by_month\nWHERE period_date >= CURRENT_DATE - INTERVAL '12 months'\nUNION ALL\nSELECT \n    period_date as time,\n    'Leisure' as metric,\n    \"Leisure\" as value\nFROM reporting.viz_spending_by_category_by_month\nWHERE period_date >= CURRENT_DATE - INTERVAL '12 months'\nORDER BY time, metric;",
+          "rawSql": "SELECT \n    period_date as time,\n    'Food & Drink' as metric,\n    \"Food & Drink\" as value\nFROM reporting.viz_spending_by_category_by_month\nWHERE $__timeFilter(period_date)\nUNION ALL\nSELECT \n    period_date as time,\n    'Household & Services' as metric,\n    \"Household & Services\" as value\nFROM reporting.viz_spending_by_category_by_month\nWHERE $__timeFilter(period_date)\nUNION ALL\nSELECT \n    period_date as time,\n    'Transport' as metric,\n    \"Transport\" as value\nFROM reporting.viz_spending_by_category_by_month\nWHERE $__timeFilter(period_date)\nUNION ALL\nSELECT \n    period_date as time,\n    'Shopping' as metric,\n    \"Shopping\" as value\nFROM reporting.viz_spending_by_category_by_month\nWHERE $__timeFilter(period_date)\nUNION ALL\nSELECT \n    period_date as time,\n    'Leisure' as metric,\n    \"Leisure\" as value\nFROM reporting.viz_spending_by_category_by_month\nWHERE $__timeFilter(period_date)\nORDER BY time, metric;",
           "refId": "A"
         }
       ],
@@ -508,7 +508,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    transaction_memo as \"High Value Merchants\",\n    ABS(transaction_amount) as \"Amount\"\nFROM reporting.fct_transactions\nWHERE transaction_amount <= -500\nAND transaction_date >= CURRENT_DATE - INTERVAL '90 days'\nORDER BY ABS(transaction_amount) DESC\nLIMIT 8;",
+          "rawSql": "SELECT \n    transaction_memo as \"High Value Merchants\",\n    ABS(transaction_amount) as \"Amount\"\nFROM reporting.fct_transactions\nWHERE transaction_amount <= -500\nAND $__timeFilter(transaction_date)\nORDER BY ABS(transaction_amount) DESC\nLIMIT 8;",
           "refId": "A"
         }
       ],
@@ -655,7 +655,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    transaction_memo as \"Recurring Merchants\",\n    COUNT(*) as \"Count (6m)\",\n    ABS(SUM(transaction_amount)) as \"Total Spent\"\nFROM reporting.fct_transactions\nWHERE transaction_amount < 0\nAND transaction_date >= CURRENT_DATE - INTERVAL '6 months'\nGROUP BY transaction_memo\nHAVING COUNT(*) >= 3\nORDER BY COUNT(*) DESC, ABS(SUM(transaction_amount)) DESC\nLIMIT 8;",
+          "rawSql": "SELECT \n    transaction_memo as \"Recurring Merchants\",\n    COUNT(*) as \"Count\",\n    ABS(SUM(transaction_amount)) as \"Total Spent\"\nFROM reporting.fct_transactions\nWHERE transaction_amount < 0\nAND $__timeFilter(transaction_date)\nGROUP BY transaction_memo\nHAVING COUNT(*) >= 3\nORDER BY COUNT(*) DESC, ABS(SUM(transaction_amount)) DESC\nLIMIT 8;",
           "refId": "A"
         }
       ],
@@ -737,7 +737,7 @@
           },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH aldi_monthly AS (\n    SELECT \n        DATE_TRUNC('month', transaction_date) as month,\n        ABS(SUM(transaction_amount)) as aldi_spend\n    FROM reporting.fct_transactions \n    WHERE transaction_memo ILIKE '%ALDI STORES%' \n        AND transaction_amount < 0 \n        AND transaction_date >= CURRENT_DATE - INTERVAL '12 months'\n    GROUP BY DATE_TRUNC('month', transaction_date)\n),\ngrocery_with_aldi AS (\n    SELECT \n        gms.coles_spend,\n        gms.woolworths_spend, \n        gms.gaskos_spend,\n        COALESCE(am.aldi_spend, 0) as aldi_spend,\n        gms.total_grocery_spend + COALESCE(am.aldi_spend, 0) as total_with_aldi\n    FROM reporting.viz_grocery_monthly_summary gms\n    LEFT JOIN aldi_monthly am ON gms.year_month = am.month\n    WHERE gms.year_month >= NOW() - INTERVAL '12 months'\n)\nSELECT \n    ROUND(AVG(coles_spend), 2) as \"Coles 12m Avg\", \n    ROUND(AVG(woolworths_spend), 2) as \"Woolworths 12m Avg\", \n    ROUND(AVG(gaskos_spend), 2) as \"Gaskos 12m Avg\",\n    ROUND(AVG(aldi_spend), 2) as \"ALDI 12m Avg\",\n    ROUND(AVG(total_with_aldi), 2) as \"Total 12m Avg\" \nFROM grocery_with_aldi",
+          "rawSql": "WITH aldi_monthly AS (\n    SELECT \n        DATE_TRUNC('month', transaction_date) as month,\n        ABS(SUM(transaction_amount)) as aldi_spend\n    FROM reporting.fct_transactions \n    WHERE transaction_memo ILIKE '%ALDI STORES%' \n        AND transaction_amount < 0 \n        AND $__timeFilter(transaction_date)\n    GROUP BY DATE_TRUNC('month', transaction_date)\n),\ngrocery_with_aldi AS (\n    SELECT \n        gms.coles_spend,\n        gms.woolworths_spend, \n        gms.gaskos_spend,\n        COALESCE(am.aldi_spend, 0) as aldi_spend,\n        gms.total_grocery_spend + COALESCE(am.aldi_spend, 0) as total_with_aldi\n    FROM reporting.viz_grocery_monthly_summary gms\n    LEFT JOIN aldi_monthly am ON gms.year_month = am.month\n    WHERE $__timeFilter(gms.year_month)\n)\nSELECT \n    ROUND(AVG(coles_spend), 2) as \"Coles Avg\", \n    ROUND(AVG(woolworths_spend), 2) as \"Woolworths Avg\", \n    ROUND(AVG(gaskos_spend), 2) as \"Gaskos Avg\",\n    ROUND(AVG(aldi_spend), 2) as \"ALDI Avg\",\n    ROUND(AVG(total_with_aldi), 2) as \"Total Avg\" \nFROM grocery_with_aldi",
           "refId": "A"
         }
       ],
@@ -895,7 +895,7 @@
           },
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "WITH aldi_monthly AS (\n    SELECT \n        DATE_TRUNC('month', transaction_date) as month,\n        ABS(SUM(transaction_amount)) as aldi_spend\n    FROM reporting.fct_transactions \n    WHERE transaction_memo ILIKE '%ALDI STORES%' \n        AND transaction_amount < 0 \n        AND transaction_date >= CURRENT_DATE - INTERVAL '18 months'\n    GROUP BY DATE_TRUNC('month', transaction_date)\n)\nSELECT \n    gms.year_month as time,\n    gms.coles_spend as \"Coles\",\n    gms.woolworths_spend as \"Woolworths\",\n    gms.gaskos_spend as \"Gaskos\",\n    COALESCE(am.aldi_spend, 0) as \"ALDI\",\n    gms.total_grocery_spend + COALESCE(am.aldi_spend, 0) as \"Total Grocery\"\nFROM reporting.viz_grocery_monthly_summary gms\nLEFT JOIN aldi_monthly am ON gms.year_month = am.month\nWHERE gms.year_month >= NOW() - INTERVAL '18 months'\nORDER BY gms.year_month;",
+          "rawSql": "WITH aldi_monthly AS (\n    SELECT \n        DATE_TRUNC('month', transaction_date) as month,\n        ABS(SUM(transaction_amount)) as aldi_spend\n    FROM reporting.fct_transactions \n    WHERE transaction_memo ILIKE '%ALDI STORES%' \n        AND transaction_amount < 0 \n        AND $__timeFilter(transaction_date)\n    GROUP BY DATE_TRUNC('month', transaction_date)\n)\nSELECT \n    gms.year_month as time,\n    gms.coles_spend as \"Coles\",\n    gms.woolworths_spend as \"Woolworths\",\n    gms.gaskos_spend as \"Gaskos\",\n    COALESCE(am.aldi_spend, 0) as \"ALDI\",\n    gms.total_grocery_spend + COALESCE(am.aldi_spend, 0) as \"Total Grocery\"\nFROM reporting.viz_grocery_monthly_summary gms\nLEFT JOIN aldi_monthly am ON gms.year_month = am.month\nWHERE $__timeFilter(gms.year_month)\nORDER BY gms.year_month;",
           "refId": "A"
         }
       ],
@@ -917,7 +917,34 @@
     "to": "now"
   },
   "timepicker": {
-    "hidden": true
+    "hidden": false,
+    "quick_ranges": [
+      {
+        "from": "now-1M/M",
+        "to": "now/M",
+        "display": "Last complete month"
+      },
+      {
+        "from": "now-3M/M",
+        "to": "now/M",
+        "display": "Last quarter"
+      },
+      {
+        "from": "now/y",
+        "to": "now",
+        "display": "Year to date"
+      },
+      {
+        "from": "now-12M/M",
+        "to": "now/M",
+        "display": "Trailing 12 months"
+      },
+      {
+        "from": "now-5y",
+        "to": "now",
+        "display": "All time"
+      }
+    ]
   },
   "timezone": "Australia/Melbourne",
   "title": "19 - Spending & Categories (Mobile)",

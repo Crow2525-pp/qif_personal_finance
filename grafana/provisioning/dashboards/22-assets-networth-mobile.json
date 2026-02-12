@@ -419,7 +419,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    net_worth as \"Net Worth\",\n    total_assets as \"Assets\",\n    -total_liabilities as \"Liabilities\"\nFROM reporting.rpt_household_net_worth\nWHERE budget_year_month >= TO_CHAR(CURRENT_DATE - INTERVAL '24 months', 'YYYY-MM')\nORDER BY budget_year_month;",
+          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    net_worth as \"Net Worth\",\n    total_assets as \"Assets\",\n    -total_liabilities as \"Liabilities\"\nFROM reporting.rpt_household_net_worth\nWHERE $__timeFilter(TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date)\nORDER BY budget_year_month;",
           "refId": "A"
         }
       ],
@@ -682,7 +682,34 @@
     "to": "now"
   },
   "timepicker": {
-    "hidden": true
+    "hidden": false,
+    "quick_ranges": [
+      {
+        "from": "now-1M/M",
+        "to": "now/M",
+        "display": "Last complete month"
+      },
+      {
+        "from": "now-3M/M",
+        "to": "now/M",
+        "display": "Last quarter"
+      },
+      {
+        "from": "now/y",
+        "to": "now",
+        "display": "Year to date"
+      },
+      {
+        "from": "now-12M/M",
+        "to": "now/M",
+        "display": "Trailing 12 months"
+      },
+      {
+        "from": "now-5y",
+        "to": "now",
+        "display": "All time"
+      }
+    ]
   },
   "timezone": "Australia/Melbourne",
   "title": "22 - Assets & Net Worth (Mobile)",

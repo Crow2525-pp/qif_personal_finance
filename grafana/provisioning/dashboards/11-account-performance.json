@@ -59,7 +59,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_input AS (\n  SELECT\n    NULLIF(TRIM('Latest'), '') AS period_input,\n    COALESCE(NULLIF(TRIM('latest'), ''), 'latest') AS time_window\n),\nselected_period AS (\n  SELECT\n    CASE\n      WHEN period_input IS NULL OR LOWER(period_input) = 'latest' THEN (SELECT month_date FROM latest_period)\n      WHEN period_input ~ '^[0-9]{4}-[0-9]{2}$' THEN to_date(period_input || '-01', 'YYYY-MM-DD')\n      ELSE (SELECT month_date FROM latest_period)\n    END AS month_date,\n    time_window\n  FROM selected_input\n),\naccount_refresh AS (\n  SELECT MAX(report_generated_at) AS last_refresh\n  FROM reporting.rpt_account_performance\n  WHERE budget_year_month = to_char((SELECT month_date FROM selected_period), 'YYYY-MM')\n),\nfreshness AS (\n  SELECT\n    (SELECT month_date FROM selected_period) AS month_date,\n    (SELECT last_refresh FROM account_refresh) AS last_refresh,\n    DATE_PART('month', age(date_trunc('month', CURRENT_DATE), (SELECT month_date FROM selected_period)))::int AS months_behind\n)\nSELECT\n  CASE (SELECT time_window FROM selected_period)\n    WHEN 'ytd' THEN 'Year to Date'\n    WHEN 'trailing_12m' THEN 'Trailing 12 Months'\n    ELSE 'Latest Month'\n  END AS \"Time Window\",\n  to_char(month_date, 'Mon YYYY') AS \"Data Through\",\n  to_char(last_refresh, 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\",\n  CASE\n    WHEN months_behind <= 1 THEN 'On Cadence'\n    WHEN months_behind = 2 THEN 'Lagging by 1 month'\n    ELSE 'Stale (2+ months behind)'\n  END AS \"Status\",\n  'Australia/Melbourne' AS \"Timezone\",\n  'Monthly (review quarterly)' AS \"Expected Cadence\"\nFROM freshness;"
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_input AS (\n  SELECT\n    NULLIF(TRIM('Latest'), '') AS period_input,\n    COALESCE(NULLIF(TRIM('latest'), ''), 'latest') AS time_window\n),\nselected_period AS (\n  SELECT\n    CASE\n      WHEN period_input IS NULL OR LOWER(period_input) = 'latest' THEN (SELECT month_date FROM latest_period)\n      WHEN period_input ~ '^[0-9]{4}-[0-9]{2}$' THEN to_date(period_input || '-01', 'YYYY-MM-DD')\n      ELSE (SELECT month_date FROM latest_period)\n    END AS month_date,\n    time_window\n  FROM selected_input\n),\naccount_refresh AS (\n  SELECT MAX(report_generated_at) AS last_refresh\n  FROM reporting.rpt_account_performance\n  WHERE budget_year_month = to_char((SELECT month_date FROM selected_period), 'YYYY-MM')\n),\nfreshness AS (\n  SELECT\n    (SELECT month_date FROM selected_period) AS month_date,\n    (SELECT last_refresh FROM account_refresh) AS last_refresh,\n    DATE_PART('month', age(date_trunc('month', $__timeTo()::date), (SELECT month_date FROM selected_period)))::int AS months_behind\n)\nSELECT\n  CASE (SELECT time_window FROM selected_period)\n    WHEN 'ytd' THEN 'Year to Date'\n    WHEN 'trailing_12m' THEN 'Trailing 12 Months'\n    ELSE 'Latest Month'\n  END AS \"Time Window\",\n  to_char(month_date, 'Mon YYYY') AS \"Data Through\",\n  to_char(last_refresh, 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\",\n  CASE\n    WHEN months_behind <= 1 THEN 'On Cadence'\n    WHEN months_behind = 2 THEN 'Lagging by 1 month'\n    ELSE 'Stale (2+ months behind)'\n  END AS \"Status\",\n  'Australia/Melbourne' AS \"Timezone\",\n  'Monthly (review quarterly)' AS \"Expected Cadence\"\nFROM freshness;"
         }
       ],
       "options": {
@@ -146,7 +146,7 @@
               }
             ]
           },
-          "unit": "currencyAUD"
+          "unit": "currencyUSD"
         },
         "overrides": [
           {
@@ -223,7 +223,7 @@
               }
             ]
           },
-          "unit": "currencyAUD"
+          "unit": "currencyUSD"
         },
         "overrides": [
           {
@@ -335,7 +335,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest_complete_month AS (\n  SELECT MAX(period_date) AS period_date\n  FROM reporting.viz_balance_by_year_month\n  WHERE period_date < date_trunc('month', CURRENT_DATE)::date\n),\nlatest_row AS (\n  SELECT \n    \"offset\",\n    billsbillsbills,\n    homeloan,\n    countdown\n  FROM reporting.viz_balance_by_year_month \n  WHERE period_date = (SELECT period_date FROM latest_complete_month)\n  LIMIT 1\n)\nSELECT * FROM latest_row\nUNION ALL\nSELECT 0::numeric AS \"offset\", 0::numeric AS billsbillsbills, 0::numeric AS homeloan, 0::numeric AS countdown\nWHERE NOT EXISTS (SELECT 1 FROM latest_row);",
+          "rawSql": "WITH latest_complete_month AS (\n  SELECT MAX(period_date) AS period_date\n  FROM reporting.viz_balance_by_year_month\n  WHERE period_date < date_trunc('month', $__timeTo()::date)::date\n),\nlatest_row AS (\n  SELECT \n    \"offset\",\n    billsbillsbills,\n    homeloan,\n    countdown\n  FROM reporting.viz_balance_by_year_month \n  WHERE period_date = (SELECT period_date FROM latest_complete_month)\n  LIMIT 1\n)\nSELECT * FROM latest_row\nUNION ALL\nSELECT 0::numeric AS \"offset\", 0::numeric AS billsbillsbills, 0::numeric AS homeloan, 0::numeric AS countdown\nWHERE NOT EXISTS (SELECT 1 FROM latest_row);",
           "refId": "A"
         }
       ],
@@ -398,7 +398,7 @@
               }
             ]
           },
-          "unit": "currencyAUD"
+          "unit": "currencyUSD"
         },
         "overrides": []
       },
@@ -489,7 +489,7 @@
               }
             ]
           },
-          "unit": "currencyAUD"
+          "unit": "currencyUSD"
         },
         "overrides": [
           {
@@ -618,7 +618,7 @@
               }
             ]
           },
-          "unit": "currencyAUD"
+          "unit": "currencyUSD"
         },
         "overrides": []
       },
@@ -709,7 +709,7 @@
               }
             ]
           },
-          "unit": "currencyAUD"
+          "unit": "currencyUSD"
         },
         "overrides": [
           {
@@ -945,7 +945,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT DISTINCT\n  account_name AS \"Account Name\",\n  account_type AS \"Account Type\",\n  bank_name AS \"Bank Name\",\n  account_category AS \"Account Category\",\n  is_liability AS \"Liability\",\n  is_transactional AS \"Transactional\",\n  is_asset AS \"Asset\",\n  is_liquid_asset AS \"Liquid Asset\",\n  is_loan AS \"Loan\",\n  is_homeloan AS \"Home Loan\",\n  is_debt AS \"Debt\"\nFROM reporting.rpt_account_performance \nWHERE budget_year_month = (\n  SELECT MAX(budget_year_month) FROM reporting.rpt_account_performance\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n)\nORDER BY bank_name, account_name;",
+          "rawSql": "SELECT DISTINCT\n  account_name AS \"Account Name\",\n  account_type AS \"Account Type\",\n  bank_name AS \"Bank Name\",\n  account_category AS \"Account Category\",\n  is_liability AS \"Liability\",\n  is_transactional AS \"Transactional\",\n  is_asset AS \"Asset\",\n  is_liquid_asset AS \"Liquid Asset\",\n  is_loan AS \"Loan\",\n  is_homeloan AS \"Home Loan\",\n  is_debt AS \"Debt\"\nFROM reporting.rpt_account_performance \nWHERE budget_year_month = (\n  SELECT MAX(budget_year_month) FROM reporting.rpt_account_performance\n  WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\n)\nORDER BY bank_name, account_name;",
           "refId": "A"
         }
       ],
@@ -969,7 +969,36 @@
     "from": "now-1y",
     "to": "now"
   },
-  "timepicker": {},
+  "timepicker": {
+    "hidden": false,
+    "quick_ranges": [
+      {
+        "from": "now-1M/M",
+        "to": "now/M",
+        "display": "Last complete month"
+      },
+      {
+        "from": "now-3M/M",
+        "to": "now/M",
+        "display": "Last quarter"
+      },
+      {
+        "from": "now/y",
+        "to": "now",
+        "display": "Year to date"
+      },
+      {
+        "from": "now-12M/M",
+        "to": "now/M",
+        "display": "Trailing 12 months"
+      },
+      {
+        "from": "now-5y",
+        "to": "now",
+        "display": "All time"
+      }
+    ]
+  },
   "timezone": "",
   "title": "11 - Account Performance",
   "uid": "account_performance_dashboard",

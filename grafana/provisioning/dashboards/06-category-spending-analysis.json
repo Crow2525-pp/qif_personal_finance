@@ -199,7 +199,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "WITH top_categories AS (\n    SELECT level_1_category\n    FROM reporting.rpt_category_spending_trends \n    WHERE transaction_year >= EXTRACT(YEAR FROM DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year'))\n    AND budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\n      AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n      AND monthly_spending > 0\n    GROUP BY level_1_category\n    ORDER BY SUM(monthly_spending) DESC\n    LIMIT 6\n  )\n  SELECT \n    CONCAT(budget_year_month, '-01')::timestamp as time,\n    level_1_category as metric,\n    SUM(monthly_spending) as value\n  FROM reporting.rpt_category_spending_trends \n  WHERE transaction_year >= EXTRACT(YEAR FROM DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year'))\n    AND budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n    AND level_1_category IN (SELECT level_1_category FROM top_categories)\n  GROUP BY budget_year_month, level_1_category\n  ORDER BY time, level_1_category;",
+          "rawSql": "WITH top_categories AS (\n    SELECT level_1_category\n    FROM reporting.rpt_category_spending_trends \n    WHERE $__timeFilter(CONCAT(budget_year_month, '-01')::timestamp)\n      AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n      AND monthly_spending > 0\n    GROUP BY level_1_category\n    ORDER BY SUM(monthly_spending) DESC\n    LIMIT 6\n  )\n  SELECT \n    CONCAT(budget_year_month, '-01')::timestamp as time,\n    level_1_category as metric,\n    SUM(monthly_spending) as value\n  FROM reporting.rpt_category_spending_trends \n  WHERE $__timeFilter(CONCAT(budget_year_month, '-01')::timestamp)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n    AND level_1_category IN (SELECT level_1_category FROM top_categories)\n  GROUP BY budget_year_month, level_1_category\n  ORDER BY time, level_1_category;",
           "refId": "A"
         }
       ],
@@ -282,7 +282,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "WITH top_categories AS (\n    SELECT level_1_category\n    FROM reporting.rpt_category_spending_trends \n    WHERE transaction_year >= EXTRACT(YEAR FROM DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year'))\n    AND budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\n      AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n      AND monthly_spending > 0\n    GROUP BY level_1_category\n    ORDER BY SUM(monthly_spending) DESC\n    LIMIT 8\n  )\n  SELECT \n    CONCAT(budget_year_month, '-01')::timestamp as time,\n    level_1_category as metric,\n    SUM(monthly_spending) as value\n  FROM reporting.rpt_category_spending_trends \n  WHERE transaction_year >= EXTRACT(YEAR FROM DATE_TRUNC('year', CURRENT_DATE - INTERVAL '2 years'))\n    AND budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n    AND level_1_category IN (SELECT level_1_category FROM top_categories)\n  GROUP BY budget_year_month, level_1_category\n  ORDER BY time, level_1_category;",
+          "rawSql": "WITH top_categories AS (\n    SELECT level_1_category\n    FROM reporting.rpt_category_spending_trends \n    WHERE $__timeFilter(CONCAT(budget_year_month, '-01')::timestamp)\n      AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n      AND monthly_spending > 0\n    GROUP BY level_1_category\n    ORDER BY SUM(monthly_spending) DESC\n    LIMIT 8\n  )\n  SELECT \n    CONCAT(budget_year_month, '-01')::timestamp as time,\n    level_1_category as metric,\n    SUM(monthly_spending) as value\n  FROM reporting.rpt_category_spending_trends \n  WHERE $__timeFilter(CONCAT(budget_year_month, '-01')::timestamp)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n    AND level_1_category IN (SELECT level_1_category FROM top_categories)\n  GROUP BY budget_year_month, level_1_category\n  ORDER BY time, level_1_category;",
           "refId": "A"
         }
       ],
@@ -377,7 +377,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  CAST(transaction_year as text) as year,\n  SUM(monthly_spending) as amount\nFROM reporting.rpt_category_spending_trends \nWHERE transaction_year >= EXTRACT(YEAR FROM DATE_TRUNC('year', CURRENT_DATE - INTERVAL '5 years'))\n  AND transaction_year < EXTRACT(YEAR FROM CURRENT_DATE)\n  AND level_1_category NOT IN ('Bank Transaction', 'Salary')\n  AND monthly_spending > 0\nGROUP BY transaction_year\nORDER BY transaction_year;",
+          "rawSql": "SELECT \n  CAST(transaction_year as text) as year,\n  SUM(monthly_spending) as amount\nFROM reporting.rpt_category_spending_trends \nWHERE TO_DATE(transaction_year::text || '-01-01', 'YYYY-MM-DD') BETWEEN date_trunc('year', $__timeFrom()::timestamptz)::date AND date_trunc('year', $__timeTo()::timestamptz)::date\n  AND level_1_category NOT IN ('Bank Transaction', 'Salary')\n  AND monthly_spending > 0\nGROUP BY transaction_year\nORDER BY transaction_year;",
           "refId": "A"
         }
       ],
@@ -1052,7 +1052,34 @@
     "to": "now"
   },
   "timepicker": {
-    "hidden": true
+    "hidden": false,
+    "quick_ranges": [
+      {
+        "from": "now-1M/M",
+        "to": "now/M",
+        "display": "Last complete month"
+      },
+      {
+        "from": "now-3M/M",
+        "to": "now/M",
+        "display": "Last quarter"
+      },
+      {
+        "from": "now/y",
+        "to": "now",
+        "display": "Year to date"
+      },
+      {
+        "from": "now-12M/M",
+        "to": "now/M",
+        "display": "Trailing 12 months"
+      },
+      {
+        "from": "now-5y",
+        "to": "now",
+        "display": "All time"
+      }
+    ]
   },
   "timezone": "",
   "title": "06 - Category Spending Analysis",

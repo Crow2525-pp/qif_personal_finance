@@ -8,34 +8,58 @@
   )
 }}
 
-WITH monthly_savings_components AS (
-  SELECT 
+WITH monthly_budget_baseline AS (
+  SELECT
+    budget_year_month,
+    CAST(SPLIT_PART(budget_year_month, '-', 1) AS BIGINT) AS transaction_year,
+    CAST(SPLIT_PART(budget_year_month, '-', 2) AS BIGINT) AS transaction_month,
+    COALESCE(total_income, 0) AS total_income,
+    COALESCE(total_expenses, 0) AS total_expenses,
+    COALESCE(net_cash_flow, 0) AS net_cash_flow
+  FROM {{ ref('rpt_monthly_budget_summary') }}
+),
+
+monthly_savings_components AS (
+  SELECT
     ft.transaction_year,
     ft.transaction_month,
     ft.transaction_year || '-' || LPAD(ft.transaction_month::TEXT, 2, '0') AS budget_year_month,
-    
-    da.account_type,
-    da.account_category,
-    da.is_liability,
-    da.is_mortgage,
-    ft.is_income_transaction,
-    ft.is_internal_transfer,
-    dc.level_1_category,
     ft.transaction_amount,
-    
-    -- Classify savings types
-    CASE 
-      WHEN da.account_type = 'Offset' AND ft.transaction_amount > 0 
-           AND NOT ft.is_income_transaction AND NOT ft.is_internal_transfer THEN 'Internal_Transfer'
-      WHEN da.is_liquid_asset AND da.account_type <> 'Offset' AND ft.transaction_amount > 0 
-           AND NOT ft.is_income_transaction AND NOT ft.is_internal_transfer THEN 'Cash_Savings'
-      WHEN ft.is_income_transaction THEN 'Income'
+    da.account_type,
+    da.is_liquid_asset,
+    da.is_transactional,
+    da.is_mortgage,
+    dc.level_1_category,
+    (
+      COALESCE(ft.transaction_memo, '') ILIKE '%VANGUARD%'
+      OR COALESCE(ft.transaction_description, '') ILIKE '%VANGUARD%'
+      OR COALESCE(ft.transaction_memo, '') ILIKE '%SELFWEALTH%'
+      OR COALESCE(ft.transaction_description, '') ILIKE '%SELFWEALTH%'
+    ) AS is_vanguard_share_txn,
+
+    CASE
+      -- Offset increases represent cash being parked against the home loan.
+      WHEN da.account_type = 'Offset' AND ft.transaction_amount > 0 THEN 'Offset_Savings'
+
+      -- Cash savings excludes transactional day-to-day accounts.
+      WHEN da.is_liquid_asset
+           AND COALESCE(da.account_type, '') <> 'Offset'
+           AND NOT COALESCE(da.is_transactional, TRUE)
+           AND ft.transaction_amount > 0 THEN 'Cash_Savings'
+
       WHEN da.is_mortgage AND ft.transaction_amount < 0 THEN 'Mortgage_Payment'
-      WHEN (dc.level_1_category ILIKE '%Investment%' OR da.account_name ILIKE '%Vanguard%' OR ft.transaction_memo ILIKE '%Vanguard%' OR ft.transaction_description ILIKE '%Vanguard%') THEN 'Investment'
-      WHEN NOT ft.is_internal_transfer AND NOT ft.is_income_transaction AND ft.transaction_amount < 0 THEN 'Expense'
+
+      -- Vanguard is treated as share-account investing; outbound only avoids mirrored receipt double-counts.
+      WHEN (
+        COALESCE(ft.transaction_memo, '') ILIKE '%VANGUARD%'
+        OR COALESCE(ft.transaction_description, '') ILIKE '%VANGUARD%'
+        OR COALESCE(ft.transaction_memo, '') ILIKE '%SELFWEALTH%'
+        OR COALESCE(ft.transaction_description, '') ILIKE '%SELFWEALTH%'
+      ) AND ft.transaction_amount < 0 THEN 'Investment_Share_Account'
+
+      WHEN dc.level_1_category ILIKE '%Investment%' AND ft.transaction_amount < 0 THEN 'Investment'
       ELSE 'Other'
     END AS transaction_classification
-    
   FROM {{ ref('fct_transactions') }} ft
   LEFT JOIN {{ ref('dim_accounts') }} da
     ON ft.account_key = da.account_key
@@ -44,102 +68,93 @@ WITH monthly_savings_components AS (
 ),
 
 monthly_savings_calculation AS (
-  SELECT 
+  SELECT
     budget_year_month,
     transaction_year,
     transaction_month,
-    
-    -- Income components
-    SUM(CASE 
-      WHEN transaction_classification = 'Income' THEN ABS(transaction_amount) 
-      ELSE 0 
-    END) AS total_income,
-    
-    -- Expense components  
-    SUM(CASE 
-      WHEN transaction_classification = 'Expense' THEN ABS(transaction_amount)
-      ELSE 0 
-    END) AS total_expenses,
-    
-    -- Savings components
-    SUM(CASE 
+
+    SUM(CASE
       WHEN transaction_classification = 'Offset_Savings' THEN ABS(transaction_amount)
-      ELSE 0 
+      ELSE 0
     END) AS offset_savings,
-    
-    SUM(CASE 
+
+    SUM(CASE
       WHEN transaction_classification = 'Cash_Savings' THEN ABS(transaction_amount)
-      ELSE 0 
+      ELSE 0
     END) AS cash_savings,
-    
-    SUM(CASE 
-      WHEN transaction_classification = 'Investment' AND transaction_amount < 0 THEN ABS(transaction_amount)
-      ELSE 0 
+
+    SUM(CASE
+      WHEN transaction_classification IN ('Investment', 'Investment_Share_Account') THEN ABS(transaction_amount)
+      ELSE 0
     END) AS investment_contributions,
-    
-    -- Debt payments (excluding regular mortgage payments)
-    SUM(CASE 
+
+    SUM(CASE
       WHEN transaction_classification = 'Mortgage_Payment' THEN ABS(transaction_amount)
-      ELSE 0 
+      ELSE 0
     END) AS mortgage_payments,
-    
-    -- Calculate forced savings from mortgage principal payments
+
     -- Estimate 80% of mortgage payment goes to principal (rough estimate)
-    SUM(CASE 
+    SUM(CASE
       WHEN transaction_classification = 'Mortgage_Payment' THEN ABS(transaction_amount) * 0.8
-      ELSE 0 
+      ELSE 0
     END) AS estimated_mortgage_principal_payment
-    
   FROM monthly_savings_components
   WHERE transaction_classification != 'Other'
   GROUP BY budget_year_month, transaction_year, transaction_month
 ),
 
 savings_metrics AS (
-  SELECT 
-    *,
-    -- Total savings calculations
-    total_income - total_expenses AS total_savings,
-    
-    -- Net worth change (approximation based on cash flow)
-    total_income - total_expenses AS net_cash_flow,
-    
+  SELECT
+    mb.budget_year_month,
+    mb.transaction_year,
+    mb.transaction_month,
+    mb.total_income,
+    mb.total_expenses,
+    mb.net_cash_flow AS total_savings,
+    mb.net_cash_flow,
+    COALESCE(msc.offset_savings, 0) AS offset_savings,
+    COALESCE(msc.cash_savings, 0) AS cash_savings,
+    COALESCE(msc.investment_contributions, 0) AS investment_contributions,
+    COALESCE(msc.mortgage_payments, 0) AS mortgage_payments,
+    COALESCE(msc.estimated_mortgage_principal_payment, 0) AS estimated_mortgage_principal_payment,
+
     -- Traditional savings rate (ratio, excluding mortgage principal)
-    CASE 
-      WHEN total_income > 0 
-      THEN ((offset_savings + cash_savings + investment_contributions) / total_income)
-      ELSE 0 
+    CASE
+      WHEN mb.total_income > 0
+      THEN ((COALESCE(msc.offset_savings, 0) + COALESCE(msc.cash_savings, 0) + COALESCE(msc.investment_contributions, 0)) / mb.total_income)
+      ELSE 0
     END AS traditional_savings_rate_percent,
-    
-    -- Total savings rate (actual cash flow savings)
-    CASE 
-      WHEN total_income > 0 
-      THEN ((total_income - total_expenses) / total_income)
-      ELSE 0 
+
+    -- Primary KPI: net cash flow savings rate.
+    CASE
+      WHEN mb.total_income > 0
+      THEN (mb.net_cash_flow / mb.total_income)
+      ELSE 0
     END AS total_savings_rate_percent,
-    
+
     -- Expense ratio (ratio)
-    CASE 
-      WHEN total_income > 0 
-      THEN (total_expenses / total_income)
-      ELSE 0 
+    CASE
+      WHEN mb.total_income > 0
+      THEN (mb.total_expenses / mb.total_income)
+      ELSE 0
     END AS expense_ratio_percent,
-    
+
     -- Cash savings rate (liquid savings only, ratio 0-1)
-    CASE 
-      WHEN total_income > 0 
-      THEN ((cash_savings + offset_savings) / total_income)
-      ELSE 0 
+    CASE
+      WHEN mb.total_income > 0
+      THEN ((COALESCE(msc.cash_savings, 0) + COALESCE(msc.offset_savings, 0)) / mb.total_income)
+      ELSE 0
     END AS liquid_savings_rate_percent,
-    
+
     -- Investment rate (ratio 0-1)
-    CASE 
-      WHEN total_income > 0 
-      THEN (investment_contributions / total_income)
-      ELSE 0 
+    CASE
+      WHEN mb.total_income > 0
+      THEN (COALESCE(msc.investment_contributions, 0) / mb.total_income)
+      ELSE 0
     END AS investment_rate_percent
-    
-  FROM monthly_savings_calculation
+  FROM monthly_budget_baseline mb
+  LEFT JOIN monthly_savings_calculation msc
+    ON mb.budget_year_month = msc.budget_year_month
 ),
 
 savings_trends AS (

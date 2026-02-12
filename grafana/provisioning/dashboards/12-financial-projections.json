@@ -452,7 +452,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  CASE\n    WHEN scenario = 'full_time' THEN 'Full-time Work'\n    WHEN scenario = 'part_time' THEN 'Part-time Work'\n    ELSE scenario\n  END as scenario,\n  AVG(projected_savings_rate) as avg_savings_rate\nFROM reporting.projection_data \nGROUP BY scenario",
+          "rawSql": "SELECT \n  CASE\n    WHEN scenario = 'full_time' THEN 'Full-time Work'\n    WHEN scenario = 'part_time' THEN 'Part-time Work'\n    ELSE scenario\n  END as \"Scenario\",\n  AVG(projected_savings_rate) as \"Average Savings Rate\"\nFROM reporting.projection_data \nGROUP BY scenario",
           "refId": "A"
         }
       ],
@@ -683,7 +683,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  CASE\n    WHEN scenario = 'full_time' THEN 'Full-time Work'\n    WHEN scenario = 'part_time' THEN 'Part-time Work'\n    ELSE scenario\n  END as scenario,\n  MAX(cumulative_net_flow) as projected_savings\nFROM reporting.projection_data \nGROUP BY scenario",
+          "rawSql": "SELECT \n  CASE\n    WHEN scenario = 'full_time' THEN 'Full-time Work'\n    WHEN scenario = 'part_time' THEN 'Part-time Work'\n    ELSE scenario\n  END as \"Scenario\",\n  MAX(cumulative_net_flow) as \"Projected Savings\"\nFROM reporting.projection_data \nGROUP BY scenario",
           "refId": "A"
         }
       ],
@@ -1111,7 +1111,34 @@
     "to": "now+1y"
   },
   "timepicker": {
-    "hidden": true
+    "hidden": false,
+    "quick_ranges": [
+      {
+        "from": "now-1M/M",
+        "to": "now/M",
+        "display": "Last complete month"
+      },
+      {
+        "from": "now-3M/M",
+        "to": "now/M",
+        "display": "Last quarter"
+      },
+      {
+        "from": "now/y",
+        "to": "now",
+        "display": "Year to date"
+      },
+      {
+        "from": "now-12M/M",
+        "to": "now/M",
+        "display": "Trailing 12 months"
+      },
+      {
+        "from": "now-5y",
+        "to": "now",
+        "display": "All time"
+      }
+    ]
   },
   "timezone": "",
   "title": "12 - Financial Projections",

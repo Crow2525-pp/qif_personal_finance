@@ -2054,6 +2054,7 @@
     "to": "now/M"
   },
   "timepicker": {
+    "hidden": false,
     "quick_ranges": [
       {
         "from": "now-1M/M",
@@ -2061,7 +2062,12 @@
         "display": "Last complete month"
       },
       {
-        "from": "now/Y",
+        "from": "now-3M/M",
+        "to": "now/M",
+        "display": "Last quarter"
+      },
+      {
+        "from": "now/y",
         "to": "now",
         "display": "Year to date"
       },
@@ -2069,9 +2075,13 @@
         "from": "now-12M/M",
         "to": "now/M",
         "display": "Trailing 12 months"
+      },
+      {
+        "from": "now-5y",
+        "to": "now",
+        "display": "All time"
       }
-    ],
-    "hidden": true
+    ]
   },
   "timezone": "",
   "title": "04 - Household Net Worth Analysis",

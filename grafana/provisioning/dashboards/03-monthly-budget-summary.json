@@ -241,7 +241,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_income,\n  total_expenses,\n  net_cash_flow\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_income AS \"Total Income\",\n  total_expenses AS \"Total Expenses\",\n  net_cash_flow AS \"Net Cash Flow\"\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -345,7 +345,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  savings_rate_percent,\n  expense_ratio_percent\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  savings_rate_percent AS \"Savings Rate Percent\",\n  expense_ratio_percent AS \"Expense Ratio Percent\"\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -674,7 +674,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  mortgage_expenses,\n  household_expenses,\n  food_expenses,\n  family_expenses\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  mortgage_expenses AS \"Mortgage Expenses\",\n  household_expenses AS \"Household Expenses\",\n  food_expenses AS \"Food Expenses\",\n  family_expenses AS \"Family Expenses\"\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -792,7 +792,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_transactions,\n  income_transaction_count,\n  expense_transaction_count,\n  avg_expense_amount\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_transactions AS \"Total Transactions\",\n  income_transaction_count AS \"Income Transaction Count\",\n  expense_transaction_count AS \"Expense Transaction Count\",\n  avg_expense_amount AS \"Average Expense Amount\"\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -934,7 +934,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  ytd_income,\n  ytd_expenses,\n  ytd_net_cash_flow\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  ytd_income AS \"Year-to-Date Income\",\n  ytd_expenses AS \"Year-to-Date Expenses\",\n  ytd_net_cash_flow AS \"Year-to-Date Net Cash Flow\"\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1219,7 +1219,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  daily_expense_target,\n  actual_daily_burn_rate,\n  mtd_expenses,\n  current_day_of_month,\n  days_remaining,\n  pace_status,\n  ROUND(pace_vs_target_ratio, 2) as pace_ratio,\n  ROUND(projected_month_end_expenses, 2) as projected_end_expenses,\n  ROUND(mtd_variance_from_target, 2) as mtd_variance\nFROM reporting.rpt_budget_cockpit_pace_tracker;",
+          "rawSql": "SELECT \n  daily_expense_target AS \"Daily Expense Target\",\n  actual_daily_burn_rate AS \"Actual Daily Burn Rate\",\n  mtd_expenses AS \"Month-to-Date Expenses\",\n  current_day_of_month AS \"Current Day of Month\",\n  days_remaining AS \"Days Remaining\",\n  pace_status AS \"Pace Status\",\n  ROUND(pace_vs_target_ratio, 2) as \"Pace Ratio\",\n  ROUND(projected_month_end_expenses, 2) as \"Projected Month-End Expenses\",\n  ROUND(mtd_variance_from_target, 2) as \"Month-to-Date Variance\"\nFROM reporting.rpt_budget_cockpit_pace_tracker;",
           "refId": "A"
         }
       ],
@@ -1327,7 +1327,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  spending_type as \"Type\",\n  ROUND(amount, 2) as \"Amount\",\n  total_transactions as \"Transactions\",\n  ROUND(avg_transaction_size, 2) as \"Avg Size\",\n  ROUND(pct_of_total_spending, 1) as \"% of Total\",\n  ROUND(rolling_3m_avg, 2) as \"3m Avg\",\n  ROUND(variance_from_historical_avg, 2) as \"Variance $\",\n  variance_assessment as \"Assessment\"\nFROM reporting.rpt_budget_cockpit_fixed_vs_discretionary\nWHERE budget_year_month = TO_CHAR(CURRENT_DATE - INTERVAL '1 month', 'YYYY-MM')\nORDER BY \n  CASE WHEN spending_type = 'Fixed' THEN 0 ELSE 1 END,\n  amount DESC;",
+          "rawSql": "SELECT\n  spending_type as \"Type\",\n  ROUND(amount, 2) as \"Amount\",\n  total_transactions as \"Transactions\",\n  ROUND(avg_transaction_size, 2) as \"Avg Size\",\n  ROUND(pct_of_total_spending, 1) as \"% of Total\",\n  ROUND(rolling_3m_avg, 2) as \"3m Avg\",\n  ROUND(variance_from_historical_avg, 2) as \"Variance $\",\n  variance_assessment as \"Assessment\"\nFROM reporting.rpt_budget_cockpit_fixed_vs_discretionary\nWHERE budget_year_month = TO_CHAR(date_trunc('month', $__timeTo()::timestamptz) - INTERVAL '1 month', 'YYYY-MM')\nORDER BY \n  CASE WHEN spending_type = 'Fixed' THEN 0 ELSE 1 END,\n  amount DESC;",
           "refId": "A"
         }
       ],
@@ -1726,7 +1726,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_income,\n  target_income,\n  ROUND(income_variance_delta, 2) as income_variance_delta,\n  income_variance_pct,\n  total_expenses,\n  target_expenses,\n  ROUND(expense_variance_delta, 2) as expense_variance_delta,\n  expense_variance_pct,\n  expense_status\nFROM reporting.rpt_budget_variance_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_income AS \"Total Income\",\n  target_income AS \"Target Income\",\n  ROUND(income_variance_delta, 2) as \"Income Variance Delta\",\n  income_variance_pct AS \"Income Variance Percent\",\n  total_expenses AS \"Total Expenses\",\n  target_expenses AS \"Target Expenses\",\n  ROUND(expense_variance_delta, 2) as \"Expense Variance Delta\",\n  expense_variance_pct AS \"Expense Variance Percent\",\n  expense_status AS \"Expense Status\"\nFROM reporting.rpt_budget_variance_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1840,7 +1840,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  category_name,\n  category_expenses,\n  target_expenses,\n  variance_delta,\n  variance_pct,\n  budget_status,\n  transaction_count\nFROM reporting.rpt_category_budget_heatmap \nWHERE budget_year_month = (\n  SELECT MAX(budget_year_month) FROM reporting.rpt_category_budget_heatmap\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') < date_trunc('month', CURRENT_DATE)\n)\nORDER BY spending_rank ASC;",
+          "rawSql": "SELECT \n  category_name AS \"Category\",\n  category_expenses AS \"Category Expenses\",\n  target_expenses AS \"Target Expenses\",\n  variance_delta AS \"Variance Delta\",\n  variance_pct AS \"Variance Percent\",\n  budget_status AS \"Budget Status\",\n  transaction_count AS \"Transaction Count\"\nFROM reporting.rpt_category_budget_heatmap \nWHERE budget_year_month = (\n  SELECT MAX(budget_year_month) FROM reporting.rpt_category_budget_heatmap\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') < date_trunc('month', CURRENT_DATE)\n)\nORDER BY spending_rank ASC;",
           "refId": "A"
         }
       ],
@@ -1956,7 +1956,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  adjustment_priority,\n  suggestion_text,\n  recommended_action,\n  current_savings_rate_pct,\n  potential_monthly_savings\nFROM reporting.rpt_budget_adjustment_suggestions \nORDER BY \n  CASE adjustment_priority WHEN 'Critical' THEN 1 WHEN 'High' THEN 2 ELSE 3 END,\n  potential_monthly_savings DESC\nLIMIT 5;",
+          "rawSql": "WITH suggestions AS (\n  SELECT \n    adjustment_priority,\n    suggestion_text,\n    recommended_action,\n    current_savings_rate_pct,\n    potential_monthly_savings\n  FROM reporting.rpt_budget_adjustment_suggestions \n  ORDER BY \n    CASE adjustment_priority WHEN 'Critical' THEN 1 WHEN 'High' THEN 2 ELSE 3 END,\n    potential_monthly_savings DESC\n  LIMIT 5\n)\nSELECT * FROM suggestions\nUNION ALL\nSELECT\n  'Info' AS adjustment_priority,\n  'No adjustments needed' AS suggestion_text,\n  'Current spending is within expected ranges' AS recommended_action,\n  NULL AS current_savings_rate_pct,\n  NULL AS potential_monthly_savings\nWHERE NOT EXISTS (SELECT 1 FROM suggestions);",
           "refId": "A"
         }
       ],
@@ -2448,6 +2448,7 @@
     "to": "now/M"
   },
   "timepicker": {
+    "hidden": false,
     "quick_ranges": [
       {
         "from": "now-1M/M",
@@ -2455,7 +2456,12 @@
         "display": "Last complete month"
       },
       {
-        "from": "now/Y",
+        "from": "now-3M/M",
+        "to": "now/M",
+        "display": "Last quarter"
+      },
+      {
+        "from": "now/y",
         "to": "now",
         "display": "Year to date"
       },
@@ -2463,9 +2469,13 @@
         "from": "now-12M/M",
         "to": "now/M",
         "display": "Trailing 12 months"
+      },
+      {
+        "from": "now-5y",
+        "to": "now",
+        "display": "All time"
       }
-    ],
-    "hidden": true
+    ]
   },
   "timezone": "",
   "title": "03 - Monthly Budget Summary",

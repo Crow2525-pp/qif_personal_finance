@@ -99,7 +99,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_savings_analysis\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n)\nSELECT\n  to_char((SELECT month_date FROM latest_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_savings_analysis\nWHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM latest_period);",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_savings_analysis\n  WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n)\nSELECT\n  to_char((SELECT month_date FROM latest_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_savings_analysis\nWHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM latest_period);",
           "refId": "A"
         }
       ],
@@ -170,7 +170,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT savings_health_score AS \"Savings Health Score\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT savings_health_score AS \"Savings Health Score\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -241,7 +241,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_savings_rate_percent AS \"Total Savings Rate\",\n  traditional_savings_rate_percent AS \"Traditional Rate\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_savings_rate_percent AS \"Net Savings Rate\",\n  traditional_savings_rate_percent AS \"Traditional Contribution Rate\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -337,7 +337,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  savings_performance_tier as \"Performance Tier\",\n  savings_trend as \"Trend\",\n  savings_consistency as \"Consistency\",\n  savings_goal_progress as \"Goal Progress\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  savings_performance_tier as \"Performance Tier\",\n  savings_trend as \"Trend\",\n  savings_consistency as \"Consistency\",\n  savings_goal_progress as \"Goal Progress\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -495,7 +495,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  total_savings_rate_percent,\n  traditional_savings_rate_percent,\n  rolling_3m_avg_savings_rate\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
+          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  total_savings_rate_percent,\n  traditional_savings_rate_percent,\n  rolling_3m_avg_savings_rate\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', $__timeTo()::date), 'YYYY-MM')\n  AND to_date(budget_year_month || '-01', 'YYYY-MM-DD') BETWEEN date_trunc('month', $__timeFrom()::timestamptz)::date\n    AND date_trunc('month', ($__timeTo()::timestamptz - INTERVAL '1 day'))::date\nORDER BY transaction_year, transaction_month;",
           "refId": "A"
         }
       ],
@@ -655,7 +655,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  cash_savings,\n  offset_savings,\n  investment_contributions\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
+          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  cash_savings,\n  offset_savings,\n  investment_contributions\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', $__timeTo()::date), 'YYYY-MM')\n  AND to_date(budget_year_month || '-01', 'YYYY-MM-DD') BETWEEN date_trunc('month', $__timeFrom()::timestamptz)::date\n    AND date_trunc('month', ($__timeTo()::timestamptz - INTERVAL '1 day'))::date\nORDER BY transaction_year, transaction_month;",
           "refId": "A"
         }
       ],
@@ -797,7 +797,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_savings AS \"Total Savings\",\n  cash_savings AS \"Cash Savings\",\n  offset_savings AS \"Offset Savings\",\n  investment_contributions AS \"Investment Contributions\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_savings AS \"Total Savings\",\n  cash_savings AS \"Cash Savings\",\n  offset_savings AS \"Offset Savings\",\n  investment_contributions AS \"Investment Contributions\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -953,7 +953,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  liquid_savings_rate_percent AS \"Liquid Savings Rate Percent\",\n  investment_rate_percent AS \"Investment Rate Percent\",\n  mom_savings_rate_change AS \"Month-over-Month Savings Rate Change\",\n  savings_rate_volatility AS \"Savings Rate Volatility\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  liquid_savings_rate_percent AS \"Liquid Savings Rate Percent\",\n  investment_rate_percent AS \"Investment Rate Percent\",\n  mom_savings_rate_change AS \"Month-over-Month Savings Rate Change\",\n  savings_rate_volatility AS \"Savings Rate Volatility\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1085,7 +1085,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  ytd_total_savings AS \"Year-to-Date Total Savings\",\n  ytd_total_income AS \"Year-to-Date Total Income\",\n  ytd_savings_rate_percent AS \"Year-to-Date Savings Rate Percent\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  ytd_total_savings AS \"Year-to-Date Total Savings\",\n  ytd_total_income AS \"Year-to-Date Total Income\",\n  ytd_savings_rate_percent AS \"Year-to-Date Savings Rate Percent\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1199,7 +1199,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  estimated_years_to_50k AS \"Estimated Years to 50K\",\n  additional_monthly_savings_needed_for_15_percent AS \"Additional Monthly Savings Needed for 15 Percent\",\n  COALESCE(yoy_savings_rate_improvement, 0) AS \"Year-over-Year Savings Rate Improvement\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  estimated_years_to_50k AS \"Estimated Years to 50K\",\n  additional_monthly_savings_needed_for_15_percent AS \"Additional Monthly Savings Needed for 15 Percent\",\n  COALESCE(yoy_savings_rate_improvement, 0) AS \"Year-over-Year Savings Rate Improvement\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1307,7 +1307,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  savings_recommendation as \"Savings Recommendation\",\n  savings_performance_tier as \"Performance Tier\",\n  ROUND(estimated_annual_liquid_savings, 0) as \"Est. Annual Liquid Savings\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  savings_recommendation as \"Savings Recommendation\",\n  savings_performance_tier as \"Performance Tier\",\n  ROUND(estimated_annual_liquid_savings, 0) as \"Est. Annual Liquid Savings\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1378,7 +1378,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT progress_to_20_percent_goal AS \"Progress to 20 Percent Goal\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT progress_to_20_percent_goal AS \"Progress to 20 Percent Goal\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1449,7 +1449,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT progress_to_fire_goal AS \"Progress to FIRE Goal\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT progress_to_fire_goal AS \"Progress to FIRE Goal\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1508,7 +1508,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT benchmark_status as \"Benchmark Status\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT benchmark_status as \"Benchmark Status\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1605,7 +1605,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  ROUND(additional_monthly_savings_needed_for_15_percent, 0) as \"Monthly Savings to Hit 15% Goal\",\n  ROUND(monthly_savings_needed_for_20_percent, 0) as \"Monthly Savings to Hit 20% Goal\",\n  ROUND(monthly_savings_needed_for_fire, 0) as \"Monthly Savings to Hit FIRE Goal\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  ROUND(additional_monthly_savings_needed_for_15_percent, 0) as \"Monthly Savings to Hit 15% Goal\",\n  ROUND(monthly_savings_needed_for_20_percent, 0) as \"Monthly Savings to Hit 20% Goal\",\n  ROUND(monthly_savings_needed_for_fire, 0) as \"Monthly Savings to Hit FIRE Goal\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1664,12 +1664,119 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT action_priorities as \"Action Priorities\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT action_priorities as \"Action Priorities\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
       "title": "Action Priorities This Month",
       "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Monthly Vanguard share-account contribution trend (outbound transactions only). Uses date picker range.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 70,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Vanguard Share Contributions"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#2ca02c",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 54
+      },
+      "id": 16,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date_trunc('month', ft.transaction_date)::date AS time,\n  SUM(ABS(ft.transaction_amount)) AS \"Vanguard Share Contributions\"\nFROM reporting.fct_transactions ft\nWHERE ft.transaction_amount < 0\n  AND (\n    COALESCE(ft.transaction_memo, '') ILIKE '%VANGUARD%'\n    OR COALESCE(ft.transaction_description, '') ILIKE '%VANGUARD%'\n    OR COALESCE(ft.transaction_memo, '') ILIKE '%SELFWEALTH%'\n    OR COALESCE(ft.transaction_description, '') ILIKE '%SELFWEALTH%'\n  )\n  AND $__timeFilter(ft.transaction_date)\nGROUP BY 1\nORDER BY 1;",
+          "refId": "A"
+        }
+      ],
+      "title": "Vanguard Share Contributions Trend",
+      "type": "timeseries"
     }
   ],
   "refresh": "",
@@ -1687,10 +1794,11 @@
     "list": []
   },
   "time": {
-    "from": "now-1M/M",
+    "from": "now-24M/M",
     "to": "now/M"
   },
   "timepicker": {
+    "hidden": false,
     "quick_ranges": [
       {
         "from": "now-1M/M",
@@ -1698,7 +1806,12 @@
         "display": "Last complete month"
       },
       {
-        "from": "now/Y",
+        "from": "now-3M/M",
+        "to": "now/M",
+        "display": "Last quarter"
+      },
+      {
+        "from": "now/y",
         "to": "now",
         "display": "Year to date"
       },
@@ -1706,9 +1819,13 @@
         "from": "now-12M/M",
         "to": "now/M",
         "display": "Trailing 12 months"
+      },
+      {
+        "from": "now-5y",
+        "to": "now",
+        "display": "All time"
       }
-    ],
-    "hidden": true
+    ]
   },
   "timezone": "",
   "title": "05 - Savings Analysis",

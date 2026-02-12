@@ -1897,6 +1897,159 @@ Tasks that have been completed and verified.
         "effort":  "tiny",
         "status":  "done",
         "notes":  "COMPLETED (2026-02-06): Renamed all 23 dashboard files with priority prefixes (01-23) according to dashboard-priority.md. Desktop dashboards 01-17, mobile dashboards 18-23. Commit: 86ad299"
+    },
+    {
+        "id": 67,
+        "title": "Fix Cash Flow Analysis Top Uncategorized Merchants schema mismatch",
+        "scope": "grafana/provisioning/dashboards/02-cash-flow-analysis.json; panel id 904",
+        "category": "dashboard-fix",
+        "effort": "tiny",
+        "status": "done",
+        "notes": "COMPLETED (2026-02-12): Verified panel 904 already uses txn_count (not transaction_count). No change needed."
+    },
+    {
+        "id": 68,
+        "title": "Fix Outflows Insights Top Uncategorized Merchants schema mismatch",
+        "scope": "grafana/provisioning/dashboards/08-outflows-insights.json; panel id 906",
+        "category": "dashboard-fix",
+        "effort": "tiny",
+        "status": "done",
+        "notes": "COMPLETED (2026-02-12): Verified panel 906 already uses SUM(txn_count). No change needed."
+    },
+    {
+        "id": 90,
+        "title": "Repair Amazon Spending dashboard structural integrity",
+        "scope": "grafana/provisioning/dashboards/17-amazon-spending-analysis.json",
+        "category": "dashboard-fix",
+        "effort": "small",
+        "status": "done",
+        "notes": "COMPLETED (2026-02-12): Fixed overlapping gridPos for panels 9/13 and 4/11, cascaded y-positions, changed '5 Year Overview' to 'Multi-Year Overview'. No duplicate panel IDs found. Pushed to Grafana."
+    },
+    {
+        "id": 99,
+        "title": "Add timezone and refresh cadence to mobile Data Freshness panels 21-23",
+        "scope": "grafana/provisioning/dashboards/21-savings-performance-mobile.json; 22-assets-networth-mobile.json; 23-projections-analysis-mobile.json",
+        "category": "dashboard-fix",
+        "effort": "tiny",
+        "status": "done",
+        "notes": "COMPLETED (2026-02-12): Appended '|| AEST' to timestamp values, simplified column alias to 'Last Refresh'. Pushed all 3 dashboards."
+    },
+    {
+        "id": 100,
+        "title": "Replace technical account labels in 22-mobile account table",
+        "scope": "grafana/provisioning/dashboards/22-assets-networth-mobile.json; panel id 5",
+        "category": "dashboard-fix",
+        "effort": "tiny",
+        "status": "done",
+        "notes": "COMPLETED (2026-02-12): Added CASE mapping for BillsBillsBills, Homeloan, CompleteAccess, MaximizerSavings, SuperiorLiving, PersonalLoan to user-friendly labels. Pushed to Grafana."
+    },
+    {
+        "id": 102,
+        "title": "Fix incomplete drilldown links in Executive Financial Overview tables",
+        "scope": "grafana/provisioning/dashboards/01-executive-financial-overview-aud.json; panels 901 and 902",
+        "category": "dashboard-fix",
+        "effort": "tiny",
+        "status": "done",
+        "notes": "COMPLETED (2026-02-12): Fixed trailing '?' in panel 7 link, removed stale var_category query params from panels 901/902 links. Pushed to Grafana."
+    },
+    {
+        "id": 103,
+        "title": "Add percent unit/label clarity to Executive Data Quality Callouts",
+        "scope": "grafana/provisioning/dashboards/01-executive-financial-overview-aud.json; panel 901",
+        "category": "dashboard-fix",
+        "effort": "tiny",
+        "status": "done",
+        "notes": "COMPLETED (2026-02-12): SQL already produces '29.1%' text. Fixed field override matchers to use correct capitalized column names ('Value', 'Detail'). Pushed to Grafana."
+    },
+    {
+        "id": 104,
+        "title": "Disambiguate Monthly Savings vs Net Cash Flow in executive KPI row",
+        "scope": "grafana/provisioning/dashboards/01-executive-financial-overview-aud.json; Monthly Financial Snapshot panel",
+        "category": "dashboard-fix",
+        "effort": "tiny",
+        "status": "done",
+        "notes": "COMPLETED (2026-02-12): Verified panel id 5 only returns 5 columns (no duplicate). Issue was already resolved in prior session."
+    },
+    {
+        "id": 115,
+        "title": "Standardize number formatting: remove AUD/USD from titles",
+        "scope": "grafana/provisioning/dashboards/*.json",
+        "category": "dashboard-fix",
+        "effort": "small",
+        "status": "done",
+        "notes": "COMPLETED (2026-02-12): Verified no dashboard titles contain (AUD) or (USD). All clean from prior sessions."
+    },
+    {
+        "id": 116,
+        "title": "Remove non-native dashboard slicers and keep only Grafana time picker",
+        "scope": "grafana/provisioning/dashboards/*.json; templating variables",
+        "category": "dashboard-fix",
+        "effort": "small",
+        "status": "done",
+        "notes": "COMPLETED (2026-02-12): Verified all dashboards have templating.list = []. No custom variables remain."
+    },
+    {
+        "id": 88,
+        "title": "Fix Mortgage Payoff model assumptions and scenario transparency",
+        "scope": "grafana/provisioning/dashboards/15-mortgage-payoff.json",
+        "category": "dashboard-fix",
+        "effort": "medium",
+        "status": "done",
+        "notes": "Completed 2026-02-08: refactored payoff panels to mortgage-tagged debt model, documented assumptions in dashboard guide."
+    },
+    {
+        "id": 89,
+        "title": "Make Grocery Spending dashboard data model configurable",
+        "scope": "grafana/provisioning/dashboards/16-grocery-spending-analysis.json",
+        "category": "dashboard-fix",
+        "effort": "small",
+        "status": "done",
+        "notes": "Completed 2026-02-08: replaced static budget target with 12-month dynamic baseline, normalized currency units."
+    },
+    {
+        "id": 94,
+        "title": "Fix 23-mobile projection query returning only half-year per scenario",
+        "scope": "grafana/provisioning/dashboards/23-projections-analysis-mobile.json; panel id 1",
+        "category": "dashboard-fix",
+        "effort": "small",
+        "status": "done",
+        "notes": "COMPLETED (2026-02-12): Query already uses ROW_NUMBER PARTITION BY scenario with projection_month_index <= 12, correctly yielding 12 months per scenario. No LIMIT 12 present."
+    },
+    {
+        "id": 95,
+        "title": "Correct unit/type mismatch in 23-mobile scenario averages table",
+        "scope": "grafana/provisioning/dashboards/23-projections-analysis-mobile.json; panel id 2",
+        "category": "dashboard-fix",
+        "effort": "small",
+        "status": "done",
+        "notes": "COMPLETED (2026-02-12): Fixed field override matcher from 'Savings Rate' to 'Avg Savings Rate' so percentunit format applies correctly. Pushed to Grafana."
+    },
+    {
+        "id": 96,
+        "title": "Align 23-mobile YTD labels with actual comparison window",
+        "scope": "grafana/provisioning/dashboards/23-projections-analysis-mobile.json; panel id 5",
+        "category": "dashboard-fix",
+        "effort": "small",
+        "status": "done",
+        "notes": "COMPLETED (2026-02-12): Changed title from 'Latest Year vs Previous Year' to 'Current Year vs Previous Year'. Pushed to Grafana."
+    },
+    {
+        "id": 97,
+        "title": "Fix 21-mobile Performance Metrics table unit overrides",
+        "scope": "grafana/provisioning/dashboards/21-savings-performance-mobile.json; panel id 9",
+        "category": "dashboard-fix",
+        "effort": "tiny",
+        "status": "done",
+        "notes": "COMPLETED (2026-02-12): Verified byRegexp override for Savings Rate already applies percentunit. Already working."
+    },
+    {
+        "id": 117,
+        "title": "Fix live no-data failure in Monthly Budget Summary adjustment panel",
+        "scope": "grafana/provisioning/dashboards/03-monthly-budget-summary.json; panel id 11",
+        "category": "dashboard-fix",
+        "effort": "small",
+        "status": "done",
+        "notes": "COMPLETED (2026-02-12): Added UNION ALL fallback row ('No adjustments needed') when rpt_budget_adjustment_suggestions returns 0 rows. Pushed to Grafana."
     }
 ]
 

@@ -184,7 +184,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COUNT(*) AS total_transactions,\n  SUM(CASE WHEN transaction_amount > 0 THEN transaction_amount ELSE 0 END) AS total_inflow,\n  SUM(CASE WHEN transaction_amount < 0 THEN -transaction_amount ELSE 0 END) AS total_outflow,\n  SUM(transaction_amount) AS net_amount,\n  AVG(ABS(transaction_amount)) AS avg_transaction,\n  COUNT(DISTINCT COALESCE(NULLIF(transaction_memo, ''), transaction_description)) AS distinct_merchants\nFROM reporting.fct_transactions_enhanced\nWHERE transaction_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '12 months'\n  AND transaction_date < date_trunc('month', CURRENT_DATE)\n  AND NOT COALESCE(is_internal_transfer, FALSE);",
+          "rawSql": "SELECT\n  COUNT(*) AS total_transactions,\n  SUM(CASE WHEN transaction_amount > 0 THEN transaction_amount ELSE 0 END) AS total_inflow,\n  SUM(CASE WHEN transaction_amount < 0 THEN -transaction_amount ELSE 0 END) AS total_outflow,\n  SUM(transaction_amount) AS net_amount,\n  AVG(ABS(transaction_amount)) AS avg_transaction,\n  COUNT(DISTINCT COALESCE(NULLIF(transaction_memo, ''), transaction_description)) AS distinct_merchants\nFROM reporting.fct_transactions_enhanced\nWHERE $__timeFilter(transaction_date)\n  AND NOT COALESCE(is_internal_transfer, FALSE);",
           "refId": "A"
         }
       ],
@@ -299,7 +299,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date_trunc('month', transaction_date) AS time,\n  SUM(CASE WHEN transaction_amount > 0 THEN transaction_amount ELSE 0 END) AS inflow,\n  SUM(CASE WHEN transaction_amount < 0 THEN -transaction_amount ELSE 0 END) AS outflow,\n  SUM(transaction_amount) AS net\nFROM reporting.fct_transactions_enhanced\nWHERE transaction_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '12 months'\n  AND transaction_date < date_trunc('month', CURRENT_DATE)\n  AND NOT COALESCE(is_internal_transfer, FALSE)\nGROUP BY 1\nORDER BY 1;",
+          "rawSql": "SELECT\n  date_trunc('month', transaction_date) AS time,\n  SUM(CASE WHEN transaction_amount > 0 THEN transaction_amount ELSE 0 END) AS inflow,\n  SUM(CASE WHEN transaction_amount < 0 THEN -transaction_amount ELSE 0 END) AS outflow,\n  SUM(transaction_amount) AS net\nFROM reporting.fct_transactions_enhanced\nWHERE $__timeFilter(transaction_date)\n  AND NOT COALESCE(is_internal_transfer, FALSE)\nGROUP BY 1\nORDER BY 1;",
           "refId": "A"
         }
       ],
@@ -391,7 +391,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COALESCE(NULLIF(dc.level_1_category, 'Uncategorized'), 'Uncategorised') AS category,\n  COUNT(*) FILTER (WHERE ft.transaction_amount < 0) AS txn_count,\n  SUM(CASE WHEN ft.transaction_amount < 0 THEN -ft.transaction_amount ELSE 0 END) AS total_amount,\n  AVG(CASE WHEN ft.transaction_amount < 0 THEN -ft.transaction_amount END) AS avg_amount\nFROM reporting.fct_transactions_enhanced ft\nLEFT JOIN reporting.dim_categories_enhanced dc ON ft.category_key = dc.category_key\nWHERE ft.transaction_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '12 months'\n  AND ft.transaction_date < date_trunc('month', CURRENT_DATE)\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\nGROUP BY 1\nHAVING SUM(CASE WHEN ft.transaction_amount < 0 THEN -ft.transaction_amount ELSE 0 END) > 0\nORDER BY total_amount DESC\nLIMIT 12;",
+          "rawSql": "SELECT\n  COALESCE(NULLIF(dc.level_1_category, 'Uncategorized'), 'Uncategorised') AS category,\n  COUNT(*) FILTER (WHERE ft.transaction_amount < 0) AS txn_count,\n  SUM(CASE WHEN ft.transaction_amount < 0 THEN -ft.transaction_amount ELSE 0 END) AS total_amount,\n  AVG(CASE WHEN ft.transaction_amount < 0 THEN -ft.transaction_amount END) AS avg_amount\nFROM reporting.fct_transactions_enhanced ft\nLEFT JOIN reporting.dim_categories_enhanced dc ON ft.category_key = dc.category_key\nWHERE $__timeFilter(ft.transaction_date)\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\nGROUP BY 1\nHAVING SUM(CASE WHEN ft.transaction_amount < 0 THEN -ft.transaction_amount ELSE 0 END) > 0\nORDER BY total_amount DESC\nLIMIT 12;",
           "refId": "A"
         }
       ],
@@ -491,7 +491,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  ft.transaction_date::date,\n  da.account_name,\n  -ft.transaction_amount AS amount,\n  COALESCE(NULLIF(dc.level_1_category, 'Uncategorized'), 'Uncategorised') AS level_1_category,\n  ft.transaction_description,\n  ft.transaction_memo\nFROM reporting.fct_transactions_enhanced ft\nLEFT JOIN reporting.dim_categories_enhanced dc ON ft.category_key = dc.category_key\nLEFT JOIN reporting.dim_accounts_enhanced da ON ft.account_key = da.account_key\nWHERE ft.transaction_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '12 months'\n  AND ft.transaction_date < date_trunc('month', CURRENT_DATE)\n  AND ft.transaction_amount < 0\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\nORDER BY -ft.transaction_amount DESC\nLIMIT 25;",
+          "rawSql": "SELECT\n  ft.transaction_date::date,\n  da.account_name,\n  -ft.transaction_amount AS amount,\n  COALESCE(NULLIF(dc.level_1_category, 'Uncategorized'), 'Uncategorised') AS level_1_category,\n  ft.transaction_description,\n  ft.transaction_memo\nFROM reporting.fct_transactions_enhanced ft\nLEFT JOIN reporting.dim_categories_enhanced dc ON ft.category_key = dc.category_key\nLEFT JOIN reporting.dim_accounts_enhanced da ON ft.account_key = da.account_key\nWHERE $__timeFilter(ft.transaction_date)\n  AND ft.transaction_amount < 0\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\nORDER BY -ft.transaction_amount DESC\nLIMIT 25;",
           "refId": "A"
         }
       ],
@@ -591,7 +591,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COALESCE(NULLIF(transaction_memo, ''), transaction_description) AS merchant,\n  COUNT(*) AS txn_count,\n  SUM(CASE WHEN transaction_amount < 0 THEN -transaction_amount ELSE 0 END) AS total_amount,\n  MIN(transaction_date)::date AS first_seen,\n  MAX(transaction_date)::date AS last_seen\nFROM reporting.fct_transactions_enhanced\nWHERE transaction_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '6 months'\n  AND transaction_date < date_trunc('month', CURRENT_DATE)\n  AND transaction_amount < 0\n  AND NOT COALESCE(is_internal_transfer, FALSE)\nGROUP BY 1\nHAVING COUNT(*) >= 5\nORDER BY MAX(transaction_date) DESC\nLIMIT 25;",
+          "rawSql": "SELECT\n  COALESCE(NULLIF(transaction_memo, ''), transaction_description) AS merchant,\n  COUNT(*) AS txn_count,\n  SUM(CASE WHEN transaction_amount < 0 THEN -transaction_amount ELSE 0 END) AS total_amount,\n  MIN(transaction_date)::date AS first_seen,\n  MAX(transaction_date)::date AS last_seen\nFROM reporting.fct_transactions_enhanced\nWHERE $__timeFilter(transaction_date)\n  AND transaction_amount < 0\n  AND NOT COALESCE(is_internal_transfer, FALSE)\nGROUP BY 1\nHAVING COUNT(*) >= 5\nORDER BY MAX(transaction_date) DESC\nLIMIT 25;",
           "refId": "A"
         }
       ],
@@ -699,7 +699,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  da.account_name,\n  COUNT(*) AS txn_count,\n  SUM(ABS(ft.transaction_amount)) AS total_amount,\n  SUM(ft.transaction_amount) AS net_amount,\n  AVG(ABS(ft.transaction_amount)) AS average_amount\nFROM reporting.fct_transactions_enhanced ft\nLEFT JOIN reporting.dim_accounts_enhanced da ON ft.account_key = da.account_key\nWHERE ft.transaction_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '12 months'\n  AND ft.transaction_date < date_trunc('month', CURRENT_DATE)\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\nGROUP BY da.account_name\nORDER BY SUM(ABS(ft.transaction_amount)) DESC;",
+          "rawSql": "SELECT\n  da.account_name,\n  COUNT(*) AS txn_count,\n  SUM(ABS(ft.transaction_amount)) AS total_amount,\n  SUM(ft.transaction_amount) AS net_amount,\n  AVG(ABS(ft.transaction_amount)) AS average_amount\nFROM reporting.fct_transactions_enhanced ft\nLEFT JOIN reporting.dim_accounts_enhanced da ON ft.account_key = da.account_key\nWHERE $__timeFilter(ft.transaction_date)\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\nGROUP BY da.account_name\nORDER BY SUM(ABS(ft.transaction_amount)) DESC;",
           "refId": "A"
         }
       ],
@@ -838,7 +838,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH data AS (\n  SELECT\n    original_memo AS merchant,\n    txn_count,\n    ROUND(total_amount, 2) AS total_spend,\n    last_transaction_date AS last_seen,\n    priority_level\n  FROM reporting.viz_uncategorized_transactions_with_original_memo\n  ORDER BY total_amount DESC, txn_count DESC\n  LIMIT 10\n)\nSELECT\n  merchant AS \"Merchant\",\n  txn_count AS \"Txn Count\",\n  total_spend AS \"Total Spend\",\n  last_seen AS \"Last Seen\",\n  priority_level AS \"Priority\"\nFROM data\nUNION ALL\nSELECT 'None', 0, 0, NULL::date, 'N/A'\nWHERE NOT EXISTS (SELECT 1 FROM data);",
+          "rawSql": "WITH filtered AS (\n  SELECT\n    SPLIT_PART(original_memo, ' - ', 1) AS merchant,\n    SUM(txn_count) AS txn_count,\n    SUM(total_amount) AS spend,\n    MAX(last_transaction_date) AS last_seen,\n    MAX(priority_level) AS priority_level\n  FROM reporting.viz_uncategorized_transactions_with_original_memo\n  WHERE $__timeFilter(last_transaction_date)\n  GROUP BY 1\n), all_time AS (\n  SELECT\n    SPLIT_PART(original_memo, ' - ', 1) AS merchant,\n    SUM(txn_count) AS txn_count_all_time,\n    SUM(total_amount) AS total_spend_all_time\n  FROM reporting.viz_uncategorized_transactions_with_original_memo\n  GROUP BY 1\n), data AS (\n  SELECT\n    f.merchant,\n    COALESCE(a.txn_count_all_time, 0) AS txn_count_all_time,\n    ROUND(f.spend, 2) AS spend,\n    ROUND(COALESCE(a.total_spend_all_time, 0), 2) AS total_spend,\n    f.last_seen,\n    f.priority_level\n  FROM filtered f\n  LEFT JOIN all_time a ON f.merchant = a.merchant\n  ORDER BY f.spend DESC, f.txn_count DESC\n  LIMIT 10\n)\nSELECT\n  merchant AS \"Merchant\",\n  txn_count_all_time AS \"Txn Count\",\n  spend AS \"Spend\",\n  total_spend AS \"Total Spend (All Time)\",\n  last_seen AS \"Last Seen\",\n  priority_level AS \"Priority\"\nFROM data\nUNION ALL\nSELECT 'None', 0, 0, 0, NULL::date, 'N/A'\nWHERE NOT EXISTS (SELECT 1 FROM data);",
           "refId": "A"
         }
       ],
@@ -938,7 +938,34 @@
     "to": "now"
   },
   "timepicker": {
-    "hidden": true
+    "hidden": false,
+    "quick_ranges": [
+      {
+        "from": "now-1M/M",
+        "to": "now/M",
+        "display": "Last complete month"
+      },
+      {
+        "from": "now-3M/M",
+        "to": "now/M",
+        "display": "Last quarter"
+      },
+      {
+        "from": "now/y",
+        "to": "now",
+        "display": "Year to date"
+      },
+      {
+        "from": "now-12M/M",
+        "to": "now/M",
+        "display": "Trailing 12 months"
+      },
+      {
+        "from": "now-5y",
+        "to": "now",
+        "display": "All time"
+      }
+    ]
   },
   "timezone": "",
   "title": "09 - Transaction Analysis",

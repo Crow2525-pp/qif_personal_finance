@@ -106,7 +106,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT annual_financial_progress_score\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
+          "rawSql": "SELECT annual_financial_progress_score AS \"Annual Financial Progress Score\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -361,7 +361,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  yoy_income_change_percent,\n  yoy_expense_change_percent,\n  yoy_net_worth_change_percent,\n  yoy_savings_rate_change\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  yoy_income_change_percent AS \"Year-over-Year Income Change Percent\",\n  yoy_expense_change_percent AS \"Year-over-Year Expense Change Percent\",\n  yoy_net_worth_change_percent AS \"Year-over-Year Net Worth Change Percent\",\n  yoy_savings_rate_change AS \"Year-over-Year Savings Rate Change\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -940,7 +940,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  annual_total_savings,\n  annual_liquid_savings,\n  annual_investment_contributions,\n  annual_mortgage_reduction\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  annual_total_savings AS \"Annual Total Savings\",\n  annual_liquid_savings AS \"Annual Liquid Savings\",\n  annual_investment_contributions AS \"Annual Investment Contributions\",\n  annual_mortgage_reduction AS \"Annual Mortgage Reduction\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1106,7 +1106,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  months_positive_cash_flow,\n  months_negative_cash_flow,\n  ROUND(avg_cash_flow_efficiency, 1) as avg_cash_flow_efficiency,\n  annual_transaction_count\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  months_positive_cash_flow AS \"Months with Positive Cash Flow\",\n  months_negative_cash_flow AS \"Months with Negative Cash Flow\",\n  ROUND(avg_cash_flow_efficiency, 1) as \"Average Cash Flow Efficiency\",\n  annual_transaction_count AS \"Annual Transaction Count\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1833,7 +1833,34 @@
     "to": "now"
   },
   "timepicker": {
-    "hidden": true
+    "hidden": false,
+    "quick_ranges": [
+      {
+        "from": "now-1M/M",
+        "to": "now/M",
+        "display": "Last complete month"
+      },
+      {
+        "from": "now-3M/M",
+        "to": "now/M",
+        "display": "Last quarter"
+      },
+      {
+        "from": "now/y",
+        "to": "now",
+        "display": "Year to date"
+      },
+      {
+        "from": "now-12M/M",
+        "to": "now/M",
+        "display": "Trailing 12 months"
+      },
+      {
+        "from": "now-5y",
+        "to": "now",
+        "display": "All time"
+      }
+    ]
   },
   "timezone": "",
   "title": "13 - Year-over-Year Comparison",

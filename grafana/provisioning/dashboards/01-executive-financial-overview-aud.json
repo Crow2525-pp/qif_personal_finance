@@ -54,7 +54,7 @@
         "x": 0,
         "y": 0,
         "w": 6,
-        "h": 4
+        "h": 5
       },
       "id": 101,
       "options": {
@@ -79,7 +79,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nbounds AS (\n  SELECT MIN(month_date) AS min_month, MAX(month_date) AS max_month\n  FROM available_months\n),\nselected_period AS (\n  SELECT COALESCE(\n    (SELECT MAX(month_date) FROM available_months WHERE month_date <= date_trunc('month', ($__timeTo()::timestamptz - INTERVAL '1 day'))),\n    (SELECT max_month FROM bounds)\n  ) AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nwindow_range AS (\n  SELECT\n    GREATEST(date_trunc('day', $__timeFrom()::timestamptz)::date, (SELECT min_month FROM bounds)) AS start_date,\n    LEAST(date_trunc('day', $__timeTo()::timestamptz)::date,   (SELECT max_month FROM bounds)) AS end_date\n),\nexec_view AS (\n  SELECT dashboard_generated_at\n  FROM reporting.rpt_executive_dashboard\n  WHERE dashboard_month = (SELECT month_key FROM selected_key)\n)\nSELECT\n  'Latest Month' AS \"Time Window\",\n  to_char((SELECT month_date FROM selected_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(exec_view.dashboard_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM exec_view;",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nbounds AS (\n  SELECT MIN(month_date) AS min_month, MAX(month_date) AS max_month\n  FROM available_months\n),\nselected_period AS (\n  SELECT COALESCE(\n    (SELECT MAX(month_date) FROM available_months WHERE month_date <= date_trunc('month', ($__timeTo()::timestamptz - INTERVAL '1 day'))),\n    (SELECT max_month FROM bounds)\n  ) AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n)\nSELECT\n  'Latest Month' AS \"Time Window\",\n  to_char((SELECT month_date FROM selected_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(rbs.report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_monthly_budget_summary rbs\nWHERE rbs.budget_year_month = (SELECT month_key FROM selected_key);",
           "refId": "A"
         }
       ],
@@ -99,7 +99,7 @@
           "custom": {
             "align": "left",
             "cellOptions": {
-              "type": "markdown"
+              "type": "auto"
             },
             "inspect": false
           },
@@ -120,7 +120,7 @@
         "x": 6,
         "y": 0,
         "w": 12,
-        "h": 4
+        "h": 5
       },
       "id": 20,
       "options": {
@@ -145,7 +145,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nbounds AS (\n  SELECT MIN(month_date) AS min_month, MAX(month_date) AS max_month\n  FROM available_months\n),\nselected_period AS (\n  SELECT COALESCE(\n    (SELECT MAX(month_date) FROM available_months WHERE month_date <= date_trunc('month', ($__timeTo()::timestamptz - INTERVAL '1 day'))),\n    (SELECT max_month FROM bounds)\n  ) AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\ncurrent_month AS (\n  SELECT net_cash_flow, total_income\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month = (SELECT month_key FROM selected_key)\n),\nforecast AS (\n  SELECT forecasted_next_month_net_flow\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n)\nSELECT CONCAT(\n  'Latest Month: ', to_char((SELECT month_date FROM selected_period), 'Mon YYYY'),\n  '<br/>Net Cash Flow: ', CASE WHEN cm.net_cash_flow >= 0 THEN '+$' ELSE '-$' END, ROUND(ABS(cm.net_cash_flow))::text,\n  '<br/>Savings Rate: ', ROUND((cm.net_cash_flow / NULLIF(cm.total_income, 0)) * 100, 1)::text, '%',\n  '<br/>Forecast (', to_char((SELECT month_date FROM selected_period) + INTERVAL '1 month', 'Mon YYYY'), '): ', CASE WHEN COALESCE(fc.forecasted_next_month_net_flow, 0) >= 0 THEN '+$' ELSE '-$' END, ROUND(ABS(COALESCE(fc.forecasted_next_month_net_flow, 0)))::text,\n  '<br/>Refreshed monthly, reviewed quarterly.'\n) AS summary\nFROM current_month cm\nLEFT JOIN forecast fc ON TRUE;",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nbounds AS (\n  SELECT MIN(month_date) AS min_month, MAX(month_date) AS max_month\n  FROM available_months\n),\nselected_period AS (\n  SELECT COALESCE(\n    (SELECT MAX(month_date) FROM available_months WHERE month_date <= date_trunc('month', ($__timeTo()::timestamptz - INTERVAL '1 day'))),\n    (SELECT max_month FROM bounds)\n  ) AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\ncurrent_month AS (\n  SELECT net_cash_flow, total_income\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month = (SELECT month_key FROM selected_key)\n),\nforecast AS (\n  SELECT forecasted_next_month_net_flow\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM selected_period)\n)\nSELECT 'Latest closed month: ' || to_char((SELECT month_date FROM selected_period), 'Mon YYYY')\n  || ' | Net cash flow: ' || CASE WHEN cm.net_cash_flow >= 0 THEN '+' ELSE '-' END || ROUND(ABS(cm.net_cash_flow))::text\n  || ' | Savings rate: ' || ROUND((cm.net_cash_flow / NULLIF(cm.total_income, 0)) * 100, 1)::text || '%'\n  || ' | Forecast (' || to_char((SELECT month_date FROM selected_period) + INTERVAL '1 month', 'Mon YYYY') || '): ' || CASE WHEN COALESCE(fc.forecasted_next_month_net_flow, 0) >= 0 THEN '+' ELSE '-' END || ROUND(ABS(COALESCE(fc.forecasted_next_month_net_flow, 0)))::text\n  || ' | Refreshed monthly, reviewed quarterly.'\n  AS summary\nFROM current_month cm\nLEFT JOIN forecast fc ON TRUE;",
           "refId": "A"
         }
       ],
@@ -268,7 +268,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 14,
+        "y": 15,
         "w": 12,
         "h": 5
       },
@@ -317,7 +317,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 19,
+        "y": 20,
         "w": 12,
         "h": 6
       },
@@ -441,7 +441,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Key financial metrics for the latest closed month: income, expenses, net cash flow, savings, net worth, and liquid assets. Targets: Savings Rate > 10%, Expense Ratio < 90%.",
+      "description": "Key financial metrics for the latest closed month.\n• Savings Rate (Monthly) = Net cash flow / income.\n• Savings Rate (3M Avg) and YTD use the same net-cash-flow basis.\n• Expense Ratio = expenses / income.\nSee Savings Analysis for offset savings and Vanguard Share Account investment contributions.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -465,7 +465,7 @@
               },
               {
                 "color": "#CD853F",
-                "value": 5
+                "value": 0
               },
               {
                 "color": "#DAA520",
@@ -482,7 +482,7 @@
             ]
           },
           "unit": "percent",
-          "min": 0,
+          "min": -50,
           "max": 100,
           "links": [
             {
@@ -590,7 +590,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 14,
+        "y": 15,
         "w": 12,
         "h": 5
       },
@@ -660,7 +660,7 @@
       "type": "table",
       "gridPos": {
         "x": 12,
-        "y": 19,
+        "y": 20,
         "w": 12,
         "h": 6
       },
@@ -869,7 +869,7 @@
       "type": "stat",
       "gridPos": {
         "x": 16,
-        "y": 10,
+        "y": 11,
         "w": 8,
         "h": 4
       },
@@ -1079,7 +1079,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 4,
+        "y": 5,
         "w": 24,
         "h": 6
       },
@@ -1258,7 +1258,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 25,
+        "y": 26,
         "w": 12,
         "h": 7
       },
@@ -1458,7 +1458,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 25,
+        "y": 26,
         "w": 12,
         "h": 7
       },
@@ -1506,7 +1506,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 32,
+        "y": 33,
         "w": 12,
         "h": 6
       },
@@ -1633,7 +1633,7 @@
       "type": "bargauge",
       "gridPos": {
         "x": 12,
-        "y": 32,
+        "y": 33,
         "w": 12,
         "h": 6
       },
@@ -1736,7 +1736,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 49,
+        "y": 50,
         "w": 24,
         "h": 4
       },
@@ -1790,7 +1790,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 53,
+        "y": 54,
         "w": 24,
         "h": 6
       },
@@ -1829,11 +1829,11 @@
         "x": 18,
         "y": 0,
         "w": 6,
-        "h": 4
+        "h": 5
       },
       "id": 100,
       "options": {
-        "content": "### How to Read\nUse the time picker, review top KPIs, then drill into linked panels for root causes.",
+        "content": "### Time Picker Guide\n**Last month** - single-month snapshot (default)  \n**Last quarter** - 3-month trend  \n**YTD** - Jan to now  \n**12 months** - rolling year  \n**All time** - full history  \n\nReview KPIs first, then drill into linked panels.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -1899,7 +1899,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 43,
+        "y": 44,
         "w": 12,
         "h": 6
       },
@@ -1999,7 +1999,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 43,
+        "y": 44,
         "w": 12,
         "h": 6
       },
@@ -2060,7 +2060,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 10,
+        "y": 11,
         "w": 8,
         "h": 4
       },
@@ -2149,7 +2149,7 @@
       },
       "gridPos": {
         "x": 8,
-        "y": 10,
+        "y": 11,
         "w": 8,
         "h": 4
       },
@@ -2213,7 +2213,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 38,
+        "y": 39,
         "w": 24,
         "h": 5
       },
@@ -2264,7 +2264,12 @@
         "display": "Last complete month"
       },
       {
-        "from": "now/Y",
+        "from": "now-3M/M",
+        "to": "now/M",
+        "display": "Last quarter"
+      },
+      {
+        "from": "now/y",
         "to": "now",
         "display": "Year to date"
       },
@@ -2272,6 +2277,11 @@
         "from": "now-12M/M",
         "to": "now/M",
         "display": "Trailing 12 months"
+      },
+      {
+        "from": "now-5y",
+        "to": "now",
+        "display": "All time"
       }
     ]
   },

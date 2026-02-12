@@ -15,7 +15,7 @@
       }
     ]
   },
-  "description": "Amazon Spending Analysis - 5 Year Overview and Trends",
+  "description": "Amazon Spending Analysis - Multi-Year Overview and Trends",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -200,7 +200,7 @@
       "gridPos": {
         "h": 8,
         "w": 6,
-        "x": 6,
+        "x": 12,
         "y": 0
       },
       "id": 9,
@@ -264,7 +264,7 @@
       "gridPos": {
         "h": 8,
         "w": 6,
-        "x": 12,
+        "x": 18,
         "y": 0
       },
       "id": 10,
@@ -327,9 +327,9 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 0
+        "w": 24,
+        "x": 0,
+        "y": 8
       },
       "id": 2,
       "options": {
@@ -439,7 +439,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 8
+        "y": 16
       },
       "id": 3,
       "options": {
@@ -527,7 +527,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 16
       },
       "id": 11,
       "options": {
@@ -550,7 +550,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, average_order_value as \"Average Order Value\", previous_month_aov as \"Previous Month AOV\" FROM reporting.viz_amazon_order_context WHERE year_month >= NOW() - INTERVAL '18 months' ORDER BY year_month",
+          "rawSql": "SELECT year_month as time, average_order_value as \"Average Order Value\", previous_month_aov as \"Previous Month AOV\" FROM reporting.viz_amazon_order_context WHERE $__timeFilter(year_month) ORDER BY year_month",
           "refId": "A"
         }
       ],
@@ -582,8 +582,8 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 12,
-        "y": 8
+        "x": 0,
+        "y": 24
       },
       "id": 4,
       "options": {
@@ -723,7 +723,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 16
+        "y": 32
       },
       "id": 5,
       "options": {
@@ -778,7 +778,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 24
+        "y": 40
       },
       "id": 6,
       "options": {
@@ -848,7 +848,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 24
+        "y": 40
       },
       "id": 7,
       "options": {
@@ -940,7 +940,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 48
       },
       "id": 8,
       "options": {
@@ -1000,7 +1000,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 40
+        "y": 56
       },
       "id": 14,
       "options": {
@@ -1059,7 +1059,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 48
+        "y": 64
       },
       "id": 12,
       "options": {
@@ -1080,7 +1080,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH amazon_stats AS (\n  SELECT \n    ROUND(AVG(CASE WHEN t.transaction_amount < 0 THEN -t.transaction_amount ELSE t.transaction_amount END), 2) AS avg_amazon_spend,\n    SUM(CASE WHEN t.transaction_amount < 0 THEN -t.transaction_amount ELSE t.transaction_amount END) AS total_amazon_spend\n  FROM reporting.fct_transactions_enhanced t\n  LEFT JOIN reporting.dim_categories_enhanced c ON t.category_key = c.category_key\n  WHERE (\n    c.store = 'Amazon'\n    OR LOWER(COALESCE(t.transaction_memo, '')) LIKE '%amazon%'\n    OR LOWER(COALESCE(t.transaction_description, '')) LIKE '%amazon%'\n  )\n), online_alternatives AS (\n  SELECT \n    'eBay' AS \"Alternative Retailer\",\n    'Online Marketplace' AS \"Type\",\n    75.00 AS \"Avg Transaction\",\n    0.95 AS \"Competitiveness Score\",\n    5.00 AS \"Est. Avg Savings per Order\"\n  UNION ALL\n  SELECT 'Walmart.com', 'Online Marketplace', 65.00, 0.98, 10.00\n  UNION ALL\n  SELECT 'Target.com', 'Online Marketplace', 60.00, 0.92, 15.00\n  UNION ALL\n  SELECT 'Costco.com', 'Membership Bulk', 120.00, 0.85, 20.00\n  UNION ALL\n  SELECT 'Best Buy Online', 'Electronics', 180.00, 0.90, 5.00\n)\nSELECT \n  \"Alternative Retailer\",\n  \"Type\",\n  \"Avg Transaction\" AS \"Avg Spend\",\n  \"Competitiveness Score\",\n  \"Est. Avg Savings per Order\"\nFROM online_alternatives\nORDER BY \"Competitiveness Score\" DESC",
+          "rawSql": "WITH amazon_stats AS (\n  SELECT \n    ROUND(AVG(CASE WHEN t.transaction_amount < 0 THEN -t.transaction_amount ELSE t.transaction_amount END), 2) AS avg_amazon_spend,\n    SUM(CASE WHEN t.transaction_amount < 0 THEN -t.transaction_amount ELSE t.transaction_amount END) AS total_amazon_spend\n  FROM reporting.fct_transactions_enhanced t\n  LEFT JOIN reporting.dim_categories_enhanced c ON t.category_key = c.category_key\n  WHERE (\n    c.store = 'Amazon'\n    OR LOWER(COALESCE(t.transaction_memo, '')) LIKE '%amazon%'\n    OR LOWER(COALESCE(t.transaction_description, '')) LIKE '%amazon%'\n  )\n), online_alternatives AS (\n  SELECT \n    'eBay' AS \"Alternative Retailer\",\n    'Online Marketplace' AS \"Type\",\n    75.00 AS \"Avg Transaction\",\n    0.95 AS \"Competitiveness Score\",\n    5.00 AS \"Estimated Average Savings per Order\"\n  UNION ALL\n  SELECT 'Walmart', 'Online Marketplace', 65.00, 0.98, 10.00\n  UNION ALL\n  SELECT 'Target', 'Online Marketplace', 60.00, 0.92, 15.00\n  UNION ALL\n  SELECT 'Costco', 'Membership Bulk', 120.00, 0.85, 20.00\n  UNION ALL\n  SELECT 'Best Buy Online', 'Electronics', 180.00, 0.90, 5.00\n)\nSELECT \n  \"Alternative Retailer\",\n  \"Type\",\n  \"Avg Transaction\" AS \"Avg Spend\",\n  \"Competitiveness Score\",\n  \"Estimated Average Savings per Order\"\nFROM online_alternatives\nORDER BY \"Competitiveness Score\" DESC",
           "refId": "A"
         }
       ],
@@ -1136,7 +1136,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 56
+        "y": 72
       }
     }
   ],
@@ -1156,7 +1156,34 @@
     "to": "now"
   },
   "timepicker": {
-    "hidden": true
+    "hidden": false,
+    "quick_ranges": [
+      {
+        "from": "now-1M/M",
+        "to": "now/M",
+        "display": "Last complete month"
+      },
+      {
+        "from": "now-3M/M",
+        "to": "now/M",
+        "display": "Last quarter"
+      },
+      {
+        "from": "now/y",
+        "to": "now",
+        "display": "Year to date"
+      },
+      {
+        "from": "now-12M/M",
+        "to": "now/M",
+        "display": "Trailing 12 months"
+      },
+      {
+        "from": "now-5y",
+        "to": "now",
+        "display": "All time"
+      }
+    ]
   },
   "timezone": "Australia/Melbourne",
   "title": "17 - Amazon Spending Analysis",

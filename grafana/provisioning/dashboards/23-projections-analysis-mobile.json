@@ -39,7 +39,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "rawQuery": true,
-          "rawSql": "SELECT\n  MAX(budget_year_month) AS \"Data Through\",\n  to_char(MAX(report_generated_at) AT TIME ZONE 'Australia/Melbourne', 'YYYY-MM-DD HH24:MI') AS \"Last Refresh (Australia/Melbourne)\",\n  'Monthly (within 24h of month-end close)' AS \"Expected Cadence\"\nFROM reporting.rpt_monthly_budget_summary;"
+          "rawSql": "SELECT\n  MAX(budget_year_month) AS \"Data Through\",\n  to_char(MAX(report_generated_at) AT TIME ZONE 'Australia/Melbourne', 'YYYY-MM-DD HH24:MI') || ' AEST' AS \"Last Refresh\",\n  'Monthly (within 24h of month-end close)' AS \"Expected Cadence\"\nFROM reporting.rpt_monthly_budget_summary;"
         }
       ],
       "options": {
@@ -246,7 +246,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Savings Rate"
+              "options": "Avg Savings Rate"
             },
             "properties": [
               {
@@ -469,7 +469,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "WITH current_year_data AS (\n    SELECT \n        TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n        total_savings_rate_percent as \"Current Year\"\n    FROM reporting.rpt_savings_analysis\n    WHERE SUBSTRING(budget_year_month, 1, 4) = TO_CHAR(CURRENT_DATE, 'YYYY')\n),\nprevious_year_data AS (\n    SELECT \n        TO_TIMESTAMP((TO_CHAR(TO_DATE(budget_year_month, 'YYYY-MM') + INTERVAL '1 year', 'YYYY-MM') || '-01'), 'YYYY-MM-DD')::date as time,\n        total_savings_rate_percent as \"Previous Year\"\n    FROM reporting.rpt_savings_analysis\n    WHERE SUBSTRING(budget_year_month, 1, 4) = TO_CHAR(CURRENT_DATE - INTERVAL '1 year', 'YYYY')\n)\nSELECT \n    COALESCE(cy.time, py.time) as time,\n    cy.\"Current Year\",\n    py.\"Previous Year\"\nFROM current_year_data cy\nFULL OUTER JOIN previous_year_data py ON cy.time = py.time\nORDER BY time;",
+          "rawSql": "WITH current_year_data AS (\n    SELECT \n        TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n        total_savings_rate_percent as \"Current Year\"\n    FROM reporting.rpt_savings_analysis\n    WHERE SUBSTRING(budget_year_month, 1, 4) = TO_CHAR($__timeTo()::timestamptz, 'YYYY')\n),\nprevious_year_data AS (\n    SELECT \n        TO_TIMESTAMP((TO_CHAR(TO_DATE(budget_year_month, 'YYYY-MM') + INTERVAL '1 year', 'YYYY-MM') || '-01'), 'YYYY-MM-DD')::date as time,\n        total_savings_rate_percent as \"Previous Year\"\n    FROM reporting.rpt_savings_analysis\n    WHERE SUBSTRING(budget_year_month, 1, 4) = TO_CHAR($__timeTo()::timestamptz - INTERVAL '1 year', 'YYYY')\n)\nSELECT \n    COALESCE(cy.time, py.time) as time,\n    cy.\"Current Year\",\n    py.\"Previous Year\"\nFROM current_year_data cy\nFULL OUTER JOIN previous_year_data py ON cy.time = py.time\nORDER BY time;",
           "refId": "A"
         }
       ],
@@ -579,7 +579,7 @@
           "refId": "A"
         }
       ],
-      "title": "Latest Year vs Previous Year",
+      "title": "Current Year vs Previous Year",
       "type": "table"
     },
     {
@@ -664,7 +664,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n    TO_TIMESTAMP(comparison_year || '-12-31', 'YYYY-MM-DD')::date as time,\n    annual_income as \"Annual Income\",\n    annual_expenses as \"Annual Expenses\",\n    annual_net_cash_flow as \"Annual Net Flow\"\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year >= EXTRACT(YEAR FROM CURRENT_DATE) - 4\nORDER BY comparison_year;",
+          "rawSql": "SELECT \n    TO_TIMESTAMP(comparison_year || '-12-31', 'YYYY-MM-DD')::date as time,\n    annual_income as \"Annual Income\",\n    annual_expenses as \"Annual Expenses\",\n    annual_net_cash_flow as \"Annual Net Flow\"\nFROM reporting.rpt_year_over_year_comparison\nWHERE TO_TIMESTAMP(comparison_year || '-12-31', 'YYYY-MM-DD')::date BETWEEN date_trunc('day', ()::timestamptz)::date AND date_trunc('day', ()::timestamptz)::date\nORDER BY comparison_year;",
           "refId": "A"
         }
       ],
@@ -686,7 +686,34 @@
     "to": "now+1y"
   },
   "timepicker": {
-    "hidden": true
+    "hidden": false,
+    "quick_ranges": [
+      {
+        "from": "now-1M/M",
+        "to": "now/M",
+        "display": "Last complete month"
+      },
+      {
+        "from": "now-3M/M",
+        "to": "now/M",
+        "display": "Last quarter"
+      },
+      {
+        "from": "now/y",
+        "to": "now",
+        "display": "Year to date"
+      },
+      {
+        "from": "now-12M/M",
+        "to": "now/M",
+        "display": "Trailing 12 months"
+      },
+      {
+        "from": "now-5y",
+        "to": "now",
+        "display": "All time"
+      }
+    ]
   },
   "timezone": "Australia/Melbourne",
   "title": "23 - Projections & Analysis (Mobile)",

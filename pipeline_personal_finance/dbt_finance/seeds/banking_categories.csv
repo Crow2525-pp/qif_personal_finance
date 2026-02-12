@@ -63,6 +63,10 @@ S Patterson Phil pay,,,,Homeloan,Bank Transaction,Internal Transfer,Transfer,Ext
 S Patterson Phil pay,,,,Offset,Bank Transaction,Internal Transfer,Transfer,External
 S Patterson Phil pay,,,,BillsBillsBills,Bank Transaction,Internal Transfer,Transfer,External
 S Patterson Phil pay,,,,Countdown,Bank Transaction,Internal Transfer,Transfer,External
+S Patterson Pay,,,,Homeloan,Bank Transaction,Internal Transfer,Transfer,External
+S Patterson Pay,,,,Offset,Bank Transaction,Internal Transfer,Transfer,External
+S Patterson Pay,,,,BillsBillsBills,Bank Transaction,Internal Transfer,Transfer,External
+S Patterson Pay,,,,Countdown,Bank Transaction,Internal Transfer,Transfer,External
 THE AUSTRALIAN C SP Pay from ACHPER,,,,Homeloan,Salary,Wages,Achper,External
 THE AUSTRALIAN C SP Pay from ACHPER,,,,Offset,Salary,Wages,Achper,External
 THE AUSTRALIAN C SP Pay from ACHPER,,,,BillsBillsBills,Salary,Wages,Achper,External
@@ -187,3 +191,8 @@ SAWMAN PTY LTD,,,,Homeloan,Household & Services,Car,Mechanic,External
 SAWMAN PTY LTD,,,,Offset,Household & Services,Car,Mechanic,External
 SAWMAN PTY LTD,,,,BillsBillsBills,Household & Services,Car,Mechanic,External
 SAWMAN PTY LTD,,,,Countdown,Household & Services,Car,Mechanic,External
+Osko Payment Sent Home insurance Philip Patterson 664521544,,,,Homeloan,Household & Services,Insurance,RACV - Home,External
+Osko Payment Sent Home insurance Philip Patterson 664521544,,,,Offset,Household & Services,Insurance,RACV - Home,External
+Osko Payment Sent Home insurance Philip Patterson 664521544,,,,BillsBillsBills,Household & Services,Insurance,RACV - Home,External
+Osko Payment Sent Home insurance Philip Patterson 664521544,,,,Countdown,Household & Services,Insurance,RACV - Home,External
+

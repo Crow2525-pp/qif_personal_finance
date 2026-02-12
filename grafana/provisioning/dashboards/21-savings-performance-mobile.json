@@ -310,7 +310,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    total_savings_rate_percent as \"Current Month Rate\",\n    rolling_3m_avg_savings_rate as \"3-Month Average\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month >= TO_CHAR(CURRENT_DATE - INTERVAL '18 months', 'YYYY-MM')\nORDER BY budget_year_month;",
+          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    total_savings_rate_percent as \"Current Month Rate\",\n    rolling_3m_avg_savings_rate as \"3-Month Average\"\nFROM reporting.rpt_savings_analysis\nWHERE $__timeFilter(TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date)\nORDER BY budget_year_month;",
           "refId": "A"
         }
       ],
@@ -666,7 +666,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    expense_ratio_percent as \"Expense Ratio\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month >= TO_CHAR(CURRENT_DATE - INTERVAL '12 months', 'YYYY-MM')\nORDER BY budget_year_month;",
+          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    expense_ratio_percent as \"Expense Ratio\"\nFROM reporting.rpt_savings_analysis\nWHERE $__timeFilter(TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date)\nORDER BY budget_year_month;",
           "refId": "A"
         }
       ],
@@ -936,7 +936,34 @@
     "to": "now"
   },
   "timepicker": {
-    "hidden": true
+    "hidden": false,
+    "quick_ranges": [
+      {
+        "from": "now-1M/M",
+        "to": "now/M",
+        "display": "Last complete month"
+      },
+      {
+        "from": "now-3M/M",
+        "to": "now/M",
+        "display": "Last quarter"
+      },
+      {
+        "from": "now/y",
+        "to": "now",
+        "display": "Year to date"
+      },
+      {
+        "from": "now-12M/M",
+        "to": "now/M",
+        "display": "Trailing 12 months"
+      },
+      {
+        "from": "now-5y",
+        "to": "now",
+        "display": "All time"
+      }
+    ]
   },
   "timezone": "Australia/Melbourne",
   "title": "21 - Savings & Performance (Mobile)",
