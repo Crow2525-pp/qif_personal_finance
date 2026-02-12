@@ -47,7 +47,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Data freshness for the latest closed month. All timestamps are shown in AEST (Australia Eastern Standard Time).",
+      "description": "Shows the reporting period currently represented in this dashboard and the last successful refresh timestamp. Use this first to confirm you are reviewing the latest closed month. All times are shown in AEST.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -183,7 +183,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "3-month average cash flow efficiency score (1-100), smoothing month-to-month volatility",
+      "description": "Three-month rolling average score (1-100) measuring how effectively inflows are converted into positive net cash flow. Higher is better. Use this as a quick signal of overall cash-flow discipline while smoothing one-off monthly noise.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -254,7 +254,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "3-month average status rank (1 worst .. 5 best)",
+      "description": "Three-month rolling status rank from 1 (weakest) to 5 (strongest). This normalizes cash-flow health into a simple tier to track directional improvement over time.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -337,7 +337,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "3-month average trend rank (1 Declining, 2 Stable, 3 Improving)",
+      "description": "Three-month rolling trend rank: 1 = Declining, 2 = Stable, 3 = Improving. Use this to quickly detect whether cash-flow momentum is improving or deteriorating across recent months.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -413,7 +413,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Latest complete-month inflows, outflows, and net cash flow.",
+      "description": "Snapshot of the most recent fully closed month: total inflows, total outflows, and net cash flow. Review this before deeper charts to anchor your current-month position.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -555,7 +555,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Trailing 18 months",
+      "description": "Eighteen-month trend of monthly net cash flow with moving average context. Useful for spotting seasonality, sustained shifts, and whether recent months are above or below baseline performance.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -698,7 +698,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Trailing 18 months",
+      "description": "Eighteen-month trend by operating, financing, and investing cash-flow components.\n\nPlain-English definitions:\n- Operating cash flow: day-to-day money in and out (salary, groceries, utilities, subscriptions).\n- Financing cash flow: debt and borrowing moves (loan drawdowns, loan repayments, credit-related cash movements).\n- Investing cash flow: money moved into long-term assets (investments, extra principal-style wealth-building contributions).\n\nHow to use this panel:\n- If operating is weak, focus on income and regular spending.\n- If financing is dragging, review debt repayment load and timing.\n- If investing is high while net cash flow is tight, slow contributions temporarily to protect liquidity.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -846,7 +846,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "MoM changes compare the most recent closed month to the immediately prior closed month. Positive = improvement.",
+      "description": "Month-over-month diagnostic metrics comparing the latest closed month to the prior month. Positive values indicate improvement for directional metrics. Use this panel to identify where recent changes came from.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1008,7 +1008,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Year-to-date totals recomputed from monthly cash-flow rows (Jan through latest closed month).",
+      "description": "Year-to-date totals recalculated from monthly cash-flow rows, from January through the latest closed month. Use this to assess cumulative performance instead of single-month volatility.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1162,7 +1162,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Compares the most recent closed month to the immediately prior closed month. Status thresholds: >10% improvement = Improving, <-10% = Declining, else Stable.",
+      "description": "Structured month-over-month comparison for the latest closed month versus prior month, including absolute and percent deltas. Status rules: >10% improvement = Improving, <-10% = Declining, otherwise Stable.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1316,7 +1316,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Primary recommendation driver and top spend category for the latest recommendation snapshot.",
+      "description": "Highlights the dominant recommendation driver and top spend category from the latest recommendation snapshot. Use this to focus on the single highest-impact action first.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1432,7 +1432,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Recurring bills projected for next month with due dates and payment priority",
+      "description": "Forecast of expected recurring bills for next month, including projected due dates, estimated cost, and priority. Use this panel to pre-plan liquidity and avoid surprise outflow spikes.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1630,7 +1630,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "AI-generated cash flow recommendations and insights",
+      "description": "Action-oriented summary combining forecasted net flow, recommendation text, and coverage context. Use this as the decision panel after reviewing trend and variance sections.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1697,7 +1697,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Net, inflow and outflow across the most recent twelve months of available data (internal transfers excluded).",
+      "description": "Transaction-derived monthly inflow, outflow, and net values for the last 12 months (excluding internal transfers). Use this as the raw-source cross-check against modeled reporting panels.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1862,7 +1862,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Account-level inflow, outflow and net position for the latest three months (internal transfers excluded).",
+      "description": "Account-level inflow, outflow, and net position across the latest three months (excluding internal transfers). Use this to identify which accounts are contributing most to improvement or drag.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2489,7 +2489,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Quick view of data-quality blockers for the latest complete month.",
+      "description": "Quick scan of the most impactful data-quality blockers in the latest complete month. Resolve these first to improve confidence and accuracy in all downstream insights.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -2562,7 +2562,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Top uncategorized merchants (latest complete month).",
+      "description": "Top uncategorized merchants for the latest complete month, prioritized for cleanup impact. Categorizing these first typically produces the fastest improvement in reporting quality.",
       "fieldConfig": {
         "defaults": {
           "custom": {
