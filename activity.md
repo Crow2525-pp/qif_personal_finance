@@ -16,6 +16,30 @@ This file logs what the agent accomplishes during each iteration:
 
 <!-- Agent will append dated entries here -->
 
+## 2026-02-21
+
+**Task:** fix/task-91 — Adapt mobile executive overview dashboard for wide-screen rendering
+**Branch:** fix/task-91-mobile-executive-widescreen
+**Screenshot:** screenshots/task-91-after-mobile-exec.png (before: task-91-before-mobile-exec.png)
+
+**Actions taken:**
+- Fixed `currencyAUD`/`currencyUSD` unit codes → `short` (compact K/M format, eliminates raw "297476 currencyAUD" display in Grafana 12)
+- Replaced failing `rpt_executive_dashboard` queries in Health Scores and Key Metrics panels with `rpt_monthly_budget_summary` (verified working source)
+- Added Data Freshness panel (id=103) using `grafana-postgresql-datasource` type at top of dashboard
+- Switched all panel datasource type to `grafana-postgresql-datasource` for Grafana 12 compatibility
+- Reduced text panel heights from h=4 to h=3 to reclaim vertical space
+- Rebalanced KPI row: Health Scores w=8, Key Metrics w=16 for better information density at 1920px
+- Cash Flow Trend now uses `$__timeTo()::date - INTERVAL '12 months'` anchor instead of hardcoded `CURRENT_DATE`
+- Removed emoji from panel titles (prevents mojibake encoding issues)
+- Pushed v12 to Grafana API
+
+**Findings (Playwright verification):**
+- Data Freshness: 2026-01 | 2026-02-07 12:40 | Monthly cadence ✓
+- Key Metrics: Income 12.8K | Expenses 14.8K | Net -1.98K | Savings -15.4% ✓
+- Account Balances: 297K / 2.56K / -528K (no raw unit suffix) ✓
+- Cash Flow Trend legend renders (Income/Expenses/Net Cash Flow) ✓
+- Console errors: only expected public-dashboard 404 (not an issue) ✓
+
 ## 2026-01-16
 
 ### Grafana Dashboard Review
