@@ -2486,6 +2486,25 @@
         ],
         "title": "Month-to-Date Spending Pace",
         "type": "stat"
+      },
+      {
+        "id": 1004,
+        "type": "text",
+        "title": "KPI Definitions",
+        "description": "Formula lineage for headline metrics shown on this dashboard.",
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 63
+        },
+        "options": {
+          "mode": "markdown",
+          "content": "## KPI Definitions - Executive\n\nFull lineage and dictionary: [KPI Metric Dictionary](https://github.com/Crow2525-pp/qif_personal_finance/blob/main/grafana/provisioning/dashboards/KPI_DICTIONARY.md)\n\n### Net Cash Flow\n**Formula:** `net_cash_flow = total_income - total_expenses` for selected period.  \n**Source:** `reporting.rpt_monthly_budget_summary.net_cash_flow`.\n\n### Savings Rate\n**Formula:** `savings_rate_percent = net_cash_flow / total_income` (0-1 ratio).  \n**Source:** `reporting.rpt_monthly_budget_summary.savings_rate_percent` (`savings_rate_pct` is 0-100 for Grafana `percent`).\n\n### Expense Ratio\n**Formula:** `expense_ratio_percent = total_expenses / total_income` (0-1 ratio).  \n**Source:** `reporting.rpt_monthly_budget_summary.expense_ratio_percent` (`expense_ratio_pct` is 0-100).\n\n### Emergency Fund Coverage\n**Formula:** `months_essential_expenses_covered = liquid_assets / avg_monthly_essential_expenses`.  \n**Source:** `reporting.rpt_emergency_fund_coverage.months_essential_expenses_covered`.\n\n### Financial Health Scores\n**Formula:** `0.3*net_worth_score + 0.3*savings_score + 0.4*cash_flow_score` (dashboard panel weighting).  \n**Source:** panel query over `reporting.rpt_household_net_worth`, `reporting.rpt_monthly_budget_summary`, `reporting.rpt_cash_flow_analysis`.\n\n### Net Worth\n**Formula:** `net_worth = total_assets - total_liabilities` using absolute balances.  \n**Source:** `reporting.rpt_household_net_worth.net_worth`.\n\n### Family Essentials\n**Formula:** monthly sum of Food & Drink, Family & Kids, Health & Beauty, Household & Services expenses.  \n**Source:** `reporting.rpt_family_essentials.total_family_essentials`."
+        },
+        "pluginVersion": "10.0.0",
+        "transparent": false,
+        "datasource": null
       }
     ],
     "refresh": "",
