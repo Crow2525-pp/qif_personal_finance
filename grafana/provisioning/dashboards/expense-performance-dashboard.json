@@ -557,7 +557,40 @@
     "analysis"
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "name": "time_window",
+        "label": "Time Window",
+        "type": "custom",
+        "hide": 0,
+        "current": {
+          "text": "Latest Month",
+          "value": "latest_month",
+          "selected": true
+        },
+        "options": [
+          {
+            "text": "Latest Month",
+            "value": "latest_month",
+            "selected": true
+          },
+          {
+            "text": "Year to Date",
+            "value": "ytd",
+            "selected": false
+          },
+          {
+            "text": "Trailing 12 Months",
+            "value": "trailing_12m",
+            "selected": false
+          }
+        ],
+        "query": "latest_month,ytd,trailing_12m",
+        "includeAll": false,
+        "multi": false,
+        "skipUrlSync": false
+      }
+    ]
   },
   "time": {
     "from": "now-1y",

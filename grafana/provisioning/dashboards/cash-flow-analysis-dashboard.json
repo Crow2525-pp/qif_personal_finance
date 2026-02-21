@@ -2264,7 +2264,7 @@
           "links": [
             {
               "title": "View Outflows Reconciliation Exceptions",
-              "url": "/d/outflows_reconciliation",
+              "url": "/d/outflows_reconciliation?orgId=1&${__url_time_range}&var-time_window=${time_window}",
               "targetBlank": true
             }
           ]

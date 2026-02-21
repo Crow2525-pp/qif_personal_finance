@@ -166,17 +166,17 @@
           "links": [
             {
               "title": "View Savings Analysis Details",
-              "url": "/d/savings_analysis",
+              "url": "/d/savings_analysis?orgId=1&${__url_time_range}&var-time_window=${time_window}&var-dashboard_period=${dashboard_period}",
               "targetBlank": true
             },
             {
               "title": "View Net Worth Dashboard",
-              "url": "/d/household_net_worth",
+              "url": "/d/household_net_worth?orgId=1&${__url_time_range}&var-time_window=${time_window}&var-dashboard_period=${dashboard_period}",
               "targetBlank": true
             },
             {
               "title": "View Account Performance",
-              "url": "/d/account_performance_dashboard",
+              "url": "/d/account_performance_dashboard?orgId=1&${__url_time_range}&var-time_window=${time_window}&var-dashboard_period=${dashboard_period}",
               "targetBlank": true
             }
           ],
@@ -478,17 +478,17 @@
           "links": [
             {
               "title": "View Savings Analysis Details",
-              "url": "/d/savings_analysis",
+              "url": "/d/savings_analysis?orgId=1&${__url_time_range}&var-time_window=${time_window}&var-dashboard_period=${dashboard_period}",
               "targetBlank": true
             },
             {
               "title": "View Expense Performance Details",
-              "url": "/d/expense_performance",
+              "url": "/d/expense_performance?orgId=1&${__url_time_range}&var-time_window=${time_window}&var-dashboard_period=${dashboard_period}",
               "targetBlank": true
             },
             {
               "title": "View Cash Flow Analysis",
-              "url": "/d/cash_flow_analysis",
+              "url": "/d/cash_flow_analysis?orgId=1&${__url_time_range}&var-time_window=${time_window}",
               "targetBlank": true
             }
           ]
@@ -882,17 +882,17 @@
           "links": [
             {
               "title": "View Monthly Budget Summary",
-              "url": "/d/monthly_budget_summary",
+              "url": "/d/monthly_budget_summary?orgId=1&${__url_time_range}&var-time_window=${time_window}&var-dashboard_period=${dashboard_period}",
               "targetBlank": true
             },
             {
               "title": "View Cash Flow Analysis",
-              "url": "/d/cash_flow_analysis",
+              "url": "/d/cash_flow_analysis?orgId=1&${__url_time_range}&var-time_window=${time_window}",
               "targetBlank": true
             },
             {
               "title": "View Net Worth Details",
-              "url": "/d/household_net_worth",
+              "url": "/d/household_net_worth?orgId=1&${__url_time_range}&var-time_window=${time_window}&var-dashboard_period=${dashboard_period}",
               "targetBlank": true
             }
           ]
@@ -1125,12 +1125,12 @@
           "links": [
             {
               "title": "View Cash Flow Analysis",
-              "url": "/d/cash_flow_analysis",
+              "url": "/d/cash_flow_analysis?orgId=1&${__url_time_range}&var-time_window=${time_window}",
               "targetBlank": true
             },
             {
               "title": "View Monthly Budget Summary",
-              "url": "/d/monthly_budget_summary",
+              "url": "/d/monthly_budget_summary?orgId=1&${__url_time_range}&var-time_window=${time_window}&var-dashboard_period=${dashboard_period}",
               "targetBlank": true
             }
           ],
@@ -1290,12 +1290,12 @@
           "links": [
             {
               "title": "View Net Worth Details",
-              "url": "/d/household_net_worth",
+              "url": "/d/household_net_worth?orgId=1&${__url_time_range}&var-time_window=${time_window}&var-dashboard_period=${dashboard_period}",
               "targetBlank": true
             },
             {
               "title": "View Account Performance",
-              "url": "/d/account_performance_dashboard",
+              "url": "/d/account_performance_dashboard?orgId=1&${__url_time_range}&var-time_window=${time_window}&var-dashboard_period=${dashboard_period}",
               "targetBlank": true
             }
           ]
@@ -1807,7 +1807,7 @@
           "links": [
             {
               "title": "View Full Executive Dashboard",
-              "url": "/d/executive_dashboard?var-dashboard_period=${dashboard_period}&var-time_window=${time_window}",
+              "url": "/d/executive_dashboard?orgId=1&${__url_time_range}&var-dashboard_period=${dashboard_period}&var-time_window=${time_window}",
               "targetBlank": true
             }
           ]
@@ -1934,7 +1934,7 @@
           "links": [
             {
               "title": "View Outflows Reconciliation Exceptions",
-              "url": "/d/outflows_reconciliation?var-dashboard_period=${dashboard_period}&var-time_window=${time_window}",
+              "url": "/d/outflows_reconciliation?orgId=1&${__url_time_range}&var-dashboard_period=${dashboard_period}&var-time_window=${time_window}",
               "targetBlank": true
             }
           ]
@@ -1985,7 +1985,7 @@
                 "value": [
                   {
                     "title": "View Uncategorized Transactions",
-                    "url": "/d/transaction_analysis_dashboard?var_category=Uncategorized&var-dashboard_period=${dashboard_period}&var-time_window=${time_window}",
+                    "url": "/d/transaction_analysis_dashboard?orgId=1&${__url_time_range}&var_category=Uncategorized&var-dashboard_period=${dashboard_period}&var-time_window=${time_window}",
                     "targetBlank": true
                   }
                 ]
@@ -2097,7 +2097,7 @@
                 "value": [
                   {
                     "title": "Categorize Merchant",
-                    "url": "/d/transaction_analysis_dashboard?var_category=Uncategorized&var-dashboard_period=${dashboard_period}&var-time_window=${time_window}",
+                    "url": "/d/transaction_analysis_dashboard?orgId=1&${__url_time_range}&var_category=Uncategorized&var-dashboard_period=${dashboard_period}&var-time_window=${time_window}",
                     "targetBlank": true
                   }
                 ]
