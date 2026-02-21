@@ -21,6 +21,7 @@ This folder is mounted into Grafana so dashboards auto-load from versioned JSON,
 - Percent data: ratio fields → `percentunit`, percentage fields (0–100) → `percent`; name ratio fields without `_pct`, add `_pct` suffix for 0–100 values.
 - Pie/bar/stat panels should display actual values (`displayLabels: ["name","value"]`, `reduceOptions.values: true`).
 - Mobile dashboards are prefixed `01-..` to `06-..`; keep numbering contiguous when adding new mobile layouts.
+- KPI definitions shown in dashboard text panels must include concrete formulas and source models; keep the canonical reference in `grafana/provisioning/dashboards/KPI_DICTIONARY.md`.
 
 ## Adding dashboards
 - Save the exported JSON directly here; no extra registration is needed because the provider watches the directory.

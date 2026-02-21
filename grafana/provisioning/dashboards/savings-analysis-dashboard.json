@@ -1710,6 +1710,25 @@
         ],
         "title": "Action Priorities This Month",
         "type": "table"
+      },
+      {
+        "id": 102,
+        "type": "text",
+        "title": "KPI Definitions - Savings Metrics",
+        "description": "Formula lineage for the savings KPIs on this dashboard.",
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 54
+        },
+        "options": {
+          "mode": "markdown",
+          "content": "## Savings KPI Definitions\n\nFull lineage and dictionary: [KPI Metric Dictionary](https://github.com/Crow2525-pp/qif_personal_finance/blob/main/grafana/provisioning/dashboards/KPI_DICTIONARY.md)\n\n### Total Savings Rate (Cash Flow Basis)\n**Formula:** `total_savings_rate_percent = (total_income - total_expenses) / total_income` (0-1 ratio).  \n**Source:** `reporting.rpt_savings_analysis.total_savings_rate_percent`.\n\n### Traditional Savings Rate\n**Formula:** `traditional_savings_rate_percent = (offset_savings + cash_savings + investment_contributions) / total_income` (0-1 ratio).  \n**Source:** `reporting.rpt_savings_analysis.traditional_savings_rate_percent`.\n\n### Savings Health Score (0-100)\n**Formula:** tier score from `total_savings_rate_percent` + 5 bonus if `mom_savings_rate_change > 0` + 5 bonus for consistent savings.  \n**Source:** `reporting.rpt_savings_analysis.savings_health_score`.\n\n### 3-Month Rolling Average Savings Rate\n**Formula:** `AVG(total_savings_rate_percent) OVER (ROWS BETWEEN 2 PRECEDING AND CURRENT ROW)`.  \n**Source:** `reporting.rpt_savings_analysis.rolling_3m_avg_savings_rate`.\n\n### Progress to 20% Goal\n**Formula:** `LEAST(1.0, GREATEST(0.0, (cash_savings + offset_savings + investment_contributions) / (total_income * 0.20)))`.  \n**Source:** `reporting.rpt_savings_analysis.progress_to_20_percent_goal`."
+        },
+        "pluginVersion": "10.0.0",
+        "transparent": false,
+        "datasource": null
       }
     ],
     "refresh": "",
