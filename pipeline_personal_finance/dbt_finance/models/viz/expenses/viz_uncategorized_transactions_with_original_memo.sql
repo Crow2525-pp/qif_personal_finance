@@ -7,131 +7,141 @@
 WITH uncategorized_transactions AS (
   SELECT
     ft.transaction_date,
-    ft.transaction_amount,
     ABS(ft.transaction_amount) AS amount_abs,
-
-    -- Show both original fields for comparison
-    ft.transaction_memo AS standardized_memo,  -- This is the standardized version
-    ft.transaction_description AS original_description,  -- This might be more original
-
-    -- Try to get the most original version available
     COALESCE(
-      ft.transaction_description,  -- Try description first
-      ft.transaction_memo         -- Fall back to memo
-    ) AS original_memo,
-
-    -- Account and classification info
+      NULLIF(TRIM(ft.transaction_memo), ''),
+      NULLIF(TRIM(ft.transaction_description), '')
+    ) AS standardized_memo,
+    COALESCE(
+      NULLIF(TRIM(ft.transaction_description), ''),
+      NULLIF(TRIM(ft.transaction_memo), '')
+    ) AS raw_merchant_text,
     da.account_name,
     da.bank_name,
-    ft.transaction_direction,
-
-    -- Category info (should be Uncategorized)
-    dc.level_1_category,
-    dc.level_2_subcategory,
-
-    -- Additional transaction details that might help with categorization
     ft.transaction_type,
     ft.sender,
     ft.recipient,
     ft.location
-
   FROM {{ ref('fct_transactions') }} ft
   LEFT JOIN {{ ref('dim_accounts') }} da
     ON ft.account_key = da.account_key
   LEFT JOIN {{ ref('dim_categories') }} dc
     ON ft.category_key = dc.category_key
-
   WHERE dc.level_1_category = 'Uncategorized'
-    AND ft.transaction_amount < 0  -- Only outflows (expenses)
-    AND NOT COALESCE(ft.is_internal_transfer, FALSE)  -- Exclude internal transfers
-    AND COALESCE(ft.transaction_description, ft.transaction_memo) IS NOT NULL
-    AND LENGTH(TRIM(COALESCE(ft.transaction_description, ft.transaction_memo))) > 1
+    AND ft.transaction_amount < 0
+    AND NOT COALESCE(ft.is_internal_transfer, FALSE)
+    AND COALESCE(
+      NULLIF(TRIM(ft.transaction_description), ''),
+      NULLIF(TRIM(ft.transaction_memo), '')
+    ) IS NOT NULL
 ),
 
--- Add some aggregation for similar transactions
+normalized_merchants AS (
+  SELECT
+    ut.*,
+    TRIM(REGEXP_REPLACE(ut.raw_merchant_text, '\s+', ' ', 'g')) AS merchant_text_clean,
+    COALESCE(
+      NULLIF(
+        LOWER(
+          REGEXP_REPLACE(
+            REGEXP_REPLACE(TRIM(ut.raw_merchant_text), '\d+', '', 'g'),
+            '[^a-zA-Z]+',
+            '',
+            'g'
+          )
+        ),
+        ''
+      ),
+      'unknownmerchant'
+    ) AS merchant_key
+  FROM uncategorized_transactions ut
+),
+
+prepared_merchants AS (
+  SELECT
+    nm.transaction_date,
+    nm.amount_abs,
+    nm.standardized_memo,
+    nm.account_name,
+    nm.bank_name,
+    nm.transaction_type,
+    nm.sender,
+    nm.recipient,
+    nm.location,
+    nm.merchant_key,
+    TRIM(
+      REGEXP_REPLACE(
+        REGEXP_REPLACE(
+          COALESCE(NULLIF(nm.merchant_text_clean, ''), 'Unknown Merchant'),
+          '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+',
+          '[masked-email]',
+          'g'
+        ),
+        '\d{4,}',
+        '####',
+        'g'
+      )
+    ) AS merchant_display_name
+  FROM normalized_merchants nm
+),
+
 uncategorized_grouped AS (
   SELECT
-    original_memo,
-    standardized_memo,
-    account_name,
-    bank_name,
-    transaction_type,
-    sender,
-    recipient,
-
-    -- Aggregated stats
+    merchant_key,
+    MIN(merchant_display_name) AS merchant_display_name,
+    MIN(standardized_memo) AS standardized_memo,
+    STRING_AGG(DISTINCT account_name, ', ' ORDER BY account_name) AS account_name,
+    STRING_AGG(DISTINCT bank_name, ', ' ORDER BY bank_name) AS bank_name,
+    STRING_AGG(DISTINCT transaction_type, ', ' ORDER BY transaction_type) AS transaction_type,
+    STRING_AGG(DISTINCT sender, ', ' ORDER BY sender) AS sender,
+    STRING_AGG(DISTINCT recipient, ', ' ORDER BY recipient) AS recipient,
+    MIN(location) AS sample_location,
     COUNT(*) AS transaction_count,
     SUM(amount_abs) AS total_amount,
     AVG(amount_abs) AS avg_amount,
     MIN(transaction_date) AS first_transaction_date,
     MAX(transaction_date) AS last_transaction_date,
-
-    -- Sample values for reference
-    MIN(location) AS sample_location,
-
-    -- Show all individual amounts for manual review
     STRING_AGG(amount_abs::text, ', ' ORDER BY transaction_date) AS all_amounts,
     STRING_AGG(transaction_date::text, ', ' ORDER BY transaction_date) AS all_dates
-
-  FROM uncategorized_transactions
-  GROUP BY
-    original_memo,
-    standardized_memo,
-    account_name,
-    bank_name,
-    transaction_type,
-    sender,
-    recipient
+  FROM prepared_merchants
+  GROUP BY merchant_key
 ),
 
 total_uncategorized AS (
-  SELECT SUM(total_amount) AS total_uncategorized_amount
+  SELECT COALESCE(SUM(total_amount), 0) AS total_uncategorized_amount
   FROM uncategorized_grouped
 )
 
 SELECT
-  -- Original memo for categorization
-  ug.original_memo,
+  ug.merchant_key,
+  ug.merchant_display_name,
+  ug.merchant_display_name AS original_memo,
   ug.standardized_memo,
-
-  -- Account context
   ug.account_name,
   ug.bank_name,
-
-  -- Transaction details that help with categorization
   ug.transaction_type,
   ug.sender,
   ug.recipient,
   ug.sample_location,
-
-  -- Financial impact
   ug.total_amount,
+  ug.transaction_count,
   ug.transaction_count AS txn_count,
   ug.avg_amount,
-
-  -- Contribution percentage
   CASE
     WHEN tu.total_uncategorized_amount > 0
     THEN (ug.total_amount / tu.total_uncategorized_amount) * 100
     ELSE 0
   END AS contribution_pct,
-
-  -- Timing info
   ug.first_transaction_date,
   ug.last_transaction_date,
-
-  -- Detailed transaction info for review
   ug.all_amounts,
   ug.all_dates,
-
-  -- Flag high-value items that need urgent attention
   CASE
     WHEN ug.total_amount >= 1000 THEN 'HIGH'
     WHEN ug.total_amount >= 500 THEN 'MEDIUM'
     WHEN ug.total_amount >= 100 THEN 'LOW'
     ELSE 'MINOR'
   END AS priority_level
-
 FROM uncategorized_grouped ug
 CROSS JOIN total_uncategorized tu
 WHERE ug.transaction_count >= 2 OR ug.total_amount >= 100
