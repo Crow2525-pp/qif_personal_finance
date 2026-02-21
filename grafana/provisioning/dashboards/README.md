@@ -27,47 +27,61 @@ This folder is mounted into Grafana so dashboards auto-load from versioned JSON,
 - Ensure filenames are descriptive; keep `uid` unique and stable to avoid clobbering unrelated dashboards.
 - If a dashboard should not be provisioned, keep it outside this folder or rename with a non-`.json` extension.
 
-## Drillthrough Navigation Standards
+## Cross-Dashboard Navigation Links
 
-Every key dashboard exposes a `links` array in its JSON root. These links render in the Grafana toolbar
-(the external-link icon next to the star) and let users jump to related dashboards while preserving the
-current time range (`keepTime: true`).
+### Time-range context preservation
 
-### Navigation hierarchy
+All cross-dashboard links must propagate the current time range to the destination dashboard using Grafana's built-in `${__url_time_range}` variable. This resolves to `from=<epoch_ms>&to=<epoch_ms>` at render time.
 
-| From | Links to |
-|------|----------|
-| 01 - Executive Financial Overview | 02 Cash Flow, 05 Savings, 06 Category Spending, 09 Transaction Analysis, 10 Reconciliation |
-| 02 - Cash Flow Analysis | 01 Executive, 06 Category Spending, 09 Transaction Analysis |
-| 05 - Savings Analysis | 01 Executive, 04 Net Worth, 06 Category Spending |
-| 06 - Category Spending Analysis | 09 Transaction Analysis |
-| 09 - Transaction Analysis | 01 Executive, 06 Category Spending, 08 Outflows Insights |
-| 10 - Financial Reconciliation | 09 Transaction Analysis |
+**URL pattern for links with no existing query params:**
+```
+/d/<uid>?orgId=1&${__url_time_range}
+```
 
-### Link object schema
+**URL pattern for links that also pass template variables:**
+```
+/d/<uid>?orgId=1&${__url_time_range}&var-time_window=${time_window}&var-dashboard_period=${dashboard_period}
+```
 
-Add entries to the top-level `"links"` array of the dashboard JSON:
+### Standard template variables
 
+Dashboards in the main analysis family share the following template variables so that context passes correctly through navigation links:
+
+| Variable | Type | Values | Purpose |
+|---|---|---|---|
+| `time_window` | custom | `latest_month`, `ytd`, `trailing_12m` | Controls the SQL aggregation window in panel queries |
+| `dashboard_period` | query (postgres) | `Latest`, `YYYY-MM` list | Selects a specific closed month for point-in-time views |
+
+**Adding `time_window` to a dashboard:**
 ```json
 {
-  "title": "View in 02 - Cash Flow Analysis",
-  "url": "/d/cash_flow_analysis",
-  "type": "link",
-  "keepTime": true,
-  "includeVars": false,
-  "icon": "external link",
-  "targetBlank": false
+  "name": "time_window",
+  "label": "Time Window",
+  "type": "custom",
+  "hide": 0,
+  "current": {"text": "Latest Month", "value": "latest_month", "selected": true},
+  "options": [
+    {"text": "Latest Month", "value": "latest_month", "selected": true},
+    {"text": "Year to Date", "value": "ytd", "selected": false},
+    {"text": "Trailing 12 Months", "value": "trailing_12m", "selected": false}
+  ],
+  "query": "latest_month,ytd,trailing_12m",
+  "includeAll": false,
+  "multi": false,
+  "skipUrlSync": false
 }
 ```
 
-- `keepTime: true` — destination dashboard inherits the current global time range.
-- `includeVars: false` — template variables are not forwarded (each dashboard manages its own).
-- `targetBlank: false` — links open in the same tab to support back-navigation via the browser.
+### Dashboards with cross-dashboard links
 
-### Adding new dashboards
+| Source dashboard | Destination dashboard | Variables passed |
+|---|---|---|
+| `executive-dashboard` | `cash_flow_analysis`, `savings_analysis`, `category-spending-v2`, `transaction_analysis_dashboard`, `outflows_reconciliation` | `${__url_time_range}`, `time_window` |
+| `cash-flow-analysis-dashboard` | `executive_dashboard`, `category-spending-v2`, `transaction_analysis_dashboard`, `outflows_reconciliation` | `${__url_time_range}`, `time_window` |
+| `savings-analysis-dashboard` | `executive_dashboard`, `household_net_worth`, `category-spending-v2` | `${__url_time_range}`, `time_window` |
+| `outflows-reconciliation-dashboard` | `executive_dashboard`, `transaction_analysis_dashboard` | `${__url_time_range}`, `time_window` |
+| `outflows-insights-dashboard` | `outflows_reconciliation` | `${__url_time_range}` |
+| `transaction-analysis-dashboard` | `executive_dashboard`, `category-spending-v2`, `outflows_insights`, `outflows_reconciliation` | `${__url_time_range}`, `time_window` |
+| `category-spending-dashboard` | `transaction_analysis_dashboard` | `${__url_time_range}`, `time_window` |
 
-When adding a dashboard that fits the review workflow:
-1. Decide which existing dashboards should link to it and which it should link back to.
-2. Update the `links` array in both the new and existing dashboard JSON files.
-3. Push changes via `scripts/push_grafana_dashboards.py` or the API (`POST /api/dashboards/db` with `overwrite: true`).
-4. Update the navigation hierarchy table above.
+When adding a new cross-dashboard link, always include `?orgId=1&${__url_time_range}` as a minimum. If the destination dashboard declares `time_window` or `dashboard_period` variables, pass them via `&var-time_window=${time_window}` and `&var-dashboard_period=${dashboard_period}` respectively.

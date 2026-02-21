@@ -1,0 +1,524 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Monthly financial review orchestration hub. Start here to assess health, follow the checklist, and deep-dive into specialist dashboards.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "Review Status",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "The most recent closed month for which data is available.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          },
+          "unit": "string"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "id": 2,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "/Latest Month/",
+          "values": false
+        },
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT budget_year_month AS \"Latest Month\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year_month DESC\nLIMIT 1",
+          "refId": "A"
+        }
+      ],
+      "title": "Data Freshness",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "When the reporting tables were last refreshed by the dbt pipeline.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          },
+          "unit": "string"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "id": 3,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "/Last Pipeline Run/",
+          "values": false
+        },
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT TO_CHAR(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Pipeline Run\"\nFROM reporting.rpt_monthly_budget_summary",
+          "refId": "A"
+        }
+      ],
+      "title": "Last Pipeline Run",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "id": 10,
+      "title": "Health at a Glance",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Net cash flow for the latest closed month. Green >= 0, red < 0.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 0 }
+            ]
+          },
+          "unit": "short",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 6 },
+      "id": 11,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT net_cash_flow AS \"Net Cash Flow\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year_month DESC\nLIMIT 1",
+          "refId": "A"
+        }
+      ],
+      "title": "Net Cash Flow (Latest Month)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Savings rate for the latest closed month. Green >= 10%, yellow >= 0%, red < 0%.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 0 },
+              { "color": "green", "value": 0.1 }
+            ]
+          },
+          "unit": "percentunit",
+          "min": -1,
+          "max": 1
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 6 },
+      "id": 12,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT savings_rate_percent AS \"Savings Rate\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year_month DESC\nLIMIT 1",
+          "refId": "A"
+        }
+      ],
+      "title": "Savings Rate (Latest Month)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Months of expenses covered by liquid assets. Green >= 6, yellow >= 3, red < 3.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 3 },
+              { "color": "green", "value": 6 }
+            ]
+          },
+          "unit": "short",
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 6 },
+      "id": 13,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT months_total_expenses_covered AS \"Emergency Fund Months\"\nFROM reporting.rpt_emergency_fund_coverage\nORDER BY budget_year_month DESC\nLIMIT 1",
+          "refId": "A"
+        }
+      ],
+      "title": "Emergency Fund (Months)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Number of reconciliation checks that have failed. Green = 0, yellow <= 5, red > 5.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            { "options": { "0": { "color": "green", "index": 0, "text": "All Passing" } }, "type": "value" }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1 },
+              { "color": "red", "value": 6 }
+            ]
+          },
+          "unit": "short",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 6 },
+      "id": 14,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(*)::int AS \"Failed Checks\"\nFROM reporting.rpt_financials_reconciliation_tests\nWHERE pass = false",
+          "refId": "A"
+        }
+      ],
+      "title": "Failed Reconciliation Checks",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 11 },
+      "id": 20,
+      "title": "Monthly Review Checklist",
+      "type": "row"
+    },
+    {
+      "gridPos": { "h": 14, "w": 12, "x": 0, "y": 12 },
+      "id": 21,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "## Monthly Review Checklist\n\nWork through these steps in order each month after the pipeline runs.\n\n---\n\n### Step 1 — Validate the Data\n**[01 - Executive Financial Overview](/d/executive_dashboard/01-executive-financial-overview)**\n- [ ] Confirm Data Freshness shows the correct closed month\n- [ ] Check Financial Health Scores are reasonable\n- [ ] Review Net Cash Flow and Savings Rate values\n\n### Step 2 — Review Cash Flow\n**[02 - Cash Flow Analysis](/d/cash_flow_analysis/02-cash-flow-analysis)**\n- [ ] Identify income sources and any anomalies\n- [ ] Review expense total vs prior month\n- [ ] Note any large one-off items\n\n### Step 3 — Assess Savings Performance\n**[05 - Savings Analysis](/d/savings_analysis/05-savings-analysis)**\n- [ ] Review savings rate trend\n- [ ] Check emergency fund adequacy\n- [ ] Confirm offset account contributions\n\n### Step 4 — Drill Into Spending Categories\n**[06 - Category Spending Analysis](/d/category-spending-v2/06-category-spending-analysis)**\n- [ ] Identify categories over budget\n- [ ] Flag any uncategorized high-value transactions\n- [ ] Review top merchants\n\n### Step 5 — Check Reconciliation\n**[10 - Financial Reconciliation](/d/outflows_reconciliation/10-financial-reconciliation)**\n- [ ] Resolve any FAIL items shown in Action Items below\n- [ ] Verify account balances match statements\n\n### Step 6 — Review Transactions\n**[09 - Transaction Analysis](/d/transaction_analysis_dashboard/09-transaction-analysis)**\n- [ ] Spot-check unusual or large transactions\n- [ ] Confirm all accounts have data for the period\n\n---\n*After completing all steps, update `activity.md` with findings.*",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.3.1",
+      "title": "Review Checklist",
+      "type": "text"
+    },
+    {
+      "gridPos": { "h": 14, "w": 12, "x": 12, "y": 12 },
+      "id": 22,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "## Quick Navigation\n\nJump to any dashboard by category.\n\n---\n\n### Core Review (run monthly)\n- [01 - Executive Financial Overview](/d/executive_dashboard/01-executive-financial-overview)\n- [02 - Cash Flow Analysis](/d/cash_flow_analysis/02-cash-flow-analysis)\n- [03 - Monthly Budget Summary](/d/monthly_budget_summary/03-monthly-budget-summary)\n- [05 - Savings Analysis](/d/savings_analysis/05-savings-analysis)\n- [06 - Category Spending Analysis](/d/category-spending-v2/06-category-spending-analysis)\n- [10 - Financial Reconciliation](/d/outflows_reconciliation/10-financial-reconciliation)\n\n### Deep Dive — Spending\n- [07 - Expense Performance Analysis](/d/expense_performance/07-expense-performance-analysis)\n- [08 - Outflows Insights](/d/outflows_insights/08-outflows-insights)\n- [09 - Transaction Analysis](/d/transaction_analysis_dashboard/09-transaction-analysis)\n- [16 - Grocery Spending Analysis](/d/grocery_spending_analysis/16-grocery-spending-analysis)\n- [17 - Amazon Spending Analysis](/d/amazon-spending/17-amazon-spending-analysis)\n\n### Wealth & Net Worth\n- [04 - Household Net Worth Analysis](/d/household_net_worth/04-household-net-worth-analysis)\n- [11 - Account Performance](/d/account_performance_dashboard/11-account-performance)\n- [15 - Mortgage Payoff](/d/mortgage-payoff/15-mortgage-payoff)\n\n### Trends & Projections\n- [12 - Financial Projections](/d/financial_projections/12-financial-projections)\n- [13 - Year-over-Year Comparison](/d/year_over_year_comparison/13-year-over-year-comparison)\n- [14 - Four-Year Financial Comparison](/d/four_year_financial_comparison/14-four-year-financial-comparison)\n\n### Mobile Views\n- [18 - Executive Overview (Mobile)](/d/exec-mobile-overview/18-executive-overview-mobile)\n- [19 - Spending & Categories (Mobile)](/d/spending-categories-mobile/19-spending-and-categories-mobile)\n- [20 - Cash Flow & Budget (Mobile)](/d/cashflow-budget-mobile/20-cash-flow-and-budget-mobile)\n- [21 - Savings & Performance (Mobile)](/d/savings-performance-mobile/21-savings-and-performance-mobile)\n- [22 - Assets & Net Worth (Mobile)](/d/assets-networth-mobile/22-assets-and-net-worth-mobile)\n- [23 - Projections & Analysis (Mobile)](/d/projections-analysis-mobile/23-projections-and-analysis-mobile)",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.3.1",
+      "title": "Quick Navigation",
+      "type": "text"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 26 },
+      "id": 30,
+      "title": "Action Items",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Reconciliation checks that are currently failing and require investigation. A passing system shows no rows here.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "domain" },
+            "properties": [
+              { "id": "displayName", "value": "Domain" },
+              { "id": "custom.width", "value": 120 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "test_name" },
+            "properties": [
+              { "id": "displayName", "value": "Test Name" },
+              { "id": "custom.width", "value": 260 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "notes" },
+            "properties": [
+              { "id": "displayName", "value": "Description" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "delta" },
+            "properties": [
+              { "id": "displayName", "value": "Delta" },
+              { "id": "unit", "value": "short" },
+              { "id": "decimals", "value": 2 },
+              { "id": "custom.width", "value": 100 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "period_date" },
+            "properties": [
+              { "id": "displayName", "value": "Period" },
+              { "id": "unit", "value": "dateTimeAsIso" },
+              { "id": "custom.width", "value": 120 }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 27 },
+      "id": 31,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          { "desc": false, "displayName": "Domain" }
+        ]
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  period_date,\n  domain,\n  test_name,\n  delta,\n  notes\nFROM reporting.rpt_financials_reconciliation_tests\nWHERE pass = false\nORDER BY domain, test_name, period_date DESC\nLIMIT 100",
+          "refId": "A"
+        }
+      ],
+      "title": "Failed Reconciliation Checks — Action Required",
+      "type": "table"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 41,
+  "tags": ["command-center", "personal-finance", "review"],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1y",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "00 - Financial Review Command Center",
+  "uid": "financial-review-command-center",
+  "version": 1,
+  "weekStart": ""
+}

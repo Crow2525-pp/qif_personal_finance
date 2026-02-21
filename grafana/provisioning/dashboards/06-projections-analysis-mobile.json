@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udd2e Projections & Analysis\n\nFinancial forecasts, year-over-year comparisons, and analytical insights in mobile-friendly format.",
+        "content": "# 🔮 Projections & Analysis\n\nFinancial forecasts, year-over-year comparisons, and analytical insights in mobile-friendly format.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -91,7 +91,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -188,7 +188,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -262,7 +262,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -451,7 +451,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -580,7 +580,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -635,7 +635,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "\ud83d\udd2e Projections & Analysis",
+  "title": "🔮 Projections & Analysis",
   "uid": "projections-analysis-mobile",
   "version": 1,
   "weekStart": ""

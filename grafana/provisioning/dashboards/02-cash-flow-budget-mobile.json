@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udcb0 Cash Flow & Budget\n\nTrack income, expenses, and budget performance with mobile-optimized vertical layouts.",
+        "content": "# 💰 Cash Flow & Budget\n\nTrack income, expenses, and budget performance with mobile-optimized vertical layouts.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -70,7 +70,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -105,7 +105,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    net_cash_flow as \"Current Net Flow\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_monthly_budget_summary);",
+          "rawSql": "SELECT \n    net_cash_flow as \"Current Net Flow\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_monthly_budget_summary WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -133,7 +133,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -168,7 +168,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    total_income as \"Current Income\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_monthly_budget_summary);",
+          "rawSql": "SELECT \n    total_income as \"Current Income\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_monthly_budget_summary WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -196,7 +196,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -231,7 +231,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    total_expenses as \"Current Expenses\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_monthly_budget_summary);",
+          "rawSql": "SELECT \n    total_expenses as \"Current Expenses\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_monthly_budget_summary WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -288,7 +288,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -367,7 +367,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    total_income as \"Income\",\n    total_expenses as \"Expenses\",\n    net_cash_flow as \"Net Cash Flow\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month >= TO_CHAR(CURRENT_DATE - INTERVAL '24 months', 'YYYY-MM')\nORDER BY budget_year_month;",
+          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    total_income as \"Income\",\n    total_expenses as \"Expenses\",\n    net_cash_flow as \"Net Cash Flow\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month >= TO_CHAR($__timeTo()::date - INTERVAL '24 months', 'YYYY-MM')\n  AND budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY budget_year_month;",
           "refId": "A"
         }
       ],
@@ -394,15 +394,17 @@
               },
               {
                 "color": "yellow",
-                "value": 0.1
+                "value": 0.05
               },
               {
                 "color": "green",
-                "value": 0.2
+                "value": 0.15
               }
             ]
           },
-          "unit": "percentunit"
+          "unit": "percentunit",
+          "min": 0,
+          "max": 0.5
         },
         "overrides": []
       },
@@ -435,7 +437,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    savings_rate_percent as \"Current Savings Rate\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_monthly_budget_summary);",
+          "rawSql": "SELECT \n    savings_rate_percent as \"Current Savings Rate\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_monthly_budget_summary WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -503,7 +505,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    expense_ratio_percent as \"Current Expense Ratio\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_monthly_budget_summary);",
+          "rawSql": "SELECT \n    expense_ratio_percent as \"Current Expense Ratio\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_monthly_budget_summary WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -560,7 +562,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -593,7 +595,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    net_cash_flow as \"Monthly Net Cash Flow\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month >= TO_CHAR(CURRENT_DATE - INTERVAL '24 months', 'YYYY-MM')\nORDER BY budget_year_month;",
+          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    net_cash_flow as \"Monthly Net Cash Flow\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month >= TO_CHAR($__timeTo()::date - INTERVAL '24 months', 'YYYY-MM')\n  AND budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY budget_year_month;",
           "refId": "A"
         }
       ],
@@ -616,7 +618,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "\ud83d\udcb0 Cash Flow & Budget",
+  "title": "💰 Cash Flow & Budget",
   "uid": "cashflow-budget-mobile",
   "version": 1,
   "weekStart": ""

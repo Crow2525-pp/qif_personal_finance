@@ -1,1789 +1,1789 @@
 {
-    "annotations": {
-      "list": [
-        {
-          "builtIn": 1,
-          "datasource": {
-            "type": "grafana",
-            "uid": "-- Grafana --"
-          },
-          "enable": true,
-          "hide": true,
-          "iconColor": "rgba(0, 211, 255, 1)",
-          "name": "Annotations & Alerts",
-          "type": "dashboard"
-        }
-      ]
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 01 - Executive Financial Overview",
+      "type": "link",
+      "url": "/d/executive_dashboard?orgId=1&${__url_time_range}&var-time_window=${time_window}"
     },
-    "editable": true,
-    "fiscalYearStartMonth": 0,
-    "graphTooltip": 0,
-    "id": 25,
-    "links": [
-      {
-        "icon": "external link",
-        "includeVars": false,
-        "keepTime": true,
-        "targetBlank": false,
-        "title": "View in 01 - Executive Financial Overview",
-        "type": "link",
-        "url": "/d/executive_dashboard"
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 04 - Household Net Worth Analysis",
+      "type": "link",
+      "url": "/d/household_net_worth?orgId=1&${__url_time_range}&var-time_window=${time_window}"
+    },
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 06 - Category Spending Analysis",
+      "type": "link",
+      "url": "/d/category-spending-v2?orgId=1&${__url_time_range}"
+    }
+  ],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "text",
+        "uid": "-- Text --"
       },
-      {
-        "icon": "external link",
-        "includeVars": false,
-        "keepTime": true,
-        "targetBlank": false,
-        "title": "View in 04 - Household Net Worth Analysis",
-        "type": "link",
-        "url": "/d/household_net_worth"
+      "gridPos": {
+        "h": 8,
+        "w": 18,
+        "x": 6,
+        "y": 0
       },
-      {
-        "icon": "external link",
-        "includeVars": false,
-        "keepTime": true,
-        "targetBlank": false,
-        "title": "View in 06 - Category Spending Analysis",
-        "type": "link",
-        "url": "/d/category-spending-v2"
-      }
-    ],
-    "liveNow": false,
-    "panels": [
-      {
-        "datasource": {
-          "type": "text",
-          "uid": "-- Text --"
-        },
-        "gridPos": {
-          "h": 8,
-          "w": 18,
-          "x": 6,
-          "y": 0
-        },
-        "id": 100,
-        "options": {
-          "content": "# 💎 Savings Analysis Dashboard - Wealth Building Progress\n\n**What This Dashboard Shows:** Net cash savings vs. contribution-driven savings, with trend and goal tracking.\n\n**Key Metrics**\n• **Savings Health Score (1-100):** Assess net cash flow vs. contribution consistency.\n• **Net vs Traditional Savings Rate:** Net cash retained after expenses vs. targeted contributions (cash/invest).\n• **Contribution Mix:** Track cash savings, offset top-ups, and investment contributions separately.\n• **Rolling Averages:** Smooth the net rate to spot sustained improvement.\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- YTD panels reflect year-to-date totals.\n- Trend charts cover the trailing 12 months.\n- Rolling averages use the last 3 complete months.\n\n**How to Use:** Net savings shows what actually stayed in your accounts. Traditional savings highlights how much you purposely set aside (cash/invest). Align both with your goals.",
-          "mode": "markdown"
-        },
-        "pluginVersion": "10.0.0",
-        "title": "Dashboard Instructions",
-        "type": "text"
+      "id": 100,
+      "options": {
+        "content": "# \ud83d\udc8e Savings Analysis Dashboard - Wealth Building Progress\n\n**What This Dashboard Shows:** Net cash savings vs. contribution-driven savings, with trend and goal tracking.\n\n**Key Metrics**\n\u2022 **Savings Health Score (1-100):** Assess net cash flow vs. contribution consistency.\n\u2022 **Net vs Traditional Savings Rate:** Net cash retained after expenses vs. targeted contributions (cash/invest).\n\u2022 **Contribution Mix:** Track cash savings, offset top-ups, and investment contributions separately.\n\u2022 **Rolling Averages:** Smooth the net rate to spot sustained improvement.\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- YTD panels reflect year-to-date totals.\n- Trend charts cover the trailing 12 months.\n- Rolling averages use the last 3 complete months.\n\n**How to Use:** Net savings shows what actually stayed in your accounts. Traditional savings highlights how much you purposely set aside (cash/invest). Align both with your goals.",
+        "mode": "markdown"
       },
-      {
-        "datasource": {
-          "type": "postgres",
-          "uid": "PCC52D03280B7034C"
-        },
-        "description": "Data recency for the current dashboard context.",
-        "fieldConfig": {
-          "defaults": {
-            "custom": {
-              "align": "auto",
-              "cellOptions": {
-                "type": "auto"
-              },
-              "inspect": false
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            }
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 8,
-          "w": 6,
-          "x": 0,
-          "y": 0
-        },
-        "id": 101,
-        "options": {
-          "cellHeight": "sm",
-          "footer": {
-            "countRows": false,
-            "fields": "",
-            "reducer": [
-              "sum"
-            ],
-            "show": false
-          },
-          "showHeader": true
-        },
-        "pluginVersion": "10.0.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "postgres",
-              "uid": "PCC52D03280B7034C"
-            },
-            "editorMode": "code",
-            "format": "table",
-            "rawQuery": true,
-            "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_savings_analysis\n  WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n)\nSELECT\n  to_char((SELECT month_date FROM latest_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_savings_analysis\nWHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM latest_period);",
-            "refId": "A"
-          }
-        ],
-        "title": "Data Freshness",
-        "type": "table"
+      "pluginVersion": "10.0.0",
+      "title": "Dashboard Instructions",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
-      {
-        "datasource": {
-          "type": "postgres",
-          "uid": "PCC52D03280B7034C"
-        },
-        "description": "Last complete month savings health score (1-100)",
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
+      "description": "Data recency for the current dashboard context.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
             },
-            "mappings": [],
-            "max": 100,
-            "min": 0,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "red",
-                  "value": null
-                },
-                {
-                  "color": "yellow",
-                  "value": 50
-                },
-                {
-                  "color": "green",
-                  "value": 75
-                }
-              ]
-            },
-            "unit": "short"
+            "inspect": false
           },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 8,
-          "w": 6,
-          "x": 0,
-          "y": 8
-        },
-        "id": 1,
-        "options": {
-          "orientation": "auto",
-          "reduceOptions": {
-            "calcs": [
-              "lastNotNull"
-            ],
-            "fields": "",
-            "values": false
-          },
-          "showThresholdLabels": false,
-          "showThresholdMarkers": true
-        },
-        "pluginVersion": "10.0.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "postgres",
-              "uid": "PCC52D03280B7034C"
-            },
-            "editorMode": "code",
-            "format": "table",
-            "rawQuery": true,
-            "rawSql": "SELECT savings_health_score\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
-            "refId": "A"
-          }
-        ],
-        "title": "Savings Health Score",
-        "type": "gauge"
-      },
-      {
-        "datasource": {
-          "type": "postgres",
-          "uid": "PCC52D03280B7034C"
-        },
-        "description": "Net savings rate (cash flow) vs traditional savings rate (cash/invest contributions) for the latest complete month.",
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "mappings": [],
-            "max": 0.5,
-            "min": 0,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "red",
-                  "value": null
-                },
-                {
-                  "color": "yellow",
-                  "value": 0.05
-                },
-                {
-                  "color": "green",
-                  "value": 0.15
-                }
-              ]
-            },
-            "unit": "percentunit"
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 8,
-          "w": 6,
-          "x": 6,
-          "y": 8
-        },
-        "id": 2,
-        "options": {
-          "orientation": "auto",
-          "reduceOptions": {
-            "calcs": [
-              "lastNotNull"
-            ],
-            "fields": "",
-            "values": false
-          },
-          "showThresholdLabels": false,
-          "showThresholdMarkers": true
-        },
-        "pluginVersion": "10.0.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "postgres",
-              "uid": "PCC52D03280B7034C"
-            },
-            "editorMode": "code",
-            "format": "table",
-            "rawQuery": true,
-            "rawSql": "SELECT \n  total_savings_rate_percent,\n  traditional_savings_rate_percent\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
-            "refId": "A"
-          }
-        ],
-        "title": "Last Month Savings Rates",
-        "type": "gauge"
-      },
-      {
-        "datasource": {
-          "type": "postgres",
-          "uid": "PCC52D03280B7034C"
-        },
-        "description": "Savings performance tier and trend analysis",
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "custom": {
-              "align": "auto",
-              "cellOptions": {
-                "type": "auto"
-              },
-              "inspect": false
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            }
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 12,
-          "y": 8
-        },
-        "id": 3,
-        "options": {
-          "frameIndex": 0,
-          "showHeader": true
-        },
-        "pluginVersion": "10.0.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "postgres",
-              "uid": "PCC52D03280B7034C"
-            },
-            "editorMode": "code",
-            "format": "table",
-            "rawQuery": true,
-            "rawSql": "SELECT \n  savings_performance_tier as \"Performance Tier\",\n  savings_trend as \"Trend\",\n  savings_consistency as \"Consistency\",\n  savings_goal_progress as \"Goal Progress\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
-            "refId": "A"
-          }
-        ],
-        "title": "Savings Performance Analysis",
-        "type": "table"
-      },
-      {
-        "datasource": {
-          "type": "postgres",
-          "uid": "PCC52D03280B7034C"
-        },
-        "description": "Monthly savings rate trends.\n• Total Savings Rate = (Cash + Offset + Investments + Mortgage Principal) / Income.\n• Traditional Savings Rate = (Cash + Offset + Investments) / Income (excludes mortgage principal as forced savings).\n• 3‑Month Average smooths the Total rate to reduce volatility.",
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "palette-classic"
-            },
-            "custom": {
-              "axisCenteredZero": false,
-              "axisColorMode": "text",
-              "axisLabel": "",
-              "axisPlacement": "auto",
-              "barAlignment": 0,
-              "drawStyle": "line",
-              "fillOpacity": 10,
-              "gradientMode": "none",
-              "hideFrom": {
-                "legend": false,
-                "tooltip": false,
-                "vis": false
-              },
-              "lineInterpolation": "linear",
-              "lineWidth": 2,
-              "pointSize": 5,
-              "scaleDistribution": {
-                "type": "linear"
-              },
-              "showPoints": "auto",
-              "spanNulls": false,
-              "stacking": {
-                "group": "A",
-                "mode": "none"
-              },
-              "thresholdsStyle": {
-                "mode": "off"
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
               }
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            },
-            "unit": "percentunit"
-          },
-          "overrides": [
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "total_savings_rate_percent"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "Total Savings Rate"
-                },
-                {
-                  "id": "color",
-                  "value": {
-                    "fixedColor": "blue",
-                    "mode": "fixed"
-                  }
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "traditional_savings_rate_percent"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "Traditional Savings Rate"
-                },
-                {
-                  "id": "color",
-                  "value": {
-                    "fixedColor": "green",
-                    "mode": "fixed"
-                  }
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "rolling_3m_avg_savings_rate"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "3-Month Average"
-                },
-                {
-                  "id": "color",
-                  "value": {
-                    "fixedColor": "orange",
-                    "mode": "fixed"
-                  }
-                },
-                {
-                  "id": "custom.lineStyle",
-                  "value": {
-                    "dash": [
-                      10,
-                      10
-                    ],
-                    "fill": "dash"
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 0,
-          "y": 16
-        },
-        "id": 4,
-        "options": {
-          "legend": {
-            "calcs": [],
-            "displayMode": "list",
-            "placement": "bottom",
-            "showLegend": true
-          },
-          "tooltip": {
-            "mode": "single",
-            "sort": "none"
+            ]
           }
         },
-        "targets": [
-          {
-            "datasource": {
-              "type": "postgres",
-              "uid": "PCC52D03280B7034C"
-            },
-            "editorMode": "code",
-            "format": "table",
-            "rawQuery": true,
-            "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  total_savings_rate_percent,\n  traditional_savings_rate_percent,\n  rolling_3m_avg_savings_rate\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
-            "refId": "A"
-          }
-        ],
-        "title": "Savings Rate Trends",
-        "type": "timeseries"
+        "overrides": []
       },
-      {
-        "datasource": {
-          "type": "postgres",
-          "uid": "PCC52D03280B7034C"
-        },
-        "description": "Monthly dollar amounts by contribution type (cash, offset, investment).",
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "palette-classic"
-            },
-            "custom": {
-              "axisCenteredZero": false,
-              "axisColorMode": "text",
-              "axisLabel": "",
-              "axisPlacement": "auto",
-              "barAlignment": 0,
-              "drawStyle": "bars",
-              "fillOpacity": 80,
-              "gradientMode": "none",
-              "hideFrom": {
-                "legend": false,
-                "tooltip": false,
-                "vis": false
-              },
-              "lineInterpolation": "linear",
-              "lineWidth": 1,
-              "pointSize": 5,
-              "scaleDistribution": {
-                "type": "linear"
-              },
-              "showPoints": "auto",
-              "spanNulls": false,
-              "stacking": {
-                "group": "A",
-                "mode": "normal"
-              },
-              "thresholdsStyle": {
-                "mode": "off"
-              }
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            },
-            "unit": "currencyUSD"
-          },
-          "overrides": [
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "cash_savings"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "Cash Savings"
-                },
-                {
-                  "id": "unit",
-                  "value": "currencyUSD"
-                },
-                {
-                  "id": "color",
-                  "value": {
-                    "fixedColor": "#1f78c1",
-                    "mode": "fixed"
-                  }
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "offset_savings"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "Offset Savings"
-                },
-                {
-                  "id": "unit",
-                  "value": "currencyUSD"
-                },
-                {
-                  "id": "color",
-                  "value": {
-                    "fixedColor": "#6a3d9a",
-                    "mode": "fixed"
-                  }
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "investment_contributions"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "Investment Contributions"
-                },
-                {
-                  "id": "unit",
-                  "value": "currencyUSD"
-                },
-                {
-                  "id": "color",
-                  "value": {
-                    "fixedColor": "#33a02c",
-                    "mode": "fixed"
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 12,
-          "y": 16
-        },
-        "id": 5,
-        "options": {
-          "legend": {
-            "calcs": [],
-            "displayMode": "list",
-            "placement": "bottom",
-            "showLegend": true
-          },
-          "tooltip": {
-            "mode": "single",
-            "sort": "none"
-          }
-        },
-        "targets": [
-          {
-            "datasource": {
-              "type": "postgres",
-              "uid": "PCC52D03280B7034C"
-            },
-            "editorMode": "code",
-            "format": "table",
-            "rawQuery": true,
-            "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  cash_savings,\n  offset_savings,\n  investment_contributions\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
-            "refId": "A"
-          }
-        ],
-        "title": "Savings by Type",
-        "type": "timeseries"
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 0
       },
-      {
-        "datasource": {
-          "type": "postgres",
-          "uid": "PCC52D03280B7034C"
-        },
-        "description": "Last complete month savings breakdown by type",
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            },
-            "unit": "currencyUSD"
-          },
-          "overrides": [
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "total_savings"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "Total Savings"
-                },
-                {
-                  "id": "color",
-                  "value": {
-                    "fixedColor": "blue",
-                    "mode": "fixed"
-                  }
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "cash_savings"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "Cash Savings"
-                },
-                {
-                  "id": "color",
-                  "value": {
-                    "fixedColor": "green",
-                    "mode": "fixed"
-                  }
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "offset_savings"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "Offset Savings"
-                },
-                {
-                  "id": "color",
-                  "value": {
-                    "fixedColor": "light-green",
-                    "mode": "fixed"
-                  }
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "investment_contributions"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "Investments"
-                },
-                {
-                  "id": "color",
-                  "value": {
-                    "fixedColor": "purple",
-                    "mode": "fixed"
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        "gridPos": {
-          "h": 6,
-          "w": 12,
-          "x": 0,
-          "y": 24
-        },
-        "id": 6,
-        "options": {
-          "colorMode": "value",
-          "graphMode": "area",
-          "justifyMode": "auto",
-          "orientation": "auto",
-          "reduceOptions": {
-            "calcs": [
-              "lastNotNull"
-            ],
-            "fields": "",
-            "values": false
-          },
-          "showPercentChange": false,
-          "textMode": "auto",
-          "wideLayout": true
-        },
-        "pluginVersion": "10.0.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "postgres",
-              "uid": "PCC52D03280B7034C"
-            },
-            "editorMode": "code",
-            "format": "table",
-            "rawQuery": true,
-            "rawSql": "SELECT \n  total_savings,\n  cash_savings,\n  offset_savings,\n  investment_contributions\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
-            "refId": "A"
-          }
-        ],
-        "title": "Last Month Savings Breakdown",
-        "type": "stat"
-      },
-      {
-        "datasource": {
-          "type": "postgres",
-          "uid": "PCC52D03280B7034C"
-        },
-        "description": "Savings rate analysis and volatility metrics",
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            },
-            "unit": "short"
-          },
-          "overrides": [
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "liquid_savings_rate_percent"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "Liquid Savings Rate"
-                },
-                {
-                  "id": "unit",
-                  "value": "percentunit"
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "investment_rate_percent"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "Investment Rate"
-                },
-                {
-                  "id": "unit",
-                  "value": "percentunit"
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "mom_savings_rate_change"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "MoM Rate Change"
-                },
-                {
-                  "id": "unit",
-                  "value": "percentunit"
-                },
-                {
-                  "id": "color",
-                  "value": {
-                    "mode": "thresholds"
-                  }
-                },
-                {
-                  "id": "thresholds",
-                  "value": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "red",
-                        "value": null
-                      },
-                      {
-                        "color": "yellow",
-                        "value": -0.05
-                      },
-                      {
-                        "color": "green",
-                        "value": 0
-                      }
-                    ]
-                  }
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "savings_rate_volatility"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "Rate Volatility"
-                },
-                {
-                  "id": "unit",
-                  "value": "percentunit"
-                }
-              ]
-            }
-          ]
-        },
-        "gridPos": {
-          "h": 6,
-          "w": 12,
-          "x": 12,
-          "y": 24
-        },
-        "id": 7,
-        "options": {
-          "colorMode": "value",
-          "graphMode": "area",
-          "justifyMode": "auto",
-          "orientation": "auto",
-          "reduceOptions": {
-            "calcs": [
-              "lastNotNull"
-            ],
-            "fields": "",
-            "values": false
-          },
-          "showPercentChange": false,
-          "textMode": "auto",
-          "wideLayout": true
-        },
-        "pluginVersion": "10.0.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "postgres",
-              "uid": "PCC52D03280B7034C"
-            },
-            "editorMode": "code",
-            "format": "table",
-            "rawQuery": true,
-            "rawSql": "SELECT \n  liquid_savings_rate_percent,\n  investment_rate_percent,\n  mom_savings_rate_change,\n  savings_rate_volatility\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
-            "refId": "A"
-          }
-        ],
-        "title": "Savings Rate Analysis",
-        "type": "stat"
-      },
-      {
-        "datasource": {
-          "type": "postgres",
-          "uid": "PCC52D03280B7034C"
-        },
-        "description": "Year-to-date savings accumulation",
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            },
-            "unit": "currencyUSD"
-          },
-          "overrides": [
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "ytd_total_savings"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "YTD Total Savings"
-                },
-                {
-                  "id": "color",
-                  "value": {
-                    "mode": "thresholds"
-                  }
-                },
-                {
-                  "id": "thresholds",
-                  "value": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "red",
-                        "value": null
-                      },
-                      {
-                        "color": "yellow",
-                        "value": 5000
-                      },
-                      {
-                        "color": "green",
-                        "value": 20000
-                      }
-                    ]
-                  }
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "ytd_total_income"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "YTD Total Income"
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "ytd_savings_rate_percent"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "YTD Savings Rate"
-                },
-                {
-                  "id": "unit",
-                  "value": "percentunit"
-                }
-              ]
-            }
-          ]
-        },
-        "gridPos": {
-          "h": 6,
-          "w": 12,
-          "x": 0,
-          "y": 30
-        },
-        "id": 8,
-        "options": {
-          "colorMode": "value",
-          "graphMode": "area",
-          "justifyMode": "auto",
-          "orientation": "auto",
-          "reduceOptions": {
-            "calcs": [
-              "lastNotNull"
-            ],
-            "fields": "",
-            "values": true
-          },
-          "showPercentChange": false,
-          "textMode": "auto",
-          "wideLayout": true
-        },
-        "pluginVersion": "10.0.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "postgres",
-              "uid": "PCC52D03280B7034C"
-            },
-            "editorMode": "code",
-            "format": "table",
-            "rawQuery": true,
-            "rawSql": "SELECT \n  ytd_total_savings,\n  ytd_total_income,\n  ytd_savings_rate_percent\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
-            "refId": "A"
-          }
-        ],
-        "title": "Year-to-Date Progress",
-        "type": "stat"
-      },
-      {
-        "datasource": {
-          "type": "postgres",
-          "uid": "PCC52D03280B7034C"
-        },
-        "description": "Goal tracking and milestone projections",
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            },
-            "unit": "short"
-          },
-          "overrides": [
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "estimated_years_to_50k"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "Years to $50k"
-                },
-                {
-                  "id": "unit",
-                  "value": "short"
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "additional_monthly_savings_needed_for_15_percent"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "Additional Monthly Savings for 15%"
-                },
-                {
-                  "id": "unit",
-                  "value": "currencyUSD"
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "yoy_savings_rate_improvement"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "YoY Improvement"
-                },
-                {
-                  "id": "unit",
-                  "value": "percentunit"
-                }
-              ]
-            }
-          ]
-        },
-        "gridPos": {
-          "h": 6,
-          "w": 12,
-          "x": 12,
-          "y": 30
-        },
-        "id": 9,
-        "options": {
-          "colorMode": "value",
-          "graphMode": "area",
-          "justifyMode": "auto",
-          "orientation": "auto",
-          "reduceOptions": {
-            "calcs": [
-              "lastNotNull"
-            ],
-            "fields": "",
-            "values": false
-          },
-          "showPercentChange": false,
-          "textMode": "auto",
-          "wideLayout": true
-        },
-        "pluginVersion": "10.0.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "postgres",
-              "uid": "PCC52D03280B7034C"
-            },
-            "editorMode": "code",
-            "format": "table",
-            "rawQuery": true,
-            "rawSql": "SELECT \n  estimated_years_to_50k,\n  additional_monthly_savings_needed_for_15_percent,\n  COALESCE(yoy_savings_rate_improvement, 0) AS yoy_savings_rate_improvement\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
-            "refId": "A"
-          }
-        ],
-        "title": "Goal Tracking & Projections",
-        "type": "stat"
-      },
-      {
-        "datasource": {
-          "type": "postgres",
-          "uid": "PCC52D03280B7034C"
-        },
-        "description": "Personalized savings recommendations and actionable insights",
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "custom": {
-              "align": "auto",
-              "cellOptions": {
-                "type": "auto"
-              },
-              "inspect": false
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            }
-          },
-          "overrides": [
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "cash_savings"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "Cash Savings"
-                },
-                {
-                  "id": "color",
-                  "value": {
-                    "fixedColor": "#2ca02c",
-                    "mode": "fixed"
-                  }
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "offset_savings"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "Offset Savings"
-                },
-                {
-                  "id": "color",
-                  "value": {
-                    "fixedColor": "#1f77b4",
-                    "mode": "fixed"
-                  }
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "investment_contributions"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "Investments"
-                },
-                {
-                  "id": "color",
-                  "value": {
-                    "fixedColor": "#9467bd",
-                    "mode": "fixed"
-                  }
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "estimated_mortgage_principal_payment"
-              },
-              "properties": [
-                {
-                  "id": "displayName",
-                  "value": "Mortgage Principal"
-                },
-                {
-                  "id": "color",
-                  "value": {
-                    "fixedColor": "#ff7f0e",
-                    "mode": "fixed"
-                  }
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Est. Annual Liquid Savings"
-              },
-              "properties": [
-                {
-                  "id": "unit",
-                  "value": "currencyUSD"
-                }
-              ]
-            }
-          ]
-        },
-        "gridPos": {
-          "h": 6,
-          "w": 24,
-          "x": 0,
-          "y": 36
-        },
-        "id": 10,
-        "options": {
-          "cellHeight": "sm",
-          "footer": {
-            "countRows": false,
-            "fields": "",
-            "reducer": [
-              "sum"
-            ],
-            "show": false
-          },
-          "showHeader": true
-        },
-        "pluginVersion": "10.0.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "postgres",
-              "uid": "PCC52D03280B7034C"
-            },
-            "editorMode": "code",
-            "format": "table",
-            "rawQuery": true,
-            "rawSql": "SELECT \n  savings_recommendation as \"Savings Recommendation\",\n  savings_performance_tier as \"Performance Tier\",\n  ROUND(estimated_annual_liquid_savings, 0) as \"Est. Annual Liquid Savings\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
-            "refId": "A"
-          }
-        ],
-        "title": "Savings Recommendations & Insights",
-        "type": "table"
-      },
-      {
-        "datasource": {
-          "type": "postgres",
-          "uid": "PCC52D03280B7034C"
-        },
-        "description": "Progress toward 20% savings rate goal (intermediate milestone)",
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "mappings": [],
-            "max": 1,
-            "min": 0,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "red",
-                  "value": null
-                },
-                {
-                  "color": "yellow",
-                  "value": 0.5
-                },
-                {
-                  "color": "green",
-                  "value": 1
-                }
-              ]
-            },
-            "unit": "percentunit"
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 6,
-          "w": 8,
-          "x": 0,
-          "y": 42
-        },
-        "id": 11,
-        "options": {
-          "orientation": "auto",
-          "reduceOptions": {
-            "calcs": [
-              "lastNotNull"
-            ],
-            "fields": "",
-            "values": false
-          },
-          "showThresholdLabels": false,
-          "showThresholdMarkers": true
-        },
-        "pluginVersion": "10.0.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "postgres",
-              "uid": "PCC52D03280B7034C"
-            },
-            "editorMode": "code",
-            "format": "table",
-            "rawQuery": true,
-            "rawSql": "SELECT progress_to_20_percent_goal\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
-            "refId": "A"
-          }
-        ],
-        "title": "Progress to 20% Goal",
-        "type": "gauge"
-      },
-      {
-        "datasource": {
-          "type": "postgres",
-          "uid": "PCC52D03280B7034C"
-        },
-        "description": "Progress toward FIRE 25% savings rate goal",
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "mappings": [],
-            "max": 1,
-            "min": 0,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "red",
-                  "value": null
-                },
-                {
-                  "color": "orange",
-                  "value": 0.5
-                },
-                {
-                  "color": "green",
-                  "value": 1
-                }
-              ]
-            },
-            "unit": "percentunit"
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 6,
-          "w": 8,
-          "x": 8,
-          "y": 42
-        },
-        "id": 12,
-        "options": {
-          "orientation": "auto",
-          "reduceOptions": {
-            "calcs": [
-              "lastNotNull"
-            ],
-            "fields": "",
-            "values": false
-          },
-          "showThresholdLabels": false,
-          "showThresholdMarkers": true
-        },
-        "pluginVersion": "10.0.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "postgres",
-              "uid": "PCC52D03280B7034C"
-            },
-            "editorMode": "code",
-            "format": "table",
-            "rawQuery": true,
-            "rawSql": "SELECT progress_to_fire_goal\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
-            "refId": "A"
-          }
-        ],
-        "title": "Progress to FIRE Goal (25%)",
-        "type": "gauge"
-      },
-      {
-        "datasource": {
-          "type": "postgres",
-          "uid": "PCC52D03280B7034C"
-        },
-        "description": "Benchmark status against common savings targets",
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "custom": {
-              "align": "auto",
-              "cellOptions": {
-                "type": "auto"
-              },
-              "inspect": false
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            }
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 6,
-          "w": 8,
-          "x": 16,
-          "y": 42
-        },
-        "id": 13,
-        "options": {
-          "frameIndex": 0,
-          "showHeader": true
-        },
-        "pluginVersion": "10.0.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "postgres",
-              "uid": "PCC52D03280B7034C"
-            },
-            "editorMode": "code",
-            "format": "table",
-            "rawQuery": true,
-            "rawSql": "SELECT benchmark_status as \"Benchmark Status\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
-            "refId": "A"
-          }
-        ],
-        "title": "Current Benchmark Status",
-        "type": "table"
-      },
-      {
-        "datasource": {
-          "type": "postgres",
-          "uid": "PCC52D03280B7034C"
-        },
-        "description": "Monthly savings required to reach each goal milestone",
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "custom": {
-              "align": "auto",
-              "cellOptions": {
-                "type": "auto"
-              },
-              "inspect": false
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            },
-            "unit": "currencyUSD"
-          },
-          "overrides": [
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Monthly Savings to Hit 15% Goal"
-              },
-              "properties": [
-                {
-                  "id": "unit",
-                  "value": "currencyUSD"
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Monthly Savings to Hit 20% Goal"
-              },
-              "properties": [
-                {
-                  "id": "unit",
-                  "value": "currencyUSD"
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Monthly Savings to Hit FIRE Goal"
-              },
-              "properties": [
-                {
-                  "id": "unit",
-                  "value": "currencyUSD"
-                }
-              ]
-            }
-          ]
-        },
-        "gridPos": {
-          "h": 6,
-          "w": 12,
-          "x": 0,
-          "y": 48
-        },
-        "id": 14,
-        "options": {
-          "frameIndex": 0,
-          "showHeader": true
-        },
-        "pluginVersion": "10.0.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "postgres",
-              "uid": "PCC52D03280B7034C"
-            },
-            "editorMode": "code",
-            "format": "table",
-            "rawQuery": true,
-            "rawSql": "SELECT \n  ROUND(additional_monthly_savings_needed_for_15_percent, 0) as \"Monthly Savings to Hit 15% Goal\",\n  ROUND(monthly_savings_needed_for_20_percent, 0) as \"Monthly Savings to Hit 20% Goal\",\n  ROUND(monthly_savings_needed_for_fire, 0) as \"Monthly Savings to Hit FIRE Goal\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
-            "refId": "A"
-          }
-        ],
-        "title": "Monthly Savings Required for Each Goal",
-        "type": "table"
-      },
-      {
-        "datasource": {
-          "type": "postgres",
-          "uid": "PCC52D03280B7034C"
-        },
-        "description": "Data-driven action priorities based on current savings rate",
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "custom": {
-              "align": "auto",
-              "cellOptions": {
-                "type": "auto"
-              },
-              "inspect": false
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            }
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 6,
-          "w": 12,
-          "x": 12,
-          "y": 48
-        },
-        "id": 15,
-        "options": {
-          "frameIndex": 0,
-          "showHeader": false
-        },
-        "pluginVersion": "10.0.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "postgres",
-              "uid": "PCC52D03280B7034C"
-            },
-            "editorMode": "code",
-            "format": "table",
-            "rawQuery": true,
-            "rawSql": "SELECT action_priorities as \"Action Priorities\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
-            "refId": "A"
-          }
-        ],
-        "title": "Action Priorities This Month",
-        "type": "table"
-      }
-    ],
-    "refresh": "",
-    "schemaVersion": 39,
-    "style": "dark",
-    "tags": [
-      "savings",
-      "analysis",
-      "goals",
-      "rates",
-      "personal-finance",
-      "dashboard"
-    ],
-    "templating": {
-      "list": [
-        {
-          "current": {
-            "selected": true,
-            "text": "Latest Month",
-            "value": "latest_month"
-          },
-          "hide": 0,
-          "includeAll": false,
-          "label": "Time Window",
-          "multi": false,
-          "name": "time_window",
-          "options": [
-            {
-              "selected": true,
-              "text": "Latest Month",
-              "value": "latest_month"
-            },
-            {
-              "selected": false,
-              "text": "Year to Date",
-              "value": "ytd"
-            },
-            {
-              "selected": false,
-              "text": "Trailing 12 Months",
-              "value": "trailing_12m"
-            }
+      "id": 101,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
           ],
-          "query": "latest_month,ytd,trailing_12m",
-          "skipUrlSync": false,
-          "type": "custom"
-        }
-      ]
-    },
-    "time": {
-      "from": "now-1M/M",
-      "to": "now/M"
-    },
-    "timepicker": {
-      "quick_ranges": [
-        {
-          "display": "Last complete month",
-          "from": "now-1M/M",
-          "to": "now/M"
+          "show": false
         },
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
         {
-          "display": "Year to date",
-          "from": "now/Y",
-          "to": "now"
-        },
-        {
-          "display": "Trailing 12 months",
-          "from": "now-12M/M",
-          "to": "now/M"
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_savings_analysis\n  WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n)\nSELECT\n  to_char((SELECT month_date FROM latest_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_savings_analysis\nWHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM latest_period);",
+          "refId": "A"
         }
-      ]
+      ],
+      "title": "Data Freshness",
+      "type": "table"
     },
-    "timezone": "",
-    "title": "Savings Analysis",
-    "uid": "savings_analysis",
-    "version": 30,
-    "weekStart": ""
-  }
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Last complete month savings health score (1-100)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "green",
+                "value": 75
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 8
+      },
+      "id": 1,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT savings_health_score\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "refId": "A"
+        }
+      ],
+      "title": "Savings Health Score",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Net savings rate (cash flow) vs traditional savings rate (cash/invest contributions) for the latest complete month.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 0.5,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.05
+              },
+              {
+                "color": "green",
+                "value": 0.15
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 8
+      },
+      "id": 2,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  total_savings_rate_percent,\n  traditional_savings_rate_percent\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "refId": "A"
+        }
+      ],
+      "title": "Last Month Savings Rates",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Savings performance tier and trend analysis",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 3,
+      "options": {
+        "frameIndex": 0,
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  savings_performance_tier as \"Performance Tier\",\n  savings_trend as \"Trend\",\n  savings_consistency as \"Consistency\",\n  savings_goal_progress as \"Goal Progress\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "refId": "A"
+        }
+      ],
+      "title": "Savings Performance Analysis",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Monthly savings rate trends.\n\u2022 Total Savings Rate = (Cash + Offset + Investments + Mortgage Principal) / Income.\n\u2022 Traditional Savings Rate = (Cash + Offset + Investments) / Income (excludes mortgage principal as forced savings).\n\u2022 3\u2011Month Average smooths the Total rate to reduce volatility.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_savings_rate_percent"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total Savings Rate"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "traditional_savings_rate_percent"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Traditional Savings Rate"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rolling_3m_avg_savings_rate"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "3-Month Average"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    10
+                  ],
+                  "fill": "dash"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  total_savings_rate_percent,\n  traditional_savings_rate_percent,\n  rolling_3m_avg_savings_rate\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
+          "refId": "A"
+        }
+      ],
+      "title": "Savings Rate Trends",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Monthly dollar amounts by contribution type (cash, offset, investment).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cash_savings"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Cash Savings"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#1f78c1",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "offset_savings"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Offset Savings"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#6a3d9a",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "investment_contributions"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Investment Contributions"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#33a02c",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  cash_savings,\n  offset_savings,\n  investment_contributions\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
+          "refId": "A"
+        }
+      ],
+      "title": "Savings by Type",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Last complete month savings breakdown by type",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_savings"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total Savings"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cash_savings"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Cash Savings"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "offset_savings"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Offset Savings"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "light-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "investment_contributions"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Investments"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  total_savings,\n  cash_savings,\n  offset_savings,\n  investment_contributions\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "refId": "A"
+        }
+      ],
+      "title": "Last Month Savings Breakdown",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Savings rate analysis and volatility metrics",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "liquid_savings_rate_percent"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Liquid Savings Rate"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "investment_rate_percent"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Investment Rate"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "mom_savings_rate_change"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "MoM Rate Change"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": -0.05
+                    },
+                    {
+                      "color": "green",
+                      "value": 0
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "savings_rate_volatility"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Rate Volatility"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  liquid_savings_rate_percent,\n  investment_rate_percent,\n  mom_savings_rate_change,\n  savings_rate_volatility\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "refId": "A"
+        }
+      ],
+      "title": "Savings Rate Analysis",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Year-to-date savings accumulation",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ytd_total_savings"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "YTD Total Savings"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 5000
+                    },
+                    {
+                      "color": "green",
+                      "value": 20000
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ytd_total_income"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "YTD Total Income"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ytd_savings_rate_percent"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "YTD Savings Rate"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  ytd_total_savings,\n  ytd_total_income,\n  ytd_savings_rate_percent\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "refId": "A"
+        }
+      ],
+      "title": "Year-to-Date Progress",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Goal tracking and milestone projections",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "estimated_years_to_50k"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Years to $50k"
+              },
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "additional_monthly_savings_needed_for_15_percent"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Additional Monthly Savings for 15%"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "yoy_savings_rate_improvement"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "YoY Improvement"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "id": 9,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  estimated_years_to_50k,\n  additional_monthly_savings_needed_for_15_percent,\n  COALESCE(yoy_savings_rate_improvement, 0) AS yoy_savings_rate_improvement\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "refId": "A"
+        }
+      ],
+      "title": "Goal Tracking & Projections",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Personalized savings recommendations and actionable insights",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cash_savings"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Cash Savings"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#2ca02c"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "offset_savings"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Offset Savings"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#1f77b4"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "investment_contributions"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Investments"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#9467bd"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "estimated_mortgage_principal_payment"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Mortgage Principal"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#ff7f0e"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Est. Annual Liquid Savings"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 36
+      },
+      "id": 10,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  savings_recommendation as \"Savings Recommendation\",\n  savings_performance_tier as \"Performance Tier\",\n  ROUND(estimated_annual_liquid_savings, 0) as \"Est. Annual Liquid Savings\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "refId": "A"
+        }
+      ],
+      "title": "Savings Recommendations & Insights",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Progress toward 20% savings rate goal (intermediate milestone)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 42
+      },
+      "id": 11,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT progress_to_20_percent_goal\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "refId": "A"
+        }
+      ],
+      "title": "Progress to 20% Goal",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Progress toward FIRE 25% savings rate goal",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.5
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 8,
+        "y": 42
+      },
+      "id": 12,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT progress_to_fire_goal\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "refId": "A"
+        }
+      ],
+      "title": "Progress to FIRE Goal (25%)",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Benchmark status against common savings targets",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 16,
+        "y": 42
+      },
+      "id": 13,
+      "options": {
+        "frameIndex": 0,
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT benchmark_status as \"Benchmark Status\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "refId": "A"
+        }
+      ],
+      "title": "Current Benchmark Status",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Monthly savings required to reach each goal milestone",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Monthly Savings to Hit 15% Goal"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Monthly Savings to Hit 20% Goal"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Monthly Savings to Hit FIRE Goal"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 48
+      },
+      "id": 14,
+      "options": {
+        "frameIndex": 0,
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  ROUND(additional_monthly_savings_needed_for_15_percent, 0) as \"Monthly Savings to Hit 15% Goal\",\n  ROUND(monthly_savings_needed_for_20_percent, 0) as \"Monthly Savings to Hit 20% Goal\",\n  ROUND(monthly_savings_needed_for_fire, 0) as \"Monthly Savings to Hit FIRE Goal\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "refId": "A"
+        }
+      ],
+      "title": "Monthly Savings Required for Each Goal",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Data-driven action priorities based on current savings rate",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 48
+      },
+      "id": 15,
+      "options": {
+        "frameIndex": 0,
+        "showHeader": false
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT action_priorities as \"Action Priorities\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "refId": "A"
+        }
+      ],
+      "title": "Action Priorities This Month",
+      "type": "table"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": [
+    "savings",
+    "analysis",
+    "goals",
+    "rates",
+    "personal-finance",
+    "dashboard"
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "time_window",
+        "label": "Time Window",
+        "type": "custom",
+        "hide": 0,
+        "current": {
+          "text": "Latest Month",
+          "value": "latest_month",
+          "selected": true
+        },
+        "options": [
+          {
+            "text": "Latest Month",
+            "value": "latest_month",
+            "selected": true
+          },
+          {
+            "text": "Year to Date",
+            "value": "ytd",
+            "selected": false
+          },
+          {
+            "text": "Trailing 12 Months",
+            "value": "trailing_12m",
+            "selected": false
+          }
+        ],
+        "query": "latest_month,ytd,trailing_12m",
+        "includeAll": false,
+        "multi": false,
+        "skipUrlSync": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1M/M",
+    "to": "now/M"
+  },
+  "timepicker": {
+    "quick_ranges": [
+      {
+        "from": "now-1M/M",
+        "to": "now/M",
+        "display": "Last complete month"
+      },
+      {
+        "from": "now/Y",
+        "to": "now",
+        "display": "Year to date"
+      },
+      {
+        "from": "now-12M/M",
+        "to": "now/M",
+        "display": "Trailing 12 months"
+      }
+    ]
+  },
+  "timezone": "",
+  "title": "Savings Analysis",
+  "uid": "savings_analysis",
+  "version": 1,
+  "weekStart": ""
+}

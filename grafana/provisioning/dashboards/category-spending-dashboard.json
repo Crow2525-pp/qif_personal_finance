@@ -27,7 +27,7 @@
         "targetBlank": false,
         "title": "View in 09 - Transaction Analysis",
         "type": "link",
-        "url": "/d/transaction_analysis_dashboard"
+        "url": "/d/transaction_analysis_dashboard?orgId=1&${__url_time_range}&var-time_window=${time_window}"
       }
     ],
     "liveNow": false,
