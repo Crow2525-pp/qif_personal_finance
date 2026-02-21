@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udcb8 Expense Performance Dashboard - Spending Control Analysis\n\n**What This Dashboard Shows:** Detailed breakdown of expense performance drivers that feed into Executive Dashboard ratings.\n\n**Key Metrics Explained:**\n\u2022 **Expense-to-Income Ratio:** Primary driver of expense performance rating (lower is better, target <80-90%)\n\u2022 **Category Breakdown:** Which spending categories are driving expense levels\n\u2022 **Trend Analysis:** Month-over-month and historical expense patterns\n\u2022 **Efficiency Metrics:** How well spending aligns with income and financial goals\n\n**Rating Logic:** Expense performance in Executive Dashboard is calculated as (Total Outflows \u00f7 Total Inflows) \u00d7 100. Lower ratios indicate better expense control.",
+        "content": "# 💸 Expense Performance Dashboard - Spending Control Analysis\n\n**What This Dashboard Shows:** Detailed breakdown of expense performance drivers that feed into Executive Dashboard ratings.\n\n**Key Metrics Explained:**\n• **Expense-to-Income Ratio:** Primary driver of expense performance rating (lower is better, target <80-90%)\n• **Category Breakdown:** Which spending categories are driving expense levels\n• **Trend Analysis:** Month-over-month and historical expense patterns\n• **Efficiency Metrics:** How well spending aligns with income and financial goals\n\n**Rating Logic:** Expense performance in Executive Dashboard is calculated as (Total Outflows ÷ Total Inflows) × 100. Lower ratios indicate better expense control.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",

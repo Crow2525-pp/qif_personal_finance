@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udcca Savings & Performance\n\nTrack savings rates, efficiency metrics, and financial performance with mobile-optimized layouts.",
+        "content": "# 📊 Savings & Performance\n\nTrack savings rates, efficiency metrics, and financial performance with mobile-optimized layouts.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -136,7 +136,9 @@
               }
             ]
           },
-          "unit": "percentunit"
+          "unit": "percentunit",
+          "min": -1,
+          "max": 1
         },
         "overrides": []
       },
@@ -226,7 +228,9 @@
               }
             ]
           },
-          "unit": "percentunit"
+          "unit": "percentunit",
+          "min": -1,
+          "max": 1
         },
         "overrides": []
       },
@@ -293,7 +297,9 @@
               }
             ]
           },
-          "unit": "percentunit"
+          "unit": "percentunit",
+          "min": -1,
+          "max": 1
         },
         "overrides": []
       },
@@ -356,7 +362,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -419,7 +425,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -483,7 +489,7 @@
             "value"
           ],
           "mappings": [],
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -582,7 +588,9 @@
               }
             ]
           },
-          "unit": "percentunit"
+          "unit": "percentunit",
+          "min": -1,
+          "max": 1
         },
         "overrides": []
       },
@@ -648,7 +656,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -885,7 +893,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "\ud83d\udcca Savings & Performance",
+  "title": "📊 Savings & Performance",
   "uid": "savings-performance-mobile",
   "version": 1,
   "weekStart": ""

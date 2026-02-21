@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udcb0 Cash Flow & Budget\n\nTrack income, expenses, and budget performance with mobile-optimized vertical layouts.",
+        "content": "# 💰 Cash Flow & Budget\n\nTrack income, expenses, and budget performance with mobile-optimized vertical layouts.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -70,7 +70,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -133,7 +133,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -196,7 +196,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -288,7 +288,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -402,7 +402,9 @@
               }
             ]
           },
-          "unit": "percentunit"
+          "unit": "percentunit",
+          "min": -1,
+          "max": 1
         },
         "overrides": []
       },
@@ -470,7 +472,9 @@
               }
             ]
           },
-          "unit": "percentunit"
+          "unit": "percentunit",
+          "min": -1,
+          "max": 1
         },
         "overrides": []
       },
@@ -560,7 +564,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -616,7 +620,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "\ud83d\udcb0 Cash Flow & Budget",
+  "title": "💰 Cash Flow & Budget",
   "uid": "cashflow-budget-mobile",
   "version": 1,
   "weekStart": ""

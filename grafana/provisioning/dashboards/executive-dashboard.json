@@ -79,7 +79,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nwindow_range AS (\n  SELECT\n    CASE '${time_window}'\n      WHEN 'ytd'          THEN DATE_TRUNC('year', (SELECT month_date FROM selected_period))\n      WHEN 'trailing_12m' THEN (SELECT month_date FROM selected_period) - INTERVAL '11 months'\n      ELSE                     (SELECT month_date FROM selected_period)\n    END AS start_date,\n    (SELECT month_date FROM selected_period) AS end_date\n),\nexec_view AS (\n  SELECT dashboard_generated_at\n  FROM reporting.rpt_executive_dashboard\n  WHERE dashboard_month = (SELECT month_key FROM selected_key)\n)\nSELECT\n  CASE '${time_window}'\n    WHEN 'ytd'          THEN 'Year to Date'\n    WHEN 'trailing_12m' THEN 'Trailing 12 Months'\n    ELSE                     'Latest Month'\n  END AS \"Time Window\",\n  CASE '${time_window}'\n    WHEN 'ytd'          THEN to_char((SELECT start_date FROM window_range), 'Mon YYYY') || ' \u2013 ' || to_char((SELECT end_date FROM window_range), 'Mon YYYY')\n    WHEN 'trailing_12m' THEN to_char((SELECT start_date FROM window_range), 'Mon YYYY') || ' \u2013 ' || to_char((SELECT end_date FROM window_range), 'Mon YYYY')\n    ELSE                     to_char((SELECT end_date FROM window_range), 'Mon YYYY')\n  END AS \"Data Through\",\n  to_char(MAX(exec_view.dashboard_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM exec_view;",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nwindow_range AS (\n  SELECT\n    CASE '${time_window}'\n      WHEN 'ytd'          THEN DATE_TRUNC('year', (SELECT month_date FROM selected_period))\n      WHEN 'trailing_12m' THEN (SELECT month_date FROM selected_period) - INTERVAL '11 months'\n      ELSE                     (SELECT month_date FROM selected_period)\n    END AS start_date,\n    (SELECT month_date FROM selected_period) AS end_date\n),\nexec_view AS (\n  SELECT dashboard_generated_at\n  FROM reporting.rpt_executive_dashboard\n  WHERE dashboard_month = (SELECT month_key FROM selected_key)\n)\nSELECT\n  CASE '${time_window}'\n    WHEN 'ytd'          THEN 'Year to Date'\n    WHEN 'trailing_12m' THEN 'Trailing 12 Months'\n    ELSE                     'Latest Month'\n  END AS \"Time Window\",\n  CASE '${time_window}'\n    WHEN 'ytd'          THEN to_char((SELECT start_date FROM window_range), 'Mon YYYY') || ' – ' || to_char((SELECT end_date FROM window_range), 'Mon YYYY')\n    WHEN 'trailing_12m' THEN to_char((SELECT start_date FROM window_range), 'Mon YYYY') || ' – ' || to_char((SELECT end_date FROM window_range), 'Mon YYYY')\n    ELSE                     to_char((SELECT end_date FROM window_range), 'Mon YYYY')\n  END AS \"Data Through\",\n  to_char(MAX(exec_view.dashboard_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM exec_view;",
           "refId": "A"
         }
       ],
@@ -145,7 +145,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nwindow_range AS (\n  SELECT\n    CASE '${time_window}'\n      WHEN 'ytd'          THEN DATE_TRUNC('year', (SELECT month_date FROM selected_period))\n      WHEN 'trailing_12m' THEN (SELECT month_date FROM selected_period) - INTERVAL '11 months'\n      ELSE                     (SELECT month_date FROM selected_period)\n    END AS start_date,\n    (SELECT month_date FROM selected_period) AS end_date\n),\nwindow_budget AS (\n  SELECT\n    COALESCE(SUM(net_cash_flow), 0) AS total_net_cash_flow,\n    COALESCE(SUM(total_income), 0)  AS total_income\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD')\n        BETWEEN (SELECT start_date FROM window_range)\n        AND     (SELECT end_date   FROM window_range)\n),\ncurrent_cf AS (\n  SELECT forecasted_next_month_net_flow\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT end_date FROM window_range)\n),\nsummary AS (\n  SELECT\n    CASE '${time_window}'\n      WHEN 'ytd'          THEN 'YTD through ' || to_char((SELECT end_date FROM window_range), 'Mon YYYY')\n      WHEN 'trailing_12m' THEN 'Trailing 12M through ' || to_char((SELECT end_date FROM window_range), 'Mon YYYY')\n      ELSE                     to_char((SELECT end_date FROM window_range), 'Mon YYYY')\n    END AS period_label,\n    CASE WHEN wb.total_net_cash_flow >= 0 THEN 'Positive' ELSE 'Negative' END AS health_rating,\n    COALESCE(ccf.forecasted_next_month_net_flow, 0) AS forecast_value\n  FROM window_budget wb\n  LEFT JOIN current_cf ccf ON TRUE\n)\nSELECT CONCAT('\ud83d\udcca Financial Summary for ', summary.period_label,\n              ' | Net Cash Flow: ', summary.health_rating,\n              ' | Next Month Forecast: $', ROUND(summary.forecast_value)::text) AS summary\nFROM summary;",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nwindow_range AS (\n  SELECT\n    CASE '${time_window}'\n      WHEN 'ytd'          THEN DATE_TRUNC('year', (SELECT month_date FROM selected_period))\n      WHEN 'trailing_12m' THEN (SELECT month_date FROM selected_period) - INTERVAL '11 months'\n      ELSE                     (SELECT month_date FROM selected_period)\n    END AS start_date,\n    (SELECT month_date FROM selected_period) AS end_date\n),\nwindow_budget AS (\n  SELECT\n    COALESCE(SUM(net_cash_flow), 0) AS total_net_cash_flow,\n    COALESCE(SUM(total_income), 0)  AS total_income\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD')\n        BETWEEN (SELECT start_date FROM window_range)\n        AND     (SELECT end_date   FROM window_range)\n),\ncurrent_cf AS (\n  SELECT forecasted_next_month_net_flow\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT end_date FROM window_range)\n),\nsummary AS (\n  SELECT\n    CASE '${time_window}'\n      WHEN 'ytd'          THEN 'YTD through ' || to_char((SELECT end_date FROM window_range), 'Mon YYYY')\n      WHEN 'trailing_12m' THEN 'Trailing 12M through ' || to_char((SELECT end_date FROM window_range), 'Mon YYYY')\n      ELSE                     to_char((SELECT end_date FROM window_range), 'Mon YYYY')\n    END AS period_label,\n    CASE WHEN wb.total_net_cash_flow >= 0 THEN 'Positive' ELSE 'Negative' END AS health_rating,\n    COALESCE(ccf.forecasted_next_month_net_flow, 0) AS forecast_value\n  FROM window_budget wb\n  LEFT JOIN current_cf ccf ON TRUE\n)\nSELECT CONCAT('📊 Financial Summary for ', summary.period_label,\n              ' | Net Cash Flow: ', summary.health_rating,\n              ' | Next Month Forecast: $', ROUND(summary.forecast_value)::text) AS summary\nFROM summary;",
           "refId": "A"
         }
       ],
@@ -157,7 +157,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Overall financial health scoreboard. Each bar reflects raw ratios from the selected month: savings performance is net cash flow \u00c3\u00b7 income, cash-flow status comes from the cash-flow analysis state machine, and net-worth progress tracks the wealth milestone. The composite score weights net worth 30%, savings 30%, and cash flow 40%.",
+      "description": "Overall financial health scoreboard. Each bar reflects raw ratios from the selected month: savings performance is net cash flow Ã· income, cash-flow status comes from the cash-flow analysis state machine, and net-worth progress tracks the wealth milestone. The composite score weights net worth 30%, savings 30%, and cash flow 40%.",
       "fieldConfig": {
         "defaults": {
           "min": 0,
@@ -386,7 +386,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "\u00ce\u201d ($)"
+                "value": "Î” ($)"
               },
               {
                 "id": "unit",
@@ -402,7 +402,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "\u00ce\u201d Ratio"
+                "value": "Î” Ratio"
               },
               {
                 "id": "unit",
@@ -425,14 +425,14 @@
           "refId": "A"
         }
       ],
-      "description": "Cash-oriented KPIs with raw values; \u00ce\u201d Ratio shows change vs the previous month."
+      "description": "Cash-oriented KPIs with raw values; Î” Ratio shows change vs the previous month."
     },
     {
       "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Savings and expense ratios for the selected month. Savings rate values are raw ratios (0\u00e2\u20ac\u201c1) of net cash flow to income across the monthly, 3\u00e2\u20ac\u2018month rolling, and year\u00e2\u20ac\u2018to\u00e2\u20ac\u2018date views. Expense ratio is total outflows divided by inflows; lower numbers signal tighter expense control.",
+      "description": "Savings and expense ratios for the selected month. Savings rate values are raw ratios (0â€“1) of net cash flow to income across the monthly, 3â€‘month rolling, and yearâ€‘toâ€‘date views. Expense ratio is total outflows divided by inflows; lower numbers signal tighter expense control.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -715,7 +715,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "\u00ce\u201d"
+                "value": "Î”"
               },
               {
                 "id": "unit",
@@ -731,7 +731,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "\u00ce\u201d Ratio"
+                "value": "Î” Ratio"
               },
               {
                 "id": "unit",
@@ -741,14 +741,14 @@
           }
         ]
       },
-      "description": "Score and risk KPIs expressed as raw values; \u00ce\u201d Ratio captures relative change where applicable."
+      "description": "Score and risk KPIs expressed as raw values; Î” Ratio captures relative change where applicable."
     },
     {
       "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Expense Control Score translates your outflow-to-inflow ratio into a 0-100 scale. Scores above 80 mean expenses are \u00e2\u2030\u00a490% of income (strong control). 55\u00e2\u20ac\u201c70 means you\u00e2\u20ac\u2122re spending roughly 100\u00e2\u20ac\u201c110% of income (monitor closely). A 10 indicates expenses exceed 150% of income\u00e2\u20ac\u201dan immediate signal that cash burn is unsustainable.",
+      "description": "Expense Control Score translates your outflow-to-inflow ratio into a 0-100 scale. Scores above 80 mean expenses are â‰¤90% of income (strong control). 55â€“70 means youâ€™re spending roughly 100â€“110% of income (monitor closely). A 10 indicates expenses exceed 150% of incomeâ€”an immediate signal that cash burn is unsustainable.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -878,7 +878,7 @@
               }
             ]
           },
-          "unit": "currencyUSD",
+          "unit": "short",
           "links": [
             {
               "title": "View Monthly Budget Summary",
@@ -1121,7 +1121,7 @@
               }
             ]
           },
-          "unit": "currencyUSD",
+          "unit": "short",
           "links": [
             {
               "title": "View Cash Flow Analysis",
@@ -1286,7 +1286,7 @@
               }
             ]
           },
-          "unit": "currencyUSD",
+          "unit": "short",
           "links": [
             {
               "title": "View Net Worth Details",
@@ -1512,7 +1512,7 @@
               }
             ]
           },
-          "unit": "currencyUSD",
+          "unit": "short",
           "custom": {
             "lineWidth": 1,
             "fillOpacity": 80,
@@ -1764,7 +1764,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "\u00ce\u201d"
+                "value": "Î”"
               },
               {
                 "id": "unit",
@@ -1913,7 +1913,7 @@
       },
       "id": 100,
       "options": {
-        "content": "### How to Read\n- Use the month selector to compare any historical period; \"Latest\" always reflects the newest closed month.\n- Time windows: Latest = most recent complete month; trend panels show trailing 12 months; rolling averages use last 3 complete months.\n- Rates are returned as true ratios (0\u00e2\u20ac\u201c1); keep formatting adjustments in Grafana rather than multiplying by 100 in SQL.\n- Start with low scores or large negative deltas, then drill into linked dashboards for root-cause detail.\n- Forecasts are forward-looking cash expectations; plan around the trajectory, not a single month.",
+        "content": "### How to Read\n- Use the month selector to compare any historical period; \"Latest\" always reflects the newest closed month.\n- Time windows: Latest = most recent complete month; trend panels show trailing 12 months; rolling averages use last 3 complete months.\n- Rates are returned as true ratios (0â€“1); keep formatting adjustments in Grafana rather than multiplying by 100 in SQL.\n- Start with low scores or large negative deltas, then drill into linked dashboards for root-cause detail.\n- Forecasts are forward-looking cash expectations; plan around the trajectory, not a single month.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -2154,7 +2154,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
