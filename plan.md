@@ -8,19 +8,13 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
 
 ---
 
+## Status Notes
+
+- On 2026-02-21, tasks 46-56 were completed by another LLM and moved to `done.md`.
+
 ## Concrete Tasks (Priority Order)
 
 [
-  {
-    "id": 41,
-    "category": "dashboard-fix",
-    "title": "Make time_window variable drive all Executive panels",
-    "description": "In grafana/provisioning/dashboards/executive-dashboard.json, update every SQL query to honor $time_window via a shared window_range CTE (latest_month, ytd, trailing_12m). Replace single-month filters (= selected_period) with BETWEEN window_range.start_date and window_range.end_date and adjust aggregates (sums/avgs) accordingly for: Data Freshness, Key Executive KPIs table, Savings & Expense Performance, Cash Flow Trend timeseries, and any other month-scoped stat panels. Also set templating.list entries for time_window and dashboard_period to disallow custom values (allowCustom=false, queryOption.multi=false) to prevent invalid SQL.",
-    "scope": "grafana/provisioning/dashboards/executive-dashboard.json; reporting.rpt_monthly_budget_summary; reporting.rpt_cash_flow_analysis",
-    "effort": "medium",
-    "status": "done",
-    "notes": "16 panels updated via window_range CTE. Key Executive KPIs uses previous_window_range for period comparison. Family Essentials SUM is wired but rpt_family_essentials model still materialises latest month only — needs model update to expose all months (see task 45 scope)."
-  },
   {
     "id": 42,
     "category": "dashboard-fix",
@@ -28,7 +22,8 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "description": "Ensure the Grafana dashboard time range follows the chosen month in $dashboard_period: set timepicker.hidden=true (dashboard-level) and programmatically set panel queries to use the selected period window instead of the URL time range now-1M/M..now/M. Prevents mismatches where panels show the selected month but the global range stays on the previous one.",
     "scope": "grafana/provisioning/dashboards/executive-dashboard.json (timepicker block, defaults); reporting queries already windowed after task 41",
     "effort": "small",
-    "status": "pending"
+    "status": "done",
+    "notes": "Verified complete against origin/main dashboard/models on 2026-02-21."
   },
   {
     "id": 43,
@@ -37,7 +32,8 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "description": "Guard division by zero and missing previous periods in Net Cash Flow and Forecast rows. SQL template: delta_ratio = CASE WHEN COALESCE(prev,0)=0 AND COALESCE(curr,0)=0 THEN 0 WHEN COALESCE(prev,0)=0 THEN NULL ELSE (curr-prev)/NULLIF(ABS(prev),0) END; delta_value = curr - COALESCE(prev,0). Apply the same logic to MoM Rate Changes. In JSON: set field.displayMode to 'color-text', nullValueMode='connected', and add 'text: n/a' override when value is null; keep percent unit.",
     "scope": "reporting.rpt_monthly_budget_summary; grafana/provisioning/dashboards/executive-dashboard.json (Key Executive KPIs, Month-over-Month Rate Changes tables)",
     "effort": "small",
-    "status": "pending"
+    "status": "done",
+    "notes": "Verified complete against origin/main dashboard/models on 2026-02-21."
   },
   {
     "id": 44,
@@ -46,7 +42,8 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "description": "Standardize all percent outputs to 0–100 numeric scale. SQL: multiply ratios by 100 and alias without '%' chars. Panels to update: Savings & Expense Performance bars, MoM Rate Changes, Expense Ratio stats, uncategorized_pct in Data Quality Callouts. JSON: set fieldConfig.defaults.unit='percent', thresholds numeric (e.g., 5/10/20/30 or red>15 yellow>10 for data-quality), remove any suffix text '%'.",
     "scope": "reporting.rpt_monthly_budget_summary; reporting.rpt_outflows_insights_dashboard; grafana/provisioning/dashboards/executive-dashboard.json (Savings & Expense Performance, MoM Rate Changes, Data Quality Callouts, related stats)",
     "effort": "small",
-    "status": "pending"
+    "status": "done",
+    "notes": "Verified complete against origin/main dashboard/models on 2026-02-21."
   },
   {
     "id": 45,
@@ -55,7 +52,8 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "description": "Filter Data Quality Callouts, Top Uncategorized Merchants, and AI Financial Insights to $time_window/$dashboard_period. SQL: add window_range CTE (start_date/end_date) and apply WHERE activity_date BETWEEN start_date AND end_date (or month_date for monthly models). For merchants: recompute contribution_pct within the filtered set and ORDER BY contribution_pct DESC LIMIT 10. JSON: pass both variables in links (?var-dashboard_period=$dashboard_period&var-time_window=$time_window) and set panels to refresh on variable change.",
     "scope": "reporting.rpt_outflows_insights_dashboard; reporting.viz_uncategorized_transactions_with_original_memo; grafana/provisioning/dashboards/executive-dashboard.json (Data Quality Callouts, Top Uncategorized Merchants, AI Financial Insights)",
     "effort": "medium",
-    "status": "pending"
+    "status": "done",
+    "notes": "Verified complete against origin/main dashboard/models on 2026-02-21."
   },
   {
     "id": 31,
@@ -64,7 +62,8 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "description": "Use inflow_excl_transfers from reporting.rpt_cash_flow_analysis for selected month (COALESCE to 0) so Monthly Income is not $0; ensure datasource UID matches Postgres and join only on latest/selected month key.",
     "scope": "reporting.rpt_cash_flow_analysis; grafana/provisioning/dashboards/executive-dashboard.json (Monthly Financial Snapshot stat)",
     "effort": "small",
-    "status": "pending"
+    "status": "done",
+    "notes": "Verified complete against origin/main dashboard/models on 2026-02-21."
   },
   {
     "id": 32,
@@ -136,7 +135,8 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "description": "Rewrite summary to state latest closed month, refresh frequency (monthly/quarterly), and cite net cash flow direction plus count of cash-flow drivers surfaced.",
     "scope": "grafana/provisioning/dashboards/executive-dashboard.json (Executive Summary text panel)",
     "effort": "tiny",
-    "status": "pending"
+    "status": "done",
+    "notes": "Verified complete against origin/main dashboard/models on 2026-02-21."
   },
   {
     "id": 40,
@@ -226,7 +226,8 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "description": "SQL: months_essential_expenses_covered = liquid_assets / NULLIF(essential_expenses_last_month,0); return coverage_status. Grafana gauge: set max 6, unit month, thresholds at 0/1/3/6 (red/orange/yellow/green), show status text as secondary label.",
     "scope": "reporting.rpt_emergency_fund_coverage; grafana/provisioning/dashboards/executive-dashboard.json (Emergency Fund Coverage gauge)",
     "effort": "small",
-    "status": "pending"
+    "status": "done",
+    "notes": "Verified complete against origin/main dashboard/models on 2026-02-21."
   },
   {
     "id": 30,
@@ -256,36 +257,6 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "effort": "small",
     "status": "pending",
     "notes": "Add subcategory mappings in banking_categories.csv with subcategory='Childcare & Early Education'"
-  },
-  {
-    "id": 3,
-    "category": "family-insights",
-    "title": "Add 'Family Essentials' cost panel to Executive dashboard",
-    "description": "Create a single stat row showing monthly totals for: Childcare, Groceries, Kids Activities, Family Medical. These are the non-negotiable costs parents need to see first",
-    "scope": "Grafana Executive dashboard + new SQL panel",
-    "effort": "medium",
-    "status": "done",
-    "notes": "Created rpt_family_essentials.sql model and added 'Family Essentials (Last Month)' stat panel to Executive dashboard"
-  },
-  {
-    "id": 4,
-    "category": "emergency-fund",
-    "title": "Add emergency fund coverage panel to Executive dashboard",
-    "description": "Calculate months of essential expenses covered by liquid assets (target: 3-6 months). Show as gauge with red/yellow/green zones",
-    "scope": "Grafana panel + SQL calculation",
-    "effort": "small",
-    "status": "done",
-    "notes": "Created rpt_emergency_fund_coverage.sql model and added gauge panel to Executive dashboard with red/orange/yellow/green thresholds at 0/1/3/6 months"
-  },
-  {
-    "id": 5,
-    "category": "weekly-pacing",
-    "title": "Add 'Week-to-Date Spending Pace' panel",
-    "description": "Show current week spending vs weekly budget target (monthly budget / weeks in month). Include 'days remaining' and 'daily budget remaining' for easy mental math",
-    "scope": "New Grafana panel on Executive or new Weekly Review dashboard",
-    "effort": "medium",
-    "status": "done",
-    "notes": "Created rpt_weekly_spending_pace.sql model and added 'Week-to-Date Spending Pace' stat panel to Executive dashboard showing weekly budget, spending, and daily budget remaining"
   },
   {
     "id": 6,
@@ -408,3 +379,4 @@ The second phase focuses on forward-looking features: upcoming recurring bills, 
     "effort": "medium"
   }
 ]
+
