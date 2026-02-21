@@ -1,5 +1,4 @@
 {
-  "dashboard": {
     "annotations": {
       "list": [
         {
@@ -1788,4 +1787,3 @@
     "version": 30,
     "weekStart": ""
   }
-}
