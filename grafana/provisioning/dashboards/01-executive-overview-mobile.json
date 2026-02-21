@@ -712,6 +712,28 @@
                 "value": "percentunit"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "count"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Uncategorized Count"
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Review Uncategorized Transactions",
+                    "url": "/d/transaction_analysis_dashboard?var_category=Uncategorized",
+                    "targetBlank": true
+                  }
+                ]
+              }
+            ]
           }
         ]
       },
@@ -722,6 +744,7 @@
         "y": 30
       },
       "id": 9,
+      "description": "Tap any value in Uncategorized Count to review items in Transaction Analysis.",
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -747,7 +770,7 @@
           "refId": "A"
         }
       ],
-      "title": "Top 5 Uncategorized Transactions (Need Review)",
+      "title": "Top 5 Uncategorized Transactions (Tap Count to Review)",
       "type": "table"
     }
   ],
