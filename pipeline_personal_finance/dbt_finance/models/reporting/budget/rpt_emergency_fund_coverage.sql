@@ -50,7 +50,22 @@ latest_net_worth AS (
   LIMIT 1
 ),
 
-expense_history AS (
+latest_expenses AS (
+  SELECT
+    budget_year_month,
+    COALESCE(total_expenses, 0) AS total_expenses_last_month,
+    COALESCE(mortgage_expenses, 0) + COALESCE(household_expenses, 0) + COALESCE(food_expenses, 0) + COALESCE(family_expenses, 0) AS essential_expenses_last_month,
+    COALESCE(mortgage_expenses, 0) AS mortgage_expenses_last_month,
+    COALESCE(household_expenses, 0) AS household_expenses_last_month,
+    COALESCE(food_expenses, 0) AS food_expenses_last_month,
+    COALESCE(family_expenses, 0) AS family_expenses_last_month
+  FROM {{ ref('rpt_monthly_budget_summary') }}
+  WHERE budget_year_month = (SELECT max_month FROM available_months)
+  ORDER BY budget_year_month DESC
+  LIMIT 1
+),
+
+expense_history_6m AS (
   SELECT
     budget_year_month,
     total_expenses,
@@ -69,13 +84,9 @@ expense_history AS (
 
 avg_expenses AS (
   SELECT
-    AVG(total_expenses) AS avg_monthly_expenses,
-    AVG(essential_expenses) AS avg_monthly_essential_expenses,
-    AVG(mortgage_expenses) AS avg_mortgage,
-    AVG(household_expenses) AS avg_household,
-    AVG(food_expenses) AS avg_food,
-    AVG(family_expenses) AS avg_family
-  FROM expense_history
+    ROUND(AVG(total_expenses)::numeric, 2) AS avg_monthly_expenses_6m,
+    ROUND(AVG(essential_expenses)::numeric, 2) AS avg_monthly_essential_expenses_6m
+  FROM expense_history_6m
 ),
 
 emergency_fund_calc AS (
@@ -84,44 +95,53 @@ emergency_fund_calc AS (
     nw.liquid_assets,
     nw.total_assets,
     nw.net_worth,
-    ae.avg_monthly_expenses,
-    ae.avg_monthly_essential_expenses,
+    le.total_expenses_last_month,
+    le.essential_expenses_last_month,
+    ae.avg_monthly_expenses_6m,
+    ae.avg_monthly_essential_expenses_6m,
 
     -- Months of total expenses covered
     CASE
-      WHEN ae.avg_monthly_expenses > 0
-      THEN ROUND((nw.liquid_assets / ae.avg_monthly_expenses)::numeric, 1)
+      WHEN le.total_expenses_last_month > 0
+      THEN ROUND((nw.liquid_assets / le.total_expenses_last_month)::numeric, 1)
       ELSE 0
     END AS months_total_expenses_covered,
 
-    -- Months of essential expenses covered (more conservative)
-    ROUND((nw.liquid_assets / NULLIF(ae.avg_monthly_essential_expenses, 0))::numeric, 1) AS months_essential_expenses_covered,
+    -- Months of essential expenses covered (conservative, based on latest month)
+    CASE
+      WHEN le.essential_expenses_last_month > 0
+      THEN ROUND((nw.liquid_assets / NULLIF(le.essential_expenses_last_month, 0))::numeric, 1)
+      ELSE 0
+    END AS months_essential_expenses_covered,
 
     -- Target coverage (6 months for family with young kids)
     6.0 AS target_months_coverage,
 
     -- Gap to target
     CASE
-      WHEN ae.avg_monthly_essential_expenses > 0
-      THEN ROUND((6.0 * ae.avg_monthly_essential_expenses - nw.liquid_assets)::numeric, 2)
+      WHEN le.essential_expenses_last_month > 0
+      THEN ROUND((6.0 * le.essential_expenses_last_month - nw.liquid_assets)::numeric, 2)
       ELSE 0
     END AS gap_to_target_dollars,
 
-    -- Category breakdown for display
-    ae.avg_mortgage AS monthly_mortgage,
-    ae.avg_household AS monthly_household,
-    ae.avg_food AS monthly_food,
-    ae.avg_family AS monthly_family
+    -- Category breakdown for display (latest month actuals)
+    le.mortgage_expenses_last_month AS monthly_mortgage,
+    le.household_expenses_last_month AS monthly_household,
+    le.food_expenses_last_month AS monthly_food,
+    le.family_expenses_last_month AS monthly_family
 
   FROM latest_net_worth nw
+  CROSS JOIN latest_expenses le
   CROSS JOIN avg_expenses ae
 )
 
 SELECT
   budget_year_month,
   liquid_assets,
-  avg_monthly_expenses,
-  avg_monthly_essential_expenses,
+  total_expenses_last_month AS avg_monthly_expenses,
+  essential_expenses_last_month AS avg_monthly_essential_expenses,
+  avg_monthly_expenses_6m,
+  avg_monthly_essential_expenses_6m,
   COALESCE(months_total_expenses_covered, 0) AS months_total_expenses_covered,
   COALESCE(months_essential_expenses_covered, 0) AS months_essential_expenses_covered,
   target_months_coverage,

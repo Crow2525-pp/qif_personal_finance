@@ -2247,8 +2247,8 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "",
-          "values": false
+          "fields": "Months Covered",
+          "values": true
         },
         "showThresholdLabels": true,
         "showThresholdMarkers": true
