@@ -126,7 +126,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month,\n  bendigo_offset,\n  ing_billsbillsbills,\n  bendigo_homeloan,\n  ing_countdown\nFROM reporting.viz_balance_by_year_month \nWHERE period_date >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\n  AND period_date < DATE_TRUNC('month', CURRENT_DATE)\nORDER BY period_date;",
+          "rawSql": "SELECT \n  year_month,\n  bendigo_offset,\n  ing_billsbillsbills,\n  bendigo_homeloan,\n  ing_countdown\nFROM reporting.viz_balance_by_year_month \nWHERE period_date >= DATE_TRUNC('year', $__timeTo()::date - INTERVAL '1 year')\n  AND period_date < DATE_TRUNC('month', $__timeTo()::date)\nORDER BY period_date;",
           "refId": "A"
         }
       ],
@@ -280,7 +280,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  bendigo_offset,\n  ing_billsbillsbills,\n  bendigo_homeloan,\n  ing_countdown\nFROM reporting.viz_balance_by_year_month \nWHERE period_date = (\n  SELECT MAX(period_date) FROM reporting.viz_balance_by_year_month \n  WHERE period_date < DATE_TRUNC('month', CURRENT_DATE)\n)\nLIMIT 1;",
+          "rawSql": "SELECT \n  bendigo_offset,\n  ing_billsbillsbills,\n  bendigo_homeloan,\n  ing_countdown\nFROM reporting.viz_balance_by_year_month \nWHERE period_date = (\n  SELECT MAX(period_date) FROM reporting.viz_balance_by_year_month \n  WHERE period_date < DATE_TRUNC('month', $__timeTo()::date)\n);",
           "refId": "A"
         }
       ],
@@ -375,7 +375,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month,\n  net_position\nFROM reporting.viz_net_position_after_homeloan \nWHERE year_month >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\n  AND year_month < DATE_TRUNC('month', CURRENT_DATE)\nORDER BY year_month;",
+          "rawSql": "SELECT \n  year_month,\n  net_position\nFROM reporting.viz_net_position_after_homeloan \nWHERE year_month >= DATE_TRUNC('year', $__timeTo()::date - INTERVAL '1 year')\n  AND year_month < DATE_TRUNC('month', $__timeTo()::date)\nORDER BY year_month;",
           "refId": "A"
         }
       ],
@@ -518,7 +518,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month,\n  \"bendigo_offset_MoM\" as bendigo_offset,\n  \"ing_billsbillsbills_MoM\" as ing_bills,\n  \"bendigo_homeloan_MoM\" as bendigo_loan,\n  \"ing_countdown_MoM\" as ing_countdown\nFROM reporting.viz_mom_differences \nWHERE period_date >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\n  AND period_date < DATE_TRUNC('month', CURRENT_DATE)\nORDER BY period_date;",
+          "rawSql": "SELECT \n  year_month,\n  \"bendigo_offset_MoM\" as bendigo_offset,\n  \"ing_billsbillsbills_MoM\" as ing_bills,\n  \"bendigo_homeloan_MoM\" as bendigo_loan,\n  \"ing_countdown_MoM\" as ing_countdown\nFROM reporting.viz_mom_differences \nWHERE period_date >= DATE_TRUNC('year', $__timeTo()::date - INTERVAL '1 year')\n  AND period_date < DATE_TRUNC('month', $__timeTo()::date)\nORDER BY period_date;",
           "refId": "A"
         }
       ],
@@ -623,7 +623,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month_date as time,\n  \"INTEREST\" as interest_amount\nFROM reporting.viz_interest_payments \nWHERE year_month_date >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year')\nORDER BY year_month_date;",
+          "rawSql": "SELECT \n  year_month_date as time,\n  \"INTEREST\" as interest_amount\nFROM reporting.viz_interest_payments \nWHERE year_month_date >= DATE_TRUNC('year', $__timeTo()::date - INTERVAL '1 year')\n  AND year_month_date < DATE_TRUNC('month', $__timeTo()::date)\nORDER BY year_month_date;",
           "refId": "A"
         }
       ],
@@ -802,7 +802,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  DATE_TRUNC('month', t.date) as time,\n  CASE WHEN COUNT(CASE WHEN t.amount > 0 THEN 1 END) > 0 THEN 3410.00 ELSE 0 END as monthly_payment,\n  SUM(CASE WHEN t.amount < 0 THEN ABS(t.amount) ELSE 0 END) as total_charges_added,\n  CASE WHEN COUNT(CASE WHEN t.amount > 0 THEN 1 END) > 0 THEN 3410.00 ELSE 0 END - SUM(CASE WHEN t.amount < 0 THEN ABS(t.amount) ELSE 0 END) as net_principal_reduction\nFROM reporting.reporting__fact_transactions t \nJOIN reporting.dim_account a ON t.account_foreign_key = a.origin_key \nWHERE a.account_name = 'homeloan' \n  AND a.bank_name = 'bendigo'\n  AND DATE_TRUNC('month', t.date) < DATE_TRUNC('month', CURRENT_DATE)\nGROUP BY DATE_TRUNC('month', t.date) \nORDER BY time;",
+          "rawSql": "SELECT \n  DATE_TRUNC('month', t.date) as time,\n  CASE WHEN COUNT(CASE WHEN t.amount > 0 THEN 1 END) > 0 THEN 3410.00 ELSE 0 END as monthly_payment,\n  SUM(CASE WHEN t.amount < 0 THEN ABS(t.amount) ELSE 0 END) as total_charges_added,\n  CASE WHEN COUNT(CASE WHEN t.amount > 0 THEN 1 END) > 0 THEN 3410.00 ELSE 0 END - SUM(CASE WHEN t.amount < 0 THEN ABS(t.amount) ELSE 0 END) as net_principal_reduction\nFROM reporting.reporting__fact_transactions t \nJOIN reporting.dim_account a ON t.account_foreign_key = a.origin_key \nWHERE a.account_name = 'homeloan' \n  AND a.bank_name = 'bendigo'\n  AND DATE_TRUNC('month', t.date) < DATE_TRUNC('month', $__timeTo()::date)\nGROUP BY DATE_TRUNC('month', t.date) \nORDER BY time;",
           "refId": "A"
         }
       ],
@@ -932,7 +932,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT DISTINCT\n  account_name AS \"Account Name\",\n  account_type AS \"Account Type\",\n  bank_name AS \"Bank Name\",\n  account_category AS \"Account Category\",\n  is_liability AS \"Liability\",\n  is_transactional AS \"Transactional\",\n  is_asset AS \"Asset\",\n  is_liquid_asset AS \"Liquid Asset\",\n  is_loan AS \"Loan\",\n  is_homeloan AS \"Home Loan\",\n  is_debt AS \"Debt\"\nFROM reporting.rpt_account_performance \nWHERE budget_year_month = (\n  SELECT MAX(budget_year_month) FROM reporting.rpt_account_performance\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n)\nORDER BY bank_name, account_name;",
+          "rawSql": "SELECT DISTINCT\n  account_name AS \"Account Name\",\n  account_type AS \"Account Type\",\n  bank_name AS \"Bank Name\",\n  account_category AS \"Account Category\",\n  is_liability AS \"Liability\",\n  is_transactional AS \"Transactional\",\n  is_asset AS \"Asset\",\n  is_liquid_asset AS \"Liquid Asset\",\n  is_loan AS \"Loan\",\n  is_homeloan AS \"Home Loan\",\n  is_debt AS \"Debt\"\nFROM reporting.rpt_account_performance \nWHERE budget_year_month = (\n  SELECT MAX(budget_year_month) FROM reporting.rpt_account_performance\n  WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\n)\nORDER BY bank_name, account_name;",
           "refId": "A"
         }
       ],
@@ -950,7 +950,40 @@
     "balances"
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "name": "time_window",
+        "label": "Time Window",
+        "type": "custom",
+        "hide": 0,
+        "current": {
+          "text": "Latest Month",
+          "value": "latest_month",
+          "selected": true
+        },
+        "options": [
+          {
+            "text": "Latest Month",
+            "value": "latest_month",
+            "selected": true
+          },
+          {
+            "text": "Year to Date",
+            "value": "ytd",
+            "selected": false
+          },
+          {
+            "text": "Trailing 12 Months",
+            "value": "trailing_12m",
+            "selected": false
+          }
+        ],
+        "query": "latest_month,ytd,trailing_12m",
+        "includeAll": false,
+        "multi": false,
+        "skipUrlSync": false
+      }
+    ]
   },
   "time": {
     "from": "now-1y",

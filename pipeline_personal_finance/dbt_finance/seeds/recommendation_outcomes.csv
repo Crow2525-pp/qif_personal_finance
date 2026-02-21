@@ -1,0 +1,6 @@
+recommendation_date,recommendation_text,category,target_metric,target_value,actual_value,outcome_date,status,notes
+2025-10-01,Reduce dining out to under 300 per month,Food & Dining,monthly_spend,300.00,280.00,2025-11-30,achieved,Achieved by meal prepping and reducing takeaway frequency
+2025-10-01,Build emergency fund to 3 months expenses,Savings,emergency_fund_months,3.00,6.00,2026-01-31,achieved,Offset account contributions accelerated progress beyond target
+2025-11-01,Reduce grocery spend by switching to bulk buying,Groceries,monthly_spend,600.00,720.00,2025-12-31,abandoned,Price increases and time constraints made bulk buying impractical
+2025-12-01,Redirect 500 per month to offset mortgage account,Savings,monthly_transfer,500.00,,2026-02-28,in_progress,Transfer automation set up; tracking through Feb 2026
+2026-01-01,Review and cancel unused subscriptions,Entertainment,monthly_spend,50.00,,2026-03-31,pending,Identified candidates: streaming services and app subscriptions to audit

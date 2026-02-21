@@ -28,14 +28,14 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 3,
+        "h": 4,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# 🏠 Mortgage Payoff Analysis\n\nTrack your mortgage payoff progress and projected timeline based on current payment patterns.",
+        "content": "# Mortgage Payoff\nCheck mortgage, offset, and payoff timeline from latest complete month.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -43,7 +43,7 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "grafana-postgresql-datasource",
         "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
@@ -117,11 +117,15 @@
       },
       "targets": [
         {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  year_month as time,\n  ABS(net_position) as \"Remaining Mortgage Balance\"\nFROM reporting.viz_net_position_after_homeloan\nWHERE net_position < 0\nORDER BY year_month",
+          "rawSql": "SELECT month_start AS time, mortgage_balance AS \"Mortgage Balance\"\nFROM reporting.viz_mortgage_payoff_monthly\nWHERE mortgage_balance IS NOT NULL\nUNION ALL\nSELECT month_start AS time, offset_balance AS \"Offset Balance\"\nFROM reporting.viz_mortgage_payoff_monthly\nWHERE offset_balance IS NOT NULL\nUNION ALL\nSELECT month_start AS time, net_mortgage_exposure AS \"Net Mortgage Exposure\"\nFROM reporting.viz_mortgage_payoff_monthly\nWHERE net_mortgage_exposure IS NOT NULL\nORDER BY time;",
           "refId": "A",
           "select": [
             [
@@ -148,7 +152,7 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "grafana-postgresql-datasource",
         "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
@@ -156,7 +160,10 @@
           "color": {
             "mode": "thresholds"
           },
+          "decimals": 1,
           "mappings": [],
+          "max": 40,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -174,8 +181,7 @@
               }
             ]
           },
-          "unit": "short",
-          "decimals": 2
+          "unit": "short"
         },
         "overrides": []
       },
@@ -193,7 +199,7 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": ""
+          "fields": "Years to Payoff"
         },
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
@@ -202,11 +208,15 @@
       "pluginVersion": "8.5.0",
       "targets": [
         {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH latest_balance AS (\n  SELECT year_month, ABS(COALESCE(adelaide_homeloan, 0) + COALESCE(bendigo_homeloan, 0)) AS balance\n  FROM reporting.viz_balance_by_year_month\n  WHERE adelaide_homeloan IS NOT NULL OR bendigo_homeloan IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 1\n),\nmonthly_reductions AS (\n  SELECT COALESCE(\"adelaide_homeloan_MoM\", 0) + COALESCE(\"bendigo_homeloan_MoM\", 0) AS reduction\n  FROM reporting.viz_mom_differences\n  WHERE COALESCE(\"adelaide_homeloan_MoM\", 0) + COALESCE(\"bendigo_homeloan_MoM\", 0) IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 12\n),\nagg AS (\n  SELECT (SELECT balance FROM latest_balance) AS current_balance,\n         GREATEST(AVG(reduction), 0) AS avg_monthly_reduction\n  FROM monthly_reductions\n)\nSELECT CASE WHEN avg_monthly_reduction > 0 THEN (current_balance / avg_monthly_reduction) / 12 ELSE NULL END AS \"Years to Payoff\"\nFROM agg;",
+          "rawSql": "SELECT years_to_payoff AS \"Years to Payoff\"\nFROM reporting.viz_mortgage_payoff_summary;",
           "refId": "A",
           "select": [
             [
@@ -233,7 +243,7 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "grafana-postgresql-datasource",
         "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
@@ -241,6 +251,7 @@
           "color": {
             "mode": "thresholds"
           },
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -284,11 +295,15 @@
       "pluginVersion": "8.5.0",
       "targets": [
         {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH latest_balance AS (\n  SELECT year_month, ABS(COALESCE(adelaide_homeloan, 0) + COALESCE(bendigo_homeloan, 0)) AS balance\n  FROM reporting.viz_balance_by_year_month\n  WHERE adelaide_homeloan IS NOT NULL OR bendigo_homeloan IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 1\n),\nmonthly_reductions AS (\n  SELECT COALESCE(\"adelaide_homeloan_MoM\", 0) + COALESCE(\"bendigo_homeloan_MoM\", 0) AS reduction\n  FROM reporting.viz_mom_differences\n  WHERE COALESCE(\"adelaide_homeloan_MoM\", 0) + COALESCE(\"bendigo_homeloan_MoM\", 0) IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 12\n),\nagg AS (\n  SELECT (SELECT balance FROM latest_balance) AS current_balance,\n         GREATEST(AVG(reduction), 0) AS avg_monthly_reduction\n  FROM monthly_reductions\n)\nSELECT current_balance AS \"Current Balance\" FROM agg;",
+          "rawSql": "SELECT current_mortgage_balance AS \"Current Balance\"\nFROM reporting.viz_mortgage_payoff_summary;",
           "refId": "A",
           "select": [
             [
@@ -315,7 +330,7 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "grafana-postgresql-datasource",
         "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
@@ -323,6 +338,7 @@
           "color": {
             "mode": "thresholds"
           },
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -366,11 +382,15 @@
       "pluginVersion": "8.5.0",
       "targets": [
         {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH latest_balance AS (\n  SELECT year_month, ABS(COALESCE(adelaide_homeloan, 0) + COALESCE(bendigo_homeloan, 0)) AS balance\n  FROM reporting.viz_balance_by_year_month\n  WHERE adelaide_homeloan IS NOT NULL OR bendigo_homeloan IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 1\n),\nmonthly_reductions AS (\n  SELECT COALESCE(\"adelaide_homeloan_MoM\", 0) + COALESCE(\"bendigo_homeloan_MoM\", 0) AS reduction\n  FROM reporting.viz_mom_differences\n  WHERE COALESCE(\"adelaide_homeloan_MoM\", 0) + COALESCE(\"bendigo_homeloan_MoM\", 0) IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 12\n),\nagg AS (\n  SELECT (SELECT balance FROM latest_balance) AS current_balance,\n         GREATEST(AVG(reduction), 0) AS avg_monthly_reduction\n  FROM monthly_reductions\n)\nSELECT avg_monthly_reduction AS \"Average Monthly Reduction\" FROM agg;",
+          "rawSql": "SELECT current_offset_balance AS \"Current Offset Balance\" FROM reporting.viz_mortgage_payoff_summary;",
           "refId": "A",
           "select": [
             [
@@ -392,12 +412,12 @@
           ]
         }
       ],
-      "title": "Average Monthly Reduction",
+      "title": "Current Offset Balance",
       "type": "stat"
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "grafana-postgresql-datasource",
         "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
@@ -405,6 +425,7 @@
           "color": {
             "mode": "thresholds"
           },
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -419,7 +440,7 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "none"
         },
         "overrides": []
       },
@@ -440,7 +461,7 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": ""
+          "fields": "Estimated Payoff Year"
         },
         "text": {},
         "textMode": "auto"
@@ -448,11 +469,15 @@
       "pluginVersion": "8.5.0",
       "targets": [
         {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH latest_balance AS (\n  SELECT year_month, ABS(COALESCE(adelaide_homeloan, 0) + COALESCE(bendigo_homeloan, 0)) AS balance\n  FROM reporting.viz_balance_by_year_month\n  WHERE adelaide_homeloan IS NOT NULL OR bendigo_homeloan IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 1\n),\nmonthly_reductions AS (\n  SELECT COALESCE(\"adelaide_homeloan_MoM\", 0) + COALESCE(\"bendigo_homeloan_MoM\", 0) AS reduction\n  FROM reporting.viz_mom_differences\n  WHERE COALESCE(\"adelaide_homeloan_MoM\", 0) + COALESCE(\"bendigo_homeloan_MoM\", 0) IS NOT NULL\n  ORDER BY year_month DESC\n  LIMIT 12\n),\nagg AS (\n  SELECT (SELECT balance FROM latest_balance) AS current_balance,\n         GREATEST(AVG(reduction), 0) AS avg_monthly_reduction\n  FROM monthly_reductions\n)\nSELECT CASE\n         WHEN avg_monthly_reduction > 0 THEN EXTRACT(YEAR FROM CURRENT_DATE + (CEIL(current_balance / avg_monthly_reduction)::int * INTERVAL '1 month'))\n         ELSE NULL\n       END AS \"Estimated Payoff Year\"\nFROM agg;",
+          "rawSql": "SELECT estimated_payoff_year AS \"Estimated Payoff Year\"\nFROM reporting.viz_mortgage_payoff_summary;",
           "refId": "A",
           "select": [
             [
@@ -479,7 +504,7 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "grafana-postgresql-datasource",
         "uid": "PCC52D03280B7034C"
       },
       "description": "Mortgage payoff sensitivity analysis: impact of extra payments on payoff timeline",
@@ -489,6 +514,9 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "Extra Monthly Payment",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -498,7 +526,7 @@
             "hideFrom": {
               "legend": false,
               "tooltip": false,
-              "vis": false
+              "viz": false
             },
             "lineInterpolation": "linear",
             "lineWidth": 1,
@@ -516,6 +544,7 @@
               "mode": "off"
             }
           },
+          "decimals": 1,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -538,6 +567,8 @@
       },
       "id": 6,
       "options": {
+        "barRadius": 0,
+        "fullHighlight": false,
         "legend": {
           "calcs": [],
           "displayMode": "list",
@@ -547,15 +578,21 @@
         "tooltip": {
           "mode": "single",
           "sort": "none"
-        }
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
       "targets": [
         {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH latest_mortgage AS (\n  SELECT\n    outstanding_debt_balance,\n    avg_3month_principal,\n    estimated_annual_interest_rate_pct\n  FROM reporting.rpt_debt_reduction_tracking\n  WHERE is_mortgage = TRUE\n  ORDER BY period_month DESC\n  LIMIT 1\n),\nsensitivity_scenarios AS (\n  SELECT\n    0 AS extra_payment,\n    CASE\n      WHEN lm.avg_3month_principal > 0 THEN\n        CEIL(lm.outstanding_debt_balance / lm.avg_3month_principal) / 12\n      ELSE NULL\n    END AS years_to_payoff\n  FROM latest_mortgage lm\n  UNION ALL\n  SELECT\n    100 AS extra_payment,\n    CASE\n      WHEN (lm.avg_3month_principal + 100) > 0 THEN\n        CEIL(lm.outstanding_debt_balance / (lm.avg_3month_principal + 100)) / 12\n      ELSE NULL\n    END AS years_to_payoff\n  FROM latest_mortgage lm\n  UNION ALL\n  SELECT\n    250 AS extra_payment,\n    CASE\n      WHEN (lm.avg_3month_principal + 250) > 0 THEN\n        CEIL(lm.outstanding_debt_balance / (lm.avg_3month_principal + 250)) / 12\n      ELSE NULL\n    END AS years_to_payoff\n  FROM latest_mortgage lm\n  UNION ALL\n  SELECT\n    500 AS extra_payment,\n    CASE\n      WHEN (lm.avg_3month_principal + 500) > 0 THEN\n        CEIL(lm.outstanding_debt_balance / (lm.avg_3month_principal + 500)) / 12\n      ELSE NULL\n    END AS years_to_payoff\n  FROM latest_mortgage lm\n  UNION ALL\n  SELECT\n    1000 AS extra_payment,\n    CASE\n      WHEN (lm.avg_3month_principal + 1000) > 0 THEN\n        CEIL(lm.outstanding_debt_balance / (lm.avg_3month_principal + 1000)) / 12\n      ELSE NULL\n    END AS years_to_payoff\n  FROM latest_mortgage lm\n)\nSELECT\n  extra_payment,\n  COALESCE(ROUND(years_to_payoff::numeric, 1), 0) AS \"Years to Payoff\"\nFROM sensitivity_scenarios\nWHERE years_to_payoff IS NOT NULL OR extra_payment = 0\nORDER BY extra_payment;",
+          "rawSql": "SELECT extra_payment_label AS \"Extra Payment\", years_to_payoff AS \"Years to Payoff\"\nFROM reporting.viz_mortgage_payoff_sensitivity\nORDER BY sort_order;",
           "refId": "A",
           "select": [
             [
@@ -579,6 +616,58 @@
       ],
       "title": "Debt Payoff Sensitivity (Extra Payments vs Payoff Timeline)",
       "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 31
+      },
+      "id": 101,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  to_char(data_through_month, 'Mon YYYY') AS \"Data Through\",\n  to_char(report_generated_at, 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\",\n  'Australia/Melbourne' AS \"Timezone\",\n  data_note AS \"Data Note\"\nFROM reporting.viz_mortgage_payoff_summary;",
+          "refId": "A"
+        }
+      ],
+      "title": "Data Freshness",
+      "type": "table"
     }
   ],
   "refresh": "",
@@ -596,9 +685,38 @@
     "from": "now-5y",
     "to": "now"
   },
-  "timepicker": {},
+  "timepicker": {
+    "hidden": false,
+    "quick_ranges": [
+      {
+        "display": "Last complete month",
+        "from": "now-1M/M",
+        "to": "now/M"
+      },
+      {
+        "display": "Last quarter",
+        "from": "now-3M/M",
+        "to": "now/M"
+      },
+      {
+        "display": "Year to date",
+        "from": "now/y",
+        "to": "now"
+      },
+      {
+        "display": "Trailing 12 months",
+        "from": "now-12M/M",
+        "to": "now/M"
+      },
+      {
+        "display": "All time",
+        "from": "now-5y",
+        "to": "now"
+      }
+    ]
+  },
   "timezone": "",
-  "title": "Mortgage Payoff Dashboard",
+  "title": "15 - Mortgage Payoff",
   "uid": "mortgage-payoff",
   "version": 1,
   "weekStart": ""

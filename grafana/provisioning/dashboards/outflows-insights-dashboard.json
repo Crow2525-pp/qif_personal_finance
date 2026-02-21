@@ -1247,9 +1247,9 @@
           },
           "links": [
             {
-              "targetBlank": true,
               "title": "View Outflows Reconciliation Exceptions",
-              "url": "/d/outflows_reconciliation"
+              "url": "/d/outflows_reconciliation?orgId=1&${__url_time_range}",
+              "targetBlank": true
             }
           ]
         },
