@@ -330,7 +330,11 @@
             "mode": "thresholds"
           },
           "custom": {
-            "align": "left"
+            "align": "left",
+            "cellOptions": {
+              "type": "color-text"
+            },
+            "nullValueMode": "connected"
           }
         },
         "overrides": [
@@ -407,6 +411,20 @@
               {
                 "id": "unit",
                 "value": "percentunit"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "special",
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "text": "n/a"
+                      }
+                    }
+                  }
+                ]
               }
             ]
           }
@@ -421,7 +439,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nwindow_range AS (\n  SELECT\n    CASE '${time_window}'\n      WHEN 'ytd'          THEN DATE_TRUNC('year', (SELECT month_date FROM selected_period))\n      WHEN 'trailing_12m' THEN (SELECT month_date FROM selected_period) - INTERVAL '11 months'\n      ELSE                     (SELECT month_date FROM selected_period)\n    END AS start_date,\n    (SELECT month_date FROM selected_period) AS end_date\n),\nprevious_window_range AS (\n  SELECT\n    CASE '${time_window}'\n      WHEN 'ytd'          THEN DATE_TRUNC('year', (SELECT month_date FROM selected_period)) - INTERVAL '1 year'\n      WHEN 'trailing_12m' THEN (SELECT month_date FROM selected_period) - INTERVAL '23 months'\n      ELSE                     (SELECT month_date FROM selected_period) - INTERVAL '1 month'\n    END AS start_date,\n    CASE '${time_window}'\n      WHEN 'ytd'          THEN DATE_TRUNC('year', (SELECT month_date FROM selected_period)) - INTERVAL '1 day'\n      WHEN 'trailing_12m' THEN (SELECT month_date FROM selected_period) - INTERVAL '12 months'\n      ELSE                     (SELECT month_date FROM selected_period) - INTERVAL '1 month'\n    END AS end_date\n),\ncurrent_budget AS (\n  SELECT COALESCE(SUM(net_cash_flow), 0) AS net_cash_flow\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD')\n        BETWEEN (SELECT start_date FROM window_range)\n        AND     (SELECT end_date   FROM window_range)\n),\nprevious_budget AS (\n  SELECT COALESCE(SUM(net_cash_flow), 0) AS net_cash_flow\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD')\n        BETWEEN (SELECT start_date FROM previous_window_range)\n        AND     (SELECT end_date   FROM previous_window_range)\n),\ncurrent_cf AS (\n  SELECT forecasted_next_month_net_flow\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT end_date FROM window_range)\n),\nprevious_cf AS (\n  SELECT forecasted_next_month_net_flow\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT end_date FROM previous_window_range)\n)\nSELECT 'Net Cash Flow' AS metric,\n       cb.net_cash_flow AS current_value,\n       COALESCE(pb.net_cash_flow, cb.net_cash_flow) AS previous_value,\n       cb.net_cash_flow - COALESCE(pb.net_cash_flow, 0) AS delta_value,\n       CASE\n         WHEN COALESCE(pb.net_cash_flow, 0) = 0 AND COALESCE(cb.net_cash_flow, 0) = 0 THEN 0\n         WHEN COALESCE(pb.net_cash_flow, 0) = 0 THEN NULL\n         ELSE (cb.net_cash_flow - COALESCE(pb.net_cash_flow, 0)) / NULLIF(ABS(pb.net_cash_flow), 0)\n       END AS delta_ratio\nFROM current_budget cb LEFT JOIN previous_budget pb ON TRUE\nUNION ALL\nSELECT 'Forecast (Next Month)' AS metric,\n       ccf.forecasted_next_month_net_flow,\n       COALESCE(pcf.forecasted_next_month_net_flow, ccf.forecasted_next_month_net_flow),\n       ccf.forecasted_next_month_net_flow - COALESCE(pcf.forecasted_next_month_net_flow, 0),\n       CASE\n         WHEN COALESCE(pcf.forecasted_next_month_net_flow, 0) = 0 AND COALESCE(ccf.forecasted_next_month_net_flow, 0) = 0 THEN 0\n         WHEN COALESCE(pcf.forecasted_next_month_net_flow, 0) = 0 THEN NULL\n         ELSE (ccf.forecasted_next_month_net_flow - COALESCE(pcf.forecasted_next_month_net_flow, 0)) / NULLIF(ABS(pcf.forecasted_next_month_net_flow), 0)\n       END\nFROM current_cf ccf LEFT JOIN previous_cf pcf ON TRUE;",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nwindow_range AS (\n  SELECT\n    CASE '${time_window}'\n      WHEN 'ytd'          THEN DATE_TRUNC('year', (SELECT month_date FROM selected_period))\n      WHEN 'trailing_12m' THEN (SELECT month_date FROM selected_period) - INTERVAL '11 months'\n      ELSE                     (SELECT month_date FROM selected_period)\n    END AS start_date,\n    (SELECT month_date FROM selected_period) AS end_date\n),\nprevious_window_range AS (\n  SELECT\n    CASE '${time_window}'\n      WHEN 'ytd'          THEN DATE_TRUNC('year', (SELECT month_date FROM selected_period)) - INTERVAL '1 year'\n      WHEN 'trailing_12m' THEN (SELECT month_date FROM selected_period) - INTERVAL '23 months'\n      ELSE                     (SELECT month_date FROM selected_period) - INTERVAL '1 month'\n    END AS start_date,\n    CASE '${time_window}'\n      WHEN 'ytd'          THEN DATE_TRUNC('year', (SELECT month_date FROM selected_period)) - INTERVAL '1 day'\n      WHEN 'trailing_12m' THEN (SELECT month_date FROM selected_period) - INTERVAL '12 months'\n      ELSE                     (SELECT month_date FROM selected_period) - INTERVAL '1 month'\n    END AS end_date\n),\ncurrent_budget AS (\n  SELECT COALESCE(SUM(net_cash_flow), 0) AS net_cash_flow\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD')\n        BETWEEN (SELECT start_date FROM window_range)\n        AND     (SELECT end_date   FROM window_range)\n),\nprevious_budget AS (\n  SELECT COALESCE(SUM(net_cash_flow), 0) AS net_cash_flow\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD')\n        BETWEEN (SELECT start_date FROM previous_window_range)\n        AND     (SELECT end_date   FROM previous_window_range)\n),\ncurrent_cf AS (\n  SELECT COALESCE(forecasted_next_month_net_flow, 0) AS forecasted_next_month_net_flow\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT end_date FROM window_range)\n  LIMIT 1\n),\nprevious_cf AS (\n  SELECT COALESCE(forecasted_next_month_net_flow, 0) AS forecasted_next_month_net_flow\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT end_date FROM previous_window_range)\n  LIMIT 1\n),\nrow_anchor AS (\n  SELECT 1 AS anchor\n)\nSELECT 'Net Cash Flow' AS metric,\n       COALESCE(cb.net_cash_flow, 0) AS current_value,\n       COALESCE(pb.net_cash_flow, 0) AS previous_value,\n       COALESCE(cb.net_cash_flow, 0) - COALESCE(pb.net_cash_flow, 0) AS delta_value,\n       CASE\n         WHEN COALESCE(pb.net_cash_flow, 0) = 0 AND COALESCE(cb.net_cash_flow, 0) = 0 THEN 0\n         WHEN COALESCE(pb.net_cash_flow, 0) = 0 THEN NULL\n         ELSE (COALESCE(cb.net_cash_flow, 0) - COALESCE(pb.net_cash_flow, 0)) / NULLIF(ABS(COALESCE(pb.net_cash_flow, 0)), 0)\n       END AS delta_ratio\nFROM current_budget cb\nLEFT JOIN previous_budget pb ON TRUE\nUNION ALL\nSELECT 'Forecast (Next Month)' AS metric,\n       COALESCE(ccf.forecasted_next_month_net_flow, 0) AS current_value,\n       COALESCE(pcf.forecasted_next_month_net_flow, 0) AS previous_value,\n       COALESCE(ccf.forecasted_next_month_net_flow, 0) - COALESCE(pcf.forecasted_next_month_net_flow, 0) AS delta_value,\n       CASE\n         WHEN COALESCE(pcf.forecasted_next_month_net_flow, 0) = 0 AND COALESCE(ccf.forecasted_next_month_net_flow, 0) = 0 THEN 0\n         WHEN COALESCE(pcf.forecasted_next_month_net_flow, 0) = 0 THEN NULL\n         ELSE (COALESCE(ccf.forecasted_next_month_net_flow, 0) - COALESCE(pcf.forecasted_next_month_net_flow, 0)) / NULLIF(ABS(COALESCE(pcf.forecasted_next_month_net_flow, 0)), 0)\n       END AS delta_ratio\nFROM row_anchor ra\nLEFT JOIN current_cf ccf ON TRUE\nLEFT JOIN previous_cf pcf ON TRUE;",
           "refId": "A"
         }
       ],
@@ -1654,7 +1672,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nwindow_range AS (\n  SELECT\n    CASE '${time_window}'\n      WHEN 'ytd'          THEN DATE_TRUNC('year', (SELECT month_date FROM selected_period))\n      WHEN 'trailing_12m' THEN (SELECT month_date FROM selected_period) - INTERVAL '11 months'\n      ELSE                     (SELECT month_date FROM selected_period)\n    END AS start_date,\n    (SELECT month_date FROM selected_period) AS end_date\n),\nprevious_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n  WHERE month_date < (SELECT month_date FROM selected_period)\n),\ncurrent_budget AS (\n  SELECT savings_rate_percent\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT end_date FROM window_range)\n),\nprevious_budget AS (\n  SELECT savings_rate_percent\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM previous_period)\n),\ncurrent_cf AS (\n  SELECT outflow_to_inflow_ratio\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT end_date FROM window_range)\n),\nprevious_cf AS (\n  SELECT outflow_to_inflow_ratio\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM previous_period)\n)\nSELECT 'Savings Rate' AS metric,\n       cb.savings_rate_percent * 100 AS current_value,\n       COALESCE(pb.savings_rate_percent, cb.savings_rate_percent) * 100 AS previous_value,\n       (cb.savings_rate_percent - COALESCE(pb.savings_rate_percent, 0)) * 100 AS delta_value,\n       CASE\n         WHEN COALESCE(pb.savings_rate_percent, 0) = 0 AND COALESCE(cb.savings_rate_percent, 0) = 0 THEN 0\n         WHEN COALESCE(pb.savings_rate_percent, 0) = 0 THEN NULL\n         ELSE (cb.savings_rate_percent - COALESCE(pb.savings_rate_percent, 0)) / NULLIF(ABS(pb.savings_rate_percent), 0)\n       END AS delta_ratio\nFROM current_budget cb LEFT JOIN previous_budget pb ON TRUE\nUNION ALL\nSELECT 'Expense Ratio' AS metric,\n       ccf.outflow_to_inflow_ratio * 100 AS current_value,\n       COALESCE(pcf.outflow_to_inflow_ratio, ccf.outflow_to_inflow_ratio) * 100 AS previous_value,\n       (ccf.outflow_to_inflow_ratio - COALESCE(pcf.outflow_to_inflow_ratio, 0)) * 100 AS delta_value,\n       CASE\n         WHEN COALESCE(pcf.outflow_to_inflow_ratio, 0) = 0 AND COALESCE(ccf.outflow_to_inflow_ratio, 0) = 0 THEN 0\n         WHEN COALESCE(pcf.outflow_to_inflow_ratio, 0) = 0 THEN NULL\n         ELSE (ccf.outflow_to_inflow_ratio - COALESCE(pcf.outflow_to_inflow_ratio, 0)) / NULLIF(ABS(pcf.outflow_to_inflow_ratio), 0)\n       END AS delta_ratio\nFROM current_cf ccf LEFT JOIN previous_cf pcf ON TRUE;",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nwindow_range AS (\n  SELECT\n    CASE '${time_window}'\n      WHEN 'ytd'          THEN DATE_TRUNC('year', (SELECT month_date FROM selected_period))\n      WHEN 'trailing_12m' THEN (SELECT month_date FROM selected_period) - INTERVAL '11 months'\n      ELSE                     (SELECT month_date FROM selected_period)\n    END AS start_date,\n    (SELECT month_date FROM selected_period) AS end_date\n),\nprevious_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n  WHERE month_date < (SELECT month_date FROM selected_period)\n),\ncurrent_budget AS (\n  SELECT COALESCE(savings_rate_percent, 0) AS savings_rate_percent\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT end_date FROM window_range)\n  LIMIT 1\n),\nprevious_budget AS (\n  SELECT COALESCE(savings_rate_percent, 0) AS savings_rate_percent\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM previous_period)\n  LIMIT 1\n),\ncurrent_cf AS (\n  SELECT COALESCE(outflow_to_inflow_ratio, 0) AS outflow_to_inflow_ratio\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT end_date FROM window_range)\n  LIMIT 1\n),\nprevious_cf AS (\n  SELECT COALESCE(outflow_to_inflow_ratio, 0) AS outflow_to_inflow_ratio\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM previous_period)\n  LIMIT 1\n),\nrow_anchor AS (\n  SELECT 1 AS anchor\n)\nSELECT 'Savings Rate' AS metric,\n       COALESCE(cb.savings_rate_percent, 0) * 100 AS current_value,\n       COALESCE(pb.savings_rate_percent, 0) * 100 AS previous_value,\n       (COALESCE(cb.savings_rate_percent, 0) - COALESCE(pb.savings_rate_percent, 0)) * 100 AS delta_value,\n       CASE\n         WHEN COALESCE(pb.savings_rate_percent, 0) = 0 AND COALESCE(cb.savings_rate_percent, 0) = 0 THEN 0\n         WHEN COALESCE(pb.savings_rate_percent, 0) = 0 THEN NULL\n         ELSE (COALESCE(cb.savings_rate_percent, 0) - COALESCE(pb.savings_rate_percent, 0)) / NULLIF(ABS(COALESCE(pb.savings_rate_percent, 0)), 0)\n       END AS delta_ratio\nFROM row_anchor ra\nLEFT JOIN current_budget cb ON TRUE\nLEFT JOIN previous_budget pb ON TRUE\nUNION ALL\nSELECT 'Expense Ratio' AS metric,\n       COALESCE(ccf.outflow_to_inflow_ratio, 0) * 100 AS current_value,\n       COALESCE(pcf.outflow_to_inflow_ratio, 0) * 100 AS previous_value,\n       (COALESCE(ccf.outflow_to_inflow_ratio, 0) - COALESCE(pcf.outflow_to_inflow_ratio, 0)) * 100 AS delta_value,\n       CASE\n         WHEN COALESCE(pcf.outflow_to_inflow_ratio, 0) = 0 AND COALESCE(ccf.outflow_to_inflow_ratio, 0) = 0 THEN 0\n         WHEN COALESCE(pcf.outflow_to_inflow_ratio, 0) = 0 THEN NULL\n         ELSE (COALESCE(ccf.outflow_to_inflow_ratio, 0) - COALESCE(pcf.outflow_to_inflow_ratio, 0)) / NULLIF(ABS(COALESCE(pcf.outflow_to_inflow_ratio, 0)), 0)\n       END AS delta_ratio\nFROM row_anchor ra\nLEFT JOIN current_cf ccf ON TRUE\nLEFT JOIN previous_cf pcf ON TRUE;",
           "refId": "A"
         }
       ],
@@ -1668,7 +1686,11 @@
             "mode": "thresholds"
           },
           "custom": {
-            "align": "left"
+            "align": "left",
+            "cellOptions": {
+              "type": "color-text"
+            },
+            "nullValueMode": "connected"
           }
         },
         "overrides": [
@@ -1769,6 +1791,36 @@
               {
                 "id": "unit",
                 "value": "percent"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "delta_ratio"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Δ Ratio"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "special",
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "text": "n/a"
+                      }
+                    }
+                  }
+                ]
               }
             ]
           }
