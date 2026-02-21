@@ -163,8 +163,8 @@ All scores are dimensionless integers on a 0-100 scale. Higher is better.
 
 | KPI | Formula | Column | Source model |
 |-----|---------|--------|-------------|
-| Savings Rate MoM | `(current_savings_rate - prev_savings_rate) / ABS(prev_savings_rate)` | Derived | `rpt_mom_cash_flow_summary` |
-| Expense Ratio MoM | `(current_expense_ratio - prev_expense_ratio) / ABS(prev_expense_ratio)` | Derived | `rpt_mom_cash_flow_summary` |
+| Savings Rate MoM | `(current_savings_rate - prev_savings_rate) / ABS(prev_savings_rate)` | `delta_ratio` (panel query output) | `rpt_monthly_budget_summary.savings_rate_percent` (current/previous month) |
+| Expense Ratio MoM | `(current_expense_ratio - prev_expense_ratio) / ABS(prev_expense_ratio)` | `delta_ratio` (panel query output) | `rpt_cash_flow_analysis.outflow_to_inflow_ratio` (current/previous month) |
 
 ---
 
@@ -207,7 +207,8 @@ QIF files (raw)
                     ├── rpt_cash_flow_analysis       → Cash Flow Margin, Efficiency Score, Forecast
                     ├── rpt_financial_health_scorecard → Composite Health Scores
                     ├── rpt_family_essentials        → Family Essentials Spending
-                    └── rpt_mom_cash_flow_summary    → Month-over-Month Rate Changes
+                    ├── rpt_mom_cash_flow_summary    → MoM net-flow/inflow/outflow delta table
+                    └── rpt_monthly_budget_summary + rpt_cash_flow_analysis → Executive MoM Rate Changes (Savings/Expense)
 ```
 
 ---
