@@ -13,25 +13,60 @@
   },
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
   "id": null,
   "links": [],
-  "liveNow": false,
   "panels": [
     {
       "datasource": {
-        "type": "postgres",
+        "type": "grafana-postgresql-datasource",
         "uid": "PCC52D03280B7034C"
       },
-      "gridPos": {
-        "h": 4,
-        "w": 24,
-        "x": 0,
-        "y": 0
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        },
+        "overrides": []
       },
+      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 0 },
+      "id": 103,
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "show": false },
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "PCC52D03280B7034C"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  MAX(budget_year_month) AS \"Data Through\",\n  to_char(MAX(report_generated_at) AT TIME ZONE 'Australia/Melbourne', 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\",\n  'Monthly cadence' AS \"Expected Cadence\"\nFROM reporting.rpt_monthly_budget_summary;",
+          "refId": "A"
+        }
+      ],
+      "title": "Data Freshness",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PCC52D03280B7034C"
+      },
+      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 3 },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udcf1 Executive Overview\n\nKey financial metrics and health indicators at a glance. Optimized for mobile viewing.",
+        "content": "## Executive Overview\n\nKey financial metrics and health indicators at a glance. Panels show the latest closed month.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -39,7 +74,7 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "grafana-postgresql-datasource",
         "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
@@ -51,54 +86,38 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 60
-              },
-              {
-                "color": "green",
-                "value": 80
-              }
+              { "color": "red",    "value": null },
+              { "color": "yellow", "value": 60 },
+              { "color": "green",  "value": 80 }
             ]
           },
-          "unit": "percent"
+          "unit": "percent",
+          "min": 0,
+          "max": 100
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 0,
-        "y": 2
-      },
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 6 },
       "id": 1,
       "options": {
-        "orientation": "auto",
+        "orientation": "horizontal",
         "reduceOptions": {
           "values": true,
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": ""
         },
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "10.4.0",
       "targets": [
         {
           "datasource": {
-            "type": "postgres",
+            "type": "grafana-postgresql-datasource",
             "uid": "PCC52D03280B7034C"
           },
-          "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    ROUND(overall_financial_health_score, 0) as \"Financial Health\",\n    ROUND(GREATEST(0, 100 - expense_to_income_ratio_pct), 0) as \"Expense Control\", \n    ROUND(savings_health_score, 0) as \"Savings Efficiency\",\n    ROUND(cash_flow_score, 0) as \"Cash Flow Score\"\nFROM reporting.rpt_executive_dashboard\nORDER BY dashboard_month DESC\nLIMIT 1;",
+          "rawSql": "SELECT\n  GREATEST(0, LEAST(100, ROUND((1 - expense_ratio_percent) * 100, 0))) AS \"Expense Control\",\n  GREATEST(0, LEAST(100, ROUND(savings_rate_pct, 0))) AS \"Savings Rate\",\n  CASE WHEN net_cash_flow >= 0 THEN 75 ELSE GREATEST(0, LEAST(100, ROUND(50 + savings_rate_pct, 0))) END AS \"Cash Flow\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_monthly_budget_summary);",
           "refId": "A"
         }
       ],
@@ -107,78 +126,63 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "grafana-postgresql-datasource",
         "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
+          "color": { "mode": "palette-classic" },
           "custom": {
             "align": "center",
-            "cellOptions": {
-              "type": "auto"
-            },
+            "cellOptions": { "type": "auto" },
             "inspect": false
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
+            "steps": [{ "color": "green", "value": null }]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
-            "matcher": {
-              "id": "byName",
-              "options": "Savings Rate"
-            },
+            "matcher": { "id": "byName", "options": "Savings %" },
+            "properties": [{ "id": "unit", "value": "percent" }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Net Flow" },
             "properties": [
               {
-                "id": "unit",
-                "value": "percentunit"
-              }
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "color": "red",   "value": null },
+                    { "color": "green", "value": 0 }
+                  ]
+                }
+              },
+              { "id": "custom.cellOptions", "value": { "type": "color-background" } }
             ]
           }
         ]
       },
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 12,
-        "y": 2
-      },
+      "gridPos": { "h": 6, "w": 16, "x": 8, "y": 6 },
       "id": 2,
       "options": {
         "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
+        "footer": { "show": false },
         "showHeader": true
       },
-      "pluginVersion": "10.4.0",
       "targets": [
         {
           "datasource": {
-            "type": "postgres",
+            "type": "grafana-postgresql-datasource",
             "uid": "PCC52D03280B7034C"
           },
-          "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    'Net Flow' as \"Metric\",\n    monthly_net_cash_flow as \"Value\"\nFROM reporting.rpt_executive_dashboard\nWHERE dashboard_month = (SELECT MAX(dashboard_month) FROM reporting.rpt_executive_dashboard)\nUNION ALL\nSELECT \n    'Income',\n    monthly_income\nFROM reporting.rpt_executive_dashboard\nWHERE dashboard_month = (SELECT MAX(dashboard_month) FROM reporting.rpt_executive_dashboard)\nUNION ALL\nSELECT \n    'Expenses',\n    -monthly_expenses\nFROM reporting.rpt_executive_dashboard\nWHERE dashboard_month = (SELECT MAX(dashboard_month) FROM reporting.rpt_executive_dashboard)\nUNION ALL\nSELECT\n    'Savings Rate',\n    monthly_savings_rate_percent\nFROM reporting.rpt_executive_dashboard\nWHERE dashboard_month = (SELECT MAX(dashboard_month) FROM reporting.rpt_executive_dashboard);",
+          "rawSql": "SELECT\n  ROUND(total_income, 0) AS \"Income\",\n  ROUND(total_expenses, 0) AS \"Expenses\",\n  ROUND(net_cash_flow, 0) AS \"Net Flow\",\n  ROUND(savings_rate_pct, 1) AS \"Savings %\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_monthly_budget_summary);",
           "refId": "A"
         }
       ],
@@ -187,14 +191,12 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "grafana-postgresql-datasource",
         "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
+          "color": { "mode": "palette-classic" },
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
@@ -204,47 +206,26 @@
             "drawStyle": "line",
             "fillOpacity": 20,
             "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "vis": false
-            },
+            "hideFrom": { "legend": false, "tooltip": false, "vis": false },
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
+            "steps": [{ "color": "green", "value": null }]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 8
-      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 12 },
       "id": 3,
       "options": {
         "legend": {
@@ -253,22 +234,17 @@
           "placement": "bottom",
           "showLegend": true
         },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
+        "tooltip": { "mode": "multi", "sort": "none" }
       },
       "targets": [
         {
           "datasource": {
-            "type": "postgres",
+            "type": "grafana-postgresql-datasource",
             "uid": "PCC52D03280B7034C"
           },
           "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    total_income as \"Income\",\n    total_expenses as \"Expenses\",\n    net_cash_flow as \"Net Cash Flow\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month >= TO_CHAR(CURRENT_DATE - INTERVAL '12 months', 'YYYY-MM')\nORDER BY budget_year_month;",
+          "rawSql": "SELECT\n  TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date AS time,\n  ROUND(total_income, 0) AS \"Income\",\n  ROUND(total_expenses, 0) AS \"Expenses\",\n  ROUND(net_cash_flow, 0) AS \"Net Cash Flow\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month >= TO_CHAR($__timeTo()::date - INTERVAL '12 months', 'YYYY-MM')\n  AND budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY budget_year_month;",
           "refId": "A"
         }
       ],
@@ -277,65 +253,42 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "grafana-postgresql-datasource",
         "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
+          "color": { "mode": "palette-classic" },
           "custom": {
             "align": "center",
-            "cellOptions": {
-              "type": "auto"
-            },
+            "cellOptions": { "type": "auto" },
             "inspect": false
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
+            "steps": [{ "color": "green", "value": null }]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 16
-      },
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 20 },
       "id": 4,
       "options": {
         "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
+        "footer": { "show": false },
         "showHeader": true
       },
-      "pluginVersion": "10.4.0",
       "targets": [
         {
           "datasource": {
-            "type": "postgres",
+            "type": "grafana-postgresql-datasource",
             "uid": "PCC52D03280B7034C"
           },
-          "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    account_type as \"Account Type\",\n    SUM(end_of_month_balance) as \"Balance\"\nFROM reporting.rpt_account_performance\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_account_performance)\nGROUP BY account_type\nORDER BY SUM(end_of_month_balance) DESC;",
+          "rawSql": "SELECT\n  account_type AS \"Account Type\",\n  ROUND(SUM(end_of_month_balance), 0) AS \"Balance\"\nFROM reporting.rpt_account_performance\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_account_performance)\nGROUP BY account_type\nORDER BY SUM(end_of_month_balance) DESC;",
           "refId": "A"
         }
       ],
@@ -344,65 +297,42 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "grafana-postgresql-datasource",
         "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
+          "color": { "mode": "palette-classic" },
           "custom": {
             "align": "center",
-            "cellOptions": {
-              "type": "auto"
-            },
+            "cellOptions": { "type": "auto" },
             "inspect": false
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
+            "steps": [{ "color": "green", "value": null }]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 16
-      },
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 20 },
       "id": 5,
       "options": {
         "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
+        "footer": { "show": false },
         "showHeader": true
       },
-      "pluginVersion": "10.4.0",
       "targets": [
         {
           "datasource": {
-            "type": "postgres",
+            "type": "grafana-postgresql-datasource",
             "uid": "PCC52D03280B7034C"
           },
-          "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    level_1_category as \"Top Categories\",\n    monthly_spending as \"Amount\"\nFROM reporting.rpt_category_spending_trends\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_category_spending_trends)\nAND monthly_spending > 0\nORDER BY monthly_spending DESC\nLIMIT 5;",
+          "rawSql": "SELECT\n  level_1_category AS \"Category\",\n  ROUND(monthly_spending, 0) AS \"Amount\"\nFROM reporting.rpt_category_spending_trends\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_category_spending_trends)\n  AND monthly_spending > 0\nORDER BY monthly_spending DESC\nLIMIT 5;",
           "refId": "A"
         }
       ],
@@ -411,18 +341,13 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "grafana-postgresql-datasource",
         "uid": "PCC52D03280B7034C"
       },
-      "gridPos": {
-        "h": 4,
-        "w": 24,
-        "x": 0,
-        "y": 24
-      },
+      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 27 },
       "id": 102,
       "options": {
-        "content": "## \ud83d\udd0d Data Quality & Reconciliation\n\nFinancial data validation and reconciliation status across all reporting domains.",
+        "content": "## Data Quality & Reconciliation\n\nFinancial data validation and reconciliation status across all reporting domains.",
         "mode": "markdown"
       },
       "title": "Reconciliation Status",
@@ -430,38 +355,25 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "grafana-postgresql-datasource",
         "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
+          "color": { "mode": "thresholds" },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
+              { "color": "green", "value": null },
+              { "color": "red",   "value": 1 }
             ]
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 0,
-        "y": 26
-      },
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 30 },
       "id": 6,
       "options": {
         "colorMode": "background",
@@ -470,18 +382,15 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "/^failed$/"
         },
         "textMode": "value"
       },
-      "pluginVersion": "10.4.0",
       "targets": [
         {
           "datasource": {
-            "type": "postgres",
+            "type": "grafana-postgresql-datasource",
             "uid": "PCC52D03280B7034C"
           },
           "format": "table",
@@ -495,54 +404,34 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "grafana-postgresql-datasource",
         "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
+          "color": { "mode": "thresholds" },
           "mappings": [
             {
               "options": {
-                "ALL_PASS": {
-                  "color": "green",
-                  "index": 0,
-                  "text": "\u2705 ALL PASS"
-                }
+                "ALL_PASS": { "color": "green", "index": 0, "text": "ALL PASS" }
               },
               "type": "value"
             },
             {
               "options": {
-                "SOME_FAIL": {
-                  "color": "red",
-                  "index": 1,
-                  "text": "\u274c SOME FAIL"
-                }
+                "SOME_FAIL": { "color": "red", "index": 1, "text": "SOME FAIL" }
               },
               "type": "value"
             }
           ],
           "thresholds": {
             "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
+            "steps": [{ "color": "green", "value": null }]
           }
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 8,
-        "y": 26
-      },
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 30 },
       "id": 7,
       "options": {
         "colorMode": "background",
@@ -551,18 +440,15 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "/^status$/"
         },
         "textMode": "value"
       },
-      "pluginVersion": "10.4.0",
       "targets": [
         {
           "datasource": {
-            "type": "postgres",
+            "type": "grafana-postgresql-datasource",
             "uid": "PCC52D03280B7034C"
           },
           "format": "table",
@@ -576,59 +462,36 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "grafana-postgresql-datasource",
         "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
+          "color": { "mode": "palette-classic" },
           "custom": {
             "align": "center",
-            "cellOptions": {
-              "type": "auto"
-            },
+            "cellOptions": { "type": "auto" },
             "inspect": false
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
+            "steps": [{ "color": "green", "value": null }]
           },
           "unit": "short"
         },
         "overrides": [
           {
-            "matcher": {
-              "id": "byName",
-              "options": "failed"
-            },
+            "matcher": { "id": "byName", "options": "failed" },
             "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "thresholds"
-                }
-              },
+              { "id": "color", "value": { "mode": "thresholds" } },
               {
                 "id": "thresholds",
                 "value": {
                   "mode": "absolute",
                   "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    },
-                    {
-                      "color": "red",
-                      "value": 1
-                    }
+                    { "color": "green", "value": null },
+                    { "color": "red",   "value": 1 }
                   ]
                 }
               }
@@ -636,35 +499,22 @@
           }
         ]
       },
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 16,
-        "y": 26
-      },
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 30 },
       "id": 8,
       "options": {
         "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
+        "footer": { "show": false },
         "showHeader": true
       },
-      "pluginVersion": "10.4.0",
       "targets": [
         {
           "datasource": {
-            "type": "postgres",
+            "type": "grafana-postgresql-datasource",
             "uid": "PCC52D03280B7034C"
           },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest AS (SELECT MAX(period_date) AS p FROM reporting.rpt_financials_reconciliation_tests) SELECT domain, COUNT(*) FILTER (WHERE pass) AS passed, COUNT(*) FILTER (WHERE NOT pass) AS failed, COUNT(*) AS total FROM reporting.rpt_financials_reconciliation_tests WHERE period_date = (SELECT p FROM latest) GROUP BY domain ORDER BY domain;",
+          "rawSql": "WITH latest AS (\n  SELECT MAX(period_date) AS p FROM reporting.rpt_financials_reconciliation_tests\n)\nSELECT\n  domain,\n  COUNT(*) FILTER (WHERE pass) AS passed,\n  COUNT(*) FILTER (WHERE NOT pass) AS failed,\n  COUNT(*) AS total\nFROM reporting.rpt_financials_reconciliation_tests\nWHERE period_date = (SELECT p FROM latest)\nGROUP BY domain\nORDER BY domain;",
           "refId": "A"
         }
       ],
@@ -673,72 +523,46 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "grafana-postgresql-datasource",
         "uid": "PCC52D03280B7034C"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
+          "color": { "mode": "palette-classic" },
           "custom": {
             "align": "center",
-            "cellOptions": {
-              "type": "auto"
-            },
+            "cellOptions": { "type": "auto" },
             "inspect": false
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
+            "steps": [{ "color": "green", "value": null }]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
-            "matcher": {
-              "id": "byName",
-              "options": "confidence"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "percentunit"
-              }
-            ]
+            "matcher": { "id": "byName", "options": "confidence" },
+            "properties": [{ "id": "unit", "value": "percentunit" }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "amount" },
+            "properties": [{ "id": "unit", "value": "short" }]
           }
         ]
       },
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 30
-      },
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 34 },
       "id": 9,
       "options": {
         "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
+        "footer": { "show": false },
         "showHeader": true
       },
-      "pluginVersion": "10.4.0",
       "targets": [
         {
           "datasource": {
-            "type": "postgres",
+            "type": "grafana-postgresql-datasource",
             "uid": "PCC52D03280B7034C"
           },
           "format": "table",
@@ -747,26 +571,24 @@
           "refId": "A"
         }
       ],
-      "title": "Top 5 Uncategorized Transactions (Need Review)",
+      "title": "Top 5 Uncategorized (Need Review)",
       "type": "table"
     }
   ],
-  "schemaVersion": 38,
-  "tags": [
-    "mobile",
-    "executive",
-    "overview"
-  ],
-  "templating": {
-    "list": []
+  "schemaVersion": 40,
+  "tags": ["mobile", "executive", "overview"],
+  "templating": { "list": [] },
+  "time": { "from": "now-12M", "to": "now" },
+  "timepicker": {
+    "quick_ranges": [
+      { "display": "Last complete month", "from": "now-1M/M", "to": "now/M" },
+      { "display": "Last quarter",        "from": "now-3M/M", "to": "now/M" },
+      { "display": "Year to date",        "from": "now/y",    "to": "now" },
+      { "display": "Trailing 12 months",  "from": "now-12M/M","to": "now/M" }
+    ]
   },
-  "time": {
-    "from": "now-12M",
-    "to": "now"
-  },
-  "timepicker": {},
-  "timezone": "",
-  "title": "\ud83d\udcf1 Executive Overview",
+  "timezone": "Australia/Melbourne",
+  "title": "18 - Executive Overview (Mobile)",
   "uid": "exec-mobile-overview",
   "version": 1,
   "weekStart": ""
