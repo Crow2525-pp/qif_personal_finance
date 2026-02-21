@@ -99,7 +99,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n)\nSELECT\n  to_char((SELECT month_date FROM latest_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_cash_flow_analysis\nWHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM latest_period);",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n)\nSELECT\n  to_char((SELECT month_date FROM latest_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_cash_flow_analysis\nWHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM latest_period);",
           "refId": "A"
         }
       ],
@@ -221,7 +221,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH last3 AS (\n  SELECT cash_flow_efficiency_score\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n  ORDER BY transaction_year DESC, transaction_month DESC\n  LIMIT 3\n)\nSELECT ROUND(AVG(cash_flow_efficiency_score)) AS cash_flow_efficiency_score FROM last3;",
+          "rawSql": "WITH last3 AS (\n  SELECT cash_flow_efficiency_score\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\n  ORDER BY transaction_year DESC, transaction_month DESC\n  LIMIT 3\n)\nSELECT ROUND(AVG(cash_flow_efficiency_score)) AS cash_flow_efficiency_score FROM last3;",
           "refId": "A"
         }
       ],
@@ -325,7 +325,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH last3 AS (\n  SELECT cash_flow_status_rank\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n  ORDER BY transaction_year DESC, transaction_month DESC\n  LIMIT 3\n)\nSELECT ROUND(AVG(cash_flow_status_rank)) AS cash_flow_status_rank FROM last3;",
+          "rawSql": "WITH last3 AS (\n  SELECT cash_flow_status_rank\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\n  ORDER BY transaction_year DESC, transaction_month DESC\n  LIMIT 3\n)\nSELECT ROUND(AVG(cash_flow_status_rank)) AS cash_flow_status_rank FROM last3;",
           "refId": "A"
         }
       ],
@@ -415,7 +415,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH last3 AS (\n  SELECT CASE \n           WHEN cash_flow_trend = 'Declining' THEN 1\n           WHEN cash_flow_trend = 'Stable' THEN 2\n           WHEN cash_flow_trend = 'Improving' THEN 3\n           ELSE 2\n         END as trend_rank\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n  ORDER BY transaction_year DESC, transaction_month DESC\n  LIMIT 3\n)\nSELECT ROUND(AVG(trend_rank)) AS trend_rank FROM last3;",
+          "rawSql": "WITH last3 AS (\n  SELECT CASE \n           WHEN cash_flow_trend = 'Declining' THEN 1\n           WHEN cash_flow_trend = 'Stable' THEN 2\n           WHEN cash_flow_trend = 'Improving' THEN 3\n           ELSE 2\n         END as trend_rank\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\n  ORDER BY transaction_year DESC, transaction_month DESC\n  LIMIT 3\n)\nSELECT ROUND(AVG(trend_rank)) AS trend_rank FROM last3;",
           "refId": "A"
         }
       ],
@@ -557,7 +557,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_inflows,\n  total_outflows,\n  net_cash_flow\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_inflows,\n  total_outflows,\n  net_cash_flow\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_cash_flow_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -697,7 +697,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  CONCAT(budget_year_month, '-01')::timestamp as time,\n  net_cash_flow,\n  rolling_3m_avg_net_flow\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n  AND budget_year_month >= TO_CHAR(CURRENT_DATE - INTERVAL '18 months', 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
+          "rawSql": "SELECT \n  CONCAT(budget_year_month, '-01')::timestamp as time,\n  net_cash_flow,\n  rolling_3m_avg_net_flow\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\n  AND budget_year_month >= TO_CHAR($__timeTo()::date - INTERVAL '18 months', 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
           "refId": "A"
         }
       ],
@@ -845,7 +845,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  CONCAT(budget_year_month, '-01')::timestamp as time,\n  operating_cash_flow,\n  financing_cash_flow,\n  investing_cash_flow\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n  AND budget_year_month >= TO_CHAR(CURRENT_DATE - INTERVAL '18 months', 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
+          "rawSql": "SELECT \n  CONCAT(budget_year_month, '-01')::timestamp as time,\n  operating_cash_flow,\n  financing_cash_flow,\n  investing_cash_flow\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\n  AND budget_year_month >= TO_CHAR($__timeTo()::date - INTERVAL '18 months', 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
           "refId": "A"
         }
       ],
@@ -1011,7 +1011,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  cash_flow_margin_percent,\n  outflow_to_inflow_ratio,\n  mom_inflow_change_percent,\n  mom_outflow_change_percent\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  cash_flow_margin_percent,\n  outflow_to_inflow_ratio,\n  mom_inflow_change_percent,\n  mom_outflow_change_percent\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_cash_flow_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -1153,7 +1153,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  ytd_inflows,\n  ytd_outflows,\n  ytd_net_cash_flow\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  ytd_inflows,\n  ytd_outflows,\n  ytd_net_cash_flow\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_cash_flow_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -1546,7 +1546,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  cash_flow_recommendation as \"Cash Flow Recommendation\",\n  CASE \n    WHEN forecasted_next_month_net_flow > 0 \n    THEN 'Positive: $' || ROUND(forecasted_next_month_net_flow, 0)\n    ELSE 'Negative: $' || ROUND(ABS(forecasted_next_month_net_flow), 0)\n  END as \"Forecasted Next Month\",\n  CASE \n    WHEN days_expenses_covered IS NOT NULL \n    THEN ROUND(days_expenses_covered, 1) || ' days'\n    ELSE 'N/A'\n  END as \"Days Expenses Covered\"\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  cash_flow_recommendation as \"Cash Flow Recommendation\",\n  CASE \n    WHEN forecasted_next_month_net_flow > 0 \n    THEN 'Positive: $' || ROUND(forecasted_next_month_net_flow, 0)\n    ELSE 'Negative: $' || ROUND(ABS(forecasted_next_month_net_flow), 0)\n  END as \"Forecasted Next Month\",\n  CASE \n    WHEN days_expenses_covered IS NOT NULL \n    THEN ROUND(days_expenses_covered, 1) || ' days'\n    ELSE 'N/A'\n  END as \"Days Expenses Covered\"\nFROM reporting.rpt_cash_flow_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_cash_flow_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -2128,7 +2128,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  category as \"Category\",\n  subcategory as \"Subcategory\",\n  total_outflows as \"Current Month ($)\",\n  mom_variance as \"MoM Variance ($)\",\n  mom_pct_change as \"MoM % Change\",\n  rolling_avg_variance as \"vs 3-Month Avg ($)\",\n  spending_flag as \"Spending Flag\"\nFROM reporting.rpt_cash_flow_drivers_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_cash_flow_drivers_analysis)\n  AND total_outflows > 100\nORDER BY ABS(mom_variance) DESC\nLIMIT 12;",
+          "rawSql": "SELECT \n  category as \"Category\",\n  subcategory as \"Subcategory\",\n  total_outflows as \"Current Month ($)\",\n  mom_variance as \"MoM Variance ($)\",\n  mom_pct_change as \"MoM % Change\",\n  rolling_avg_variance as \"vs 3-Month Avg ($)\",\n  spending_flag as \"Spending Flag\"\nFROM reporting.rpt_cash_flow_drivers_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_cash_flow_drivers_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'))\n  AND total_outflows > 100\nORDER BY ABS(mom_variance) DESC\nLIMIT 12;",
           "refId": "A"
         }
       ],
@@ -2316,7 +2316,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nperiod_bounds AS (\n  SELECT month_date,\n         month_date AS month_start,\n         (month_date + INTERVAL '1 month' - INTERVAL '1 day')::date AS month_end\n  FROM latest_period\n),\nstale_accounts AS (\n  SELECT COUNT(*) AS stale_accounts\n  FROM reporting.dim_accounts_enhanced\n  WHERE account_last_transaction_date < (SELECT month_end FROM period_bounds) - INTERVAL '45 days'\n),\ntransfer_pairs AS (\n  SELECT\n    transaction_date::date AS txn_date,\n    transaction_amount_abs AS amount_abs,\n    SUM(CASE WHEN transaction_amount < 0 THEN 1 ELSE 0 END) AS out_count,\n    SUM(CASE WHEN transaction_amount > 0 THEN 1 ELSE 0 END) AS in_count\n  FROM reporting.fct_transactions_enhanced\n  WHERE COALESCE(is_internal_transfer, FALSE)\n    AND transaction_date >= (SELECT month_start FROM period_bounds)\n    AND transaction_date <= (SELECT month_end FROM period_bounds)\n  GROUP BY 1,2\n),\nunmatched_transfers AS (\n  SELECT COALESCE(SUM(ABS(out_count - in_count)), 0) AS unmatched_count\n  FROM transfer_pairs\n),\nuncategorized AS (\n  SELECT uncategorized_pct\n  FROM reporting.rpt_outflows_insights_dashboard\n  WHERE period_date = (SELECT month_date FROM period_bounds)\n)\nSELECT 'Stale accounts (45d+ no activity)' AS metric,\n       COALESCE((SELECT stale_accounts FROM stale_accounts), 0)::text AS value,\n       'Accounts without recent transactions' AS detail\nUNION ALL\nSELECT 'Unmatched internal transfers',\n       COALESCE((SELECT unmatched_count FROM unmatched_transfers), 0)::text,\n       'Proxy count based on paired in/out amounts'\nUNION ALL\nSELECT 'Uncategorized spend %',\n       CONCAT(ROUND(COALESCE((SELECT uncategorized_pct FROM uncategorized), 0), 1), '%'),\n       'Share of outflows currently uncategorized';",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nperiod_bounds AS (\n  SELECT month_date,\n         month_date AS month_start,\n         (month_date + INTERVAL '1 month' - INTERVAL '1 day')::date AS month_end\n  FROM latest_period\n),\nstale_accounts AS (\n  SELECT COUNT(*) AS stale_accounts\n  FROM reporting.dim_accounts_enhanced\n  WHERE account_last_transaction_date < (SELECT month_end FROM period_bounds) - INTERVAL '45 days'\n),\ntransfer_pairs AS (\n  SELECT\n    transaction_date::date AS txn_date,\n    transaction_amount_abs AS amount_abs,\n    SUM(CASE WHEN transaction_amount < 0 THEN 1 ELSE 0 END) AS out_count,\n    SUM(CASE WHEN transaction_amount > 0 THEN 1 ELSE 0 END) AS in_count\n  FROM reporting.fct_transactions_enhanced\n  WHERE COALESCE(is_internal_transfer, FALSE)\n    AND transaction_date >= (SELECT month_start FROM period_bounds)\n    AND transaction_date <= (SELECT month_end FROM period_bounds)\n  GROUP BY 1,2\n),\nunmatched_transfers AS (\n  SELECT COALESCE(SUM(ABS(out_count - in_count)), 0) AS unmatched_count\n  FROM transfer_pairs\n),\nuncategorized AS (\n  SELECT uncategorized_pct\n  FROM reporting.rpt_outflows_insights_dashboard\n  WHERE period_date = (SELECT month_date FROM period_bounds)\n)\nSELECT 'Stale accounts (45d+ no activity)' AS metric,\n       COALESCE((SELECT stale_accounts FROM stale_accounts), 0)::text AS value,\n       'Accounts without recent transactions' AS detail\nUNION ALL\nSELECT 'Unmatched internal transfers',\n       COALESCE((SELECT unmatched_count FROM unmatched_transfers), 0)::text,\n       'Proxy count based on paired in/out amounts'\nUNION ALL\nSELECT 'Uncategorized spend %',\n       CONCAT(ROUND(COALESCE((SELECT uncategorized_pct FROM uncategorized), 0), 1), '%'),\n       'Share of outflows currently uncategorized';",
           "refId": "A"
         }
       ],

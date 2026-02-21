@@ -268,7 +268,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    total_income as \"Income\",\n    total_expenses as \"Expenses\",\n    net_cash_flow as \"Net Cash Flow\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month >= TO_CHAR(CURRENT_DATE - INTERVAL '12 months', 'YYYY-MM')\nORDER BY budget_year_month;",
+          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    total_income as \"Income\",\n    total_expenses as \"Expenses\",\n    net_cash_flow as \"Net Cash Flow\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month >= TO_CHAR($__timeTo()::date - INTERVAL '12 months', 'YYYY-MM')\n  AND budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY budget_year_month;",
           "refId": "A"
         }
       ],
@@ -335,7 +335,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    account_type as \"Account Type\",\n    SUM(end_of_month_balance) as \"Balance\"\nFROM reporting.rpt_account_performance\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_account_performance)\nGROUP BY account_type\nORDER BY SUM(end_of_month_balance) DESC;",
+          "rawSql": "SELECT \n    account_type as \"Account Type\",\n    SUM(end_of_month_balance) as \"Balance\"\nFROM reporting.rpt_account_performance\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_account_performance WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'))\nGROUP BY account_type\nORDER BY SUM(end_of_month_balance) DESC;",
           "refId": "A"
         }
       ],
@@ -402,7 +402,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    level_1_category as \"Top Categories\",\n    monthly_spending as \"Amount\"\nFROM reporting.rpt_category_spending_trends\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_category_spending_trends)\nAND monthly_spending > 0\nORDER BY monthly_spending DESC\nLIMIT 5;",
+          "rawSql": "SELECT \n    level_1_category as \"Top Categories\",\n    monthly_spending as \"Amount\"\nFROM reporting.rpt_category_spending_trends\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_category_spending_trends WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'))\nAND monthly_spending > 0\nORDER BY monthly_spending DESC\nLIMIT 5;",
           "refId": "A"
         }
       ],
