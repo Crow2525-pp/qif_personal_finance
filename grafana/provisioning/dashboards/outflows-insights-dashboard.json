@@ -122,7 +122,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    dashboard_status AS \"Dashboard Status\",\n    alert_level AS \"Alert Level\",\n    primary_insight AS \"Primary Insight\",\n    recommendation AS \"Recommendation\",\n    trend_direction AS \"Trend Direction\",\n    budget_status AS \"Budget Status\"\nFROM reporting.rpt_outflows_insights_dashboard_compat\nORDER BY period_date DESC\nLIMIT 1;",
+          "rawSql": "SELECT \n    dashboard_status AS \"Dashboard Status\",\n    alert_level AS \"Alert Level\",\n    primary_insight AS \"Primary Insight\",\n    recommendation AS \"Recommendation\",\n    trend_direction AS \"Trend Direction\",\n    budget_status AS \"Budget Status\"\nFROM reporting.rpt_outflows_insights_dashboard\nORDER BY period_date DESC\nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -211,7 +211,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n    period_date as time,\n    total_outflows\nFROM reporting.rpt_outflows_insights_dashboard_compat\nORDER BY period_date;",
+          "rawSql": "SELECT \n    period_date as time,\n    total_outflows\nFROM reporting.rpt_outflows_insights_dashboard\nORDER BY period_date;",
           "refId": "A"
         }
       ],
@@ -280,7 +280,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    mom_outflows_change_pct AS \"Month-over-Month Change Percent\"\nFROM reporting.rpt_outflows_insights_dashboard_compat\nORDER BY period_date DESC\nLIMIT 1;",
+          "rawSql": "SELECT \n    mom_outflows_change_pct AS \"Month-over-Month Change Percent\"\nFROM reporting.rpt_outflows_insights_dashboard\nORDER BY period_date DESC\nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -349,7 +349,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    yoy_outflows_change_pct AS \"Year-over-Year Change Percent\"\nFROM reporting.rpt_outflows_insights_dashboard_compat\nORDER BY period_date DESC\nLIMIT 1;",
+          "rawSql": "SELECT \n    yoy_outflows_change_pct AS \"Year-over-Year Change Percent\"\nFROM reporting.rpt_outflows_insights_dashboard\nORDER BY period_date DESC\nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -416,7 +416,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    'Food & Dining' as category, food_dining as amount\nFROM reporting.rpt_outflows_insights_dashboard_compat\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard_compat)\nUNION ALL\nSELECT \n    'Housing & Mortgage' as category, housing_mortgage as amount\nFROM reporting.rpt_outflows_insights_dashboard_compat\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard_compat)\nUNION ALL\nSELECT \n    'Utilities' as category, household_utilities as amount\nFROM reporting.rpt_outflows_insights_dashboard_compat\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard_compat)\nUNION ALL\nSELECT \n    'Transportation' as category, transportation as amount\nFROM reporting.rpt_outflows_insights_dashboard_compat\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard_compat)\nUNION ALL\nSELECT \n    'Shopping & Retail' as category, shopping_retail as amount\nFROM reporting.rpt_outflows_insights_dashboard_compat\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard_compat)\nUNION ALL\nSELECT \n    'Uncategorized' as category, uncategorized_amount as amount\nFROM reporting.rpt_outflows_insights_dashboard_compat\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard_compat)\nORDER BY amount DESC;",
+          "rawSql": "SELECT \n    'Food & Dining' as category, food_dining as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Housing & Mortgage' as category, housing_mortgage as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Utilities' as category, household_utilities as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Transportation' as category, transportation as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Shopping & Retail' as category, shopping_retail as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Uncategorized' as category, uncategorized_amount as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nORDER BY amount DESC;",
           "refId": "A"
         }
       ],
@@ -507,7 +507,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    'Food & Dining' as category, \n    COALESCE(mom_food_change_pct, 0) as change_pct\nFROM reporting.rpt_outflows_insights_dashboard_compat\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard_compat)\nUNION ALL\nSELECT \n    'Housing & Mortgage' as category, \n    COALESCE(mom_housing_change_pct, 0) as change_pct\nFROM reporting.rpt_outflows_insights_dashboard_compat\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard_compat)\nUNION ALL\nSELECT \n    'Utilities' as category, \n    COALESCE(mom_utilities_change_pct, 0) as change_pct\nFROM reporting.rpt_outflows_insights_dashboard_compat\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard_compat)\nUNION ALL\nSELECT \n    'Uncategorized' as category, \n    COALESCE(mom_uncategorized_change_pct, 0) as change_pct\nFROM reporting.rpt_outflows_insights_dashboard_compat\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard_compat)\nORDER BY change_pct DESC;",
+          "rawSql": "SELECT \n    'Food & Dining' as category, \n    COALESCE(mom_food_change_pct, 0) as change_pct\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Housing & Mortgage' as category, \n    COALESCE(mom_housing_change_pct, 0) as change_pct\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Utilities' as category, \n    COALESCE(mom_utilities_change_pct, 0) as change_pct\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Uncategorized' as category, \n    COALESCE(mom_uncategorized_change_pct, 0) as change_pct\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nORDER BY change_pct DESC;",
           "refId": "A"
         }
       ],
@@ -596,7 +596,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n    period_date as time,\n    food_dining as \"Food & Dining\",\n    housing_mortgage as \"Housing & Mortgage\",\n    household_utilities as \"Utilities\",\n    transportation as \"Transportation\",\n    shopping_retail as \"Shopping & Retail\",\n    uncategorized_amount as \"Uncategorized\"\nFROM reporting.rpt_outflows_insights_dashboard_compat\nORDER BY period_date;",
+          "rawSql": "SELECT \n    period_date as time,\n    food_dining as \"Food & Dining\",\n    housing_mortgage as \"Housing & Mortgage\",\n    household_utilities as \"Utilities\",\n    transportation as \"Transportation\",\n    shopping_retail as \"Shopping & Retail\",\n    uncategorized_amount as \"Uncategorized\"\nFROM reporting.rpt_outflows_insights_dashboard\nORDER BY period_date;",
           "refId": "A"
         }
       ],
@@ -723,7 +723,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    total_transactions AS \"Total Transactions\",\n    avg_transaction_size AS \"Average Transaction Size\",\n    median_transaction_size AS \"Median Transaction Size\",\n    large_transaction_count AS \"Large Transaction Count\",\n    large_transactions AS \"Large Transactions\",\n    large_transactions_pct AS \"Large Transactions Percent\",\n    recurring_expenses_pct AS \"Recurring Expenses Percent\",\n    spending_pattern AS \"Spending Pattern\",\n    spending_insight AS \"Spending Insight\"\nFROM reporting.rpt_outflows_insights_dashboard_compat\nORDER BY period_date DESC\nLIMIT 1;",
+          "rawSql": "SELECT \n    total_transactions AS \"Total Transactions\",\n    avg_transaction_size AS \"Average Transaction Size\",\n    median_transaction_size AS \"Median Transaction Size\",\n    large_transaction_count AS \"Large Transaction Count\",\n    large_transactions AS \"Large Transactions\",\n    large_transactions_pct AS \"Large Transactions Percent\",\n    recurring_expenses_pct AS \"Recurring Expenses Percent\",\n    spending_pattern AS \"Spending Pattern\",\n    spending_insight AS \"Spending Insight\"\nFROM reporting.rpt_outflows_insights_dashboard\nORDER BY period_date DESC\nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -792,7 +792,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    uncategorized_pct AS \"Uncategorized Percent\"\nFROM reporting.rpt_outflows_insights_dashboard_compat\nORDER BY period_date DESC\nLIMIT 1;",
+          "rawSql": "SELECT \n    uncategorized_pct AS \"Uncategorized Percent\"\nFROM reporting.rpt_outflows_insights_dashboard\nORDER BY period_date DESC\nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -881,7 +881,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n    period_date as time,\n    uncategorized_amount as \"Uncategorized Amount\"\nFROM reporting.rpt_outflows_insights_dashboard_compat\nORDER BY period_date;",
+          "rawSql": "SELECT \n    period_date as time,\n    uncategorized_amount as \"Uncategorized Amount\"\nFROM reporting.rpt_outflows_insights_dashboard\nORDER BY period_date;",
           "refId": "A"
         }
       ],
@@ -1300,7 +1300,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nperiod_bounds AS (\n  SELECT month_date,\n         month_date AS month_start,\n         (month_date + INTERVAL '1 month' - INTERVAL '1 day')::date AS month_end\n  FROM latest_period\n),\nstale_accounts AS (\n  SELECT COUNT(*) AS stale_accounts\n  FROM reporting.dim_accounts_enhanced\n  WHERE account_last_transaction_date < (SELECT month_end FROM period_bounds) - INTERVAL '45 days'\n),\ntransfer_pairs AS (\n  SELECT\n    transaction_date::date AS txn_date,\n    transaction_amount_abs AS amount_abs,\n    SUM(CASE WHEN transaction_amount < 0 THEN 1 ELSE 0 END) AS out_count,\n    SUM(CASE WHEN transaction_amount > 0 THEN 1 ELSE 0 END) AS in_count\n  FROM reporting.fct_transactions_enhanced\n  WHERE COALESCE(is_internal_transfer, FALSE)\n    AND transaction_date >= (SELECT month_start FROM period_bounds)\n    AND transaction_date <= (SELECT month_end FROM period_bounds)\n  GROUP BY 1,2\n),\nunmatched_transfers AS (\n  SELECT COALESCE(SUM(ABS(out_count - in_count)), 0) AS unmatched_count\n  FROM transfer_pairs\n),\nuncategorized AS (\n  SELECT uncategorized_pct\n  FROM reporting.rpt_outflows_insights_dashboard_compat\n  WHERE period_date = (SELECT month_date FROM period_bounds)\n)\nSELECT 'Stale accounts (45d+ no activity)' AS metric,\n       COALESCE((SELECT stale_accounts FROM stale_accounts), 0)::text AS value,\n       'Accounts without recent transactions' AS detail\nUNION ALL\nSELECT 'Unmatched internal transfers',\n       COALESCE((SELECT unmatched_count FROM unmatched_transfers), 0)::text,\n       'Proxy count based on paired in/out amounts'\nUNION ALL\nSELECT 'Uncategorized spend %',\n       CONCAT(ROUND(COALESCE((SELECT uncategorized_pct FROM uncategorized), 0), 1), '%'),\n       'Share of outflows currently uncategorized';",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nperiod_bounds AS (\n  SELECT month_date,\n         month_date AS month_start,\n         (month_date + INTERVAL '1 month' - INTERVAL '1 day')::date AS month_end\n  FROM latest_period\n),\nstale_accounts AS (\n  SELECT COUNT(*) AS stale_accounts\n  FROM reporting.dim_accounts_enhanced\n  WHERE account_last_transaction_date < (SELECT month_end FROM period_bounds) - INTERVAL '45 days'\n),\ntransfer_pairs AS (\n  SELECT\n    transaction_date::date AS txn_date,\n    transaction_amount_abs AS amount_abs,\n    SUM(CASE WHEN transaction_amount < 0 THEN 1 ELSE 0 END) AS out_count,\n    SUM(CASE WHEN transaction_amount > 0 THEN 1 ELSE 0 END) AS in_count\n  FROM reporting.fct_transactions_enhanced\n  WHERE COALESCE(is_internal_transfer, FALSE)\n    AND transaction_date >= (SELECT month_start FROM period_bounds)\n    AND transaction_date <= (SELECT month_end FROM period_bounds)\n  GROUP BY 1,2\n),\nunmatched_transfers AS (\n  SELECT COALESCE(SUM(ABS(out_count - in_count)), 0) AS unmatched_count\n  FROM transfer_pairs\n),\nuncategorized AS (\n  SELECT uncategorized_pct\n  FROM reporting.rpt_outflows_insights_dashboard\n  WHERE period_date = (SELECT month_date FROM period_bounds)\n)\nSELECT 'Stale accounts (45d+ no activity)' AS metric,\n       COALESCE((SELECT stale_accounts FROM stale_accounts), 0)::text AS value,\n       'Accounts without recent transactions' AS detail\nUNION ALL\nSELECT 'Unmatched internal transfers',\n       COALESCE((SELECT unmatched_count FROM unmatched_transfers), 0)::text,\n       'Proxy count based on paired in/out amounts'\nUNION ALL\nSELECT 'Uncategorized spend %',\n       CONCAT(ROUND(COALESCE((SELECT uncategorized_pct FROM uncategorized), 0), 1), '%'),\n       'Share of outflows currently uncategorized';",
           "refId": "A"
         }
       ],
@@ -1437,7 +1437,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH base AS (\n  SELECT MAX(period_date) AS data_through\n  FROM reporting.rpt_outflows_insights_dashboard_compat\n), refresh AS (\n  SELECT MAX(report_generated_at) AS last_refresh\n  FROM reporting.rpt_monthly_budget_summary\n)\nSELECT\n  COALESCE(TO_CHAR((SELECT data_through FROM base), 'YYYY-MM'), 'N/A') AS \"Data Through\",\n  COALESCE(TO_CHAR((SELECT last_refresh FROM refresh), 'YYYY-MM-DD HH24:MI'), 'N/A') AS \"Last Refresh\"",
+          "rawSql": "WITH base AS (\n  SELECT MAX(period_date) AS data_through\n  FROM reporting.rpt_outflows_insights_dashboard\n), refresh AS (\n  SELECT MAX(report_generated_at) AS last_refresh\n  FROM reporting.rpt_monthly_budget_summary\n)\nSELECT\n  COALESCE(TO_CHAR((SELECT data_through FROM base), 'YYYY-MM'), 'N/A') AS \"Data Through\",\n  COALESCE(TO_CHAR((SELECT last_refresh FROM refresh), 'YYYY-MM-DD HH24:MI'), 'N/A') AS \"Last Refresh\"",
           "refId": "A",
           "sql": {
             "columns": [],
