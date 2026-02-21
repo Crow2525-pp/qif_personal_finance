@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83c\udfe0 Household Net Worth Dashboard - Wealth Tracking\n\n**What This Dashboard Shows:** Tracks wealth accumulation and net worth progression over time with health scoring and milestone tracking.\n\n**Key Metrics Explained:**\n\u2022 **Net Worth Health Score:** Classification from critical to excellent based on assets vs liabilities\n\u2022 **Assets vs Liabilities:** Breakdown with liquidity analysis showing readily accessible funds\n\u2022 **Debt-to-Asset Ratio:** Lower percentages indicate stronger financial position\n\u2022 **Monthly Progress:** Consistent increases indicate successful wealth building\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- Trend panels cover the trailing 12 months unless noted.\n- Annual progress panels use complete years only.\n\n**How to Use:** Track wealth building progress with milestone goals. Focus on increasing assets and reducing debt-to-asset ratios over time.",
+        "content": "# 🏠 Household Net Worth Dashboard - Wealth Tracking\n\n**What This Dashboard Shows:** Tracks wealth accumulation and net worth progression over time with health scoring and milestone tracking.\n\n**Key Metrics Explained:**\n• **Net Worth Health Score:** Classification from critical to excellent based on assets vs liabilities\n• **Assets vs Liabilities:** Breakdown with liquidity analysis showing readily accessible funds\n• **Debt-to-Asset Ratio:** Lower percentages indicate stronger financial position\n• **Monthly Progress:** Consistent increases indicate successful wealth building\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- Trend panels cover the trailing 12 months unless noted.\n- Annual progress panels use complete years only.\n\n**How to Use:** Track wealth building progress with milestone goals. Focus on increasing assets and reducing debt-to-asset ratios over time.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -139,7 +139,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -419,7 +419,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -610,7 +610,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -749,7 +749,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -1083,7 +1083,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -1261,7 +1261,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -1328,7 +1328,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -1627,7 +1627,9 @@
               }
             ]
           },
-          "unit": "percentunit"
+          "unit": "percentunit",
+          "min": -1,
+          "max": 1
         },
         "overrides": [
           {
@@ -1804,7 +1806,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -1956,7 +1958,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {

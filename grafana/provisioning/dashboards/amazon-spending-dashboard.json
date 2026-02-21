@@ -45,7 +45,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -130,7 +130,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -257,7 +257,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -321,7 +321,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -414,7 +414,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -519,7 +519,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -575,7 +575,7 @@
             }
           },
           "mappings": [],
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -770,7 +770,7 @@
             }
           },
           "mappings": [],
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -840,7 +840,7 @@
             }
           },
           "mappings": [],
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -992,7 +992,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -1051,7 +1051,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },

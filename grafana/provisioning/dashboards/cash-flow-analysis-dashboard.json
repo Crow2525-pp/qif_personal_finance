@@ -283,7 +283,7 @@
                   "text": "Critical"
                 },
                 "2": {
-                  "text": "Poor" 
+                  "text": "Poor"
                 },
                 "3": {
                   "text": "Fair"
@@ -480,7 +480,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -652,7 +652,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -698,7 +698,10 @@
               {
                 "id": "custom.lineStyle",
                 "value": {
-                  "dash": [10, 10],
+                  "dash": [
+                    10,
+                    10
+                  ],
                   "fill": "dash"
                 }
               }
@@ -792,7 +795,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -910,7 +913,9 @@
               }
             ]
           },
-          "unit": "percentunit"
+          "unit": "percentunit",
+          "min": -1,
+          "max": 1
         },
         "overrides": [
           {
@@ -1076,7 +1081,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -1279,7 +1284,9 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": ["sum"],
+          "reducer": [
+            "sum"
+          ],
           "show": false
         },
         "showHeader": true
@@ -1369,7 +1376,9 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": ["sum"],
+          "reducer": [
+            "sum"
+          ],
           "show": false
         },
         "showHeader": true
@@ -1495,7 +1504,9 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": ["sum"],
+          "reducer": [
+            "sum"
+          ],
           "show": false
         },
         "showHeader": true,
@@ -1587,251 +1598,251 @@
           "refId": "A"
         }
       ],
-  "title": "Cash Flow Recommendations & Forecast",
-  "type": "table"
-},
- {
-   "datasource": {
-     "type": "postgres",
-     "uid": "PCC52D03280B7034C"
-   },
-   "description": "Net, inflow and outflow across the most recent twelve months of available data (internal transfers excluded).",
-   "fieldConfig": {
-     "defaults": {
-       "color": {
-         "mode": "palette-classic"
-       },
-       "custom": {
-         "axisCenteredZero": true,
-         "axisColorMode": "text",
-         "axisLabel": "",
-         "axisPlacement": "auto",
-         "barAlignment": 0,
-         "drawStyle": "line",
-         "fillOpacity": 20,
-         "gradientMode": "opacity",
-         "hideFrom": {
-           "legend": false,
-           "tooltip": false,
-           "vis": false
-         },
-         "lineInterpolation": "linear",
-         "lineWidth": 2,
-         "pointSize": 4,
-         "scaleDistribution": {
-           "type": "linear"
-         },
-         "showPoints": "auto",
-         "spanNulls": false,
-         "stacking": {
-           "group": "A",
-           "mode": "none"
-         },
-         "thresholdsStyle": {
-           "mode": "off"
-         }
-       },
-       "mappings": [],
-       "thresholds": {
-         "mode": "absolute",
-         "steps": [
-           {
-             "color": "green",
-             "value": null
-           }
-         ]
-       },
-       "unit": "currencyUSD"
-     },
-     "overrides": [
-       {
-         "matcher": {
-           "id": "byName",
-           "options": "inflow"
-         },
-         "properties": [
-           {
-             "id": "displayName",
-             "value": "Inflow"
-           },
-           {
-             "id": "color",
-             "value": {
-               "fixedColor": "#4caf50",
-               "mode": "fixed"
-             }
-           },
-           {
-             "id": "custom.drawStyle",
-             "value": "bars"
-           },
-           {
-             "id": "custom.fillOpacity",
-             "value": 80
-           }
-         ]
-       },
-       {
-         "matcher": {
-           "id": "byName",
-           "options": "outflow"
-         },
-         "properties": [
-           {
-             "id": "displayName",
-             "value": "Outflow"
-           },
-           {
-             "id": "color",
-             "value": {
-               "fixedColor": "#f44336",
-               "mode": "fixed"
-             }
-           },
-           {
-             "id": "custom.drawStyle",
-             "value": "bars"
-           },
-           {
-             "id": "custom.fillOpacity",
-             "value": 80
-           }
-         ]
-       },
-       {
-         "matcher": {
-           "id": "byName",
-           "options": "net"
-         },
-         "properties": [
-           {
-             "id": "displayName",
-             "value": "Net"
-           },
-           {
-             "id": "color",
-             "value": {
-               "fixedColor": "#2196f3",
-               "mode": "fixed"
-             }
-           }
-         ]
-       }
-     ]
-   },
-   "gridPos": {
-     "h": 10,
-     "w": 12,
-     "x": 0,
-     "y": 47
-   },
-   "id": 210,
-   "options": {
-     "legend": {
-       "calcs": [],
-       "displayMode": "list",
-       "placement": "bottom",
-       "showLegend": true
-     },
-     "tooltip": {
-       "mode": "single",
-       "sort": "none"
-     }
-   },
-   "pluginVersion": "10.0.0",
-   "targets": [
-     {
-       "datasource": {
-         "type": "postgres",
-         "uid": "PCC52D03280B7034C"
-       },
-       "editorMode": "code",
-       "format": "table",
-       "rawQuery": true,
-       "rawSql": "WITH months AS (\n  SELECT DISTINCT DATE_TRUNC('month', transaction_date)::date AS period_date\n  FROM reporting.fct_transactions_enhanced\n  WHERE COALESCE(is_internal_transfer, false) = false\n), latest AS (\n  SELECT MAX(period_date) AS latest_month FROM months\n), windowed AS (\n  SELECT\n    DATE_TRUNC('month', f.transaction_date)::date AS period_date,\n    SUM(CASE WHEN f.transaction_amount > 0 THEN f.transaction_amount ELSE 0 END) AS inflow,\n    SUM(CASE WHEN f.transaction_amount < 0 THEN f.transaction_amount ELSE 0 END) AS outflow,\n    SUM(f.transaction_amount) AS net\n  FROM reporting.fct_transactions_enhanced f\n  CROSS JOIN latest\n  WHERE COALESCE(f.is_internal_transfer, false) = false\n    AND DATE_TRUNC('month', f.transaction_date)::date BETWEEN (latest_month - INTERVAL '11 months') AND latest_month\n  GROUP BY 1\n)\nSELECT\n  period_date::timestamp AS time,\n  inflow,\n  outflow,\n  net\nFROM windowed\nORDER BY period_date;",
-       "refId": "A"
-     }
-   ],
-   "title": "Last 12 Months Cashflow Trend",
-   "type": "timeseries"
- },
- {
-   "datasource": {
-     "type": "postgres",
-     "uid": "PCC52D03280B7034C"
-   },
-   "description": "Account-level inflow, outflow and net position for the latest three months (internal transfers excluded).",
-   "fieldConfig": {
-     "defaults": {
-       "color": {
-         "mode": "thresholds"
-       },
-       "custom": {
-         "align": "auto",
-         "cellOptions": {
-           "type": "auto"
-         },
-         "inspect": false
-       },
-       "mappings": [],
-       "thresholds": {
-         "mode": "absolute",
-         "steps": [
-           {
-             "color": "green",
-             "value": null
-           }
-         ]
-       }
-     },
-     "overrides": []
-   },
-   "gridPos": {
-     "h": 10,
-     "w": 12,
-     "x": 12,
-     "y": 47
-   },
-   "id": 211,
-   "options": {
-     "cellHeight": "sm",
-     "footer": {
-       "countRows": false,
-       "fields": "",
-       "reducer": [
-         "sum"
-       ],
-       "show": false
-     },
-     "showHeader": true,
-     "sortBy": [
-       {
-         "desc": true,
-         "displayName": "Net"
-       }
-     ]
-   },
-   "pluginVersion": "10.0.0",
-   "targets": [
-     {
-       "datasource": {
-         "type": "postgres",
-         "uid": "PCC52D03280B7034C"
-       },
-       "editorMode": "code",
-       "format": "table",
-       "rawQuery": true,
-       "rawSql": "WITH monthly AS (\n  SELECT\n    DATE_TRUNC('month', f.transaction_date)::date AS period_date,\n    f.account_key,\n    SUM(CASE WHEN f.transaction_amount > 0 THEN f.transaction_amount ELSE 0 END) AS inflow,\n    SUM(CASE WHEN f.transaction_amount < 0 THEN f.transaction_amount ELSE 0 END) AS outflow,\n    SUM(f.transaction_amount) AS net,\n    COUNT(*) AS transactions\n  FROM reporting.fct_transactions_enhanced f\n  WHERE COALESCE(f.is_internal_transfer, false) = false\n  GROUP BY 1, 2\n), latest AS (\n  SELECT MAX(period_date) AS latest_month FROM monthly\n), windowed AS (\n  SELECT m.*\n  FROM monthly m\n  CROSS JOIN latest\n  WHERE m.period_date BETWEEN (latest_month - INTERVAL '2 months') AND latest_month\n)\nSELECT\n  TO_CHAR(w.period_date, 'YYYY-MM') AS \"Month\",\n  COALESCE(a.bank_name, 'Unknown') AS \"Bank\",\n  COALESCE(REPLACE(a.account_name, '_', ' '), REPLACE(w.account_key, '_', ' ')) AS \"Account\",\n  ROUND(w.inflow, 2) AS \"Inflow\",\n  ROUND(w.outflow, 2) AS \"Outflow\",\n  ROUND(w.net, 2) AS \"Net\",\n  w.transactions AS \"Transactions\"\nFROM windowed w\nLEFT JOIN reporting.dim_accounts_enhanced a ON a.account_key = w.account_key\nORDER BY w.period_date DESC, \"Net\" DESC;",
-       "refId": "A"
-     }
-   ],
-   "title": "Last 3 Months Net by Account",
-   "type": "table"
- },
- {
-  "datasource": {
-    "type": "postgres",
-    "uid": "PCC52D03280B7034C"
+      "title": "Cash Flow Recommendations & Forecast",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Net, inflow and outflow across the most recent twelve months of available data (internal transfers excluded).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": true,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 4,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "inflow"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Inflow"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#4caf50",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "bars"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "outflow"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Outflow"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#f44336",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "bars"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "net"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Net"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#2196f3",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 47
+      },
+      "id": 210,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH months AS (\n  SELECT DISTINCT DATE_TRUNC('month', transaction_date)::date AS period_date\n  FROM reporting.fct_transactions_enhanced\n  WHERE COALESCE(is_internal_transfer, false) = false\n), latest AS (\n  SELECT MAX(period_date) AS latest_month FROM months\n), windowed AS (\n  SELECT\n    DATE_TRUNC('month', f.transaction_date)::date AS period_date,\n    SUM(CASE WHEN f.transaction_amount > 0 THEN f.transaction_amount ELSE 0 END) AS inflow,\n    SUM(CASE WHEN f.transaction_amount < 0 THEN f.transaction_amount ELSE 0 END) AS outflow,\n    SUM(f.transaction_amount) AS net\n  FROM reporting.fct_transactions_enhanced f\n  CROSS JOIN latest\n  WHERE COALESCE(f.is_internal_transfer, false) = false\n    AND DATE_TRUNC('month', f.transaction_date)::date BETWEEN (latest_month - INTERVAL '11 months') AND latest_month\n  GROUP BY 1\n)\nSELECT\n  period_date::timestamp AS time,\n  inflow,\n  outflow,\n  net\nFROM windowed\nORDER BY period_date;",
+          "refId": "A"
+        }
+      ],
+      "title": "Last 12 Months Cashflow Trend",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Account-level inflow, outflow and net position for the latest three months (internal transfers excluded).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 47
+      },
+      "id": 211,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Net"
+          }
+        ]
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH monthly AS (\n  SELECT\n    DATE_TRUNC('month', f.transaction_date)::date AS period_date,\n    f.account_key,\n    SUM(CASE WHEN f.transaction_amount > 0 THEN f.transaction_amount ELSE 0 END) AS inflow,\n    SUM(CASE WHEN f.transaction_amount < 0 THEN f.transaction_amount ELSE 0 END) AS outflow,\n    SUM(f.transaction_amount) AS net,\n    COUNT(*) AS transactions\n  FROM reporting.fct_transactions_enhanced f\n  WHERE COALESCE(f.is_internal_transfer, false) = false\n  GROUP BY 1, 2\n), latest AS (\n  SELECT MAX(period_date) AS latest_month FROM monthly\n), windowed AS (\n  SELECT m.*\n  FROM monthly m\n  CROSS JOIN latest\n  WHERE m.period_date BETWEEN (latest_month - INTERVAL '2 months') AND latest_month\n)\nSELECT\n  TO_CHAR(w.period_date, 'YYYY-MM') AS \"Month\",\n  COALESCE(a.bank_name, 'Unknown') AS \"Bank\",\n  COALESCE(REPLACE(a.account_name, '_', ' '), REPLACE(w.account_key, '_', ' ')) AS \"Account\",\n  ROUND(w.inflow, 2) AS \"Inflow\",\n  ROUND(w.outflow, 2) AS \"Outflow\",\n  ROUND(w.net, 2) AS \"Net\",\n  w.transactions AS \"Transactions\"\nFROM windowed w\nLEFT JOIN reporting.dim_accounts_enhanced a ON a.account_key = w.account_key\nORDER BY w.period_date DESC, \"Net\" DESC;",
+          "refId": "A"
+        }
+      ],
+      "title": "Last 3 Months Net by Account",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
       },
       "description": "**CURRENT MONTH OUTFLOW BREAKDOWN & RISK ANALYSIS**\n\n**What This Shows:** Complete breakdown of spending by category for the most recent complete month.\n\n**Column Definitions:**\n• **Current Month ($):** Total amount spent in this category THIS MONTH (sum of all transactions)\n• **# Transactions:** Number of individual transactions in this category this month\n• **Largest Transaction ($):** Single biggest transaction amount within this category this month\n• **% of Total:** This category's share of total monthly outflows\n• **% Change vs Historical:** How much this month's total differs from the 6-month average (>100% = significantly above normal)\n• **Risk Flag:** Automated assessment based on spending patterns\n\n**Risk Flag Meanings:**\n🔴 **High Uncategorized Spending:** >$500 in uncategorized transactions (needs review)\n🔴 **Significantly Above Historical Average:** >200% of normal spending for this category\n🟠 **Contains Large Transaction:** Includes transaction >$1,000\n🟢 **Normal:** Spending within expected ranges\n\n**Example:** If 'Food & Drink' shows $1,065 with 29 transactions, that's $1,065 TOTAL spent across 29 separate purchases this month.",
       "fieldConfig": {
@@ -1860,7 +1871,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -2044,7 +2055,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -2177,7 +2188,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "High-risk transactions and spending patterns requiring attention",
+      "description": "**Shows monthly spending categories with unusual risk patterns** - All amounts are TOTAL MONTHLY spending by category/subcategory, not individual transactions.\n\n**Risk Level Definitions:**\n• **HIGH:** Categories requiring immediate attention (Uncategorized >$500 OR spending >200% of historical average)\n• **MEDIUM:** Contains large transactions (>$1000) or single transaction >$1000 total\n• **LOW:** Normal variations within expected ranges\n\n**Column Explanations:**\n• **Amount ($):** Total monthly outflows for this category (e.g., $225 = spent $225 total in this category this month)\n• **Risk Description:** Specific reason for flagging (e.g., 'Significantly Above Historical Average')\n• **Details:** Memo from largest transaction in the category for context\n\n**Example:** If 'Zona' shows $225 with HIGH risk, this means you spent $225 total on Zona-related transactions this month, which is significantly higher than your historical monthly average for this category.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2204,7 +2215,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -2256,7 +2267,6 @@
         "y": 79
       },
       "id": 202,
-      "description": "**Shows monthly spending categories with unusual risk patterns** - All amounts are TOTAL MONTHLY spending by category/subcategory, not individual transactions.\n\n**Risk Level Definitions:**\n• **HIGH:** Categories requiring immediate attention (Uncategorized >$500 OR spending >200% of historical average)\n• **MEDIUM:** Contains large transactions (>$1000) or single transaction >$1000 total\n• **LOW:** Normal variations within expected ranges\n\n**Column Explanations:**\n• **Amount ($):** Total monthly outflows for this category (e.g., $225 = spent $225 total in this category this month)\n• **Risk Description:** Specific reason for flagging (e.g., 'Significantly Above Historical Average')\n• **Details:** Memo from largest transaction in the category for context\n\n**Example:** If 'Zona' shows $225 with HIGH risk, this means you spent $225 total on Zona-related transactions this month, which is significantly higher than your historical monthly average for this category.",
       "options": {
         "cellHeight": "sm",
         "footer": {
