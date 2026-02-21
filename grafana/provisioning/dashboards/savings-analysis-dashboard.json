@@ -19,7 +19,35 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 01 - Executive Financial Overview",
+      "type": "link",
+      "url": "/d/executive_dashboard?orgId=1&${__url_time_range}&var-time_window=${time_window}"
+    },
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 04 - Household Net Worth Analysis",
+      "type": "link",
+      "url": "/d/household_net_worth?orgId=1&${__url_time_range}&var-time_window=${time_window}"
+    },
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 06 - Category Spending Analysis",
+      "type": "link",
+      "url": "/d/category-spending-v2?orgId=1&${__url_time_range}"
+    }
+  ],
   "liveNow": false,
   "panels": [
     {
@@ -1683,6 +1711,29 @@
       ],
       "title": "Action Priorities This Month",
       "type": "table"
+    },
+    {
+      "id": 102,
+      "type": "text",
+      "title": "KPI Definitions - Savings Metrics",
+      "description": "Formula lineage for the savings KPIs on this dashboard. Full detail is in KPI_DICTIONARY.md.",
+      "gridPos": {
+        "x": 0,
+        "y": 54,
+        "w": 24,
+        "h": 8
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "## Savings KPI Definitions\n\nFull lineage: `grafana/provisioning/dashboards/KPI_DICTIONARY.md`.\n\n---\n\n### Total Savings Rate (Cash Flow Basis)\n**Formula:** `net_cash_flow / total_income` (0-1 ratio)\n**Source:** `reporting.rpt_monthly_budget_summary.savings_rate_percent`\n**Sign:** Positive = saving. Negative = spending more than earned.\n\n---\n\n### Traditional Savings Rate\n**Formula:** `(offset_savings + cash_savings + investment_contributions) / total_income` (0-1 ratio)\n**Source:** `reporting.rpt_savings_analysis.traditional_savings_rate_percent`\nCounts only money explicitly directed to savings vehicles.\n\n---\n\n### Savings Health Score (0-100)\n**Formula:** Tiered score from total savings rate, plus improvement and consistency bonuses\n**Source:** `reporting.rpt_savings_analysis.savings_health_score`\n\n---\n\n### 3-Month Rolling Average Savings Rate\n**Formula:** Rolling 3-month average of total savings rate\n**Source:** `reporting.rpt_savings_analysis.rolling_3m_avg_savings_rate`\n\n---\n\n### Progress to 20% Goal\n**Formula:** `total_savings_rate_percent / 0.20` (capped at 1.0)\n**Source:** `reporting.rpt_savings_analysis.progress_to_20_percent_goal`",
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        }
+      },
+      "transparent": false,
+      "datasource": null
     }
   ],
   "refresh": "",
@@ -1758,6 +1809,6 @@
   "timezone": "",
   "title": "Savings Analysis",
   "uid": "savings_analysis",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

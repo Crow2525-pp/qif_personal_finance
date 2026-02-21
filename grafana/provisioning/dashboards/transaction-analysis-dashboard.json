@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 38,
+  "id": null,
   "links": [
     {
       "icon": "external link",
@@ -27,7 +27,7 @@
       "targetBlank": false,
       "title": "View in 01 - Executive Financial Overview",
       "type": "link",
-      "url": "/d/executive_dashboard"
+      "url": "/d/executive_dashboard?orgId=1&${__url_time_range}&var-time_window=${time_window}"
     },
     {
       "icon": "external link",
@@ -36,7 +36,7 @@
       "targetBlank": false,
       "title": "View in 06 - Category Spending Analysis",
       "type": "link",
-      "url": "/d/category-spending-v2"
+      "url": "/d/category-spending-v2?orgId=1&${__url_time_range}"
     },
     {
       "icon": "external link",
@@ -45,7 +45,16 @@
       "targetBlank": false,
       "title": "View in 08 - Outflows Insights",
       "type": "link",
-      "url": "/d/outflows_insights"
+      "url": "/d/outflows_insights?orgId=1&${__url_time_range}"
+    },
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 10 - Financial Reconciliation",
+      "type": "link",
+      "url": "/d/outflows_reconciliation?orgId=1&${__url_time_range}&var-time_window=${time_window}"
     }
   ],
   "liveNow": false,
@@ -56,14 +65,14 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 4,
+        "h": 5,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "### Dashboard Instructions\nCheck transaction trends, recurring merchants, and uncategorized hotspots.",
+        "content": "# \ud83d\udccb Transaction Analysis Dashboard\n\n**Purpose**: Identify spending patterns, recurring merchants, and transactions that need categorisation.\n\n**Workflow**\n1. Check the KPI row to understand overall activity for the last 12 closed months.\n2. Use the inflow/outflow trend to confirm monthly cash movement.\n3. Review top spending categories and drill into large uncategorised items.\n4. Inspect recurring merchants for unexpected subscriptions or fees.\n5. Use the account summary to see where activity concentrates.\n\n_All panels exclude internal transfers and the current, incomplete month._",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -74,6 +83,32 @@
       "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "id": 1,
+      "title": "Transactions Overview (Last 12 Closed Months)",
+      "type": "stat",
+      "pluginVersion": "10.0.0",
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
       "fieldConfig": {
         "defaults": {
@@ -179,30 +214,6 @@
           }
         ]
       },
-      "gridPos": {
-        "h": 5,
-        "w": 24,
-        "x": 0,
-        "y": 5
-      },
-      "id": 1,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": true
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.0.0",
       "targets": [
         {
           "datasource": {
@@ -212,17 +223,35 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COUNT(*) AS total_transactions,\n  SUM(CASE WHEN transaction_amount > 0 THEN transaction_amount ELSE 0 END) AS total_inflow,\n  SUM(CASE WHEN transaction_amount < 0 THEN -transaction_amount ELSE 0 END) AS total_outflow,\n  SUM(transaction_amount) AS net_amount,\n  AVG(ABS(transaction_amount)) AS avg_transaction,\n  COUNT(DISTINCT COALESCE(NULLIF(transaction_memo, ''), transaction_description)) AS distinct_merchants\nFROM reporting.fct_transactions_enhanced\nWHERE $__timeFilter(transaction_date)\n  AND NOT COALESCE(is_internal_transfer, FALSE);",
+          "rawSql": "SELECT\n  COUNT(*) AS total_transactions,\n  SUM(CASE WHEN transaction_amount > 0 THEN transaction_amount ELSE 0 END) AS total_inflow,\n  SUM(CASE WHEN transaction_amount < 0 THEN -transaction_amount ELSE 0 END) AS total_outflow,\n  SUM(transaction_amount) AS net_amount,\n  AVG(ABS(transaction_amount)) AS avg_transaction,\n  COUNT(DISTINCT COALESCE(NULLIF(transaction_memo, ''), transaction_description)) AS distinct_merchants\nFROM reporting.fct_transactions_enhanced\nWHERE transaction_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '12 months'\n  AND transaction_date < date_trunc('month', CURRENT_DATE)\n  AND NOT COALESCE(is_internal_transfer, FALSE);",
           "refId": "A"
         }
-      ],
-      "title": "Transactions Overview (Last 12 Closed Months)",
-      "type": "stat"
+      ]
     },
     {
       "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 10
+      },
+      "id": 2,
+      "title": "Monthly Inflows vs Outflows",
+      "type": "timeseries",
+      "pluginVersion": "10.0.0",
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "fieldConfig": {
         "defaults": {
@@ -238,7 +267,7 @@
               "mode": "none"
             }
           },
-          "unit": "short"
+          "unit": "currencyUSD"
         },
         "overrides": [
           {
@@ -300,24 +329,6 @@
           }
         ]
       },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 10
-      },
-      "id": 2,
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "10.0.0",
       "targets": [
         {
           "datasource": {
@@ -327,18 +338,26 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date_trunc('month', transaction_date) AS time,\n  SUM(CASE WHEN transaction_amount > 0 THEN transaction_amount ELSE 0 END) AS inflow,\n  SUM(CASE WHEN transaction_amount < 0 THEN -transaction_amount ELSE 0 END) AS outflow,\n  SUM(transaction_amount) AS net\nFROM reporting.fct_transactions_enhanced\nWHERE $__timeFilter(transaction_date)\n  AND NOT COALESCE(is_internal_transfer, FALSE)\nGROUP BY 1\nORDER BY 1;",
+          "rawSql": "SELECT\n  date_trunc('month', transaction_date) AS time,\n  SUM(CASE WHEN transaction_amount > 0 THEN transaction_amount ELSE 0 END) AS inflow,\n  SUM(CASE WHEN transaction_amount < 0 THEN -transaction_amount ELSE 0 END) AS outflow,\n  SUM(transaction_amount) AS net\nFROM reporting.fct_transactions_enhanced\nWHERE transaction_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '12 months'\n  AND transaction_date < date_trunc('month', CURRENT_DATE)\n  AND NOT COALESCE(is_internal_transfer, FALSE)\nGROUP BY 1\nORDER BY 1;",
           "refId": "A"
         }
-      ],
-      "title": "Monthly Inflows vs Outflows",
-      "type": "timeseries"
+      ]
     },
     {
       "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 10
+      },
+      "id": 3,
+      "title": "Top Spending Categories",
+      "type": "table",
+      "pluginVersion": "10.0.0",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -398,18 +417,10 @@
           }
         ]
       },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 10
-      },
-      "id": 3,
       "options": {
         "cellHeight": "sm",
         "showHeader": true
       },
-      "pluginVersion": "10.0.0",
       "targets": [
         {
           "datasource": {
@@ -419,18 +430,26 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COALESCE(NULLIF(dc.level_1_category, 'Uncategorized'), 'Uncategorised') AS category,\n  COUNT(*) FILTER (WHERE ft.transaction_amount < 0) AS txn_count,\n  SUM(CASE WHEN ft.transaction_amount < 0 THEN -ft.transaction_amount ELSE 0 END) AS total_amount,\n  AVG(CASE WHEN ft.transaction_amount < 0 THEN -ft.transaction_amount END) AS avg_amount\nFROM reporting.fct_transactions_enhanced ft\nLEFT JOIN reporting.dim_categories_enhanced dc ON ft.category_key = dc.category_key\nWHERE $__timeFilter(ft.transaction_date)\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\nGROUP BY 1\nHAVING SUM(CASE WHEN ft.transaction_amount < 0 THEN -ft.transaction_amount ELSE 0 END) > 0\nORDER BY total_amount DESC\nLIMIT 12;",
+          "rawSql": "SELECT\n  COALESCE(NULLIF(dc.level_1_category, 'Uncategorized'), 'Uncategorised') AS category,\n  COUNT(*) FILTER (WHERE ft.transaction_amount < 0) AS txn_count,\n  SUM(CASE WHEN ft.transaction_amount < 0 THEN -ft.transaction_amount ELSE 0 END) AS total_amount,\n  AVG(CASE WHEN ft.transaction_amount < 0 THEN -ft.transaction_amount END) AS avg_amount\nFROM reporting.fct_transactions_enhanced ft\nLEFT JOIN reporting.dim_categories_enhanced dc ON ft.category_key = dc.category_key\nWHERE ft.transaction_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '12 months'\n  AND ft.transaction_date < date_trunc('month', CURRENT_DATE)\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\nGROUP BY 1\nHAVING SUM(CASE WHEN ft.transaction_amount < 0 THEN -ft.transaction_amount ELSE 0 END) > 0\nORDER BY total_amount DESC\nLIMIT 12;",
           "refId": "A"
         }
-      ],
-      "title": "Top Spending Categories",
-      "type": "table"
+      ]
     },
     {
       "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 18
+      },
+      "id": 4,
+      "title": "High Value Needs Review",
+      "type": "table",
+      "pluginVersion": "10.0.0",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -498,18 +517,10 @@
           }
         ]
       },
-      "gridPos": {
-        "h": 10,
-        "w": 12,
-        "x": 0,
-        "y": 18
-      },
-      "id": 4,
       "options": {
         "cellHeight": "sm",
         "showHeader": true
       },
-      "pluginVersion": "10.0.0",
       "targets": [
         {
           "datasource": {
@@ -519,18 +530,26 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  ft.transaction_date::date,\n  da.account_name,\n  -ft.transaction_amount AS amount,\n  COALESCE(NULLIF(dc.level_1_category, 'Uncategorized'), 'Uncategorised') AS level_1_category,\n  ft.transaction_description,\n  ft.transaction_memo\nFROM reporting.fct_transactions_enhanced ft\nLEFT JOIN reporting.dim_categories_enhanced dc ON ft.category_key = dc.category_key\nLEFT JOIN reporting.dim_accounts_enhanced da ON ft.account_key = da.account_key\nWHERE $__timeFilter(ft.transaction_date)\n  AND ft.transaction_amount < 0\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\nORDER BY -ft.transaction_amount DESC\nLIMIT 25;",
+          "rawSql": "SELECT\n  ft.transaction_date::date,\n  da.account_name,\n  -ft.transaction_amount AS amount,\n  COALESCE(NULLIF(dc.level_1_category, 'Uncategorized'), 'Uncategorised') AS level_1_category,\n  ft.transaction_description,\n  ft.transaction_memo\nFROM reporting.fct_transactions_enhanced ft\nLEFT JOIN reporting.dim_categories_enhanced dc ON ft.category_key = dc.category_key\nLEFT JOIN reporting.dim_accounts_enhanced da ON ft.account_key = da.account_key\nWHERE ft.transaction_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '12 months'\n  AND ft.transaction_date < date_trunc('month', CURRENT_DATE)\n  AND ft.transaction_amount < 0\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\nORDER BY -ft.transaction_amount DESC\nLIMIT 25;",
           "refId": "A"
         }
-      ],
-      "title": "High Value Needs Review",
-      "type": "table"
+      ]
     },
     {
       "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 18
+      },
+      "id": 5,
+      "title": "Recurring Merchants (6 Months)",
+      "type": "table",
+      "pluginVersion": "10.0.0",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -598,18 +617,10 @@
           }
         ]
       },
-      "gridPos": {
-        "h": 10,
-        "w": 12,
-        "x": 12,
-        "y": 18
-      },
-      "id": 5,
       "options": {
         "cellHeight": "sm",
         "showHeader": true
       },
-      "pluginVersion": "10.0.0",
       "targets": [
         {
           "datasource": {
@@ -619,18 +630,26 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COALESCE(NULLIF(transaction_memo, ''), transaction_description) AS merchant,\n  COUNT(*) AS txn_count,\n  SUM(CASE WHEN transaction_amount < 0 THEN -transaction_amount ELSE 0 END) AS total_amount,\n  MIN(transaction_date)::date AS first_seen,\n  MAX(transaction_date)::date AS last_seen\nFROM reporting.fct_transactions_enhanced\nWHERE $__timeFilter(transaction_date)\n  AND transaction_amount < 0\n  AND NOT COALESCE(is_internal_transfer, FALSE)\nGROUP BY 1\nHAVING COUNT(*) >= 5\nORDER BY MAX(transaction_date) DESC\nLIMIT 25;",
+          "rawSql": "SELECT\n  COALESCE(NULLIF(transaction_memo, ''), transaction_description) AS merchant,\n  COUNT(*) AS txn_count,\n  SUM(CASE WHEN transaction_amount < 0 THEN -transaction_amount ELSE 0 END) AS total_amount,\n  MIN(transaction_date)::date AS first_seen,\n  MAX(transaction_date)::date AS last_seen\nFROM reporting.fct_transactions_enhanced\nWHERE transaction_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '6 months'\n  AND transaction_date < date_trunc('month', CURRENT_DATE)\n  AND transaction_amount < 0\n  AND NOT COALESCE(is_internal_transfer, FALSE)\nGROUP BY 1\nHAVING COUNT(*) >= 5\nORDER BY MAX(transaction_date) DESC\nLIMIT 25;",
           "refId": "A"
         }
-      ],
-      "title": "Recurring Merchants (6 Months)",
-      "type": "table"
+      ]
     },
     {
       "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "id": 6,
+      "title": "Transactions by Account",
+      "type": "table",
+      "pluginVersion": "10.0.0",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -706,18 +725,10 @@
           }
         ]
       },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 28
-      },
-      "id": 6,
       "options": {
         "cellHeight": "sm",
         "showHeader": true
       },
-      "pluginVersion": "10.0.0",
       "targets": [
         {
           "datasource": {
@@ -727,12 +738,10 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  da.account_name,\n  COUNT(*) AS txn_count,\n  SUM(ABS(ft.transaction_amount)) AS total_amount,\n  SUM(ft.transaction_amount) AS net_amount,\n  AVG(ABS(ft.transaction_amount)) AS average_amount\nFROM reporting.fct_transactions_enhanced ft\nLEFT JOIN reporting.dim_accounts_enhanced da ON ft.account_key = da.account_key\nWHERE $__timeFilter(ft.transaction_date)\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\nGROUP BY da.account_name\nORDER BY SUM(ABS(ft.transaction_amount)) DESC;",
+          "rawSql": "SELECT\n  da.account_name,\n  COUNT(*) AS txn_count,\n  SUM(ABS(ft.transaction_amount)) AS total_amount,\n  SUM(ft.transaction_amount) AS net_amount,\n  AVG(ABS(ft.transaction_amount)) AS average_amount\nFROM reporting.fct_transactions_enhanced ft\nLEFT JOIN reporting.dim_accounts_enhanced da ON ft.account_key = da.account_key\nWHERE ft.transaction_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '12 months'\n  AND ft.transaction_date < date_trunc('month', CURRENT_DATE)\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\nGROUP BY da.account_name\nORDER BY SUM(ABS(ft.transaction_amount)) DESC;",
           "refId": "A"
         }
-      ],
-      "title": "Transactions by Account",
-      "type": "table"
+      ]
     },
     {
       "datasource": {
@@ -781,10 +790,10 @@
         ]
       },
       "gridPos": {
-        "h": 6,
-        "w": 12,
         "x": 0,
-        "y": 36
+        "y": 36,
+        "w": 12,
+        "h": 6
       },
       "id": 907,
       "options": {
@@ -800,7 +809,59 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nperiod_bounds AS (\n  SELECT month_date,\n         month_date AS month_start,\n         (month_date + INTERVAL '1 month' - INTERVAL '1 day')::date AS month_end\n  FROM latest_period\n),\nstale_accounts AS (\n  SELECT COUNT(*) AS stale_accounts\n  FROM reporting.dim_accounts_enhanced\n  WHERE account_last_transaction_date < (SELECT month_end FROM period_bounds) - INTERVAL '45 days'\n),\ntransfer_pairs AS (\n  SELECT\n    transaction_date::date AS txn_date,\n    transaction_amount_abs AS amount_abs,\n    SUM(CASE WHEN transaction_amount < 0 THEN 1 ELSE 0 END) AS out_count,\n    SUM(CASE WHEN transaction_amount > 0 THEN 1 ELSE 0 END) AS in_count\n  FROM reporting.fct_transactions_enhanced\n  WHERE COALESCE(is_internal_transfer, FALSE)\n    AND transaction_date >= (SELECT month_start FROM period_bounds)\n    AND transaction_date <= (SELECT month_end FROM period_bounds)\n  GROUP BY 1,2\n),\nunmatched_transfers AS (\n  SELECT COALESCE(SUM(ABS(out_count - in_count)), 0) AS unmatched_count\n  FROM transfer_pairs\n),\nuncategorized AS (\n  SELECT uncategorized_pct\n  FROM reporting.rpt_outflows_insights_dashboard\n  WHERE period_date = (SELECT month_date FROM period_bounds)\n)\nSELECT 'Stale accounts (45d+ no activity)' AS metric,\n       COALESCE((SELECT stale_accounts FROM stale_accounts), 0)::text AS value,\n       'Accounts without recent transactions' AS detail\nUNION ALL\nSELECT 'Unmatched internal transfers',\n       COALESCE((SELECT unmatched_count FROM unmatched_transfers), 0)::text,\n       'Proxy count based on paired in/out amounts'\nUNION ALL\nSELECT 'Uncategorized spend %',\n       CONCAT(ROUND(COALESCE((SELECT uncategorized_pct FROM uncategorized), 0), 1), '%'),\n       'Share of outflows currently uncategorized';",
+          "rawSql": "WITH available_months AS (
+  SELECT budget_year_month,
+         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date
+  FROM reporting.rpt_monthly_budget_summary
+  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+),
+latest_period AS (
+  SELECT MAX(month_date) AS month_date
+  FROM available_months
+),
+period_bounds AS (
+  SELECT month_date,
+         month_date AS month_start,
+         (month_date + INTERVAL '1 month' - INTERVAL '1 day')::date AS month_end
+  FROM latest_period
+),
+stale_accounts AS (
+  SELECT COUNT(*) AS stale_accounts
+  FROM reporting.dim_accounts_enhanced
+  WHERE account_last_transaction_date < (SELECT month_end FROM period_bounds) - INTERVAL '45 days'
+),
+transfer_pairs AS (
+  SELECT
+    transaction_date::date AS txn_date,
+    transaction_amount_abs AS amount_abs,
+    SUM(CASE WHEN transaction_amount < 0 THEN 1 ELSE 0 END) AS out_count,
+    SUM(CASE WHEN transaction_amount > 0 THEN 1 ELSE 0 END) AS in_count
+  FROM reporting.fct_transactions_enhanced
+  WHERE COALESCE(is_internal_transfer, FALSE)
+    AND transaction_date >= (SELECT month_start FROM period_bounds)
+    AND transaction_date <= (SELECT month_end FROM period_bounds)
+  GROUP BY 1,2
+),
+unmatched_transfers AS (
+  SELECT COALESCE(SUM(ABS(out_count - in_count)), 0) AS unmatched_count
+  FROM transfer_pairs
+),
+uncategorized AS (
+  SELECT uncategorized_pct
+  FROM reporting.rpt_outflows_insights_dashboard
+  WHERE period_date = (SELECT month_date FROM period_bounds)
+)
+SELECT 'Stale accounts (45d+ no activity)' AS metric,
+       COALESCE((SELECT stale_accounts FROM stale_accounts), 0)::text AS value,
+       'Accounts without recent transactions' AS detail
+UNION ALL
+SELECT 'Unmatched internal transfers',
+       COALESCE((SELECT unmatched_count FROM unmatched_transfers), 0)::text,
+       'Proxy count based on paired in/out amounts'
+UNION ALL
+SELECT 'Uncategorized spend %',
+       CONCAT(ROUND(COALESCE((SELECT uncategorized_pct FROM uncategorized), 0), 1), '%'),
+       'Share of outflows currently uncategorized';",
           "refId": "A"
         }
       ],
@@ -847,10 +908,10 @@
         ]
       },
       "gridPos": {
-        "h": 6,
-        "w": 12,
         "x": 12,
-        "y": 36
+        "y": 36,
+        "w": 12,
+        "h": 6
       },
       "id": 908,
       "options": {
@@ -866,7 +927,27 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH filtered AS (\n  SELECT\n    SPLIT_PART(original_memo, ' - ', 1) AS merchant,\n    SUM(txn_count) AS txn_count,\n    SUM(total_amount) AS spend,\n    MAX(last_transaction_date) AS last_seen,\n    MAX(priority_level) AS priority_level\n  FROM reporting.viz_uncategorized_transactions_with_original_memo\n  WHERE $__timeFilter(last_transaction_date)\n  GROUP BY 1\n), all_time AS (\n  SELECT\n    SPLIT_PART(original_memo, ' - ', 1) AS merchant,\n    SUM(txn_count) AS txn_count_all_time,\n    SUM(total_amount) AS total_spend_all_time\n  FROM reporting.viz_uncategorized_transactions_with_original_memo\n  GROUP BY 1\n), data AS (\n  SELECT\n    f.merchant,\n    COALESCE(a.txn_count_all_time, 0) AS txn_count_all_time,\n    ROUND(f.spend, 2) AS spend,\n    ROUND(COALESCE(a.total_spend_all_time, 0), 2) AS total_spend,\n    f.last_seen,\n    f.priority_level\n  FROM filtered f\n  LEFT JOIN all_time a ON f.merchant = a.merchant\n  ORDER BY f.spend DESC, f.txn_count DESC\n  LIMIT 10\n)\nSELECT\n  merchant AS \"Merchant\",\n  txn_count_all_time AS \"Txn Count\",\n  spend AS \"Spend\",\n  total_spend AS \"Total Spend (All Time)\",\n  last_seen AS \"Last Seen\",\n  priority_level AS \"Priority\"\nFROM data\nUNION ALL\nSELECT 'None', 0, 0, 0, NULL::date, 'N/A'\nWHERE NOT EXISTS (SELECT 1 FROM data);",
+          "rawSql": "WITH data AS (
+  SELECT
+    original_memo AS merchant,
+    transaction_count AS txn_count,
+    ROUND(total_amount, 2) AS total_spend,
+    last_transaction_date AS last_seen,
+    priority_level
+  FROM reporting.viz_uncategorized_transactions_with_original_memo
+  ORDER BY total_amount DESC, transaction_count DESC
+  LIMIT 10
+)
+SELECT
+  merchant AS \"Merchant\",
+  txn_count AS \"Txn Count\",
+  total_spend AS \"Total Spend\",
+  last_seen AS \"Last Seen\",
+  priority_level AS \"Priority\"
+FROM data
+UNION ALL
+SELECT 'None', 0, 0, NULL::date, 'N/A'
+WHERE NOT EXISTS (SELECT 1 FROM data);",
           "refId": "A"
         }
       ],
@@ -878,7 +959,16 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Latest transaction month represented and reporting refresh timestamp.",
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 42
+      },
+      "id": 7,
+      "title": "Transaction Anomalies (Baseline Comparison)",
+      "type": "table",
+      "pluginVersion": "10.0.0",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -888,45 +978,87 @@
             "align": "auto",
             "cellOptions": {
               "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "amount_abs"
             },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
+            "properties": [
               {
-                "color": "green",
-                "value": null
+                "id": "unit",
+                "value": "currencyUSD"
               },
               {
-                "color": "red",
-                "value": 80
+                "id": "displayName",
+                "value": "Amount"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "merchant_12m_avg"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "displayName",
+                "value": "12m Avg"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "variance_from_avg_pct"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "displayName",
+                "value": "Variance %"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "transaction_date"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Date"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "anomaly_severity_label"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Severity"
               }
             ]
           }
-        },
-        "overrides": []
+        ]
       },
-      "gridPos": {
-        "h": 3,
-        "w": 24,
-        "x": 0,
-        "y": 42
-      },
-      "id": 909,
       "options": {
         "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true,
-        "sortBy": []
+        "showHeader": true
       },
       "targets": [
         {
@@ -937,17 +1069,149 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH base AS (\n  SELECT DATE_TRUNC('month', MAX(transaction_date)) AS data_through\n  FROM reporting.fct_transactions_enhanced\n), refresh AS (\n  SELECT MAX(report_generated_at) AS last_refresh\n  FROM reporting.rpt_monthly_budget_summary\n)\nSELECT\n  COALESCE(TO_CHAR((SELECT data_through FROM base), 'YYYY-MM'), 'N/A') AS \"Data Through\",\n  COALESCE(TO_CHAR((SELECT last_refresh FROM refresh), 'YYYY-MM-DD HH24:MI'), 'N/A') AS \"Last Refresh\"",
-          "refId": "A",
-          "sql": {
-            "columns": [],
-            "groupBy": [],
-            "limit": 50
-          }
+          "rawSql": "SELECT
+  transaction_date::date,
+  account_name,
+  merchant_name,
+  category_name,
+  amount_abs,
+  merchant_12m_avg,
+  variance_from_avg_pct,
+  merchant_12m_count,
+  anomaly_severity_label
+FROM viz.viz_transaction_anomalies
+WHERE transaction_date >= CURRENT_DATE - INTERVAL '3 months'
+ORDER BY variance_from_avg_pct DESC
+LIMIT 30;",
+          "refId": "A"
         }
-      ],
-      "title": "Data Freshness",
-      "type": "table"
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 52
+      },
+      "id": 8,
+      "title": "Transactions Needing Review",
+      "type": "table",
+      "pluginVersion": "10.0.0",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "amount_abs"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "displayName",
+                "value": "Amount"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "transaction_date"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Date"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "primary_review_reason"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Review Reason"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "priority_label"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Priority"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "level_1_category"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Category"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT
+  transaction_date::date,
+  account_name,
+  merchant_name,
+  amount_abs,
+  level_1_category,
+  primary_review_reason,
+  is_new_merchant,
+  merchant_12m_transaction_count,
+  priority_label,
+  queue_status
+FROM viz.viz_transactions_needs_review_queue
+WHERE queue_status IN ('RECENT', 'CURRENT_MONTH')
+ORDER BY review_priority ASC, amount_abs DESC
+LIMIT 40;",
+          "refId": "A"
+        }
+      ]
     }
   ],
   "refresh": "",
@@ -998,39 +1262,10 @@
     "from": "now-1y",
     "to": "now"
   },
-  "timepicker": {
-    "hidden": false,
-    "quick_ranges": [
-      {
-        "display": "Last complete month",
-        "from": "now-1M/M",
-        "to": "now/M"
-      },
-      {
-        "display": "Last quarter",
-        "from": "now-3M/M",
-        "to": "now/M"
-      },
-      {
-        "display": "Year to date",
-        "from": "now/y",
-        "to": "now"
-      },
-      {
-        "display": "Trailing 12 months",
-        "from": "now-12M/M",
-        "to": "now/M"
-      },
-      {
-        "display": "All time",
-        "from": "now-5y",
-        "to": "now"
-      }
-    ]
-  },
+  "timepicker": {},
   "timezone": "",
-  "title": "09 - Transaction Analysis",
+  "title": "Transaction Analysis",
   "uid": "transaction_analysis_dashboard",
-  "version": 16,
+  "version": 1,
   "weekStart": ""
 }

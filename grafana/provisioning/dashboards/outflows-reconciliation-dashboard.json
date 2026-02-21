@@ -19,7 +19,26 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 01 - Executive Financial Overview",
+      "type": "link",
+      "url": "/d/executive_dashboard?orgId=1&${__url_time_range}&var-time_window=${time_window}"
+    },
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 09 - Transaction Analysis",
+      "type": "link",
+      "url": "/d/transaction_analysis_dashboard?orgId=1&${__url_time_range}&var-time_window=${time_window}"
+    }
+  ],
   "liveNow": false,
   "panels": [
     {
