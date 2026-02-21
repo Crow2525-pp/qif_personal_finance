@@ -222,6 +222,9 @@ cash_flow_analysis AS (
 final_insights AS (
   SELECT 
     *,
+    -- Explicit aliases for dashboard consumers that require non-transfer cash flow fields
+    COALESCE(total_inflows, 0) AS inflow_excl_transfers,
+    COALESCE(total_outflows, 0) AS outflow_excl_transfers,
     -- Ranked status (1 worst .. 5 best)
     CASE 
       WHEN cash_flow_status = 'Negative' AND cash_flow_trend = 'Declining' THEN 1

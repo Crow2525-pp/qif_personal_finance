@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udcca Savings & Performance\n\nTrack savings rates, efficiency metrics, and financial performance with mobile-optimized layouts.",
+        "content": "# 📊 Savings & Performance\n\nTrack savings rates, efficiency metrics, and financial performance with mobile-optimized layouts.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -61,15 +61,17 @@
               },
               {
                 "color": "yellow",
-                "value": 60
+                "value": 50
               },
               {
                 "color": "green",
-                "value": 80
+                "value": 75
               }
             ]
           },
-          "unit": "percent"
+          "unit": "short",
+          "min": 0,
+          "max": 100
         },
         "overrides": []
       },
@@ -102,7 +104,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    savings_health_score as \"Savings Health Score\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis);",
+          "rawSql": "SELECT \n    savings_health_score as \"Savings Health Score\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -169,7 +171,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    'Current Month' as \"Period\",\n    total_savings_rate_percent as \"Savings Rate\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis)\nUNION ALL\nSELECT \n    '3-Month Avg' as \"Period\",\n    rolling_3m_avg_savings_rate as \"Savings Rate\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis)\nUNION ALL\nSELECT \n    'YTD Average' as \"Period\",\n    ytd_savings_rate_percent as \"Savings Rate\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis);",
+          "rawSql": "SELECT \n    'Current Month' as \"Period\",\n    total_savings_rate_percent as \"Savings Rate\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'))\nUNION ALL\nSELECT \n    '3-Month Avg' as \"Period\",\n    rolling_3m_avg_savings_rate as \"Savings Rate\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'))\nUNION ALL\nSELECT \n    'YTD Average' as \"Period\",\n    ytd_savings_rate_percent as \"Savings Rate\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -258,7 +260,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    total_savings_rate_percent as \"Current Month Rate\",\n    rolling_3m_avg_savings_rate as \"3-Month Average\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month >= TO_CHAR(CURRENT_DATE - INTERVAL '18 months', 'YYYY-MM')\nORDER BY budget_year_month;",
+          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    total_savings_rate_percent as \"Current Month Rate\",\n    rolling_3m_avg_savings_rate as \"3-Month Average\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month >= TO_CHAR($__timeTo()::date - INTERVAL '18 months', 'YYYY-MM')\n  AND budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY budget_year_month;",
           "refId": "A"
         }
       ],
@@ -328,7 +330,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    expense_ratio_percent as \"Current Expense Ratio\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis);",
+          "rawSql": "SELECT \n    expense_ratio_percent as \"Current Expense Ratio\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -356,7 +358,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -391,7 +393,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    ytd_total_savings as \"YTD Total Savings\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis);",
+          "rawSql": "SELECT \n    ytd_total_savings as \"YTD Total Savings\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -419,7 +421,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -454,7 +456,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    estimated_annual_liquid_savings as \"Projected Annual Savings\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis);",
+          "rawSql": "SELECT \n    estimated_annual_liquid_savings as \"Projected Annual Savings\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -483,7 +485,7 @@
             "value"
           ],
           "mappings": [],
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -614,7 +616,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    expense_ratio_percent as \"Expense Ratio\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month >= TO_CHAR(CURRENT_DATE - INTERVAL '12 months', 'YYYY-MM')\nORDER BY budget_year_month;",
+          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    expense_ratio_percent as \"Expense Ratio\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month >= TO_CHAR($__timeTo()::date - INTERVAL '12 months', 'YYYY-MM')\n  AND budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY budget_year_month;",
           "refId": "A"
         }
       ],
@@ -648,7 +650,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -720,7 +722,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    'Total Expenses' as \"Performance Metric\",\n    total_expenses as \"Current Month\",\n    (prev_month_income - prev_month_total_savings) as \"Previous Month\",\n    CASE \n        WHEN (prev_month_income - prev_month_total_savings) > 0 THEN \n            (total_expenses - (prev_month_income - prev_month_total_savings)) / (prev_month_income - prev_month_total_savings)\n        ELSE NULL\n    END as \"Change %\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis)\nUNION ALL\nSELECT \n    'Savings Rate',\n    total_savings_rate_percent,\n    COALESCE(prev_month_savings_rate, 0),\n    CASE \n        WHEN prev_month_savings_rate != 0 THEN \n            mom_savings_rate_change\n        ELSE NULL\n    END\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis);",
+          "rawSql": "SELECT \n    'Total Expenses' as \"Performance Metric\",\n    total_expenses as \"Current Month\",\n    (prev_month_income - prev_month_total_savings) as \"Previous Month\",\n    CASE \n        WHEN (prev_month_income - prev_month_total_savings) > 0 THEN \n            (total_expenses - (prev_month_income - prev_month_total_savings)) / (prev_month_income - prev_month_total_savings)\n        ELSE NULL\n    END as \"Change %\"\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'))\nUNION ALL\nSELECT \n    'Savings Rate',\n    total_savings_rate_percent,\n    COALESCE(prev_month_savings_rate, 0),\n    CASE \n        WHEN prev_month_savings_rate != 0 THEN \n            mom_savings_rate_change\n        ELSE NULL\n    END\nFROM reporting.rpt_savings_analysis\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -791,7 +793,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT progress_to_20_percent_goal\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT progress_to_20_percent_goal\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -862,7 +864,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT progress_to_fire_goal\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT progress_to_fire_goal\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -885,7 +887,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "\ud83d\udcca Savings & Performance",
+  "title": "📊 Savings & Performance",
   "uid": "savings-performance-mobile",
   "version": 1,
   "weekStart": ""

@@ -2,6 +2,81 @@
 
 Utility scripts for managing the personal finance pipeline.
 
+## check_grafana_dashboards.py
+
+Validates Grafana dashboards for data issues and common configuration mistakes.
+Two modes are supported:
+
+### Live mode (default)
+
+Connects to Grafana, executes every SQL query in each dashboard, and reports
+panels that return no data or HTTP errors.
+
+```bash
+# Basic usage — all dashboards, last 365 days
+GRAFANA_URL=http://localhost:3001 \
+GRAFANA_USER=admin \
+GRAFANA_PASSWORD=testadmin \
+python scripts/check_grafana_dashboards.py
+
+# Use an API token instead of user/password
+GRAFANA_TOKEN=glsa_... python scripts/check_grafana_dashboards.py
+
+# Narrow to specific dashboards and time range
+python scripts/check_grafana_dashboards.py \
+  --dashboard "Executive Financial Overview" --days 90
+
+# Machine-readable JSON summary (exit 0 = all panels have data)
+python scripts/check_grafana_dashboards.py --json
+```
+
+Exit codes: `0` all panels returned data, `1` one or more panels failed.
+
+### Static lint mode (`--lint-only`)
+
+Scans the dashboard JSON files on disk without a Grafana connection.
+Intended for pre-commit hooks and CI gates.
+
+```bash
+python scripts/check_grafana_dashboards.py --lint-only
+
+# Machine-readable JSON output for CI
+python scripts/check_grafana_dashboards.py --lint-only --json
+```
+
+Exit codes: `0` all files parsed and linted cleanly (warnings only),
+`1` at least one file has a JSON parse error.
+
+### Static lint rules
+
+| Rule | Description |
+|------|-------------|
+| `currency-unit` | `fieldConfig` unit set to `currencyAUD`, `currencyUSD`, `currencyGBP`, or `currencyEUR`. These are broken in Grafana 12 — use `short` instead. Checked in `defaults` and all `overrides`. |
+| `current-date-timepicker` | A `stat`, `gauge`, `table`, `bargauge`, or other non-timeseries panel whose SQL contains `CURRENT_DATE` or `NOW()`. The panel ignores the dashboard time picker, which means the data is always anchored to wall-clock time. |
+| `percentunit-missing-bounds` | `fieldConfig.defaults.unit` is `percentunit` but `min` or `max` are absent. Without bounds, Grafana cannot render a meaningful gauge range and negative values (e.g. negative savings rates) display incorrectly. |
+| `parse-error` | Dashboard JSON file is not valid JSON (treated as a hard error). |
+
+### Layout lint (included in both modes when Grafana is available)
+
+Heuristic checks for titles that likely overflow their panel width and for
+text panels whose content likely overflows their panel height.
+
+### CI usage example
+
+```yaml
+# GitHub Actions excerpt
+- name: Lint dashboard JSON
+  run: python scripts/check_grafana_dashboards.py --lint-only --json | tee dashboard-lint.json
+  # Exit 1 only on parse errors; warnings are non-blocking in lint-only mode
+```
+
+```bash
+# Pre-commit hook (add to .git/hooks/pre-commit)
+python scripts/check_grafana_dashboards.py --lint-only || exit 1
+```
+
+---
+
 ## categorize_transactions.py
 
 Interactive tool for categorizing uncategorized transactions. It prioritizes transactions by impact (total spend × count) so you can categorize the most transactions with the fewest questions.
