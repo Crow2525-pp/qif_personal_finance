@@ -137,6 +137,52 @@ seeds:
       - name: notes
         description: Freeform notes about the asset
 
+  - name: recommendation_outcomes
+    description: Manually curated list of financial recommendations and their outcomes for accountability tracking.
+    docs:
+      show: true
+      node_color: "#8b5cf6"
+    config:
+      column_types:
+        recommendation_date: date
+        recommendation_text: text
+        category: text
+        target_metric: text
+        target_value: numeric
+        actual_value: numeric
+        outcome_date: date
+        status: text
+        notes: text
+    columns:
+      - name: recommendation_date
+        description: Date the recommendation was made.
+        tests:
+          - not_null
+      - name: recommendation_text
+        description: Text description of the recommendation.
+        tests:
+          - not_null
+      - name: category
+        description: Spending or savings category the recommendation targets.
+        tests:
+          - not_null
+      - name: target_metric
+        description: The financial metric being targeted.
+      - name: target_value
+        description: The numeric target value.
+      - name: actual_value
+        description: Actual value achieved (NULL if pending or in_progress).
+      - name: outcome_date
+        description: Date outcome was assessed (NULL if pending).
+      - name: status
+        description: "Outcome status: achieved, in_progress, pending, or abandoned."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['achieved', 'in_progress', 'pending', 'abandoned']
+      - name: notes
+        description: Freeform notes on the outcome.
+
   - name: property_valuation_overrides
     description: Optional overrides for property market values by date; latest on/after month is used.
     docs:

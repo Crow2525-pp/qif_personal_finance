@@ -806,3 +806,65 @@ models:
         data_type: text
         tests:
           - not_null
+
+  - name: rpt_recommendation_outcomes
+    description: "Tracks recommendation outcomes for accountability. Reads from the recommendation_outcomes seed and adds computed columns for impact analysis."
+    columns:
+      - name: recommendation_date
+        description: "Date the recommendation was made"
+        data_type: date
+        tests:
+          - not_null
+
+      - name: recommendation_text
+        description: "Description of the recommendation"
+        data_type: text
+        tests:
+          - not_null
+
+      - name: category
+        description: "Spending or savings category the recommendation targets"
+        data_type: text
+        tests:
+          - not_null
+
+      - name: target_metric
+        description: "The financial metric being targeted (e.g. monthly_spend, emergency_fund_months)"
+        data_type: text
+
+      - name: target_value
+        description: "The numeric target value for the recommendation"
+        data_type: numeric
+
+      - name: actual_value
+        description: "The actual value achieved at outcome date (NULL if still in progress or pending)"
+        data_type: numeric
+
+      - name: outcome_date
+        description: "Date the outcome was assessed (NULL if pending)"
+        data_type: date
+
+      - name: status
+        description: "Outcome status: achieved, in_progress, pending, or abandoned"
+        data_type: text
+        tests:
+          - accepted_values:
+              values: ['achieved', 'in_progress', 'pending', 'abandoned']
+
+      - name: notes
+        description: "Freeform notes on the outcome or reasoning"
+        data_type: text
+
+      - name: is_achieved
+        description: "Boolean flag: TRUE if status = achieved"
+        data_type: boolean
+        tests:
+          - not_null
+
+      - name: variance
+        description: "Actual minus target value (positive = beat target, negative = missed). NULL when actual_value is not yet recorded."
+        data_type: numeric
+
+      - name: days_to_outcome
+        description: "Number of days from recommendation_date to outcome_date. NULL if not yet resolved."
+        data_type: integer
