@@ -1,0 +1,67 @@
+version: 2
+
+models:
+  - name: viz_mortgage_payoff_monthly
+    description: >
+      Monthly mortgage and offset account balances derived from Bendigo landing
+      transactions. One row per calendar month. Used as the base for the
+      mortgage payoff summary and sensitivity views.
+    columns:
+      - name: month_start
+        description: First day of the calendar month.
+      - name: mortgage_balance
+        description: Absolute (positive) running balance of the home loan.
+      - name: offset_balance
+        description: Running balance of the offset account.
+      - name: net_mortgage_exposure
+        description: Mortgage balance minus offset balance (mortgage net of offset).
+      - name: homeloan_latest_date
+        description: Date of the most recent homeloan transaction in the landing layer.
+      - name: offset_latest_date
+        description: Date of the most recent offset transaction in the landing layer.
+      - name: data_note
+        description: Human-readable note about data completeness for the latest month.
+      - name: report_generated_at
+        description: Timestamp the view was queried (AEST/AEDT).
+
+  - name: viz_mortgage_payoff_summary
+    description: >
+      Single-row summary of the current mortgage position and payoff projection.
+      Calculates average monthly principal reduction from the last 12 months and
+      projects years to payoff and estimated payoff year.
+    columns:
+      - name: data_through_month
+        description: Month (first day) that the summary reflects.
+      - name: current_mortgage_balance
+        description: Latest mortgage balance (positive).
+      - name: current_offset_balance
+        description: Latest offset account balance.
+      - name: net_mortgage_exposure
+        description: Net mortgage exposure (mortgage minus offset).
+      - name: avg_monthly_principal_reduction
+        description: Average monthly principal reduction over the last 12 months.
+      - name: years_to_payoff
+        description: Projected years until mortgage is fully repaid at current rate.
+      - name: estimated_payoff_year
+        description: Calendar year the mortgage is projected to be repaid.
+      - name: data_note
+        description: Human-readable note about data completeness.
+      - name: homeloan_latest_date
+        description: Date of the most recent homeloan transaction.
+      - name: offset_latest_date
+        description: Date of the most recent offset transaction.
+      - name: report_generated_at
+        description: Timestamp the view was queried (AEST/AEDT).
+
+  - name: viz_mortgage_payoff_sensitivity
+    description: >
+      Payoff sensitivity analysis showing years to payoff for five extra-payment
+      scenarios (0, 100, 250, 500, 1000 per month). Feeds the bar chart panel
+      in the Mortgage Payoff dashboard.
+    columns:
+      - name: sort_order
+        description: Numeric extra payment amount used for ordering.
+      - name: extra_payment_label
+        description: Formatted label for the extra payment (e.g. "$0", "$500").
+      - name: years_to_payoff
+        description: Projected years to payoff under this extra-payment scenario.
