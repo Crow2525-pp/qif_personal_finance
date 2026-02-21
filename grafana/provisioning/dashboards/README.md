@@ -76,9 +76,12 @@ Dashboards in the main analysis family share the following template variables so
 
 | Source dashboard | Destination dashboard | Variables passed |
 |---|---|---|
-| `executive-dashboard` | `savings_analysis`, `household_net_worth`, `account_performance_dashboard`, `expense_performance`, `cash_flow_analysis`, `monthly_budget_summary`, `outflows_reconciliation`, `transaction_analysis_dashboard` | `${__url_time_range}`, `time_window`, `dashboard_period` (where applicable) |
-| `cash-flow-analysis-dashboard` | `outflows_reconciliation` | `${__url_time_range}`, `time_window` |
+| `executive-dashboard` | `cash_flow_analysis`, `savings_analysis`, `category-spending-v2`, `transaction_analysis_dashboard`, `outflows_reconciliation` | `${__url_time_range}`, `time_window` |
+| `cash-flow-analysis-dashboard` | `executive_dashboard`, `category-spending-v2`, `transaction_analysis_dashboard`, `outflows_reconciliation` | `${__url_time_range}`, `time_window` |
+| `savings-analysis-dashboard` | `executive_dashboard`, `household_net_worth`, `category-spending-v2` | `${__url_time_range}`, `time_window` |
+| `outflows-reconciliation-dashboard` | `executive_dashboard`, `transaction_analysis_dashboard` | `${__url_time_range}`, `time_window` |
 | `outflows-insights-dashboard` | `outflows_reconciliation` | `${__url_time_range}` |
-| `transaction-analysis-dashboard` | `outflows_reconciliation` | `${__url_time_range}` |
+| `transaction-analysis-dashboard` | `executive_dashboard`, `category-spending-v2`, `outflows_insights`, `outflows_reconciliation` | `${__url_time_range}`, `time_window` |
+| `category-spending-dashboard` | `transaction_analysis_dashboard` | `${__url_time_range}`, `time_window` |
 
 When adding a new cross-dashboard link, always include `?orgId=1&${__url_time_range}` as a minimum. If the destination dashboard declares `time_window` or `dashboard_period` variables, pass them via `&var-time_window=${time_window}` and `&var-dashboard_period=${dashboard_period}` respectively.

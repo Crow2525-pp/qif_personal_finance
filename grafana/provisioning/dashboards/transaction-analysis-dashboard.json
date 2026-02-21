@@ -19,7 +19,44 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 01 - Executive Financial Overview",
+      "type": "link",
+      "url": "/d/executive_dashboard?orgId=1&${__url_time_range}&var-time_window=${time_window}"
+    },
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 06 - Category Spending Analysis",
+      "type": "link",
+      "url": "/d/category-spending-v2?orgId=1&${__url_time_range}"
+    },
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 08 - Outflows Insights",
+      "type": "link",
+      "url": "/d/outflows_insights?orgId=1&${__url_time_range}"
+    },
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 10 - Financial Reconciliation",
+      "type": "link",
+      "url": "/d/outflows_reconciliation?orgId=1&${__url_time_range}&var-time_window=${time_window}"
+    }
+  ],
   "liveNow": false,
   "panels": [
     {
@@ -710,10 +747,6 @@
       "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
       },
       "description": "Quick view of data-quality blockers for the latest complete month.",
       "fieldConfig": {
@@ -1179,7 +1212,6 @@ LIMIT 40;",
           "refId": "A"
         }
       ]
-    }
     }
   ],
   "refresh": "",

@@ -19,7 +19,35 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 01 - Executive Financial Overview",
+      "type": "link",
+      "url": "/d/executive_dashboard?orgId=1&${__url_time_range}&var-time_window=${time_window}"
+    },
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 04 - Household Net Worth Analysis",
+      "type": "link",
+      "url": "/d/household_net_worth?orgId=1&${__url_time_range}&var-time_window=${time_window}"
+    },
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 06 - Category Spending Analysis",
+      "type": "link",
+      "url": "/d/category-spending-v2?orgId=1&${__url_time_range}"
+    }
+  ],
   "liveNow": false,
   "panels": [
     {
