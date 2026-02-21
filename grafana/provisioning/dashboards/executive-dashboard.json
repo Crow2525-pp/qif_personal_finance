@@ -19,7 +19,53 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 02 - Cash Flow Analysis",
+      "type": "link",
+      "url": "/d/cash_flow_analysis?orgId=1&${__url_time_range}&var-time_window=${time_window}"
+    },
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 05 - Savings Analysis",
+      "type": "link",
+      "url": "/d/savings_analysis?orgId=1&${__url_time_range}&var-time_window=${time_window}"
+    },
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 06 - Category Spending Analysis",
+      "type": "link",
+      "url": "/d/category-spending-v2?orgId=1&${__url_time_range}"
+    },
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 09 - Transaction Analysis",
+      "type": "link",
+      "url": "/d/transaction_analysis_dashboard?orgId=1&${__url_time_range}&var-time_window=${time_window}"
+    },
+    {
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "title": "View in 10 - Financial Reconciliation",
+      "type": "link",
+      "url": "/d/outflows_reconciliation?orgId=1&${__url_time_range}&var-time_window=${time_window}"
+    }
+  ],
   "liveNow": false,
   "panels": [
     {
@@ -2748,6 +2794,24 @@
       ],
       "title": "Recommendation Tracker",
       "type": "table"
+    },
+    {
+      "id": 1005,
+      "type": "text",
+      "title": "KPI Definitions",
+      "description": "Formula lineage quick reference for headline metrics. See KPI_DICTIONARY.md for full definitions and source lineage.",
+      "gridPos": {
+        "x": 0,
+        "y": 71,
+        "w": 24,
+        "h": 8
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "## KPI Definitions - Quick Reference\n\n- Net Cash Flow = total_inflow - total_outflow for the selected month.\n- Savings Rate = net_cash_flow / total_income (stored as ratio, formatted as percent).\n- Expense Ratio = total_outflow / total_income (stored as ratio, formatted as percent).\n- Emergency Fund Coverage (months) = liquid_assets / avg_monthly_essential_expenses.\n- Financial Health Score = weighted composite of savings, net worth, and cash flow dimensions.\n- Net Worth = total_assets - total_liabilities at month end.\n\nFull formulas, model lineage, and edge-case notes: `grafana/provisioning/dashboards/KPI_DICTIONARY.md`."
+      },
+      "transparent": false,
+      "datasource": null
     }
   ],
   "refresh": "",
