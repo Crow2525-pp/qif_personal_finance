@@ -142,10 +142,34 @@ SELECT
   TO_CHAR(expense_ratio_percent * 100, 'FM990.0') || '%' AS expense_ratio_formatted,
 
   -- Percentage rates for Grafana (0-100 scale for 'percent' unit)
-  ROUND(CASE WHEN total_income > 0 THEN (net_cash_flow / total_income) * 100 ELSE 0 END, 1) AS savings_rate_pct,
-  ROUND(CASE WHEN total_income > 0 THEN (rolling_3m_avg_net_cash_flow / rolling_3m_avg_income) * 100 ELSE 0 END, 1) AS savings_rate_3m_pct,
-  ROUND(ytd_net_cash_flow / NULLIF(ytd_income, 0) * 100, 1) AS savings_rate_ytd_pct,
-  ROUND(expense_ratio_percent * 100, 1) AS expense_ratio_pct,
+  ROUND(
+    CASE
+      WHEN COALESCE(total_income, 0) = 0 THEN 0
+      ELSE (net_cash_flow / NULLIF(total_income, 0)) * 100
+    END,
+    1
+  ) AS savings_rate_pct,
+  ROUND(
+    CASE
+      WHEN COALESCE(rolling_3m_avg_income, 0) = 0 THEN 0
+      ELSE (rolling_3m_avg_net_cash_flow / NULLIF(rolling_3m_avg_income, 0)) * 100
+    END,
+    1
+  ) AS savings_rate_3m_pct,
+  ROUND(
+    CASE
+      WHEN COALESCE(ytd_income, 0) = 0 THEN 0
+      ELSE (ytd_net_cash_flow / NULLIF(ytd_income, 0)) * 100
+    END,
+    1
+  ) AS savings_rate_ytd_pct,
+  ROUND(
+    CASE
+      WHEN COALESCE(total_income, 0) = 0 THEN 0
+      ELSE (total_expenses / NULLIF(total_income, 0)) * 100
+    END,
+    1
+  ) AS expense_ratio_pct,
   
   -- Transaction counts (formatted with commas)
   TO_CHAR(total_transactions, 'FM999,999,999') AS total_transactions_formatted,
