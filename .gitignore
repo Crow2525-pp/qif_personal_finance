@@ -35,3 +35,20 @@ schedules.db
 !pipeline_personal_finance/dbt_finance/seeds/property_valuation_overrides.csv
 !pipeline_personal_finance/dbt_finance/seeds/mortgage_patch_data.csv
 !pipeline_personal_finance/dbt_finance/seeds/recommendation_outcomes.csv
+
+# Local development artifacts (not source of truth)
+node_modules/
+test-results/
+playwright-report/
+scripts/tmp_*.spec.js
+NUL
+
+# Generated local screenshots/debug captures
+screenshots/*.png
+screenshots/**/*.png
+screenshots/*.jpg
+screenshots/**/*.jpg
+screenshots/*.jpeg
+screenshots/**/*.jpeg
+screenshots/*.json
+screenshots/**/*.json
