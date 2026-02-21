@@ -63,7 +63,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udc8e Savings Analysis Dashboard - Wealth Building Progress\n\n**What This Dashboard Shows:** Net cash savings vs. contribution-driven savings, with trend and goal tracking.\n\n**Key Metrics**\n\u2022 **Savings Health Score (1-100):** Assess net cash flow vs. contribution consistency.\n\u2022 **Net vs Traditional Savings Rate:** Net cash retained after expenses vs. targeted contributions (cash/invest).\n\u2022 **Contribution Mix:** Track cash savings, offset top-ups, and investment contributions separately.\n\u2022 **Rolling Averages:** Smooth the net rate to spot sustained improvement.\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- YTD panels reflect year-to-date totals.\n- Trend charts cover the trailing 12 months.\n- Rolling averages use the last 3 complete months.\n\n**How to Use:** Net savings shows what actually stayed in your accounts. Traditional savings highlights how much you purposely set aside (cash/invest). Align both with your goals.",
+        "content": "# 💎 Savings Analysis Dashboard - Wealth Building Progress\n\n**What This Dashboard Shows:** Net cash savings vs. contribution-driven savings, with trend and goal tracking.\n\n**Key Metrics**\n• **Savings Health Score (1-100):** Assess net cash flow vs. contribution consistency.\n• **Net vs Traditional Savings Rate:** Net cash retained after expenses vs. targeted contributions (cash/invest).\n• **Contribution Mix:** Track cash savings, offset top-ups, and investment contributions separately.\n• **Rolling Averages:** Smooth the net rate to spot sustained improvement.\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- YTD panels reflect year-to-date totals.\n- Trend charts cover the trailing 12 months.\n- Rolling averages use the last 3 complete months.\n\n**How to Use:** Net savings shows what actually stayed in your accounts. Traditional savings highlights how much you purposely set aside (cash/invest). Align both with your goals.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -340,7 +340,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Monthly savings rate trends.\n\u2022 Total Savings Rate = (Cash + Offset + Investments + Mortgage Principal) / Income.\n\u2022 Traditional Savings Rate = (Cash + Offset + Investments) / Income (excludes mortgage principal as forced savings).\n\u2022 3\u2011Month Average smooths the Total rate to reduce volatility.",
+      "description": "Monthly savings rate trends.\n• Total Savings Rate = (Cash + Offset + Investments + Mortgage Principal) / Income.\n• Traditional Savings Rate = (Cash + Offset + Investments) / Income (excludes mortgage principal as forced savings).\n• 3‑Month Average smooths the Total rate to reduce volatility.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1709,6 +1709,29 @@
       ],
       "title": "Action Priorities This Month",
       "type": "table"
+    },
+    {
+      "id": 102,
+      "type": "text",
+      "title": "KPI Definitions - Savings Metrics",
+      "description": "Formula lineage for the savings KPIs on this dashboard. Full detail is in KPI_DICTIONARY.md.",
+      "gridPos": {
+        "x": 0,
+        "y": 54,
+        "w": 24,
+        "h": 8
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "## Savings KPI Definitions\n\nFull lineage: `grafana/provisioning/dashboards/KPI_DICTIONARY.md`.\n\n---\n\n### Total Savings Rate (Cash Flow Basis)\n**Formula:** `net_cash_flow / total_income` (0-1 ratio)\n**Source:** `reporting.rpt_monthly_budget_summary.savings_rate_percent`\n**Sign:** Positive = saving. Negative = spending more than earned.\n\n---\n\n### Traditional Savings Rate\n**Formula:** `(offset_savings + cash_savings + investment_contributions) / total_income` (0-1 ratio)\n**Source:** `reporting.rpt_savings_analysis.traditional_savings_rate_percent`\nCounts only money explicitly directed to savings vehicles.\n\n---\n\n### Savings Health Score (0-100)\n**Formula:** Tiered score from total savings rate, plus improvement and consistency bonuses\n**Source:** `reporting.rpt_savings_analysis.savings_health_score`\n\n---\n\n### 3-Month Rolling Average Savings Rate\n**Formula:** Rolling 3-month average of total savings rate\n**Source:** `reporting.rpt_savings_analysis.rolling_3m_avg_savings_rate`\n\n---\n\n### Progress to 20% Goal\n**Formula:** `total_savings_rate_percent / 0.20` (capped at 1.0)\n**Source:** `reporting.rpt_savings_analysis.progress_to_20_percent_goal`",
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        }
+      },
+      "transparent": false,
+      "datasource": null
     }
   ],
   "refresh": "",
@@ -1784,6 +1807,6 @@
   "timezone": "",
   "title": "Savings Analysis",
   "uid": "savings_analysis",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

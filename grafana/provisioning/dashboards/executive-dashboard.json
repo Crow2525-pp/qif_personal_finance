@@ -2794,6 +2794,24 @@
       ],
       "title": "Recommendation Tracker",
       "type": "table"
+    },
+    {
+      "id": 1005,
+      "type": "text",
+      "title": "KPI Definitions",
+      "description": "Formula lineage quick reference for headline metrics. See KPI_DICTIONARY.md for full definitions and source lineage.",
+      "gridPos": {
+        "x": 0,
+        "y": 71,
+        "w": 24,
+        "h": 8
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "## KPI Definitions - Quick Reference\n\n- Net Cash Flow = total_inflow - total_outflow for the selected month.\n- Savings Rate = net_cash_flow / total_income (stored as ratio, formatted as percent).\n- Expense Ratio = total_outflow / total_income (stored as ratio, formatted as percent).\n- Emergency Fund Coverage (months) = liquid_assets / avg_monthly_essential_expenses.\n- Financial Health Score = weighted composite of savings, net worth, and cash flow dimensions.\n- Net Worth = total_assets - total_liabilities at month end.\n\nFull formulas, model lineage, and edge-case notes: `grafana/provisioning/dashboards/KPI_DICTIONARY.md`."
+      },
+      "transparent": false,
+      "datasource": null
     }
   ],
   "refresh": "",
