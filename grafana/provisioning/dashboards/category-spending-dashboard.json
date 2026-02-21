@@ -19,7 +19,17 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "title": "View in 09 - Transaction Analysis",
+      "url": "/d/transaction_analysis_dashboard",
+      "type": "link",
+      "keepTime": true,
+      "includeVars": false,
+      "icon": "external link",
+      "targetBlank": false
+    }
+  ],
   "liveNow": false,
   "panels": [
     {
@@ -979,6 +989,6 @@
   "timezone": "",
   "title": "Category Spending Analysis",
   "uid": "category-spending-v2",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

@@ -19,7 +19,35 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "title": "View in 01 - Executive Financial Overview",
+      "url": "/d/executive_dashboard",
+      "type": "link",
+      "keepTime": true,
+      "includeVars": false,
+      "icon": "external link",
+      "targetBlank": false
+    },
+    {
+      "title": "View in 04 - Household Net Worth Analysis",
+      "url": "/d/household_net_worth",
+      "type": "link",
+      "keepTime": true,
+      "includeVars": false,
+      "icon": "external link",
+      "targetBlank": false
+    },
+    {
+      "title": "View in 06 - Category Spending Analysis",
+      "url": "/d/category-spending-v2",
+      "type": "link",
+      "keepTime": true,
+      "includeVars": false,
+      "icon": "external link",
+      "targetBlank": false
+    }
+  ],
   "liveNow": false,
   "panels": [
     {
@@ -35,7 +63,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udc8e Savings Analysis Dashboard - Wealth Building Progress\n\n**What This Dashboard Shows:** Net cash savings vs. contribution-driven savings, with trend and goal tracking.\n\n**Key Metrics**\n\u2022 **Savings Health Score (1-100):** Assess net cash flow vs. contribution consistency.\n\u2022 **Net vs Traditional Savings Rate:** Net cash retained after expenses vs. targeted contributions (cash/invest).\n\u2022 **Contribution Mix:** Track cash savings, offset top-ups, and investment contributions separately.\n\u2022 **Rolling Averages:** Smooth the net rate to spot sustained improvement.\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- YTD panels reflect year-to-date totals.\n- Trend charts cover the trailing 12 months.\n- Rolling averages use the last 3 complete months.\n\n**How to Use:** Net savings shows what actually stayed in your accounts. Traditional savings highlights how much you purposely set aside (cash/invest). Align both with your goals.",
+        "content": "# 💎 Savings Analysis Dashboard - Wealth Building Progress\n\n**What This Dashboard Shows:** Net cash savings vs. contribution-driven savings, with trend and goal tracking.\n\n**Key Metrics**\n• **Savings Health Score (1-100):** Assess net cash flow vs. contribution consistency.\n• **Net vs Traditional Savings Rate:** Net cash retained after expenses vs. targeted contributions (cash/invest).\n• **Contribution Mix:** Track cash savings, offset top-ups, and investment contributions separately.\n• **Rolling Averages:** Smooth the net rate to spot sustained improvement.\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- YTD panels reflect year-to-date totals.\n- Trend charts cover the trailing 12 months.\n- Rolling averages use the last 3 complete months.\n\n**How to Use:** Net savings shows what actually stayed in your accounts. Traditional savings highlights how much you purposely set aside (cash/invest). Align both with your goals.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -312,7 +340,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Monthly savings rate trends.\n\u2022 Total Savings Rate = (Cash + Offset + Investments + Mortgage Principal) / Income.\n\u2022 Traditional Savings Rate = (Cash + Offset + Investments) / Income (excludes mortgage principal as forced savings).\n\u2022 3\u2011Month Average smooths the Total rate to reduce volatility.",
+      "description": "Monthly savings rate trends.\n• Total Savings Rate = (Cash + Offset + Investments + Mortgage Principal) / Income.\n• Traditional Savings Rate = (Cash + Offset + Investments) / Income (excludes mortgage principal as forced savings).\n• 3‑Month Average smooths the Total rate to reduce volatility.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1756,6 +1784,6 @@
   "timezone": "",
   "title": "Savings Analysis",
   "uid": "savings_analysis",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
