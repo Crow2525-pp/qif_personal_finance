@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udcca Savings & Performance\n\nTrack savings rates, efficiency metrics, and financial performance with mobile-optimized layouts.",
+        "content": "# 📊 Savings & Performance\n\nTrack savings rates, efficiency metrics, and financial performance with mobile-optimized layouts.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -61,15 +61,17 @@
               },
               {
                 "color": "yellow",
-                "value": 60
+                "value": 50
               },
               {
                 "color": "green",
-                "value": 80
+                "value": 75
               }
             ]
           },
-          "unit": "percent"
+          "unit": "short",
+          "min": 0,
+          "max": 100
         },
         "overrides": []
       },
@@ -356,7 +358,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -419,7 +421,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -483,7 +485,7 @@
             "value"
           ],
           "mappings": [],
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -648,7 +650,7 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -885,7 +887,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "\ud83d\udcca Savings & Performance",
+  "title": "📊 Savings & Performance",
   "uid": "savings-performance-mobile",
   "version": 1,
   "weekStart": ""
