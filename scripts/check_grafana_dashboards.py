@@ -408,6 +408,77 @@ def lint_dashboard_titles(
     return issues
 
 
+# ---------------------------------------------------------------------------
+# Parity checks: mobile dashboards must not use currency units
+# ---------------------------------------------------------------------------
+
+#: Forbidden currency unit values that should not appear on mobile dashboards.
+FORBIDDEN_CURRENCY_UNITS: frozenset = frozenset(
+    {"currencyUSD", "currencyAUD", "currencyGBP", "currencyEUR"}
+)
+
+#: Title substrings that identify a dashboard as mobile.
+MOBILE_TITLE_MARKERS: tuple = ("mobile", "📱")
+
+
+def _is_mobile_dashboard(title: str) -> bool:
+    """Return True if the dashboard title looks like a mobile dashboard."""
+    lower = title.lower()
+    return any(marker in lower for marker in MOBILE_TITLE_MARKERS)
+
+
+def _collect_panel_units(panel: Dict) -> List[str]:
+    """Return all unit values present in a panel's fieldConfig (defaults + overrides)."""
+    units: List[str] = []
+    fc = panel.get("fieldConfig") or {}
+
+    default_unit = (fc.get("defaults") or {}).get("unit")
+    if default_unit:
+        units.append(default_unit)
+
+    for override in fc.get("overrides") or []:
+        for prop in override.get("properties") or []:
+            if prop.get("id") == "unit":
+                value = prop.get("value")
+                if value:
+                    units.append(value)
+
+    return units
+
+
+def lint_mobile_parity(dashboard: Dict) -> List[Dict]:
+    """
+    Scan a mobile dashboard for currency-unit violations.
+
+    Returns a list of warning dicts (one per offending panel/unit combination).
+    Each dict contains keys: panel_id, panel_title, unit, severity='WARNING'.
+    """
+    warnings: List[Dict] = []
+    title = dashboard.get("title", "")
+
+    if not _is_mobile_dashboard(title):
+        return warnings
+
+    for panel in flatten_panels(dashboard.get("panels", [])):
+        units = _collect_panel_units(panel)
+        for unit in units:
+            if unit in FORBIDDEN_CURRENCY_UNITS:
+                warnings.append(
+                    {
+                        "panel_id": panel.get("id"),
+                        "panel_title": panel.get("title", ""),
+                        "unit": unit,
+                        "severity": "WARNING",
+                        "message": (
+                            f"mobile panel uses forbidden currency unit '{unit}'; "
+                            "use 'short' for monetary values per project convention"
+                        ),
+                    }
+                )
+
+    return warnings
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Check Grafana dashboards for empty panels."
@@ -454,6 +525,11 @@ def parse_args() -> argparse.Namespace:
         "--no-lint",
         action="store_true",
         help="Skip layout linting (e.g., long titles vs. panel width).",
+    )
+    parser.add_argument(
+        "--no-parity",
+        action="store_true",
+        help="Skip mobile/desktop KPI parity checks (currency unit validation).",
     )
     parser.add_argument(
         "--lint-max-chars-per-col",
@@ -527,19 +603,25 @@ def main() -> int:
         )
 
         lint_issues: List[Dict] = []
-        if not args.no_lint:
-            lint_issues = lint_dashboard_titles(
-                client.dashboard(dash["uid"]),
-                max_chars_per_col=args.lint_max_chars_per_col,
-                min_chars=args.lint_min_chars,
-                text_chars_per_col=args.lint_text_chars_per_col,
-                text_height_slack=args.lint_text_height_slack,
-            )
+        parity_warnings: List[Dict] = []
+        if not args.no_lint or not args.no_parity:
+            dash_detail = client.dashboard(dash["uid"])
+            if not args.no_lint:
+                lint_issues = lint_dashboard_titles(
+                    dash_detail,
+                    max_chars_per_col=args.lint_max_chars_per_col,
+                    min_chars=args.lint_min_chars,
+                    text_chars_per_col=args.lint_text_chars_per_col,
+                    text_height_slack=args.lint_text_height_slack,
+                )
+            if not args.no_parity:
+                parity_warnings = lint_mobile_parity(dash_detail)
 
         print(
             f"\nDashboard '{dash.get('title')}' ({dash.get('uid')}): "
             f"{len(ok_panels)} panels OK, {len(failing_panels)} failing, "
-            f"{len(lint_issues)} lint warnings"
+            f"{len(lint_issues)} lint warnings, "
+            f"{len(parity_warnings)} parity warnings"
         )
         for panel in failing_panels:
             total_failures += 1
@@ -558,15 +640,21 @@ def main() -> int:
                 f"  - LINT Panel {issue.get('panel_id')} '{issue.get('panel_title')}' "
                 f"len={title_len} allowed~{allowed} (w={issue.get('width')}, h={issue.get('height')}){extra}"
             )
+        for warn in parity_warnings:
+            total_lint += 1
+            print(
+                f"  - PARITY Panel {warn['panel_id']} '{warn['panel_title']}': "
+                f"{warn['message']}"
+            )
 
     if total_failures or total_lint:
         print(
             f"\nFAIL: {total_failures} panels returned no data or errors; "
-            f"{total_lint} lint warnings."
+            f"{total_lint} lint/parity warnings."
         )
         return 2
 
-    print("\nAll panels returned data (no lint warnings).")
+    print("\nAll panels returned data (no lint or parity warnings).")
     return 0
 
 
