@@ -2439,6 +2439,185 @@
       ],
       "title": "Month-to-Date Spending Pace",
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "description": "Tracks whether past financial recommendations were acted on and what impact they had. Status: achieved (green), in_progress (yellow), pending (blue), abandoned (red).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "status"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "achieved": {
+                        "color": "green",
+                        "index": 0,
+                        "text": "achieved"
+                      },
+                      "in_progress": {
+                        "color": "yellow",
+                        "index": 1,
+                        "text": "in_progress"
+                      },
+                      "pending": {
+                        "color": "blue",
+                        "index": 2,
+                        "text": "pending"
+                      },
+                      "abandoned": {
+                        "color": "red",
+                        "index": 3,
+                        "text": "abandoned"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "recommendation_date"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Date"
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "recommendation_text"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Recommendation"
+              },
+              {
+                "id": "custom.width",
+                "value": 320
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "category"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Category"
+              },
+              {
+                "id": "custom.width",
+                "value": 140
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "actual"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Actual"
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 63,
+        "w": 24,
+        "h": 8
+      },
+      "id": 1004,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Date"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  recommendation_date,\n  recommendation_text,\n  category,\n  status,\n  COALESCE(actual_value::text, 'Pending') AS actual\nFROM reporting.rpt_recommendation_outcomes\nORDER BY recommendation_date DESC\nLIMIT 10;",
+          "refId": "A"
+        }
+      ],
+      "title": "Recommendation Tracker",
+      "type": "table"
     }
   ],
   "refresh": "",
