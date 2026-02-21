@@ -16,6 +16,43 @@ This folder is mounted into Grafana so dashboards auto-load from versioned JSON,
    - `mcp__playwright__browser_take_screenshot(filename="screenshots/dashboard-review.png", fullPage=true)`
    - look for “No data”, datasource errors, or console errors; attach the screenshot to `activity.md` for the task.
 
+## Dashboard QA Harness
+
+Use the quality gate script to run lint, live Grafana API checks, and optional Playwright screenshots in one command.
+
+### Local usage
+
+```bash
+# lint + live checks (default thresholds: 0 for failures/warnings)
+python scripts/dashboard_quality_gate.py --dashboards executive_dashboard category-spending-v2
+
+# include screenshot evidence (requires Playwright + GRAFANA_PASSWORD)
+python scripts/dashboard_quality_gate.py --dashboards executive_dashboard --screenshots
+
+# lint-only mode (no Grafana connectivity required)
+python scripts/dashboard_quality_gate.py --lint-only
+```
+
+Artifacts are written to `artifacts/dashboard-quality/<UTC timestamp>/` and include:
+- checker raw output (`lint-only.*`, `live-checks.*`)
+- normalized findings (`findings.normalized.json`)
+- markdown report (`report.md`)
+- screenshots (`screenshots/*.png`) when `--screenshots` is enabled
+
+### CI usage
+
+```bash
+python scripts/dashboard_quality_gate.py \
+  --base-url "$GRAFANA_URL" \
+  --dashboards executive_dashboard cash_flow_analysis \
+  --max-failing-panels 0 \
+  --max-layout-warnings 5 \
+  --max-static-warnings 5 \
+  --max-parity-warnings 0
+```
+
+The script exits non-zero when any threshold is exceeded or static lint parse errors are detected.
+
 ## Unit and Sign Standards
 
 These standards are enforced across all 23 dashboard files as of task-48.
