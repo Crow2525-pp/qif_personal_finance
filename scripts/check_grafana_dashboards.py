@@ -15,18 +15,34 @@ Usage example:
 If you cannot use an API token, set GRAFANA_USER and GRAFANA_PASSWORD
 instead. The script exits with a non-zero status when any panel is empty
 or errors so it can be wired into CI or a post-provision hook.
+
+Static lint checks (run without Grafana connectivity):
+    python scripts/check_grafana_dashboards.py --lint-only
+
+JSON output for CI:
+    python scripts/check_grafana_dashboards.py --json
 """
 
 from __future__ import annotations
 
 import argparse
 import datetime as dt
+import json as _json_mod
 import os
 import re
 import sys
-from typing import Dict, Iterable, List, Tuple
+from typing import Dict, Iterable, List, Set, Tuple
 
 import requests
+
+# On Windows the default console encoding is often cp1252, which cannot
+# represent the emoji characters that appear in some dashboard titles.
+# Reconfigure stdout/stderr to UTF-8 with replacement so the script never
+# crashes mid-output.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[union-attr]
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[union-attr]
 
 
 def epoch_ms(value: dt.datetime) -> int:
@@ -353,6 +369,187 @@ def check_dashboard(
     return ok_panels, failing_panels
 
 
+# ---------------------------------------------------------------------------
+# Static lint checks (no Grafana connectivity required)
+# ---------------------------------------------------------------------------
+
+#: Panel types that honour the global time picker.  SQL panels of any other
+#: type silently ignore it, which is what we want to flag.
+_TIMEPICKER_AWARE_TYPES: Set[str] = {"timeseries", "graph", "logs"}
+
+#: Currency unit values that are broken in Grafana 12 and should use 'short'
+#: (or no unit) instead.
+_BROKEN_CURRENCY_UNITS: Set[str] = {"currencyAUD", "currencyUSD", "currencyGBP", "currencyEUR"}
+
+
+def _iter_unit_values(panel: Dict) -> Iterable[Tuple[str, str]]:
+    """
+    Yield (location_label, unit_string) for every unit setting in a panel.
+
+    Covers fieldConfig.defaults.unit and all unit override properties.
+    """
+    fc = panel.get("fieldConfig") or {}
+    defaults = fc.get("defaults") or {}
+    unit = defaults.get("unit")
+    if unit:
+        yield "fieldConfig.defaults", unit
+
+    for ov in fc.get("overrides") or []:
+        matcher = (ov.get("matcher") or {}).get("options", "override")
+        for prop in ov.get("properties") or []:
+            if prop.get("id") == "unit":
+                yield f"override({matcher})", prop.get("value", "")
+
+
+def lint_static_panel(panel: Dict) -> List[Dict]:
+    """
+    Run static (offline) lint rules against a single panel.
+
+    Returns a list of warning dicts, each with keys:
+        rule, panel_id, panel_title, detail
+    """
+    warnings: List[Dict] = []
+    seen: Set[Tuple] = set()
+
+    pid = panel.get("id")
+    ptitle = panel.get("title", "")
+    ptype = panel.get("type", "")
+    fc = panel.get("fieldConfig") or {}
+    defaults = fc.get("defaults") or {}
+
+    def add_warning(rule: str, detail: str) -> None:
+        key = (rule, pid, detail)
+        if key in seen:
+            return
+        seen.add(key)
+        warnings.append(
+            {
+                "rule": rule,
+                "panel_id": pid,
+                "panel_title": ptitle,
+                "panel_type": ptype,
+                "detail": detail,
+            }
+        )
+
+    # ------------------------------------------------------------------
+    # Rule: currency-unit
+    # currencyAUD / currencyUSD (and similar) units are broken in Grafana 12.
+    # Recommend using 'short' or leaving the unit empty.
+    # ------------------------------------------------------------------
+    for location, unit_val in _iter_unit_values(panel):
+        if unit_val in _BROKEN_CURRENCY_UNITS:
+            add_warning(
+                "currency-unit",
+                f"Unit '{unit_val}' at {location} — use 'short' unit instead "
+                f"(currency units broken in Grafana 12)",
+            )
+
+    # ------------------------------------------------------------------
+    # Rule: current-date-timepicker
+    # stat / gauge / table panels that contain CURRENT_DATE or NOW() in their
+    # SQL queries are anchored to wall-clock time and ignore the dashboard
+    # time picker.  This is often unintentional.
+    # ------------------------------------------------------------------
+    if ptype not in _TIMEPICKER_AWARE_TYPES:
+        for target in panel.get("targets") or []:
+            sql = target.get("rawSql") or ""
+            sql_upper = sql.upper()
+            if "CURRENT_DATE" in sql_upper or "NOW()" in sql_upper:
+                ref_id = target.get("refId", "A")
+                add_warning(
+                    "current-date-timepicker",
+                    f"Target {ref_id}: SQL uses CURRENT_DATE/NOW() in a "
+                    f"'{ptype}' panel — panel ignores the time picker",
+                )
+                break  # one warning per panel is enough
+
+    # ------------------------------------------------------------------
+    # Rule: percentunit-missing-bounds
+    # percentunit fields without explicit min and max can render confusingly
+    # when values fall outside the 0-1 range (e.g., negative savings rates).
+    # ------------------------------------------------------------------
+    default_unit = defaults.get("unit", "")
+    if default_unit == "percentunit":
+        missing = []
+        if "min" not in defaults:
+            missing.append("min")
+        if "max" not in defaults:
+            missing.append("max")
+        if missing:
+            add_warning(
+                "percentunit-missing-bounds",
+                f"fieldConfig.defaults.unit is 'percentunit' but "
+                f"{' and '.join(missing)} are not set — add explicit bounds "
+                f"(e.g. min=-1, max=1 if negatives are possible)",
+            )
+
+    return warnings
+
+
+def lint_static_dashboard(dashboard: Dict) -> List[Dict]:
+    """
+    Run all static lint rules across every panel in a dashboard.
+
+    Warnings are deduplicated: the same (rule, panel_id, detail) triple
+    is reported only once even if detected through multiple code paths.
+    """
+    all_warnings: List[Dict] = []
+    seen: Set[Tuple] = set()
+
+    for panel in flatten_panels(dashboard.get("panels", [])):
+        for w in lint_static_panel(panel):
+            key = (w["rule"], w["panel_id"], w["detail"])
+            if key not in seen:
+                seen.add(key)
+                all_warnings.append(w)
+
+    return all_warnings
+
+
+def lint_dashboard_files(dashboard_dir: str) -> Dict[str, List[Dict]]:
+    """
+    Load every *.json file in dashboard_dir and run static lint.
+
+    Returns a mapping of filename -> list of warning dicts.
+    Files that cannot be parsed are reported as a single parse-error warning.
+    """
+    results: Dict[str, List[Dict]] = {}
+    try:
+        filenames = sorted(
+            f for f in os.listdir(dashboard_dir)
+            if f.endswith(".json") and not f.endswith(".pre_update")
+        )
+    except OSError:
+        return results
+
+    for fname in filenames:
+        fpath = os.path.join(dashboard_dir, fname)
+        try:
+            with open(fpath, encoding="utf-8", errors="replace") as fh:
+                dashboard = _json_mod.load(fh)
+        except Exception as exc:
+            results[fname] = [
+                {
+                    "rule": "parse-error",
+                    "panel_id": None,
+                    "panel_title": None,
+                    "panel_type": None,
+                    "detail": f"Could not parse JSON: {exc}",
+                }
+            ]
+            continue
+
+        results[fname] = lint_static_dashboard(dashboard)
+
+    return results
+
+
+# ---------------------------------------------------------------------------
+# Layout lint (existing)
+# ---------------------------------------------------------------------------
+
+
 def lint_dashboard_titles(
     dashboard: Dict,
     max_chars_per_col: int,
@@ -479,9 +676,13 @@ def lint_mobile_parity(dashboard: Dict) -> List[Dict]:
     return warnings
 
 
+# ---------------------------------------------------------------------------
+# Argument parsing
+# ---------------------------------------------------------------------------
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Check Grafana dashboards for empty panels."
+        description="Check Grafana dashboards for empty panels and static configuration issues."
     )
     parser.add_argument(
         "--base-url",
@@ -524,7 +725,31 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--no-lint",
         action="store_true",
-        help="Skip layout linting (e.g., long titles vs. panel width).",
+        help="Skip all lint checks (layout and static).",
+    )
+    parser.add_argument(
+        "--lint-only",
+        action="store_true",
+        help=(
+            "Run only static lint checks against dashboard JSON files on disk. "
+            "No Grafana connectivity is required."
+        ),
+    )
+    parser.add_argument(
+        "--dashboard-dir",
+        default=os.environ.get(
+            "DASHBOARD_DIR",
+            os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                "grafana",
+                "provisioning",
+                "dashboards",
+            ),
+        ),
+        help=(
+            "Directory containing dashboard JSON files for static lint. "
+            "Defaults to grafana/provisioning/dashboards/ relative to the repo root."
+        ),
     )
     parser.add_argument(
         "--no-parity",
@@ -555,12 +780,67 @@ def parse_args() -> argparse.Namespace:
         default=0,
         help="Extra grid rows tolerated for text panels before flagging (default: 0).",
     )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        dest="json_output",
+        help="Emit a machine-readable JSON summary to stdout instead of human text.",
+    )
     return parser.parse_args()
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
 
 
 def main() -> int:
     args = parse_args()
 
+    # ------------------------------------------------------------------
+    # Lint-only mode: scan files on disk, no Grafana connection needed.
+    # ------------------------------------------------------------------
+    if args.lint_only:
+        file_warnings = lint_dashboard_files(args.dashboard_dir)
+        total_warnings = sum(len(ws) for ws in file_warnings.values())
+        has_errors = any(
+            w["rule"] == "parse-error"
+            for ws in file_warnings.values()
+            for w in ws
+        )
+
+        if args.json_output:
+            summary = {
+                "mode": "lint-only",
+                "dashboard_dir": args.dashboard_dir,
+                "total_warnings": total_warnings,
+                "has_errors": has_errors,
+                "files": {
+                    fname: warnings
+                    for fname, warnings in sorted(file_warnings.items())
+                },
+            }
+            print(_json_mod.dumps(summary, indent=2))
+        else:
+            for fname, warnings in sorted(file_warnings.items()):
+                if not warnings:
+                    continue
+                print(f"\n{fname}: {len(warnings)} warning(s)")
+                for w in warnings:
+                    pid_label = f"panel {w['panel_id']}" if w["panel_id"] is not None else "file"
+                    print(f"  [{w['rule']}] {pid_label} '{w['panel_title']}': {w['detail']}")
+
+            if total_warnings:
+                print(f"\nWARN: {total_warnings} static lint warning(s) across {len(file_warnings)} file(s).")
+            else:
+                print("\nAll dashboard files passed static lint.")
+
+        # parse-errors are hard failures; warnings are not (exit 0)
+        return 1 if has_errors else 0
+
+    # ------------------------------------------------------------------
+    # Normal mode: connect to Grafana, check live panels, run lint.
+    # ------------------------------------------------------------------
     time_to = dt.datetime.now(dt.timezone.utc)
     time_from = time_to - dt.timedelta(days=args.days)
 
@@ -591,7 +871,12 @@ def main() -> int:
         return 1
 
     total_failures = 0
-    total_lint = 0
+    total_layout_lint = 0
+    total_static_lint = 0
+    total_parity_warnings = 0
+
+    json_results: List[Dict] = []
+
     for dash in dashboards:
         ok_panels, failing_panels = check_dashboard(
             client,
@@ -602,60 +887,107 @@ def main() -> int:
             min_rows=args.min_rows,
         )
 
-        lint_issues: List[Dict] = []
+        layout_issues: List[Dict] = []
+        static_warnings: List[Dict] = []
         parity_warnings: List[Dict] = []
+
+        dash_data: Dict | None = None
         if not args.no_lint or not args.no_parity:
-            dash_detail = client.dashboard(dash["uid"])
-            if not args.no_lint:
-                lint_issues = lint_dashboard_titles(
-                    dash_detail,
-                    max_chars_per_col=args.lint_max_chars_per_col,
-                    min_chars=args.lint_min_chars,
-                    text_chars_per_col=args.lint_text_chars_per_col,
-                    text_height_slack=args.lint_text_height_slack,
+            dash_data = client.dashboard(dash["uid"])
+
+        if not args.no_lint and dash_data is not None:
+            layout_issues = lint_dashboard_titles(
+                dash_data,
+                max_chars_per_col=args.lint_max_chars_per_col,
+                min_chars=args.lint_min_chars,
+                text_chars_per_col=args.lint_text_chars_per_col,
+                text_height_slack=args.lint_text_height_slack,
+            )
+            static_warnings = lint_static_dashboard(dash_data)
+
+        if not args.no_parity and dash_data is not None:
+            parity_warnings = lint_mobile_parity(dash_data)
+
+        total_failures += len(failing_panels)
+        total_layout_lint += len(layout_issues)
+        total_static_lint += len(static_warnings)
+        total_parity_warnings += len(parity_warnings)
+
+        if args.json_output:
+            json_results.append(
+                {
+                    "dashboard": dash.get("title"),
+                    "uid": dash.get("uid"),
+                    "ok_panels": len(ok_panels),
+                    "failing_panels": failing_panels,
+                    "layout_lint": layout_issues,
+                    "static_warnings": static_warnings,
+                    "parity_warnings": parity_warnings,
+                }
+            )
+        else:
+            print(
+                f"\nDashboard '{dash.get('title')}' ({dash.get('uid')}): "
+                f"{len(ok_panels)} panels OK, {len(failing_panels)} failing, "
+                f"{len(layout_issues)} layout warnings, "
+                f"{len(static_warnings)} static warnings, "
+                f"{len(parity_warnings)} parity warnings"
+            )
+            for panel in failing_panels:
+                print(
+                    f"  - Panel {panel['panel_id']} '{panel['panel_title']}': "
+                    f"{panel['messages']}"
                 )
-            if not args.no_parity:
-                parity_warnings = lint_mobile_parity(dash_detail)
+            for issue in layout_issues:
+                title_len = issue.get("title_len") or issue.get("content_len")
+                allowed = issue.get("allowed") or issue.get("allowed_lines")
+                extra = ""
+                if issue.get("message"):
+                    extra = f" ({issue['message']})"
+                print(
+                    f"  - LAYOUT Panel {issue.get('panel_id')} '{issue.get('panel_title')}' "
+                    f"len={title_len} allowed~{allowed} (w={issue.get('width')}, h={issue.get('height')}){extra}"
+                )
+            for warning in static_warnings:
+                print(
+                    f"  - WARN [{warning['rule']}] Panel {warning['panel_id']} "
+                    f"'{warning['panel_title']}' ({warning['panel_type']}): {warning['detail']}"
+                )
+            for warning in parity_warnings:
+                print(
+                    f"  - PARITY Panel {warning['panel_id']} '{warning['panel_title']}': "
+                    f"{warning['message']}"
+                )
 
-        print(
-            f"\nDashboard '{dash.get('title')}' ({dash.get('uid')}): "
-            f"{len(ok_panels)} panels OK, {len(failing_panels)} failing, "
-            f"{len(lint_issues)} lint warnings, "
-            f"{len(parity_warnings)} parity warnings"
-        )
-        for panel in failing_panels:
-            total_failures += 1
+    if args.json_output:
+        summary = {
+            "total_failing_panels": total_failures,
+            "total_layout_warnings": total_layout_lint,
+            "total_static_warnings": total_static_lint,
+            "total_parity_warnings": total_parity_warnings,
+            "passed": total_failures == 0,
+            "dashboards": json_results,
+        }
+        print(_json_mod.dumps(summary, indent=2))
+    else:
+        if total_failures:
             print(
-                f"  - Panel {panel['panel_id']} '{panel['panel_title']}': "
-                f"{panel['messages']}"
+                f"\nFAIL: {total_failures} panels returned no data or errors; "
+                f"{total_layout_lint} layout warnings; "
+                f"{total_static_lint} static lint warnings; "
+                f"{total_parity_warnings} parity warnings."
             )
-        for issue in lint_issues:
-            total_lint += 1
-            title_len = issue.get("title_len") or issue.get("content_len")
-            allowed = issue.get("allowed") or issue.get("allowed_lines")
-            extra = ""
-            if issue.get("message"):
-                extra = f" ({issue['message']})"
+        elif total_layout_lint or total_static_lint or total_parity_warnings:
             print(
-                f"  - LINT Panel {issue.get('panel_id')} '{issue.get('panel_title')}' "
-                f"len={title_len} allowed~{allowed} (w={issue.get('width')}, h={issue.get('height')}){extra}"
+                f"\nWARN: All panels returned data. "
+                f"{total_layout_lint} layout warnings; "
+                f"{total_static_lint} static lint warnings; "
+                f"{total_parity_warnings} parity warnings."
             )
-        for warn in parity_warnings:
-            total_lint += 1
-            print(
-                f"  - PARITY Panel {warn['panel_id']} '{warn['panel_title']}': "
-                f"{warn['message']}"
-            )
+        else:
+            print("\nAll panels returned data (no lint warnings).")
 
-    if total_failures or total_lint:
-        print(
-            f"\nFAIL: {total_failures} panels returned no data or errors; "
-            f"{total_lint} lint/parity warnings."
-        )
-        return 2
-
-    print("\nAll panels returned data (no lint or parity warnings).")
-    return 0
+    return 1 if total_failures else 0
 
 
 if __name__ == "__main__":
