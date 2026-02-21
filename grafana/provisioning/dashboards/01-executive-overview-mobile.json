@@ -727,8 +727,8 @@
                 "id": "links",
                 "value": [
                   {
-                    "title": "Review Uncategorized Transactions",
-                    "url": "/d/transaction_analysis_dashboard?var_category=Uncategorized",
+                    "title": "Open Transaction Analysis Dashboard",
+                    "url": "/d/transaction_analysis_dashboard",
                     "targetBlank": true
                   }
                 ]
