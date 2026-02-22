@@ -22,7 +22,7 @@
 # Database Role Model
 - `postgres` remains the admin/superuser for manual operations.
 - `dagster_service` is the application write role used by Dagster/dbt (INSERT/UPDATE/TRUNCATE/DDL, no DELETE).
-- `grafanareader` is the Grafana query role and the only non-admin role granted `DELETE`.
+- `grafanareader` is the Grafana query role (read-only on dashboard-facing data).
 
 To apply role hardening to an existing running database:
 ```powershell

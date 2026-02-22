@@ -12,15 +12,30 @@ if (-not $DagsterPassword) {
     exit 1
 }
 
-$sql = Get-Content -Raw -Path "scripts/harden_postgres_roles.sql"
-$escapedPassword = $DagsterPassword.Replace("'", "''")
-$escapedDagsterUser = $DagsterUser.Replace("'", "''")
-$escapedGrafanaUser = $GrafanaUser.Replace("'", "''")
+$sqlPath = "postgres/init/02-role-hardening.sql"
+if (-not (Test-Path $sqlPath)) {
+    Write-Error "Hardening SQL file not found at $sqlPath"
+    exit 1
+}
 
-@"
-SET app.dagster_user = '$escapedDagsterUser';
-SET app.dagster_password = '$escapedPassword';
-SET app.grafana_user = '$escapedGrafanaUser';
-$sql
+# Ensure service role exists and rotate password before applying grants/ownership.
+$escapedPassword = $DagsterPassword.Replace("'", "''")
+$escapedUser = $DagsterUser.Replace("""", """""")
+$roleUpsert = @"
+DO \$\$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '$DagsterUser') THEN
+        EXECUTE 'CREATE ROLE ""$escapedUser"" LOGIN PASSWORD ''$escapedPassword''';
+    ELSE
+        EXECUTE 'ALTER ROLE ""$escapedUser"" WITH LOGIN PASSWORD ''$escapedPassword''';
+    END IF;
+END
+\$\$;
 "@
-| docker exec -i $ContainerName psql -v ON_ERROR_STOP=1 -U $AdminUser -d $Database
+
+$roleUpsert | docker exec -i $ContainerName psql -v ON_ERROR_STOP=1 -U $AdminUser -d $Database
+
+Get-Content -Raw -Path $sqlPath |
+docker exec -i $ContainerName psql -v ON_ERROR_STOP=1 -U $AdminUser -d $Database `
+    -v dagster_user="$DagsterUser" `
+    -v grafana_user="$GrafanaUser"
