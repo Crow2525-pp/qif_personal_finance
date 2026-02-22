@@ -121,10 +121,31 @@ def parse_args() -> argparse.Namespace:
         help="Grafana base URL (default from GRAFANA_URL or http://localhost:3001).",
     )
     parser.add_argument(
+        "--token",
+        default=os.environ.get("GRAFANA_TOKEN"),
+        help="Grafana API token for live checks (falls back to GRAFANA_TOKEN env var).",
+    )
+    parser.add_argument(
+        "--user",
+        default=os.environ.get("GRAFANA_USER", "admin"),
+        help="Grafana username for live checks and screenshot login (default: admin).",
+    )
+    parser.add_argument(
+        "--password",
+        default=os.environ.get("GRAFANA_PASSWORD"),
+        help="Grafana password for live checks and screenshot login.",
+    )
+    parser.add_argument(
         "--headless",
-        default="true",
-        choices=["true", "false"],
+        action="store_true",
+        default=True,
         help="Run Playwright browser headless (default: true).",
+    )
+    parser.add_argument(
+        "--no-headless",
+        dest="headless",
+        action="store_false",
+        help="Run Playwright browser with a visible window (disables headless mode).",
     )
     return parser.parse_args()
 
@@ -173,8 +194,7 @@ def parse_reference_urls(reference_file: Path, selectors: list[str]) -> list[str
         value = path.lower()
         return any(sel in value for sel in lowered)
 
-    filtered = [u for u in urls if keep(u)]
-    return filtered if filtered else urls
+    return [u for u in urls if keep(u)]
 
 
 def normalize_findings(
@@ -362,6 +382,9 @@ def capture_screenshots(
     relative_paths: list[str],
     output_dir: Path,
     headless: bool,
+    token: str | None = None,
+    user: str = "admin",
+    password: str | None = None,
 ) -> list[dict[str, Any]]:
     if not relative_paths:
         return []
@@ -371,36 +394,41 @@ def capture_screenshots(
     except Exception as exc:  # pragma: no cover - dependency/runtime branch
         return [{"status": "error", "path": "(all)", "message": f"Playwright unavailable: {exc}"}]
 
-    user = os.environ.get("GRAFANA_USER", "admin")
-    password = os.environ.get("GRAFANA_PASSWORD")
-
     output_dir.mkdir(parents=True, exist_ok=True)
     results: list[dict[str, Any]] = []
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=headless)
-        context = browser.new_context()
+
+        # Use token auth via extra HTTP headers when a token is available —
+        # this avoids the login form entirely and works even when the login
+        # page is hidden or customised.
+        extra_headers = {"Authorization": f"Bearer {token}"} if token else {}
+        context = browser.new_context(extra_http_headers=extra_headers)
         page = context.new_page()
 
-        page.goto(base_url, wait_until="domcontentloaded", timeout=45000)
+        if not token:
+            # Fall back to form-based login.
+            page.goto(base_url, wait_until="domcontentloaded", timeout=45000)
+            if page.locator("input[name='user']").count() > 0 and page.locator("input[name='password']").count() > 0:
+                if not password:
+                    results.append(
+                        {
+                            "status": "error",
+                            "path": "login",
+                            "message": (
+                                "Neither GRAFANA_TOKEN nor GRAFANA_PASSWORD is set; "
+                                "cannot log in for screenshot capture."
+                            ),
+                        }
+                    )
+                    browser.close()
+                    return results
 
-        # Best-effort login for standard Grafana login page.
-        if page.locator("input[name='user']").count() > 0 and page.locator("input[name='password']").count() > 0:
-            if not password:
-                results.append(
-                    {
-                        "status": "error",
-                        "path": "login",
-                        "message": "GRAFANA_PASSWORD is not set; cannot log in for screenshot capture.",
-                    }
-                )
-                browser.close()
-                return results
-
-            page.fill("input[name='user']", user)
-            page.fill("input[name='password']", password)
-            page.click("button[type='submit']")
-            page.wait_for_timeout(1500)
+                page.fill("input[name='user']", user)
+                page.fill("input[name='password']", password)
+                page.click("button[type='submit']")
+                page.wait_for_load_state("networkidle", timeout=15000)
 
         for rel_path in relative_paths:
             target = f"{base_url.rstrip('/')}{rel_path}"
@@ -408,7 +436,7 @@ def capture_screenshots(
             file_path = output_dir / f"{safe_name}.png"
             try:
                 page.goto(target, wait_until="domcontentloaded", timeout=45000)
-                page.wait_for_timeout(1500)
+                page.wait_for_load_state("networkidle", timeout=15000)
                 page.screenshot(path=str(file_path), full_page=True)
                 results.append({"status": "ok", "path": rel_path, "file": str(file_path)})
             except Exception as exc:  # pragma: no cover - runtime diagnostics
@@ -500,6 +528,10 @@ def main() -> int:
             "--base-url",
             args.base_url,
         ]
+        if args.token:
+            live_cmd.extend(["--token", args.token])
+        elif args.password:
+            live_cmd.extend(["--user", args.user, "--password", args.password])
 
         for selector in args.dashboards:
             live_cmd.extend(["--dashboard", selector])
@@ -517,7 +549,10 @@ def main() -> int:
             base_url=args.base_url,
             relative_paths=reference_paths,
             output_dir=run_dir / "screenshots",
-            headless=args.headless == "true",
+            headless=args.headless,
+            token=args.token,
+            user=args.user,
+            password=args.password,
         )
         write_json(run_dir / "screenshots.json", screenshot_results)
 
