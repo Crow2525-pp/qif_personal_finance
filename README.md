@@ -19,6 +19,16 @@
   - `DBT_EXECUTION_CONTEXT=dagster` (set automatically by Dagster), or
   - `ALLOW_DIRECT_DBT=1` (manual override).
 
+# Database Role Model
+- `postgres` remains the admin/superuser for manual operations.
+- `dagster_service` is the application write role used by Dagster/dbt (INSERT/UPDATE/TRUNCATE/DDL, no DELETE).
+- `grafanareader` is the Grafana query role and the only non-admin role granted `DELETE`.
+
+To apply role hardening to an existing running database:
+```powershell
+./scripts/apply-postgres-role-hardening.ps1 -DagsterPassword "<dagster service password>"
+```
+
 # Deployment (Remote Server)
 For remote server deployment using git-based workflow:
 - **Local Development**: Work on your local machine, push to GitHub
