@@ -16,7 +16,9 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from dagster import AssetKey, MetadataValue, asset
+from dagster import MetadataValue, asset
+
+from .assets import finance_dbt_assets
 
 def _import_checker():
     """Import check_grafana_dashboards lazily to avoid sys.path pollution at module load."""
@@ -41,22 +43,11 @@ _DASHBOARD_DIR = os.environ.get(
     str(_REPO_ROOT / "grafana" / "provisioning" / "dashboards"),
 )
 
-# ---------------------------------------------------------------------------
-# Terminal dbt reporting models used as upstream deps so Dagster only runs
-# this asset after the full reporting layer has finished.
-# ---------------------------------------------------------------------------
-_DBT_TERMINAL_DEPS = [
-    AssetKey("rpt_executive_dashboard"),
-    AssetKey("rpt_cash_flow_analysis"),
-    AssetKey("rpt_household_net_worth"),
-    AssetKey("rpt_monthly_budget_summary"),
-    AssetKey("rpt_account_performance"),
-]
-
 
 @asset(
-    deps=_DBT_TERMINAL_DEPS,
+    deps=[finance_dbt_assets],
     group_name="dashboard_qa",
+    tags={"dagster/kind/grafana": "", "dagster/kind/python": ""},
     description=(
         "Runs Grafana dashboard quality checks after the dbt reporting layer "
         "completes. Verifies all panels return data and flags SQL/lint errors."

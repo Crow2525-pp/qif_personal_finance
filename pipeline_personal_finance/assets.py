@@ -12,9 +12,9 @@ from dagster import (
     Output,
     multi_asset,
 )
-from dagster_dbt import DbtCliResource, dbt_assets
+from dagster_dbt import DagsterDbtTranslator, DbtCliResource, dbt_assets
 from sqlalchemy import text, JSON
-from typing import Optional
+from typing import Any, Mapping, Optional
 from .constants import dbt_manifest_path, QIF_FILES
 from .resources import SqlAlchemyClientResource
 
@@ -25,9 +25,27 @@ from .resources import SqlAlchemyClientResource
 # TODO: Add Monitoring of new QIF Files within dir.
 
 
+class _FinanceDbtTranslator(DagsterDbtTranslator):
+    """Maps dbt model folder paths to Dagster asset groups."""
+
+    def get_group_name(self, dbt_resource_props: Mapping[str, Any]) -> Optional[str]:
+        resource_type = dbt_resource_props.get("resource_type", "")
+        if resource_type == "snapshot":
+            return "snapshots"
+        if resource_type == "seed":
+            return "seeds"
+        fqn = dbt_resource_props.get("fqn", [])
+        # fqn: ['project_name', 'folder', ..., 'model_name']
+        # Use the top-level folder (index 1) as the Dagster group.
+        if len(fqn) >= 2:
+            return fqn[1]
+        return "default"
+
+
 # TODO: Move dbt_assets to a seperate file?
 @dbt_assets(
     manifest=dbt_manifest_path,
+    dagster_dbt_translator=_FinanceDbtTranslator(),
 )
 def finance_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
     # TODO: find out why dagster_deployment env var is not working. Fixed as Prod for moment.
@@ -181,14 +199,16 @@ def verify_database_schema(
             raise
 
 
+_INGESTION_TAGS = {"dagster/kind/python": "", "dagster/kind/postgres": ""}
+
 @multi_asset(
     outs={
-        "Adelaide_Homeloan_Transactions": AssetOut(is_required=False),
-        "Adelaide_Offset_Transactions": AssetOut(is_required=False),
-        "Bendigo_Homeloan_Transactions": AssetOut(is_required=False),
-        "Bendigo_Offset_Transactions": AssetOut(is_required=False),
-        "ING_BillsBillsBills_Transactions": AssetOut(is_required=False),
-        "ING_Countdown_Transactions": AssetOut(is_required=False),
+        "Adelaide_Homeloan_Transactions": AssetOut(is_required=False, tags=_INGESTION_TAGS),
+        "Adelaide_Offset_Transactions": AssetOut(is_required=False, tags=_INGESTION_TAGS),
+        "Bendigo_Homeloan_Transactions": AssetOut(is_required=False, tags=_INGESTION_TAGS),
+        "Bendigo_Offset_Transactions": AssetOut(is_required=False, tags=_INGESTION_TAGS),
+        "ING_BillsBillsBills_Transactions": AssetOut(is_required=False, tags=_INGESTION_TAGS),
+        "ING_Countdown_Transactions": AssetOut(is_required=False, tags=_INGESTION_TAGS),
     },
     can_subset=True,
     group_name="qif_ingestion",

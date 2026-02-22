@@ -6,4 +6,7 @@
 !uv.lock
 !pyproject.toml
 !pipeline_personal_finance/**
+# Exclude stale dbt partial_parse cache — causes KeyError at container startup
+pipeline_personal_finance/**/target/
 !dagster_core/**
+!scripts/**
