@@ -33,7 +33,11 @@ def finance_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
     # TODO: find out why dagster_deployment env var is not working. Fixed as Prod for moment.
     deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "prod")
     target = "prod" if deployment_name == "prod" else "dev"
-    yield from dbt.cli(["build", "--target", target], context=context).stream()
+    yield from dbt.cli(
+        ["build", "--target", target],
+        context=context,
+        env={"DBT_EXECUTION_CONTEXT": "dagster"},
+    ).stream()
 
 
 def hash_concat_row_wise(df: pd.DataFrame) -> pd.Series:
