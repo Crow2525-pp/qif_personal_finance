@@ -23,6 +23,7 @@ WORKDIR ${DAGSTER_APP}
 COPY uv.lock uv.lock
 COPY pyproject.toml pyproject.toml
 COPY pipeline_personal_finance pipeline_personal_finance
+COPY scripts scripts
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --package pipeline_personal_finance
