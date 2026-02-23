@@ -116,6 +116,12 @@ def parse_args() -> argparse.Namespace:
         help="Fail if screenshot capture errors exceed this threshold (default: 0).",
     )
     parser.add_argument(
+        "--max-visual-warnings",
+        type=int,
+        default=0,
+        help="Fail if visual check warnings (no-data overlays, panel errors, console errors) exceed this threshold (default: 0).",
+    )
+    parser.add_argument(
         "--base-url",
         default=os.environ.get("GRAFANA_URL", "http://localhost:3001"),
         help="Grafana base URL (default from GRAFANA_URL or http://localhost:3001).",
@@ -295,6 +301,26 @@ def normalize_findings(
                 }
             )
 
+        # Normalize visual check findings from DOM inspection
+        for vc in result.get("visual_checks") or []:
+            check_type = vc.get("check", "unknown")
+            rule_map = {
+                "no-data-overlay": "visual-no-data-overlay",
+                "panel-error": "visual-panel-error",
+                "console-error": "visual-console-error",
+            }
+            findings.append(
+                {
+                    "source": "visual",
+                    "severity": vc.get("severity", "warning"),
+                    "dashboard": result.get("path", "unknown"),
+                    "panel_id": None,
+                    "panel_title": vc.get("panel_title"),
+                    "rule": rule_map.get(check_type, f"visual-{check_type}"),
+                    "message": vc.get("text", ""),
+                }
+            )
+
     return findings
 
 
@@ -316,6 +342,11 @@ def render_summary(
     parity = int((live_json or {}).get("total_parity_warnings", 0))
     lint_warnings = int(lint_json.get("total_warnings", 0))
     screenshot_errors = sum(1 for item in screenshot_results if item.get("status") == "error")
+    visual_warnings = sum(
+        len(item.get("visual_checks") or [])
+        for item in screenshot_results
+        if item.get("status") == "ok"
+    )
 
     lines: list[str] = []
     lines.append("# Dashboard Quality Gate Report")
@@ -342,6 +373,7 @@ def render_summary(
     lines.append(f"- Live static warnings: `{static}`")
     lines.append(f"- Live parity warnings: `{parity}`")
     lines.append(f"- Screenshot errors: `{screenshot_errors}`")
+    lines.append(f"- Visual warnings: `{visual_warnings}`")
     lines.append(f"- Normalized findings: `{len(findings)}`")
     lines.append("")
     lines.append("## Command Exit Codes")
@@ -360,6 +392,19 @@ def render_summary(
                 lines.append(f"- ERROR `{item.get('path')}`: {item.get('message')}")
         lines.append("")
 
+    visual_findings = [f for f in findings if f.get("source") == "visual"]
+    if visual_findings:
+        lines.append("## Visual Check Findings")
+        lines.append("")
+        for vf in visual_findings:
+            sev = vf.get("severity", "warning").upper()
+            dashboard = vf.get("dashboard", "unknown")
+            panel = vf.get("panel_title") or "—"
+            rule = vf.get("rule", "")
+            msg = vf.get("message", "")
+            lines.append(f"- [{sev}] `{dashboard}` | panel: {panel} | {rule}: {msg}")
+        lines.append("")
+
     lines.append("## Artifact Files")
     lines.append("")
     lines.append("- `lint-only.json`")
@@ -375,6 +420,76 @@ def render_summary(
         lines.append("- `screenshots/*`")
 
     return "\n".join(lines) + "\n"
+
+
+def _run_visual_checks(page: Any, console_messages: list[dict[str, str]]) -> list[dict[str, Any]]:
+    """Run DOM-level visual checks on the currently loaded Grafana page.
+
+    Returns a list of findings, each with keys: check, severity, panel_title, text.
+    """
+    checks: list[dict[str, Any]] = []
+
+    # --- No data overlays ---
+    # Grafana 12 primary selector, with fallback to legacy class
+    no_data_locator = page.locator(
+        '[data-testid="data-testid Panel status message"], .panel-empty'
+    )
+    for i in range(no_data_locator.count()):
+        el = no_data_locator.nth(i)
+        text = (el.text_content() or "").strip()
+        # Walk up to the panel wrapper to find the panel title
+        panel_title = _extract_panel_title(el)
+        checks.append({
+            "check": "no-data-overlay",
+            "severity": "warning",
+            "panel_title": panel_title,
+            "text": text or "No data",
+        })
+
+    # --- Panel error states ---
+    error_locator = page.locator(
+        '[data-testid="data-testid Panel status error"], '
+        '[data-testid="data-testid Panel header error icon"]'
+    )
+    for i in range(error_locator.count()):
+        el = error_locator.nth(i)
+        text = (el.text_content() or "").strip()
+        panel_title = _extract_panel_title(el)
+        checks.append({
+            "check": "panel-error",
+            "severity": "error",
+            "panel_title": panel_title,
+            "text": text or "Panel error",
+        })
+
+    # --- Console errors ---
+    benign_patterns = re.compile(
+        r"favicon|grafana-usage-stats|api/live/ws|_fragment|hot-update",
+        re.IGNORECASE,
+    )
+    for msg in console_messages:
+        if msg.get("level") == "error" and not benign_patterns.search(msg.get("text", "")):
+            checks.append({
+                "check": "console-error",
+                "severity": "warning",
+                "panel_title": None,
+                "text": msg.get("text", "")[:300],
+            })
+
+    return checks
+
+
+def _extract_panel_title(element: Any) -> str:
+    """Walk up DOM from element to find the enclosing panel's title."""
+    try:
+        panel = element.locator("xpath=ancestor::*[@data-panelid]").first
+        if panel.count() > 0:
+            header = panel.locator('[data-testid="header-container"] h2, .panel-title-text')
+            if header.count() > 0:
+                return (header.first.text_content() or "").strip()
+    except Exception:
+        pass
+    return "unknown"
 
 
 def capture_screenshots(
@@ -407,6 +522,14 @@ def capture_screenshots(
         context = browser.new_context(extra_http_headers=extra_headers)
         page = context.new_page()
 
+        # Collect console messages for visual checks
+        console_messages: list[dict[str, str]] = []
+
+        def _on_console(msg: Any) -> None:
+            console_messages.append({"level": msg.type, "text": msg.text})
+
+        page.on("console", _on_console)
+
         if not token:
             # Fall back to form-based login.
             page.goto(base_url, wait_until="domcontentloaded", timeout=45000)
@@ -431,14 +554,29 @@ def capture_screenshots(
                 page.wait_for_load_state("networkidle", timeout=15000)
 
         for rel_path in relative_paths:
+            console_messages.clear()
             target = f"{base_url.rstrip('/')}{rel_path}"
             safe_name = rel_path.strip("/").replace("/", "_").replace("?", "_").replace("&", "_")
             file_path = output_dir / f"{safe_name}.png"
             try:
                 page.goto(target, wait_until="domcontentloaded", timeout=45000)
                 page.wait_for_load_state("networkidle", timeout=15000)
+                # Allow extra time for panel rendering to settle
+                page.wait_for_timeout(2000)
                 page.screenshot(path=str(file_path), full_page=True)
-                results.append({"status": "ok", "path": rel_path, "file": str(file_path)})
+                visual = _run_visual_checks(page, console_messages)
+                no_data_count = sum(1 for v in visual if v["check"] == "no-data-overlay")
+                panel_error_count = sum(1 for v in visual if v["check"] == "panel-error")
+                console_error_count = sum(1 for v in visual if v["check"] == "console-error")
+                results.append({
+                    "status": "ok",
+                    "path": rel_path,
+                    "file": str(file_path),
+                    "visual_checks": visual,
+                    "no_data_count": no_data_count,
+                    "panel_error_count": panel_error_count,
+                    "console_error_count": console_error_count,
+                })
             except Exception as exc:  # pragma: no cover - runtime diagnostics
                 results.append({"status": "error", "path": rel_path, "message": str(exc)})
 
@@ -487,6 +625,14 @@ def evaluate_gate(
         reasons.append(f"parity warnings {parity} > threshold {args.max_parity_warnings}")
     if screenshot_errors > args.max_screenshot_errors:
         reasons.append(f"screenshot errors {screenshot_errors} > threshold {args.max_screenshot_errors}")
+
+    visual_warnings = sum(
+        len(item.get("visual_checks") or [])
+        for item in screenshot_results
+        if item.get("status") == "ok"
+    )
+    if visual_warnings > args.max_visual_warnings:
+        reasons.append(f"visual warnings {visual_warnings} > threshold {args.max_visual_warnings}")
 
     return (len(reasons) > 0), reasons
 

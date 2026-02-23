@@ -53,6 +53,24 @@ python scripts/dashboard_quality_gate.py \
 
 The script exits non-zero when any threshold is exceeded or static lint parse errors are detected.
 
+### Visual checks
+
+When `--screenshots` is enabled, the quality gate also performs DOM-level visual inspection on each loaded dashboard page. These checks catch rendering failures that the API cannot detect:
+
+| Check | Selector / source | Severity | What it catches |
+|---|---|---|---|
+| No data overlays | `[data-testid="data-testid Panel status message"]`, `.panel-empty` | warning | Panels showing "No data" due to column mismatches, missing time columns, or empty result sets |
+| Panel errors | `[data-testid="data-testid Panel status error"]`, `[data-testid="data-testid Panel header error icon"]` | error | Panels with query errors, datasource failures, or rendering exceptions |
+| Console errors | Browser console messages at `error` level | warning | JavaScript errors, failed API calls, or plugin issues (benign patterns like `favicon`, `grafana-usage-stats`, `api/live/ws` are excluded) |
+
+Findings appear in `findings.normalized.json` with `source: "visual"` and in the report under **Visual Check Findings**.
+
+Use `--max-visual-warnings <N>` to set the threshold (default: 0). Set a higher value when known "No data" panels are expected:
+
+```bash
+python scripts/dashboard_quality_gate.py --screenshots --max-visual-warnings 10
+```
+
 ## Unit and Sign Standards
 
 These standards are enforced across all 23 dashboard files as of task-48.

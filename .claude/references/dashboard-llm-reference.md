@@ -53,7 +53,11 @@ Make family-finance dashboards easy for parents to understand and act on without
    - Confirm no visible `No data` in affected panels.
    - Confirm navigation links resolve.
    - Capture screenshot evidence in `screenshots/`.
-4. If dbt models are touched:
+4. Visual checks (automated via `--screenshots`):
+   - Quality gate inspects the DOM for "No data" overlays, panel error icons, and console errors.
+   - Review `visual_checks` entries in `screenshots.json` and `source: "visual"` findings in `findings.normalized.json`.
+   - Set `--max-visual-warnings <N>` to allow known "No data" panels while still catching regressions.
+5. If dbt models are touched:
    - run dbt build/test for changed models and dependent tests.
 
 ## Playwright Review URLs
