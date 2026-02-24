@@ -788,7 +788,13 @@
   ],
   "refresh": "",
   "schemaVersion": 38,
-  "tags": ["outflows", "reconciliation", "quality"],
+  "tags": [
+    "outflows",
+    "reconciliation",
+    "quality",
+    "time_control_rollout:tranche_a",
+    "time_control_archetype:historical_windowed"
+  ],
   "templating": {
     "list": [
       {
@@ -797,13 +803,13 @@
         "type": "custom",
         "hide": 0,
         "current": {
-          "text": "Latest Month",
+          "text": "Last Complete Month",
           "value": "latest_month",
           "selected": true
         },
         "options": [
           {
-            "text": "Latest Month",
+            "text": "Last Complete Month",
             "value": "latest_month",
             "selected": true
           },
@@ -825,7 +831,10 @@
       }
     ]
   },
-  "time": {"from": "now-12M", "to": "now"},
+  "time": {
+    "from": "now-12M",
+    "to": "now"
+  },
   "timezone": "Australia/Melbourne",
   "title": "Financial Reconciliation Dashboard",
   "uid": "outflows_reconciliation",

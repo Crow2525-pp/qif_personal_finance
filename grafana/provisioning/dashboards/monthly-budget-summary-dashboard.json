@@ -2438,7 +2438,9 @@
     "income",
     "expenses",
     "personal-finance",
-    "dashboard"
+    "dashboard",
+    "time_control_rollout:tranche_a",
+    "time_control_archetype:historical_windowed"
   ],
   "templating": {
     "list": [
@@ -2448,13 +2450,13 @@
         "type": "custom",
         "hide": 0,
         "current": {
-          "text": "Latest Month",
+          "text": "Last Complete Month",
           "value": "latest_month",
           "selected": true
         },
         "options": [
           {
-            "text": "Latest Month",
+            "text": "Last Complete Month",
             "value": "latest_month",
             "selected": true
           },

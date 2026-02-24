@@ -1051,7 +1051,11 @@
   "tags": [
     "projections",
     "finance",
-    "scenarios"
+    "scenarios",
+    "time_control_rollout:tranche_b",
+    "time_control_archetype:forward_looking",
+    "time_control:forward_looking_exception",
+    "time_control_reason:future_projection_context"
   ],
   "templating": {
     "list": [

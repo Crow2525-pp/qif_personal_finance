@@ -36,7 +36,7 @@
       "targetBlank": false,
       "title": "View in 06 - Category Spending Analysis",
       "type": "link",
-      "url": "/d/category-spending-v2?orgId=1&${__url_time_range}"
+      "url": "/d/category-spending-v2?orgId=1&${__url_time_range}&var-time_window=${time_window}"
     },
     {
       "icon": "external link",
@@ -2444,7 +2444,9 @@
     "cash-flow",
     "analysis",
     "personal-finance",
-    "dashboard"
+    "dashboard",
+    "time_control_rollout:tranche_a",
+    "time_control_archetype:historical_windowed"
   ],
   "templating": {
     "list": [
@@ -2454,13 +2456,13 @@
         "type": "custom",
         "hide": 0,
         "current": {
-          "text": "Latest Month",
+          "text": "Last Complete Month",
           "value": "latest_month",
           "selected": true
         },
         "options": [
           {
-            "text": "Latest Month",
+            "text": "Last Complete Month",
             "value": "latest_month",
             "selected": true
           },

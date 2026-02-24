@@ -622,10 +622,45 @@
   "tags": [
     "mobile",
     "assets",
-    "net-worth"
+    "net-worth",
+    "time_control_rollout:tranche_b",
+    "time_control_archetype:historical_windowed"
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "name": "time_window",
+        "label": "Time Window",
+        "type": "custom",
+        "hide": 0,
+        "current": {
+          "text": "Last Complete Month",
+          "value": "latest_month",
+          "selected": true
+        },
+        "options": [
+          {
+            "text": "Last Complete Month",
+            "value": "latest_month",
+            "selected": true
+          },
+          {
+            "text": "Year to Date",
+            "value": "ytd",
+            "selected": false
+          },
+          {
+            "text": "Trailing 12 Months",
+            "value": "trailing_12m",
+            "selected": false
+          }
+        ],
+        "query": "latest_month,ytd,trailing_12m",
+        "includeAll": false,
+        "multi": false,
+        "skipUrlSync": false
+      }
+    ]
   },
   "time": {
     "from": "now-2y",

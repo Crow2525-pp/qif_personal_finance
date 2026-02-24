@@ -2,6 +2,42 @@
 
 Utility scripts for managing the personal finance pipeline.
 
+## validate_dashboard_json.py
+
+Validates that all Grafana dashboard JSON files are parseable. This is the
+upstream linter gate for other dashboard policy checks.
+
+```bash
+python scripts/validate_dashboard_json.py
+
+# Machine-readable output
+python scripts/validate_dashboard_json.py --json
+```
+
+Exit codes: `0` all files parse cleanly, `1` parse failures found,
+`2` runtime/directory error.
+
+---
+
+## check_dashboard_time_control_policy.py
+
+Validates Task 110 time-control policy across dashboard metadata, variables,
+and links.
+
+```bash
+python scripts/check_dashboard_time_control_policy.py
+
+# JSON output for CI/Dagster
+python scripts/check_dashboard_time_control_policy.py --json
+
+# Relax label strictness (keeps structural checks)
+python scripts/check_dashboard_time_control_policy.py --no-strict
+```
+
+Exit codes: `0` policy pass, `1` policy violations, `2` parse/runtime error.
+
+---
+
 ## check_grafana_dashboards.py
 
 Validates Grafana dashboards for data issues and common configuration mistakes.

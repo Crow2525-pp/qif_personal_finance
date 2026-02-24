@@ -728,7 +728,7 @@
                 "value": [
                   {
                     "title": "Open Transaction Analysis Dashboard",
-                    "url": "/d/transaction_analysis_dashboard",
+                    "url": "/d/transaction_analysis_dashboard?var-time_window=${time_window}",
                     "targetBlank": true
                   }
                 ]
@@ -778,10 +778,45 @@
   "tags": [
     "mobile",
     "executive",
-    "overview"
+    "overview",
+    "time_control_rollout:tranche_b",
+    "time_control_archetype:historical_windowed"
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "name": "time_window",
+        "label": "Time Window",
+        "type": "custom",
+        "hide": 0,
+        "current": {
+          "text": "Last Complete Month",
+          "value": "latest_month",
+          "selected": true
+        },
+        "options": [
+          {
+            "text": "Last Complete Month",
+            "value": "latest_month",
+            "selected": true
+          },
+          {
+            "text": "Year to Date",
+            "value": "ytd",
+            "selected": false
+          },
+          {
+            "text": "Trailing 12 Months",
+            "value": "trailing_12m",
+            "selected": false
+          }
+        ],
+        "query": "latest_month,ytd,trailing_12m",
+        "includeAll": false,
+        "multi": false,
+        "skipUrlSync": false
+      }
+    ]
   },
   "time": {
     "from": "now-12M",
