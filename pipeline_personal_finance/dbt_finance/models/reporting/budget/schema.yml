@@ -168,14 +168,52 @@ models:
         tests:
           - not_null
           - unique
+      - name: dashboard_year
+        description: "Year component for monthly executive dashboard filtering and comparisons"
+        tests:
+          - not_null
+      - name: dashboard_month_num
+        description: "Month number (1-12) for panel grouping and display formatting"
+        tests:
+          - not_null
+      - name: dashboard_generated_at
+        description: "Build timestamp for executive dashboard data freshness display"
+        tests:
+          - not_null
+      - name: monthly_income
+        description: "Rounded monthly income value used in executive snapshot panels"
+        tests:
+          - not_null
+      - name: monthly_expenses
+        description: "Rounded monthly expenses value used in executive snapshot panels"
+        tests:
+          - not_null
+      - name: monthly_net_cash_flow
+        description: "Rounded monthly net cash flow used in executive snapshot panels"
+        tests:
+          - not_null
+      - name: monthly_savings_rate_percent
+        description: "Monthly savings rate as ratio (0-1) for executive displays"
+        tests:
+          - not_null
       - name: overall_financial_health_score
         description: "Composite financial health score from 1-100"
         tests:
           - not_null
+      - name: overall_financial_health_rating
+        description: "Categorical financial health band derived from overall score"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Excellent', 'Good', 'Fair', 'Needs Improvement', 'Critical Attention Required']
       - name: monthly_savings_rate_percent_pct
         description: "Monthly savings rate, percentage scaled (0-100)"
+        tests:
+          - not_null
       - name: expense_to_income_ratio_pct
         description: "Expense to income ratio, percentage scaled (0-100)"
+        tests:
+          - not_null
       - name: cash_flow_efficiency_percentile_pct
         description: "Cash flow efficiency percentile scaled to 0-100"
       - name: ytd_savings_rate_pct
@@ -184,6 +222,20 @@ models:
         description: "Net worth health score (1-100)"
       - name: savings_health_score
         description: "Savings health score (1-100)"
+        tests:
+          - not_null
+      - name: cash_flow_score
+        description: "Rounded cash flow efficiency score used in health and performance panels"
+        tests:
+          - not_null
+      - name: priority_recommendation
+        description: "Top recommendation surfaced in executive priority panel"
+        tests:
+          - not_null
+      - name: accounts_with_issues
+        description: "Comma-separated account names currently flagged for attention (nullable when none)"
+      - name: current_savings_tier
+        description: "Savings performance tier label displayed in executive rating panel (nullable when unavailable)"
 
   - name: rpt_budget_variance_summary
     description: "Monthly budget variance analysis using 3-month rolling average targets. Tracks actual vs target income and expenses with variance percentages and status indicators for each major spending category."

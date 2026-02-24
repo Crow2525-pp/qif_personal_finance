@@ -22,7 +22,6 @@ Make family-finance dashboards easy for parents to understand and act on without
   - `expense_performance`: `Current Expense-to-Income Ratio`, `Expense Performance Metrics Summary`
   - `exec-mobile-overview`: `Health Scores`, `Key Metrics`
 - Query/API errors captured from `/api/ds/query`:
-  - missing relation: `reporting.rpt_executive_dashboard`
   - missing relation: `reporting.rpt_recommendation_outcomes`
   - missing relation: `reporting.reporting__fact_transactions`
   - missing columns: `bendigo_offset`, `bendigo_offset_MoM`, `inflow_excl_transfers`

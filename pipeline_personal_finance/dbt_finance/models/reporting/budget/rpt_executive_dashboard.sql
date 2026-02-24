@@ -1,11 +1,24 @@
 {{
   config(
-    materialized='view',
+    materialized='table',
     indexes=[
       {'columns': ['dashboard_month'], 'unique': true}
     ]
   )
 }}
+{#
+Dashboard contract for this model (coordinate SQL + dashboard JSON changes together):
+- executive_dashboard:
+  - panel 132 (Data Freshness): dashboard_generated_at
+  - panel 198 (Priority Recommendation): priority_recommendation, accounts_with_issues
+  - panel 1994 (Financial Health Rating): overall_financial_health_rating, current_savings_tier
+- expense_performance:
+  - ratio/score panels: dashboard_year, dashboard_month_num, monthly_savings_rate_percent_pct, expense_to_income_ratio_pct, cash_flow_score
+- exec-mobile-overview:
+  - panel 1 (Health Scores): expense_to_income_ratio_pct, overall_financial_health_score, savings_health_score, cash_flow_score
+  - panel 2 (Monthly Snapshot): monthly_income, monthly_expenses, monthly_net_cash_flow, monthly_savings_rate_percent
+- all executive consumers: dashboard_month for latest-period row selection
+#}
 
 WITH latest_period AS (
   SELECT MAX(budget_year_month) AS latest_month
