@@ -72,7 +72,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udccb Transaction Analysis Dashboard\n\n**Purpose**: Identify spending patterns, recurring merchants, and transactions that need categorisation.\n\n**Workflow**\n1. Check the KPI row to understand overall activity for the last 12 closed months.\n2. Use the inflow/outflow trend to confirm monthly cash movement.\n3. Review top spending categories and drill into large uncategorised items.\n4. Inspect recurring merchants for unexpected subscriptions or fees.\n5. Use the account summary to see where activity concentrates.\n\n_All panels exclude internal transfers and the current, incomplete month._",
+        "content": "# 📋 Transaction Analysis Dashboard\n\n**Purpose**: Identify spending patterns, recurring merchants, and transactions that need categorisation.\n\n**Workflow**\n1. Check the KPI row to understand overall activity for the last 12 closed months.\n2. Use the inflow/outflow trend to confirm monthly cash movement.\n3. Review top spending categories and drill into large uncategorised items.\n4. Inspect recurring merchants for unexpected subscriptions or fees.\n5. Use the account summary to see where activity concentrates.\n\n_All panels exclude internal transfers and the current, incomplete month._",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -809,59 +809,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (
-  SELECT budget_year_month,
-         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date
-  FROM reporting.rpt_monthly_budget_summary
-  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')
-),
-latest_period AS (
-  SELECT MAX(month_date) AS month_date
-  FROM available_months
-),
-period_bounds AS (
-  SELECT month_date,
-         month_date AS month_start,
-         (month_date + INTERVAL '1 month' - INTERVAL '1 day')::date AS month_end
-  FROM latest_period
-),
-stale_accounts AS (
-  SELECT COUNT(*) AS stale_accounts
-  FROM reporting.dim_accounts_enhanced
-  WHERE account_last_transaction_date < (SELECT month_end FROM period_bounds) - INTERVAL '45 days'
-),
-transfer_pairs AS (
-  SELECT
-    transaction_date::date AS txn_date,
-    transaction_amount_abs AS amount_abs,
-    SUM(CASE WHEN transaction_amount < 0 THEN 1 ELSE 0 END) AS out_count,
-    SUM(CASE WHEN transaction_amount > 0 THEN 1 ELSE 0 END) AS in_count
-  FROM reporting.fct_transactions_enhanced
-  WHERE COALESCE(is_internal_transfer, FALSE)
-    AND transaction_date >= (SELECT month_start FROM period_bounds)
-    AND transaction_date <= (SELECT month_end FROM period_bounds)
-  GROUP BY 1,2
-),
-unmatched_transfers AS (
-  SELECT COALESCE(SUM(ABS(out_count - in_count)), 0) AS unmatched_count
-  FROM transfer_pairs
-),
-uncategorized AS (
-  SELECT uncategorized_pct
-  FROM reporting.rpt_outflows_insights_dashboard
-  WHERE period_date = (SELECT month_date FROM period_bounds)
-)
-SELECT 'Stale accounts (45d+ no activity)' AS metric,
-       COALESCE((SELECT stale_accounts FROM stale_accounts), 0)::text AS value,
-       'Accounts without recent transactions' AS detail
-UNION ALL
-SELECT 'Unmatched internal transfers',
-       COALESCE((SELECT unmatched_count FROM unmatched_transfers), 0)::text,
-       'Proxy count based on paired in/out amounts'
-UNION ALL
-SELECT 'Uncategorized spend %',
-       CONCAT(ROUND(COALESCE((SELECT uncategorized_pct FROM uncategorized), 0), 1), '%'),
-       'Share of outflows currently uncategorized';",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nperiod_bounds AS (\n  SELECT month_date,\n         month_date AS month_start,\n         (month_date + INTERVAL '1 month' - INTERVAL '1 day')::date AS month_end\n  FROM latest_period\n),\nstale_accounts AS (\n  SELECT COUNT(*) AS stale_accounts\n  FROM reporting.dim_accounts_enhanced\n  WHERE account_last_transaction_date < (SELECT month_end FROM period_bounds) - INTERVAL '45 days'\n),\ntransfer_pairs AS (\n  SELECT\n    transaction_date::date AS txn_date,\n    transaction_amount_abs AS amount_abs,\n    SUM(CASE WHEN transaction_amount < 0 THEN 1 ELSE 0 END) AS out_count,\n    SUM(CASE WHEN transaction_amount > 0 THEN 1 ELSE 0 END) AS in_count\n  FROM reporting.fct_transactions_enhanced\n  WHERE COALESCE(is_internal_transfer, FALSE)\n    AND transaction_date >= (SELECT month_start FROM period_bounds)\n    AND transaction_date <= (SELECT month_end FROM period_bounds)\n  GROUP BY 1,2\n),\nunmatched_transfers AS (\n  SELECT COALESCE(SUM(ABS(out_count - in_count)), 0) AS unmatched_count\n  FROM transfer_pairs\n),\nuncategorized AS (\n  SELECT uncategorized_pct\n  FROM reporting.rpt_outflows_insights_dashboard\n  WHERE period_date = (SELECT month_date FROM period_bounds)\n)\nSELECT 'Stale accounts (45d+ no activity)' AS metric,\n       COALESCE((SELECT stale_accounts FROM stale_accounts), 0)::text AS value,\n       'Accounts without recent transactions' AS detail\nUNION ALL\nSELECT 'Unmatched internal transfers',\n       COALESCE((SELECT unmatched_count FROM unmatched_transfers), 0)::text,\n       'Proxy count based on paired in/out amounts'\nUNION ALL\nSELECT 'Uncategorized spend %',\n       CONCAT(ROUND(COALESCE((SELECT uncategorized_pct FROM uncategorized), 0), 1), '%'),\n       'Share of outflows currently uncategorized';",
           "refId": "A"
         }
       ],
@@ -927,27 +875,7 @@ SELECT 'Uncategorized spend %',
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH data AS (
-  SELECT
-    original_memo AS merchant,
-    transaction_count AS txn_count,
-    ROUND(total_amount, 2) AS total_spend,
-    last_transaction_date AS last_seen,
-    priority_level
-  FROM reporting.viz_uncategorized_transactions_with_original_memo
-  ORDER BY total_amount DESC, transaction_count DESC
-  LIMIT 10
-)
-SELECT
-  merchant AS \"Merchant\",
-  txn_count AS \"Txn Count\",
-  total_spend AS \"Total Spend\",
-  last_seen AS \"Last Seen\",
-  priority_level AS \"Priority\"
-FROM data
-UNION ALL
-SELECT 'None', 0, 0, NULL::date, 'N/A'
-WHERE NOT EXISTS (SELECT 1 FROM data);",
+          "rawSql": "WITH data AS (\n  SELECT\n    original_memo AS merchant,\n    transaction_count AS txn_count,\n    ROUND(total_amount, 2) AS total_spend,\n    last_transaction_date AS last_seen,\n    priority_level\n  FROM reporting.viz_uncategorized_transactions_with_original_memo\n  ORDER BY total_amount DESC, transaction_count DESC\n  LIMIT 10\n)\nSELECT\n  merchant AS \"Merchant\",\n  txn_count AS \"Txn Count\",\n  total_spend AS \"Total Spend\",\n  last_seen AS \"Last Seen\",\n  priority_level AS \"Priority\"\nFROM data\nUNION ALL\nSELECT 'None', 0, 0, NULL::date, 'N/A'\nWHERE NOT EXISTS (SELECT 1 FROM data);",
           "refId": "A"
         }
       ],
@@ -1069,20 +997,7 @@ WHERE NOT EXISTS (SELECT 1 FROM data);",
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT
-  transaction_date::date,
-  account_name,
-  merchant_name,
-  category_name,
-  amount_abs,
-  merchant_12m_avg,
-  variance_from_avg_pct,
-  merchant_12m_count,
-  anomaly_severity_label
-FROM viz.viz_transaction_anomalies
-WHERE transaction_date >= CURRENT_DATE - INTERVAL '3 months'
-ORDER BY variance_from_avg_pct DESC
-LIMIT 30;",
+          "rawSql": "SELECT\n  transaction_date::date,\n  account_name,\n  merchant_name,\n  category_name,\n  amount_abs,\n  merchant_12m_avg,\n  variance_from_avg_pct,\n  merchant_12m_count,\n  anomaly_severity_label\nFROM viz.viz_transaction_anomalies\nWHERE transaction_date >= CURRENT_DATE - INTERVAL '3 months'\nORDER BY variance_from_avg_pct DESC\nLIMIT 30;",
           "refId": "A"
         }
       ]
@@ -1194,21 +1109,7 @@ LIMIT 30;",
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT
-  transaction_date::date,
-  account_name,
-  merchant_name,
-  amount_abs,
-  level_1_category,
-  primary_review_reason,
-  is_new_merchant,
-  merchant_12m_transaction_count,
-  priority_label,
-  queue_status
-FROM viz.viz_transactions_needs_review_queue
-WHERE queue_status IN ('RECENT', 'CURRENT_MONTH')
-ORDER BY review_priority ASC, amount_abs DESC
-LIMIT 40;",
+          "rawSql": "SELECT\n  transaction_date::date,\n  account_name,\n  merchant_name,\n  amount_abs,\n  level_1_category,\n  primary_review_reason,\n  is_new_merchant,\n  merchant_12m_transaction_count,\n  priority_label,\n  queue_status\nFROM viz.viz_transactions_needs_review_queue\nWHERE queue_status IN ('RECENT', 'CURRENT_MONTH')\nORDER BY review_priority ASC, amount_abs DESC\nLIMIT 40;",
           "refId": "A"
         }
       ]

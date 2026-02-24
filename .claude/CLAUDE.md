@@ -18,37 +18,48 @@ This is a personal finance data pipeline that processes QIF (Quicken Interchange
 
 ## Development Commands
 
+**Always prefer `make <target>` over raw `docker-compose` or `uv run` commands.** A `Makefile` at the repo root wraps all common operations. Run `make help` to see the full list.
+
 ### Setup and Run
 ```bash
-# Copy environment file and configure credentials
-cp .env.template .env  # Edit with your database credentials
+make setup   # copies .env.template → .env (edit credentials first)
+make up      # docker-compose up -d (starts Dagster + Grafana + Postgres)
+make status  # docker-compose ps
+make logs    # docker-compose logs -f
+make down    # stop all services
+make rebuild # docker-compose down + build --no-cache + up
+```
 
-# Start all services
-docker-compose up -d
+### Dagster / Grafana access
+```bash
+make dagster-ui   # opens http://localhost:3000
+make grafana-ui   # opens http://localhost:3001
+```
 
-# Access Dagster UI
-# Navigate to http://localhost:3000
+### dbt helpers
+```bash
+make dbt-deps     # install dbt packages
+make dbt-compile  # syntax check
+make dbt-build    # build models + tests
+make dbt-test     # run tests only
+```
+
+### Code Quality
+```bash
+make lint      # sqlfluff lint on dbt models
+make lint-fix  # sqlfluff fix on dbt models
 ```
 
 ### Development Workflow
 1. Place QIF files in `pipeline_personal_finance/qif_files/`
-2. Access Dagster UI at localhost:3000
-3. Reload definitions in Dagster UI
-4. Run the asset pipeline
-5. View results in Grafana dashboards
+2. `make dagster-ui` → reload definitions → run the asset pipeline
+3. `make grafana-ui` → review dashboards
 
 ### Database Access
 - PostgreSQL runs on port 5432
 - Connection details in `.env` file
 - Database: `personal_finance`
 - Schemas: `landing`, `staging`, `transformation`, `reporting`
-
-### Code Quality
-```bash
-# SQL linting (available via dev dependencies)
-uv run sqlfluff lint pipeline_personal_finance/dbt_finance/models/
-uv run sqlfluff fix pipeline_personal_finance/dbt_finance/models/
-```
 
 ## Architecture
 

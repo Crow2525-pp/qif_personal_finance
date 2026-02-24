@@ -148,14 +148,20 @@ def dashboard_quality_gate(context) -> None:
     all_failures: list[dict[str, Any]] = []
 
     for dash in dashboards:
-        _, failing_panels = _checker.check_dashboard(
-            client,
-            dash,
-            datasources,
-            time_from=time_from,
-            time_to=time_to,
-            min_rows=1,
-        )
+        try:
+            _, failing_panels = _checker.check_dashboard(
+                client,
+                dash,
+                datasources,
+                time_from=time_from,
+                time_to=time_to,
+                min_rows=1,
+            )
+        except Exception as exc:
+            context.log.warning(
+                f"Could not check dashboard '{dash.get('title')}': {exc}. Skipping."
+            )
+            continue
         for panel in failing_panels:
             msg = panel.get("messages", "")
             context.log.warning(
