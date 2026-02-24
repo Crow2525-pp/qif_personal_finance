@@ -1575,7 +1575,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  'Top Expense Driver 1' as \"Category\",\n  top_expense_driver_1 as \"Driver\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1\nUNION ALL\nSELECT \n  'Top Expense Driver 2' as \"Category\",\n  top_expense_driver_2 as \"Driver\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1\nUNION ALL\nSELECT \n  'Top Net Worth Driver' as \"Category\",\n  top_net_worth_driver_1 as \"Driver\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
+          "rawSql": "(SELECT\n  'Top Expense Driver 1' as \"Category\",\n  top_expense_driver_1 as \"Driver\"\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC\nLIMIT 1)\nUNION ALL\n(SELECT\n  'Top Expense Driver 2' as \"Category\",\n  top_expense_driver_2 as \"Driver\"\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC\nLIMIT 1)\nUNION ALL\n(SELECT\n  'Top Net Worth Driver' as \"Category\",\n  top_net_worth_driver_1 as \"Driver\"\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC\nLIMIT 1)",
           "refId": "A"
         }
       ],
