@@ -47,11 +47,38 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<EO
     END
     \$\$;
 
-EOSQL
+    CREATE SCHEMA IF NOT EXISTS landing;
+    CREATE SCHEMA IF NOT EXISTS staging;
+    CREATE SCHEMA IF NOT EXISTS transformation;
+    CREATE SCHEMA IF NOT EXISTS reporting;
 
-psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" \
-    -v dagster_user="$DAGSTER_POSTGRES_USER" \
-    -v grafana_user="$GRAFANA_USER" \
-    -f /docker-entrypoint-initdb.d/02-role-hardening.sql
+    ALTER SCHEMA landing OWNER TO "${DAGSTER_POSTGRES_USER}";
+    ALTER SCHEMA staging OWNER TO "${DAGSTER_POSTGRES_USER}";
+    ALTER SCHEMA transformation OWNER TO "${DAGSTER_POSTGRES_USER}";
+    ALTER SCHEMA reporting OWNER TO "${DAGSTER_POSTGRES_USER}";
+
+    REVOKE ALL ON SCHEMA landing, staging, transformation, reporting FROM PUBLIC;
+    REVOKE ALL ON ALL TABLES IN SCHEMA landing, staging, transformation, reporting FROM PUBLIC;
+    REVOKE ALL ON ALL SEQUENCES IN SCHEMA landing, staging, transformation, reporting FROM PUBLIC;
+
+    GRANT USAGE, CREATE ON SCHEMA landing, staging, transformation, reporting TO "${DAGSTER_POSTGRES_USER}";
+    GRANT SELECT, INSERT, UPDATE, TRUNCATE, REFERENCES, TRIGGER ON ALL TABLES IN SCHEMA landing, staging, transformation, reporting TO "${DAGSTER_POSTGRES_USER}";
+    REVOKE DELETE ON ALL TABLES IN SCHEMA landing, staging, transformation, reporting FROM "${DAGSTER_POSTGRES_USER}";
+    GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA landing, staging, transformation, reporting TO "${DAGSTER_POSTGRES_USER}";
+
+    GRANT USAGE ON SCHEMA reporting TO "${GRAFANA_USER}";
+    GRANT SELECT ON ALL TABLES IN SCHEMA reporting TO "${GRAFANA_USER}";
+    REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON ALL TABLES IN SCHEMA landing, staging, transformation, reporting FROM "${GRAFANA_USER}";
+
+    ALTER DEFAULT PRIVILEGES FOR ROLE "${DAGSTER_POSTGRES_USER}" IN SCHEMA landing, staging, transformation, reporting
+      GRANT SELECT, INSERT, UPDATE, TRUNCATE, REFERENCES, TRIGGER ON TABLES TO "${DAGSTER_POSTGRES_USER}";
+    ALTER DEFAULT PRIVILEGES FOR ROLE "${DAGSTER_POSTGRES_USER}" IN SCHEMA landing, staging, transformation, reporting
+      REVOKE DELETE ON TABLES FROM "${DAGSTER_POSTGRES_USER}";
+    ALTER DEFAULT PRIVILEGES FOR ROLE "${DAGSTER_POSTGRES_USER}" IN SCHEMA landing, staging, transformation, reporting
+      GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO "${DAGSTER_POSTGRES_USER}";
+    ALTER DEFAULT PRIVILEGES FOR ROLE "${DAGSTER_POSTGRES_USER}" IN SCHEMA reporting
+      GRANT SELECT ON TABLES TO "${GRAFANA_USER}";
+
+EOSQL
 
 echo "Configured users: '${DAGSTER_POSTGRES_USER}' (application writer, no DELETE) and '${GRAFANA_USER}' (Grafana read-only)."

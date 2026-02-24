@@ -6,7 +6,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from dagster import AssetExecutionContext, Failure, MetadataValue, Output, asset
+from dagster import Failure, MetadataValue, Output, asset
 
 from .assets import finance_dbt_assets
 
@@ -55,7 +55,7 @@ def _metadata_from_result(result: subprocess.CompletedProcess[str]) -> dict:
     group_name="policy_gates",
     description="Validates Grafana dashboard JSON parseability before policy checks.",
 )
-def dashboard_json_lint_gate(context: AssetExecutionContext) -> Output[dict]:
+def dashboard_json_lint_gate(context) -> Output[dict]:
     warn_only = _warn_only_enabled()
     result = _run_script("validate_dashboard_json.py", ["--json"])
     metadata = _metadata_from_result(result)
@@ -79,7 +79,7 @@ def dashboard_json_lint_gate(context: AssetExecutionContext) -> Output[dict]:
     description="Enforces dashboard time-control policy for task 110.",
 )
 def dashboard_time_control_policy_gate(
-    context: AssetExecutionContext,
+    context,
 ) -> Output[dict]:
     warn_only = _warn_only_enabled()
     result = _run_script("check_dashboard_time_control_policy.py", ["--json", "--strict"])

@@ -6,6 +6,7 @@ import numpy as np
 import re
 from quiffen import Qif
 from dagster import (
+    AssetDep,
     AssetExecutionContext,
     AssetOut,
     MetadataValue,
@@ -54,7 +55,6 @@ def finance_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
     yield from dbt.cli(
         ["build", "--target", target],
         context=context,
-        env={"DBT_EXECUTION_CONTEXT": "dagster"},
     ).stream()
 
 
@@ -214,6 +214,7 @@ _INGESTION_TAGS = {"dagster/kind/python": "", "dagster/kind/postgres": ""}
         "ING_BillsBillsBills_Transactions": AssetOut(is_required=False, tags=_INGESTION_TAGS),
         "ING_Countdown_Transactions": AssetOut(is_required=False, tags=_INGESTION_TAGS),
     },
+    deps=[AssetDep("postgres_role_readiness_gate")],
     can_subset=True,
     group_name="qif_ingestion",
 )

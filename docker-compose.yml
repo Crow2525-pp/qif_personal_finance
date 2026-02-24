@@ -30,8 +30,10 @@ services:
     networks:
       - dagster_network
     depends_on:
-      - dagster_postgres
-      - pipeline_personal_finance
+      dagster_postgres:
+        condition: service_healthy
+      pipeline_personal_finance:
+        condition: service_started
     logging:
       driver: json-file
       options:
@@ -72,8 +74,10 @@ services:
     networks:
       - dagster_network
     depends_on:
-      - dagster_postgres
-      - pipeline_personal_finance
+      dagster_postgres:
+        condition: service_healthy
+      pipeline_personal_finance:
+        condition: service_started
     env_file:
       - .env
 
@@ -103,6 +107,8 @@ services:
       GRAFANA_TOKEN: ${GRAFANA_TOKEN}
       GRAFANA_USER: ${GRAFANA_USER}
       GRAFANA_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      POSTGRES_ADMIN_USER: ${POSTGRES_ADMIN_USER}
+      POSTGRES_ADMIN_PASSWORD: ${POSTGRES_ADMIN_PASSWORD}
       DASHBOARD_DIR: /opt/dagster/app/grafana/provisioning/dashboards
     volumes:
       - /tmp/dagster-data:/tmp/dagster-data
@@ -114,6 +120,9 @@ services:
     #   - "5678:5678"
     env_file:
       - .env
+    depends_on:
+      dagster_postgres:
+        condition: service_healthy
     # This looks to enable code-server, which is how you can get docker to look for updates.
     # entrypoint: python
     # command:
@@ -150,11 +159,17 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./postgres:/var/lib/postgresql/data/
+      - postgres-data:/var/lib/postgresql/data/
     networks:
       - dagster_network
     env_file:
       - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_ADMIN_USER} -d ${DAGSTER_POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
 
   grafana:
     image: grafana/grafana:latest
@@ -172,12 +187,14 @@ services:
     networks:
       - dagster_network
     depends_on:
-      - dagster_postgres
+      dagster_postgres:
+        condition: service_healthy
     env_file:
       - .env
 
 volumes:
   grafana-storage:
+  postgres-data:
 
 networks:
   dagster_network:

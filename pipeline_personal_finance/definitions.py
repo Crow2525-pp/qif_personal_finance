@@ -11,6 +11,7 @@ from .dashboard_policy_gate import (
     dashboard_json_lint_gate,
     dashboard_time_control_policy_gate,
 )
+from .postgres_readiness_gate import postgres_role_readiness_gate
 from .constants import DBT_PROJECT_DIR, QIF_FILES
 
 load_dotenv()
@@ -18,6 +19,7 @@ load_dotenv()
 qif_pipeline_job = define_asset_job(
     name="qif_pipeline_job",
     selection=[
+        postgres_role_readiness_gate,
         upload_dataframe_to_database,
         finance_dbt_assets,
         dashboard_quality_gate,
@@ -87,6 +89,7 @@ deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "prod")
 
 defs = Definitions(
     assets=[
+        postgres_role_readiness_gate,
         finance_dbt_assets,
         upload_dataframe_to_database,
         dashboard_quality_gate,
