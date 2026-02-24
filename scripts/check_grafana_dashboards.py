@@ -203,6 +203,12 @@ def render_sql(raw_sql: str, scoped_vars: Dict) -> str:
     def replacer(match: re.Match) -> str:
         var = match.group("var") or match.group("plain")
         fmt = match.group("fmt")
+
+        # Leave unknown variables untouched so the Grafana API can resolve
+        # its own built-ins ($__timeFrom, $__timeTo, $__timeFilter, etc.)
+        if var not in scoped_vars:
+            return match.group(0)
+
         values = render_value(var, fmt)
         start, end = match.start(), match.end()
         before = raw_sql_text[start - 1 : start] if start > 0 else ""
@@ -244,14 +250,18 @@ def resolve_variable_options(
     if not raw_sql.strip():
         return []
 
-    query_result = client.query(
-        datasources[ds_uid],
-        raw_sql,
-        time_from=time_from,
-        time_to=time_to,
-        scoped_vars={},
-        ref_id="Var",
-    )
+    try:
+        query_result = client.query(
+            datasources[ds_uid],
+            raw_sql,
+            time_from=time_from,
+            time_to=time_to,
+            scoped_vars={},
+            ref_id="Var",
+        )
+    except requests.HTTPError:
+        return []
+
     results = query_result.get("results", {})
     first = results.get("Var") or {}
     frames = first.get("frames") or []

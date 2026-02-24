@@ -98,9 +98,16 @@ services:
       DBT_PROJECT_DIR: ${DBT_PROJECT_DIR}
       DBT_PROFILES_DIR: ${DBT_PROJECT_DIR}
       DAGSTER_DEPLOYMENT: ${DAGSTER_DEPLOYMENT}
+      # Dashboard QA — use the internal Docker service URL, not the host-external one
+      GRAFANA_URL: http://grafana:3000
+      GRAFANA_TOKEN: ${GRAFANA_TOKEN}
+      GRAFANA_USER: ${GRAFANA_USER}
+      GRAFANA_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      DASHBOARD_DIR: /opt/dagster/app/grafana/provisioning/dashboards
     volumes:
       - /tmp/dagster-data:/tmp/dagster-data
       - ./pipeline_personal_finance/qif_files:/opt/dagster/app/pipeline_personal_finance/qif_files
+      - ./grafana/provisioning/dashboards:/opt/dagster/app/grafana/provisioning/dashboards:ro
     networks:
       - dagster_network
     # ports:
