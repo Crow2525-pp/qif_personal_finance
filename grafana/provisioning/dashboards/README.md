@@ -16,6 +16,61 @@ This folder is mounted into Grafana so dashboards auto-load from versioned JSON,
    - `mcp__playwright__browser_take_screenshot(filename="screenshots/dashboard-review.png", fullPage=true)`
    - look for “No data”, datasource errors, or console errors; attach the screenshot to `activity.md` for the task.
 
+## Dashboard QA Harness
+
+Use the quality gate script to run lint, live Grafana API checks, and optional Playwright screenshots in one command.
+
+### Local usage
+
+```bash
+# lint + live checks (default thresholds: 0 for failures/warnings)
+python scripts/dashboard_quality_gate.py --dashboards executive_dashboard category-spending-v2
+
+# include screenshot evidence (requires Playwright + GRAFANA_PASSWORD)
+python scripts/dashboard_quality_gate.py --dashboards executive_dashboard --screenshots
+
+# lint-only mode (no Grafana connectivity required)
+python scripts/dashboard_quality_gate.py --lint-only
+```
+
+Artifacts are written to `artifacts/dashboard-quality/<UTC timestamp>/` and include:
+- checker raw output (`lint-only.*`, `live-checks.*`)
+- normalized findings (`findings.normalized.json`)
+- markdown report (`report.md`)
+- screenshots (`screenshots/*.png`) when `--screenshots` is enabled
+
+### CI usage
+
+```bash
+python scripts/dashboard_quality_gate.py \
+  --base-url "$GRAFANA_URL" \
+  --dashboards executive_dashboard cash_flow_analysis \
+  --max-failing-panels 0 \
+  --max-layout-warnings 5 \
+  --max-static-warnings 5 \
+  --max-parity-warnings 0
+```
+
+The script exits non-zero when any threshold is exceeded or static lint parse errors are detected.
+
+### Visual checks
+
+When `--screenshots` is enabled, the quality gate also performs DOM-level visual inspection on each loaded dashboard page. These checks catch rendering failures that the API cannot detect:
+
+| Check | Selector / source | Severity | What it catches |
+|---|---|---|---|
+| No data overlays | `[data-testid="data-testid Panel status message"]`, `.panel-empty` | warning | Panels showing "No data" due to column mismatches, missing time columns, or empty result sets |
+| Panel errors | `[data-testid="data-testid Panel status error"]`, `[data-testid="data-testid Panel header error icon"]` | error | Panels with query errors, datasource failures, or rendering exceptions |
+| Console errors | Browser console messages at `error` level | warning | JavaScript errors, failed API calls, or plugin issues (benign patterns like `favicon`, `grafana-usage-stats`, `api/live/ws` are excluded) |
+
+Findings appear in `findings.normalized.json` with `source: "visual"` and in the report under **Visual Check Findings**.
+
+Use `--max-visual-warnings <N>` to set the threshold (default: 0). Set a higher value when known "No data" panels are expected:
+
+```bash
+python scripts/dashboard_quality_gate.py --screenshots --max-visual-warnings 10
+```
+
 ## Unit and Sign Standards
 
 These standards are enforced across all 23 dashboard files as of task-48.

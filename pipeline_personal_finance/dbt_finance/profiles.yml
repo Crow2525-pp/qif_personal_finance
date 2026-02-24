@@ -3,17 +3,17 @@ personal_finance:
   outputs:
     prod:
       type: postgres
-      host: 192.168.1.103
-      user: postgres
-      password: test
-      port: 5432
-      dbname: personal_finance
+      host: "{{ env_var('DAGSTER_POSTGRES_HOST', 'localhost') }}"
+      user: "{{ env_var('DAGSTER_POSTGRES_USER', 'dagster_service') }}"
+      password: "{{ env_var('DAGSTER_POSTGRES_PASSWORD', '') }}"
+      port: "{{ env_var('DAGSTER_POSTGRES_PORT', '5432') | int }}"
+      dbname: "{{ env_var('DAGSTER_POSTGRES_DB', 'personal_finance') }}"
       schema: landing
     test:
       type: postgres
-      host: localhost
-      user: postgres
-      password: test
-      port: 5432
-      dbname: personal_finance
+      host: "{{ env_var('DAGSTER_POSTGRES_HOST', 'localhost') }}"
+      user: "{{ env_var('DAGSTER_POSTGRES_USER', 'dagster_service') }}"
+      password: "{{ env_var('DAGSTER_POSTGRES_PASSWORD', '') }}"
+      port: "{{ env_var('DAGSTER_POSTGRES_PORT', '5432') | int }}"
+      dbname: "{{ env_var('DAGSTER_POSTGRES_DB', 'personal_finance') }}"
       schema: landing
