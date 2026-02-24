@@ -126,7 +126,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month,\n  bendigo_offset,\n  ing_billsbillsbills,\n  bendigo_homeloan,\n  ing_countdown\nFROM reporting.viz_balance_by_year_month \nWHERE period_date >= DATE_TRUNC('year', $__timeTo()::date - INTERVAL '1 year')\n  AND period_date < DATE_TRUNC('month', $__timeTo()::date)\nORDER BY period_date;",
+          "rawSql": "SELECT \n  year_month,\n  \"offset\",\n  billsbillsbills,\n  homeloan,\n  countdown\nFROM reporting.viz_balance_by_year_month \nWHERE period_date >= DATE_TRUNC('year', $__timeTo()::date - INTERVAL '1 year')\n  AND period_date < DATE_TRUNC('month', $__timeTo()::date)\nORDER BY period_date;",
           "refId": "A"
         }
       ],
@@ -280,7 +280,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  bendigo_offset,\n  ing_billsbillsbills,\n  bendigo_homeloan,\n  ing_countdown\nFROM reporting.viz_balance_by_year_month \nWHERE period_date = (\n  SELECT MAX(period_date) FROM reporting.viz_balance_by_year_month \n  WHERE period_date < DATE_TRUNC('month', $__timeTo()::date)\n);",
+          "rawSql": "SELECT \n  \"offset\",\n  billsbillsbills,\n  homeloan,\n  countdown\nFROM reporting.viz_balance_by_year_month \nWHERE period_date = (\n  SELECT MAX(period_date) FROM reporting.viz_balance_by_year_month \n  WHERE period_date < DATE_TRUNC('month', $__timeTo()::date)\n);",
           "refId": "A"
         }
       ],
@@ -518,7 +518,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  year_month,\n  \"bendigo_offset_MoM\" as bendigo_offset,\n  \"ing_billsbillsbills_MoM\" as ing_bills,\n  \"bendigo_homeloan_MoM\" as bendigo_loan,\n  \"ing_countdown_MoM\" as ing_countdown\nFROM reporting.viz_mom_differences \nWHERE period_date >= DATE_TRUNC('year', $__timeTo()::date - INTERVAL '1 year')\n  AND period_date < DATE_TRUNC('month', $__timeTo()::date)\nORDER BY period_date;",
+          "rawSql": "SELECT \n  year_month,\n  \"offset_MoM\" as bendigo_offset,\n  \"billsbillsbills_MoM\" as ing_bills,\n  \"homeloan_MoM\" as bendigo_loan,\n  \"countdown_MoM\" as ing_countdown\nFROM reporting.viz_mom_differences \nWHERE period_date >= DATE_TRUNC('year', $__timeTo()::date - INTERVAL '1 year')\n  AND period_date < DATE_TRUNC('month', $__timeTo()::date)\nORDER BY period_date;",
           "refId": "A"
         }
       ],
@@ -802,7 +802,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  DATE_TRUNC('month', t.date) as time,\n  CASE WHEN COUNT(CASE WHEN t.amount > 0 THEN 1 END) > 0 THEN 3410.00 ELSE 0 END as monthly_payment,\n  SUM(CASE WHEN t.amount < 0 THEN ABS(t.amount) ELSE 0 END) as total_charges_added,\n  CASE WHEN COUNT(CASE WHEN t.amount > 0 THEN 1 END) > 0 THEN 3410.00 ELSE 0 END - SUM(CASE WHEN t.amount < 0 THEN ABS(t.amount) ELSE 0 END) as net_principal_reduction\nFROM reporting.reporting__fact_transactions t \nJOIN reporting.dim_account a ON t.account_foreign_key = a.origin_key \nWHERE a.account_name = 'homeloan' \n  AND a.bank_name = 'bendigo'\n  AND DATE_TRUNC('month', t.date) < DATE_TRUNC('month', $__timeTo()::date)\nGROUP BY DATE_TRUNC('month', t.date) \nORDER BY time;",
+          "rawSql": "SELECT\n  DATE_TRUNC('month', ft.transaction_date) as time,\n  CASE WHEN COUNT(CASE WHEN ft.transaction_amount > 0 THEN 1 END) > 0 THEN 3410.00 ELSE 0 END as monthly_payment,\n  SUM(CASE WHEN ft.transaction_amount < 0 THEN ABS(ft.transaction_amount) ELSE 0 END) as total_charges_added,\n  CASE WHEN COUNT(CASE WHEN ft.transaction_amount > 0 THEN 1 END) > 0 THEN 3410.00 ELSE 0 END\n    - SUM(CASE WHEN ft.transaction_amount < 0 THEN ABS(ft.transaction_amount) ELSE 0 END) as net_principal_reduction\nFROM reporting.fct_transactions ft\nJOIN reporting.dim_accounts da ON ft.account_key = da.account_key\nWHERE da.is_mortgage = true\n  AND DATE_TRUNC('month', ft.transaction_date) < DATE_TRUNC('month', $__timeTo()::date)\nGROUP BY DATE_TRUNC('month', ft.transaction_date)\nORDER BY time",
           "refId": "A"
         }
       ],

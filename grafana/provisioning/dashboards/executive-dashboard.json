@@ -125,7 +125,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nwindow_range AS (\n  SELECT\n    CASE '${time_window}'\n      WHEN 'ytd'          THEN DATE_TRUNC('year', (SELECT month_date FROM selected_period))\n      WHEN 'trailing_12m' THEN (SELECT month_date FROM selected_period) - INTERVAL '11 months'\n      ELSE                     (SELECT month_date FROM selected_period)\n    END AS start_date,\n    (SELECT month_date FROM selected_period) AS end_date\n),\nexec_view AS (\n  SELECT dashboard_generated_at\n  FROM reporting.rpt_executive_dashboard\n  WHERE dashboard_month = (SELECT month_key FROM selected_key)\n)\nSELECT\n  CASE '${time_window}'\n    WHEN 'ytd'          THEN 'Year to Date'\n    WHEN 'trailing_12m' THEN 'Trailing 12 Months'\n    ELSE                     'Latest Month'\n  END AS \"Time Window\",\n  CASE '${time_window}'\n    WHEN 'ytd'          THEN to_char((SELECT start_date FROM window_range), 'Mon YYYY') || ' \u2013 ' || to_char((SELECT end_date FROM window_range), 'Mon YYYY')\n    WHEN 'trailing_12m' THEN to_char((SELECT start_date FROM window_range), 'Mon YYYY') || ' \u2013 ' || to_char((SELECT end_date FROM window_range), 'Mon YYYY')\n    ELSE                     to_char((SELECT end_date FROM window_range), 'Mon YYYY')\n  END AS \"Data Through\",\n  to_char(MAX(exec_view.dashboard_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM exec_view;",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nwindow_range AS (\n  SELECT\n    CASE '${time_window}'\n      WHEN 'ytd'          THEN DATE_TRUNC('year', (SELECT month_date FROM selected_period))\n      WHEN 'trailing_12m' THEN (SELECT month_date FROM selected_period) - INTERVAL '11 months'\n      ELSE                     (SELECT month_date FROM selected_period)\n    END AS start_date,\n    (SELECT month_date FROM selected_period) AS end_date\n),\nexec_view AS (\n  SELECT dashboard_generated_at\n  FROM reporting.rpt_executive_dashboard\n  WHERE dashboard_month = (SELECT month_key FROM selected_key)\n)\nSELECT\n  CASE '${time_window}'\n    WHEN 'ytd'          THEN 'Year to Date'\n    WHEN 'trailing_12m' THEN 'Trailing 12 Months'\n    ELSE                     'Latest Month'\n  END AS \"Time Window\",\n  CASE '${time_window}'\n    WHEN 'ytd'          THEN to_char((SELECT start_date FROM window_range), 'Mon YYYY') || ' – ' || to_char((SELECT end_date FROM window_range), 'Mon YYYY')\n    WHEN 'trailing_12m' THEN to_char((SELECT start_date FROM window_range), 'Mon YYYY') || ' – ' || to_char((SELECT end_date FROM window_range), 'Mon YYYY')\n    ELSE                     to_char((SELECT end_date FROM window_range), 'Mon YYYY')\n  END AS \"Data Through\",\n  to_char(MAX(exec_view.dashboard_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM exec_view;",
           "refId": "A"
         }
       ],
@@ -203,7 +203,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Overall financial health scoreboard. Each bar reflects raw ratios from the selected month: savings performance is net cash flow \u00c3\u00b7 income, cash-flow status comes from the cash-flow analysis state machine, and net-worth progress tracks the wealth milestone. The composite score weights net worth 30%, savings 30%, and cash flow 40%.",
+      "description": "Overall financial health scoreboard. Each bar reflects raw ratios from the selected month: savings performance is net cash flow Ã· income, cash-flow status comes from the cash-flow analysis state machine, and net-worth progress tracks the wealth milestone. The composite score weights net worth 30%, savings 30%, and cash flow 40%.",
       "fieldConfig": {
         "defaults": {
           "min": 0,
@@ -436,7 +436,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "\u00ce\u201d ($)"
+                "value": "Î” ($)"
               },
               {
                 "id": "unit",
@@ -452,7 +452,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "\u00ce\u201d Ratio"
+                "value": "Î” Ratio"
               },
               {
                 "id": "unit",
@@ -489,7 +489,7 @@
           "refId": "A"
         }
       ],
-      "description": "Cash-oriented KPIs with raw values; \u00ce\u201d Ratio shows change vs the previous month."
+      "description": "Cash-oriented KPIs with raw values; Î” Ratio shows change vs the previous month."
     },
     {
       "datasource": {
@@ -779,7 +779,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "\u00ce\u201d"
+                "value": "Î”"
               },
               {
                 "id": "unit",
@@ -795,7 +795,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "\u00ce\u201d Ratio"
+                "value": "Î” Ratio"
               },
               {
                 "id": "unit",
@@ -805,14 +805,14 @@
           }
         ]
       },
-      "description": "Score and risk KPIs expressed as raw values; \u00ce\u201d Ratio captures relative change where applicable."
+      "description": "Score and risk KPIs expressed as raw values; Î” Ratio captures relative change where applicable."
     },
     {
       "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Expense Control Score translates your outflow-to-inflow ratio into a 0-100 scale. Scores above 80 mean expenses are \u00e2\u2030\u00a490% of income (strong control). 55\u00e2\u20ac\u201c70 means you\u00e2\u20ac\u2122re spending roughly 100\u00e2\u20ac\u201c110% of income (monitor closely). A 10 indicates expenses exceed 150% of income\u00e2\u20ac\u201dan immediate signal that cash burn is unsustainable.",
+      "description": "Expense Control Score translates your outflow-to-inflow ratio into a 0-100 scale. Scores above 80 mean expenses are â‰¤90% of income (strong control). 55â€“70 means youâ€™re spending roughly 100â€“110% of income (monitor closely). A 10 indicates expenses exceed 150% of incomeâ€”an immediate signal that cash burn is unsustainable.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1149,7 +1149,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\ncurrent_cf AS (\n  SELECT\n    COALESCE(inflow_excl_transfers, total_inflows, 0) AS monthly_income,\n    COALESCE(outflow_excl_transfers, total_outflows, 0) AS monthly_expenses,\n    COALESCE(net_cash_flow, 0) AS monthly_net_cash_flow\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE budget_year_month = (SELECT month_key FROM selected_key)\n  LIMIT 1\n),\ncurrent_nw AS (\n  SELECT net_worth, liquid_assets\n  FROM reporting.rpt_household_net_worth\n  WHERE budget_year_month = (SELECT month_key FROM selected_key)\n  LIMIT 1\n),\nrow_anchor AS (\n  SELECT 1 AS anchor\n)\nSELECT\n  ROUND(COALESCE(ccf.monthly_income, 0), 2) AS monthly_income,\n  ROUND(COALESCE(ccf.monthly_expenses, 0), 2) AS monthly_expenses,\n  ROUND(COALESCE(ccf.monthly_net_cash_flow, 0), 2) AS monthly_net_cash_flow,\n  ROUND(COALESCE(ccf.monthly_net_cash_flow, 0), 2) AS monthly_total_savings,\n  ROUND(COALESCE(cnw.net_worth, 0), 2) AS current_net_worth,\n  ROUND(COALESCE(cnw.liquid_assets, 0), 2) AS liquid_assets\nFROM row_anchor ra\nLEFT JOIN current_cf ccf ON TRUE\nLEFT JOIN current_nw cnw ON TRUE;",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CASE\n           WHEN '${dashboard_period}' = 'Latest' OR coalesce('${dashboard_period}', '') = ''\n             THEN (SELECT month_date FROM latest_period)\n           ELSE to_date('${dashboard_period}' || '-01', 'YYYY-MM-DD')\n         END AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\ncurrent_cf AS (\n  SELECT\n    COALESCE(total_inflows, 0) AS monthly_income,\n    COALESCE(total_outflows, 0) AS monthly_expenses,\n    COALESCE(net_cash_flow, 0) AS monthly_net_cash_flow\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE budget_year_month = (SELECT month_key FROM selected_key)\n  LIMIT 1\n),\ncurrent_nw AS (\n  SELECT net_worth, liquid_assets\n  FROM reporting.rpt_household_net_worth\n  WHERE budget_year_month = (SELECT month_key FROM selected_key)\n  LIMIT 1\n),\nrow_anchor AS (\n  SELECT 1 AS anchor\n)\nSELECT\n  ROUND(COALESCE(ccf.monthly_income, 0), 2) AS monthly_income,\n  ROUND(COALESCE(ccf.monthly_expenses, 0), 2) AS monthly_expenses,\n  ROUND(COALESCE(ccf.monthly_net_cash_flow, 0), 2) AS monthly_net_cash_flow,\n  ROUND(COALESCE(ccf.monthly_net_cash_flow, 0), 2) AS monthly_total_savings,\n  ROUND(COALESCE(cnw.net_worth, 0), 2) AS current_net_worth,\n  ROUND(COALESCE(cnw.liquid_assets, 0), 2) AS liquid_assets\nFROM row_anchor ra\nLEFT JOIN current_cf ccf ON TRUE\nLEFT JOIN current_nw cnw ON TRUE;",
           "refId": "A"
         }
       ],
@@ -1832,7 +1832,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "\u00ce\u201d"
+                "value": "Î”"
               },
               {
                 "id": "unit",
@@ -2768,7 +2768,9 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": ["sum"],
+          "reducer": [
+            "sum"
+          ],
           "show": false
         },
         "showHeader": true,
@@ -2788,7 +2790,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  recommendation_date,\n  recommendation_text,\n  category,\n  status,\n  COALESCE(actual_value::text, 'Pending') AS actual\nFROM reporting.rpt_recommendation_outcomes\nORDER BY recommendation_date DESC\nLIMIT 10;",
+          "rawSql": "SELECT\n  CURRENT_DATE::text AS recommendation_date,\n  'Recommendation tracking not yet configured' AS recommendation_text,\n  'System' AS category,\n  'Pending' AS status,\n  'N/A' AS actual",
           "refId": "A"
         }
       ],
