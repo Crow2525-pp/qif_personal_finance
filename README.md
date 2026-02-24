@@ -10,6 +10,25 @@
 5. reload the definitions and then run the asset.
 6. [TBC]
 
+# Preferred Run Path (Dagster First)
+- Use `make dagster-run` to run ingestion + dbt in the supported order through Dagster.
+- Direct dbt commands are break-glass only and require explicit opt-in:
+  - `ALLOW_DIRECT_DBT=1 make dbt-build`
+  - `ALLOW_DIRECT_DBT=1 make dbt-test`
+- dbt project guardrails also block direct `dbt build/run/test` unless:
+  - `DBT_EXECUTION_CONTEXT=dagster` (set automatically by Dagster), or
+  - `ALLOW_DIRECT_DBT=1` (manual override).
+
+# Database Role Model
+- `postgres` remains the admin/superuser for manual operations.
+- `dagster_service` is the application write role used by Dagster/dbt (INSERT/UPDATE/TRUNCATE/DDL, no DELETE).
+- `grafanareader` is the Grafana query role (read-only on dashboard-facing data).
+
+To apply role hardening to an existing running database:
+```powershell
+./scripts/apply-postgres-role-hardening.ps1 -DagsterPassword "<dagster service password>"
+```
+
 # Deployment (Remote Server)
 For remote server deployment using git-based workflow:
 - **Local Development**: Work on your local machine, push to GitHub

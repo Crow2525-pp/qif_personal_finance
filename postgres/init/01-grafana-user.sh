@@ -5,13 +5,14 @@ set -e
 # This script runs on first database initialization only
 
 # Validate required environment variables
-if [ -z "$GRAFANA_USER" ] || [ -z "$GRAFANA_PASSWORD" ]; then
-    echo "ERROR: GRAFANA_USER and GRAFANA_PASSWORD must be set"
+if [ -z "$GRAFANA_USER" ] || [ -z "$GRAFANA_PASSWORD" ] || [ -z "$DAGSTER_POSTGRES_USER" ] || [ -z "$DAGSTER_POSTGRES_PASSWORD" ]; then
+    echo "ERROR: GRAFANA_USER/GRAFANA_PASSWORD and DAGSTER_POSTGRES_USER/DAGSTER_POSTGRES_PASSWORD must be set"
     exit 1
 fi
 
 # Escape single quotes in password for SQL
 ESCAPED_PASSWORD="${GRAFANA_PASSWORD//\'/\'\'}"
+ESCAPED_DAGSTER_PASSWORD="${DAGSTER_POSTGRES_PASSWORD//\'/\'\'}"
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<EOSQL
     -- Create tablefunc extension for crosstab/pivot queries
@@ -33,10 +34,24 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<EO
     END
     \$\$;
 
-    -- Grant read-only access to reporting schema
-    GRANT USAGE ON SCHEMA reporting TO "${GRAFANA_USER}";
-    GRANT SELECT ON ALL TABLES IN SCHEMA reporting TO "${GRAFANA_USER}";
-    ALTER DEFAULT PRIVILEGES IN SCHEMA reporting GRANT SELECT ON TABLES TO "${GRAFANA_USER}";
+    -- Create/rotate Dagster service role (application write role)
+    DO \$\$
+    BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '${DAGSTER_POSTGRES_USER}') THEN
+            CREATE USER "${DAGSTER_POSTGRES_USER}" WITH PASSWORD '${ESCAPED_DAGSTER_PASSWORD}';
+            RAISE NOTICE 'Created user ${DAGSTER_POSTGRES_USER}';
+        ELSE
+            ALTER USER "${DAGSTER_POSTGRES_USER}" WITH PASSWORD '${ESCAPED_DAGSTER_PASSWORD}';
+            RAISE NOTICE 'Updated password for existing user ${DAGSTER_POSTGRES_USER}';
+        END IF;
+    END
+    \$\$;
+
 EOSQL
 
-echo "Grafana user '${GRAFANA_USER}' configured with read-only access to reporting schema."
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" \
+    -v dagster_user="$DAGSTER_POSTGRES_USER" \
+    -v grafana_user="$GRAFANA_USER" \
+    -f /docker-entrypoint-initdb.d/02-role-hardening.sql
+
+echo "Configured users: '${DAGSTER_POSTGRES_USER}' (application writer, no DELETE) and '${GRAFANA_USER}' (Grafana read-only)."

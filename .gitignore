@@ -37,6 +37,7 @@ schedules.db
 !pipeline_personal_finance/dbt_finance/seeds/recommendation_outcomes.csv
 
 # Local development artifacts (not source of truth)
+artifacts/
 node_modules/
 test-results/
 playwright-report/
