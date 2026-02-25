@@ -49,6 +49,46 @@ The current pipeline expects bank-name-specific QIF sources and hard-coded categ
    - Run Dagster job end-to-end with fake QIF files.
    - Run `dbt build` and confirm key models and dashboards return rows.
 
+## Classification Strategy Options (Hands-Free Focus)
+Goal: minimize manual rules while still yielding stable, explainable categories for dbt + dashboards.
+
+1. Rule-first + fallback ML-lite (recommended start)
+   - Deterministic rules for high-signal types: transfers, payroll/wages, mortgage/loan payments, interest, fees.
+   - Use memo/merchant pattern libraries + account-type hints (loan vs credit vs depository).
+   - Add a fallback “unknown” bucket to avoid empty panels.
+   - Pros: explainable, stable, easy to test. Cons: requires upkeep of pattern lists.
+
+2. Table-driven mapping (seed-based)
+   - Create a `transaction_type_map` seed with pattern -> type (regex/LIKE).
+   - Add priority + scope columns (account type, bank, sign) to avoid over-matching.
+   - Pros: editable without code; easy to extend. Cons: still a rule system.
+
+3. Heuristic clustering + label propagation
+   - Group transactions by merchant + memo similarity + amount periodicity.
+   - Infer “payroll” by cadence + positive inflow; “mortgage” by recurring large outflow to same payee; “interest received” by small inflows with “interest” or bank memo patterns.
+   - Pros: more automatic; adapts to new merchants. Cons: more complex; risk of mislabels.
+
+4. External classifier (optional later)
+   - Use a lightweight classifier (e.g., local model) trained on labeled history.
+   - Feed merchant/memo/amount/cadence features.
+   - Pros: most hands-free once trained. Cons: ops overhead + model drift.
+
+Recommendation: start with option 1 + option 2 (rule-first + mapping seed), then evaluate adding heuristic clustering for “new merchant” coverage.
+
+## Advisory Clustering Add-On (Personalized, Low-Risk)
+Goal: keep personalized rules authoritative while using clustering to suggest new mappings.
+
+Proposed flow:
+1. Normalize transactions (strip refs, card numbers, dates; standardize merchant tokens).
+2. Run clustering on normalized merchant + amount + cadence features.
+3. Output “suggested clusters” and candidate labels (advisory only).
+4. Promote accepted suggestions into a user-owned mapping seed (not committed to repo by default).
+
+Personalization strategy:
+- Store user mappings in a local seed or config file (ignored by git), with a template example in repo.
+- Provide a starter mapping template + docs so new users can copy and customize quickly.
+- Keep the core repo bank-agnostic by shipping only generic defaults.
+
 ## Work Breakdown (Draft)
 1. Create fake QIF files in `pipeline_personal_finance/qif_files/` and document their structure.
 2. Add or update a mapping source for bank/account normalization.
@@ -57,6 +97,7 @@ The current pipeline expects bank-name-specific QIF sources and hard-coded categ
 5. Update Grafana SQL panels that rely on hard-coded category labels.
 6. Add Dagster run configuration or environment variable usage for bank/context.
 7. Validate the full pipeline and capture evidence.
+8. (Optional) Add clustering script that writes advisory suggestions into a local-only artifact.
 
 ## Acceptance Criteria
 1. Fake QIF files ingest successfully and produce deterministic dbt outputs.
@@ -67,4 +108,6 @@ The current pipeline expects bank-name-specific QIF sources and hard-coded categ
 ## Open Questions
 1. Where should bank/account mapping live: dbt seed vs. Dagster config vs. code constants?
 2. Should classification rules be macro-based (SQL) or table-driven (seed)?
-3. Which dashboards are most sensitive to the mortgage/interest categorization change?
+3. Which dashboards are most sensitive to broadened category matching (e.g., wages, interest received, shares)?
+4. Do we want to track confidence/“auto vs manual” flags for classification?
+5. Should clustering outputs be stored as a local report or a seed file that users selectively import?
