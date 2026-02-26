@@ -728,7 +728,7 @@
                 "value": [
                   {
                     "title": "Open Transaction Analysis Dashboard",
-                    "url": "/d/transaction_analysis_dashboard",
+                    "url": "/d/transaction_analysis_dashboard?orgId=1&${__url_time_range}",
                     "targetBlank": true
                   }
                 ]
@@ -778,16 +778,37 @@
   "tags": [
     "mobile",
     "executive",
-    "overview"
+    "overview",
+    "time_control_rollout:tranche_b",
+    "time_control_archetype:historical_windowed"
   ],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-12M",
-    "to": "now"
+    "from": "now-1M/M",
+    "to": "now/M"
   },
-  "timepicker": {},
+  "timepicker": {
+    "hidden": false,
+    "quick_ranges": [
+      {
+        "from": "now-1M/M",
+        "to": "now/M",
+        "display": "Last complete month"
+      },
+      {
+        "from": "now/Y",
+        "to": "now",
+        "display": "Year to date"
+      },
+      {
+        "from": "now-12M/M",
+        "to": "now/M",
+        "display": "Trailing 12 months"
+      }
+    ]
+  },
   "timezone": "",
   "title": "📱 Executive Overview",
   "uid": "exec-mobile-overview",

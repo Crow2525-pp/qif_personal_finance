@@ -33,6 +33,25 @@ setup:
 
 # Start services
 up:
+	@if [ ! -f .env ]; then \
+		cp .env.template .env; \
+		echo "WARNING: .env not found — created from .env.template with placeholder values."; \
+		echo "         Edit .env and replace CHANGE_ME_* values before services can start correctly."; \
+	else \
+		python3 -c "\
+import re, sys; \
+t = open('.env.template').read(); env = open('.env').read(); \
+keys = set(re.findall(r'^([A-Z][A-Z0-9_]*)=', env, re.M)); \
+missing = [l for l in t.splitlines() if l and not l.startswith('#') and l.split('=')[0] not in keys]; \
+print('\n'.join(missing)) if missing else None" > /tmp/_env_missing.txt; \
+		if [ -s /tmp/_env_missing.txt ]; then \
+			echo "# Added from .env.template" >> .env; \
+			cat /tmp/_env_missing.txt >> .env; \
+			echo "  INFO: Added missing keys from .env.template — check/update values in .env:"; \
+			sed 's/=.*//' /tmp/_env_missing.txt | xargs -I{} echo "    {}"; \
+		fi; \
+		rm -f /tmp/_env_missing.txt; \
+	fi
 	docker-compose up -d
 	@echo "Services starting..."
 	@echo "Dagster UI will be available at http://localhost:3000"

@@ -156,61 +156,53 @@ Show liabilities as **positive magnitudes** in dedicated liability/debt panels. 
 - Ensure filenames are descriptive; keep `uid` unique and stable to avoid clobbering unrelated dashboards.
 - If a dashboard should not be provisioned, keep it outside this folder or rename with a non-`.json` extension.
 
+## Time Control Standard (Task 110)
+
+### Native time picker as canonical control
+
+All dashboards use the **native Grafana time picker** as the single time-control mechanism. Custom template variables (`time_window`, `dashboard_period`) have been removed.
+
+Each dashboard has `timepicker.quick_ranges` configured with presets appropriate to its archetype:
+
+| Archetype | quick_ranges presets |
+|---|---|
+| `historical_windowed` | "Last complete month", "Year to date", "Trailing 12 months" |
+| `historical_fixed_period` | "Full history" |
+| `forward_looking` | "Next 12 months", "Next 5 years" |
+| `hybrid_past_future` | "Last 12 months + next 12 months", "Full history + projections" |
+| `atemporal_no_time_component` | Time picker **hidden** |
+
+### SQL time macro requirement
+
+Every panel SQL query must reference `$__timeFrom()`, `$__timeTo()`, or `$__timeFilter()` for time filtering. This ensures the native time picker controls data displayed in all panels.
+
+### Deprecated variables
+
+Do **not** add `time_window` or `dashboard_period` template variables to any dashboard. These have been removed and are enforced by the policy checker.
+
 ## Cross-Dashboard Navigation Links
 
 ### Time-range context preservation
 
-All cross-dashboard links must propagate the current time range to the destination dashboard using Grafana's built-in `${__url_time_range}` variable. This resolves to `from=<epoch_ms>&to=<epoch_ms>` at render time.
+All cross-dashboard links propagate the current time range using Grafana's `${__url_time_range}` variable. This resolves to `from=<epoch_ms>&to=<epoch_ms>` at render time.
 
-**URL pattern for links with no existing query params:**
+**URL pattern:**
 ```
 /d/<uid>?orgId=1&${__url_time_range}
 ```
 
-**URL pattern for links that also pass template variables:**
-```
-/d/<uid>?orgId=1&${__url_time_range}&var-time_window=${time_window}&var-dashboard_period=${dashboard_period}
-```
-
-### Standard template variables
-
-Dashboards in the main analysis family share the following template variables so that context passes correctly through navigation links:
-
-| Variable | Type | Values | Purpose |
-|---|---|---|---|
-| `time_window` | custom | `latest_month`, `ytd`, `trailing_12m` | Controls the SQL aggregation window in panel queries |
-| `dashboard_period` | query (postgres) | `Latest`, `YYYY-MM` list | Selects a specific closed month for point-in-time views |
-
-**Adding `time_window` to a dashboard:**
-```json
-{
-  "name": "time_window",
-  "label": "Time Window",
-  "type": "custom",
-  "hide": 0,
-  "current": {"text": "Latest Month", "value": "latest_month", "selected": true},
-  "options": [
-    {"text": "Latest Month", "value": "latest_month", "selected": true},
-    {"text": "Year to Date", "value": "ytd", "selected": false},
-    {"text": "Trailing 12 Months", "value": "trailing_12m", "selected": false}
-  ],
-  "query": "latest_month,ytd,trailing_12m",
-  "includeAll": false,
-  "multi": false,
-  "skipUrlSync": false
-}
-```
+Do **not** pass `var-time_window` or `var-dashboard_period` in links — these variables no longer exist.
 
 ### Dashboards with cross-dashboard links
 
 | Source dashboard | Destination dashboard | Variables passed |
 |---|---|---|
-| `executive-dashboard` | `cash_flow_analysis`, `savings_analysis`, `category-spending-v2`, `transaction_analysis_dashboard`, `outflows_reconciliation` | `${__url_time_range}`, `time_window` |
-| `cash-flow-analysis-dashboard` | `executive_dashboard`, `category-spending-v2`, `transaction_analysis_dashboard`, `outflows_reconciliation` | `${__url_time_range}`, `time_window` |
-| `savings-analysis-dashboard` | `executive_dashboard`, `household_net_worth`, `category-spending-v2` | `${__url_time_range}`, `time_window` |
-| `outflows-reconciliation-dashboard` | `executive_dashboard`, `transaction_analysis_dashboard` | `${__url_time_range}`, `time_window` |
+| `executive-dashboard` | `cash_flow_analysis`, `savings_analysis`, `category-spending-v2`, `transaction_analysis_dashboard`, `outflows_reconciliation` | `${__url_time_range}` |
+| `cash-flow-analysis-dashboard` | `executive_dashboard`, `category-spending-v2`, `transaction_analysis_dashboard`, `outflows_reconciliation` | `${__url_time_range}` |
+| `savings-analysis-dashboard` | `executive_dashboard`, `household_net_worth`, `category-spending-v2` | `${__url_time_range}` |
+| `outflows-reconciliation-dashboard` | `executive_dashboard`, `transaction_analysis_dashboard` | `${__url_time_range}` |
 | `outflows-insights-dashboard` | `outflows_reconciliation` | `${__url_time_range}` |
-| `transaction-analysis-dashboard` | `executive_dashboard`, `category-spending-v2`, `outflows_insights`, `outflows_reconciliation` | `${__url_time_range}`, `time_window` |
-| `category-spending-dashboard` | `transaction_analysis_dashboard` | `${__url_time_range}`, `time_window` |
+| `transaction-analysis-dashboard` | `executive_dashboard`, `category-spending-v2`, `outflows_insights`, `outflows_reconciliation` | `${__url_time_range}` |
+| `category-spending-dashboard` | `transaction_analysis_dashboard` | `${__url_time_range}` |
 
-When adding a new cross-dashboard link, always include `?orgId=1&${__url_time_range}` as a minimum. If the destination dashboard declares `time_window` or `dashboard_period` variables, pass them via `&var-time_window=${time_window}` and `&var-dashboard_period=${dashboard_period}` respectively.
+When adding a new cross-dashboard link, always include `?orgId=1&${__url_time_range}` as a minimum.

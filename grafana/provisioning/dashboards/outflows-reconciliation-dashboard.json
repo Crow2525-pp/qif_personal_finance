@@ -27,7 +27,7 @@
       "targetBlank": false,
       "title": "View in 01 - Executive Financial Overview",
       "type": "link",
-      "url": "/d/executive_dashboard?orgId=1&${__url_time_range}&var-time_window=${time_window}"
+      "url": "/d/executive_dashboard?orgId=1&${__url_time_range}"
     },
     {
       "icon": "external link",
@@ -36,7 +36,7 @@
       "targetBlank": false,
       "title": "View in 09 - Transaction Analysis",
       "type": "link",
-      "url": "/d/transaction_analysis_dashboard?orgId=1&${__url_time_range}&var-time_window=${time_window}"
+      "url": "/d/transaction_analysis_dashboard?orgId=1&${__url_time_range}"
     }
   ],
   "liveNow": false,
@@ -788,47 +788,43 @@
   ],
   "refresh": "",
   "schemaVersion": 38,
-  "tags": ["outflows", "reconciliation", "quality"],
+  "tags": [
+    "outflows",
+    "reconciliation",
+    "quality",
+    "time_control_rollout:tranche_a",
+    "time_control_archetype:historical_windowed"
+  ],
   "templating": {
-    "list": [
-      {
-        "name": "time_window",
-        "label": "Time Window",
-        "type": "custom",
-        "hide": 0,
-        "current": {
-          "text": "Latest Month",
-          "value": "latest_month",
-          "selected": true
-        },
-        "options": [
-          {
-            "text": "Latest Month",
-            "value": "latest_month",
-            "selected": true
-          },
-          {
-            "text": "Year to Date",
-            "value": "ytd",
-            "selected": false
-          },
-          {
-            "text": "Trailing 12 Months",
-            "value": "trailing_12m",
-            "selected": false
-          }
-        ],
-        "query": "latest_month,ytd,trailing_12m",
-        "includeAll": false,
-        "multi": false,
-        "skipUrlSync": false
-      }
-    ]
+    "list": []
   },
-  "time": {"from": "now-12M", "to": "now"},
+  "time": {
+    "from": "now-1M/M",
+    "to": "now/M"
+  },
   "timezone": "Australia/Melbourne",
   "title": "Financial Reconciliation Dashboard",
   "uid": "outflows_reconciliation",
   "version": 2,
-  "weekStart": ""
+  "weekStart": "",
+  "timepicker": {
+    "hidden": false,
+    "quick_ranges": [
+      {
+        "from": "now-1M/M",
+        "to": "now/M",
+        "display": "Last complete month"
+      },
+      {
+        "from": "now/Y",
+        "to": "now",
+        "display": "Year to date"
+      },
+      {
+        "from": "now-12M/M",
+        "to": "now/M",
+        "display": "Trailing 12 months"
+      }
+    ]
+  }
 }
