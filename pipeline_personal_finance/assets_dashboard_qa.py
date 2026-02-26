@@ -2,8 +2,8 @@
 Dagster asset: dashboard_quality_gate
 
 Runs after the dbt reporting layer completes and verifies that:
-  1. All Grafana dashboard JSON files are valid (static lint).
-  2. All live dashboard panels return data via the Grafana API.
+  1. Dashboard JSON policy/lint gates already passed.
+  2. Live dashboard panels return data via the Grafana API.
 
 Failures are surfaced as Dagster metadata and raised as exceptions so they
 appear as failures in the Dagster UI alongside dbt test failures.
@@ -18,7 +18,10 @@ from typing import Any
 
 from dagster import MetadataValue, asset
 
-from .assets import finance_dbt_assets
+from .dashboard_policy_gate import (
+    dashboard_json_lint_gate,
+    dashboard_time_control_policy_gate,
+)
 
 def _import_checker():
     """Import check_grafana_dashboards lazily to avoid sys.path pollution at module load."""
@@ -38,58 +41,23 @@ _GRAFANA_URL = os.environ.get("GRAFANA_URL", "http://grafana:3000")
 _GRAFANA_TOKEN = os.environ.get("GRAFANA_TOKEN")
 _GRAFANA_USER = os.environ.get("GRAFANA_USER", "admin")
 _GRAFANA_PASSWORD = os.environ.get("GRAFANA_ADMIN_PASSWORD")
-_DASHBOARD_DIR = os.environ.get(
-    "DASHBOARD_DIR",
-    str(_REPO_ROOT / "grafana" / "provisioning" / "dashboards"),
-)
-
-
 @asset(
-    deps=[finance_dbt_assets],
-    group_name="dashboard_qa",
+    deps=[dashboard_json_lint_gate, dashboard_time_control_policy_gate],
+    group_name="post_dbt_qa",
     tags={"dagster/kind/grafana": "", "dagster/kind/python": ""},
     description=(
-        "Runs Grafana dashboard quality checks after the dbt reporting layer "
-        "completes. Verifies all panels return data and flags SQL/lint errors."
+        "Runs live Grafana dashboard panel checks after post-dbt policy gates. "
+        "Verifies all panels return data and surfaces failures as Dagster metadata."
     ),
 )
 def dashboard_quality_gate(context) -> None:
     _checker = _import_checker()
 
     # ------------------------------------------------------------------
-    # 1. Static lint — parse dashboard JSON files from the mounted dir.
+    # Live panel checks — call the Grafana API.
     # ------------------------------------------------------------------
-    dashboard_dir = Path(_DASHBOARD_DIR)
-    lint_findings: dict[str, list[dict[str, Any]]] = {}
-    has_parse_errors = False
-
-    if dashboard_dir.exists():
-        context.log.info(f"Static lint: scanning {dashboard_dir}")
-        lint_findings = _checker.lint_dashboard_files(str(dashboard_dir))
-        for fname, warnings in lint_findings.items():
-            for w in warnings:
-                if w["rule"] == "parse-error":
-                    has_parse_errors = True
-                    context.log.error(f"PARSE ERROR {fname}: {w['detail']}")
-                else:
-                    context.log.warning(
-                        f"LINT [{w['rule']}] {fname} "
-                        f"panel {w['panel_id']} '{w['panel_title']}': {w['detail']}"
-                    )
-    else:
-        context.log.warning(
-            f"Dashboard directory not found at {dashboard_dir} — skipping static lint. "
-            "Mount grafana/provisioning/dashboards into the container to enable it."
-        )
-
-    total_lint_warnings = sum(len(ws) for ws in lint_findings.values())
-    total_parse_errors = sum(
-        1 for ws in lint_findings.values() for w in ws if w["rule"] == "parse-error"
-    )
-
-    # ------------------------------------------------------------------
-    # 2. Live panel checks — call the Grafana API.
-    # ------------------------------------------------------------------
+    total_lint_warnings = 0
+    total_parse_errors = 0
     has_credentials = bool(_GRAFANA_TOKEN or (_GRAFANA_USER and _GRAFANA_PASSWORD))
 
     if not has_credentials:
@@ -106,11 +74,6 @@ def dashboard_quality_gate(context) -> None:
             failures=[],
             live_status="skipped — no credentials",
         )
-        if has_parse_errors:
-            raise Exception(
-                f"{total_parse_errors} dashboard JSON parse error(s) detected. "
-                "Fix before the next pipeline run."
-            )
         return
 
     try:
@@ -136,10 +99,6 @@ def dashboard_quality_gate(context) -> None:
             failures=[],
             live_status=f"skipped — connection failed: {exc}",
         )
-        if has_parse_errors:
-            raise Exception(
-                f"{total_parse_errors} dashboard JSON parse error(s) detected."
-            )
         return
 
     time_to = dt.datetime.now(dt.timezone.utc)
@@ -189,15 +148,8 @@ def dashboard_quality_gate(context) -> None:
     context.log.info(
         f"Quality gate: {len(dashboards)} dashboards checked, "
         f"{len(all_failures)} failing panels, "
-        f"{total_lint_warnings} lint warnings, "
-        f"{total_parse_errors} parse errors."
+        f"{total_lint_warnings} lint warnings, {total_parse_errors} parse errors."
     )
-
-    if has_parse_errors:
-        raise Exception(
-            f"{total_parse_errors} dashboard JSON parse error(s) detected. "
-            "Fix before the next pipeline run."
-        )
 
     if all_failures:
         context.log.warning(

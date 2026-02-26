@@ -6,6 +6,7 @@ import numpy as np
 import re
 from quiffen import Qif
 from dagster import (
+    AssetDep,
     AssetExecutionContext,
     AssetOut,
     MetadataValue,
@@ -54,7 +55,6 @@ def finance_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
     yield from dbt.cli(
         ["build", "--target", target],
         context=context,
-        env={"DBT_EXECUTION_CONTEXT": "dagster"},
     ).stream()
 
 
@@ -214,6 +214,7 @@ _INGESTION_TAGS = {"dagster/kind/python": "", "dagster/kind/postgres": ""}
         "ING_BillsBillsBills_Transactions": AssetOut(is_required=False, tags=_INGESTION_TAGS),
         "ING_Countdown_Transactions": AssetOut(is_required=False, tags=_INGESTION_TAGS),
     },
+    deps=[AssetDep("postgres_role_readiness_gate")],
     can_subset=True,
     group_name="qif_ingestion",
 )
@@ -283,14 +284,34 @@ def upload_dataframe_to_database(
         # Upload the dataframe
         if dataframe is not None:
             try:
-                dataframe.to_sql(
-                    name=table_name,
-                    con=personal_finance_database.get_connection(),
-                    schema=schema,
-                    if_exists="replace",
-                    index=False,
-                    dtype=dtype,
-                )
+                with personal_finance_database.get_connection() as conn:
+                    table_exists = conn.execute(
+                        text(
+                            """
+                            SELECT 1
+                            FROM information_schema.tables
+                            WHERE table_schema = :schema
+                              AND table_name = :table_name
+                            """
+                        ),
+                        {"schema": schema, "table_name": table_name},
+                    ).scalar()
+                    if_exists_mode = "replace"
+                    if table_exists:
+                        conn.execute(
+                            text(f'TRUNCATE TABLE "{schema}"."{table_name}"')
+                        )
+                        if_exists_mode = "append"
+
+                    dataframe.to_sql(
+                        name=table_name,
+                        con=conn,
+                        schema=schema,
+                        if_exists=if_exists_mode,
+                        index=False,
+                        dtype=dtype,
+                    )
+                    conn.commit()
 
                 context.add_output_metadata(
                     metadata={

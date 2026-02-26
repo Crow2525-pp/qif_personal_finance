@@ -14,16 +14,22 @@ patch_transactions AS (
       'bank_name',
       'account_name'
     ]) }} AS TEXT) AS primary_key,
-    CAST(date AS DATE) AS transaction_date,
+    CAST(
+      CASE
+        WHEN date IS NULL THEN NULL
+        WHEN CAST(date AS TEXT) ~ '^[0-9]{8}$' THEN TO_DATE(CAST(date AS TEXT), 'YYYYMMDD')
+        ELSE CAST(CAST(date AS TEXT) AS DATE)
+      END AS DATE
+    ) AS transaction_date,
     CAST(amount AS DOUBLE PRECISION) AS transaction_amount,
     CAST(line_number AS BIGINT) AS line_number,
     CAST('bendigo_homeloan' AS TEXT) AS account_name,
     CAST(memo AS TEXT) AS memo,
     CAST(memo AS TEXT) AS transaction_description,
     CAST(CASE
-      WHEN memo = 'INTEREST' THEN 'INTEREST'
-      WHEN memo = 'MONTHLY SERVICE FEE' THEN 'MONTHLY SERVICE FEE'
-      WHEN memo = 'TRANSFER 00538977991401' THEN 'TRANSFER'
+      WHEN CAST(memo AS TEXT) = 'INTEREST' THEN 'INTEREST'
+      WHEN CAST(memo AS TEXT) = 'MONTHLY SERVICE FEE' THEN 'MONTHLY SERVICE FEE'
+      WHEN CAST(memo AS TEXT) = 'TRANSFER 00538977991401' THEN 'TRANSFER'
       ELSE ''
     END AS TEXT) AS transaction_type,
     CAST('' AS TEXT) AS receipt,
@@ -36,8 +42,8 @@ patch_transactions AS (
     CAST(CURRENT_TIME AS TIME) AS etl_time
 
   FROM {{ ref('mortgage_patch_data') }}
-  WHERE bank_name = 'Bendigo'
-    AND account_name = 'Homeloan'
+  WHERE CAST(bank_name AS TEXT) = 'Bendigo'
+    AND CAST(account_name AS TEXT) = 'Homeloan'
 ),
 
 combined AS (

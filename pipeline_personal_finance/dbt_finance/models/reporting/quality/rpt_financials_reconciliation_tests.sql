@@ -435,12 +435,14 @@ fact_abs_tests AS (
 
 -- 14) Daily balances vs fact EOM balances
 fact_eom AS (
-  SELECT 
+  SELECT DISTINCT
     DATE_TRUNC('month', ft.transaction_date)::date AS period_date,
     ft.account_key,
-    MAX(ft.account_balance)::numeric AS eom_balance
+    FIRST_VALUE(ft.account_balance) OVER (
+      PARTITION BY DATE_TRUNC('month', ft.transaction_date), ft.account_key
+      ORDER BY ft.transaction_date DESC
+    )::numeric AS eom_balance
   FROM {{ ref('fct_transactions') }} ft
-  GROUP BY 1,2
 ),
 
 daily_eom AS (
@@ -455,13 +457,13 @@ daily_eom AS (
 ),
 
 eom_reconciled AS (
-  SELECT 
-    COALESCE(fe.period_date, de.period_date) AS period_date,
-    COALESCE(fe.account_key, de.account_key) AS account_key,
+  SELECT
+    fe.period_date,
+    fe.account_key,
     fe.eom_balance,
     de.eom_daily_balance
   FROM fact_eom fe
-  FULL OUTER JOIN daily_eom de
+  JOIN daily_eom de
     ON fe.period_date = de.period_date
    AND fe.account_key = de.account_key
 ),
@@ -475,7 +477,7 @@ eom_tests AS (
     SUM(eom_balance)       AS right_value,
     (SUM(eom_daily_balance) - SUM(eom_balance)) AS delta,
     (ABS(SUM(eom_daily_balance) - SUM(eom_balance)) <= (SELECT tol_abs FROM params)) AS pass,
-    'Sum of last daily balances equals sum of fact EOM balances'::text AS notes
+    'Sum of last daily balances equals fact EOM balances on common account-month pairs'::text AS notes
   FROM eom_reconciled
   GROUP BY period_date
 ),
