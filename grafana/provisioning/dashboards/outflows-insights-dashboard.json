@@ -412,7 +412,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    'Food & Dining' as category, food_dining as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Housing & Mortgage' as category, housing_mortgage as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Utilities' as category, household_utilities as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Transportation' as category, transportation as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Shopping & Retail' as category, shopping_retail as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Uncategorized' as category, uncategorized_amount as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nORDER BY amount DESC;",
+          "rawSql": "SELECT \n    'Food & Dining' as category, food_dining as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Housing & Mortgage' as category, housing_mortgage as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Utilities' as category, household_utilities as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Transportation' as category, transportation as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Shopping & Retail' as category, shopping_retail as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nUNION ALL\nSELECT \n    'Uncategorized' as category, uncategorized as amount\nFROM reporting.rpt_outflows_insights_dashboard\nWHERE period_date = (SELECT MAX(period_date) FROM reporting.rpt_outflows_insights_dashboard)\nORDER BY amount DESC;",
           "refId": "A"
         }
       ],
@@ -590,7 +590,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n    period_date as time,\n    food_dining as \"Food & Dining\",\n    housing_mortgage as \"Housing & Mortgage\",\n    household_utilities as \"Utilities\",\n    transportation as \"Transportation\",\n    shopping_retail as \"Shopping & Retail\",\n    uncategorized_amount as \"Uncategorized\"\nFROM reporting.rpt_outflows_insights_dashboard\nORDER BY period_date;",
+          "rawSql": "SELECT \n    period_date as time,\n    food_dining as \"Food & Dining\",\n    housing_mortgage as \"Housing & Mortgage\",\n    household_utilities as \"Utilities\",\n    transportation as \"Transportation\",\n    shopping_retail as \"Shopping & Retail\",\n    uncategorized as \"Uncategorized\"\nFROM reporting.rpt_outflows_insights_dashboard\nORDER BY period_date;",
           "refId": "A"
         }
       ],
@@ -873,7 +873,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n    period_date as time,\n    uncategorized_amount as \"Uncategorized Amount\"\nFROM reporting.rpt_outflows_insights_dashboard\nORDER BY period_date;",
+          "rawSql": "SELECT \n    period_date as time,\n    uncategorized as \"Uncategorized Amount\"\nFROM reporting.rpt_outflows_insights_dashboard\nORDER BY period_date;",
           "refId": "A"
         }
       ],
@@ -1358,7 +1358,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH uncategorized AS (\n  SELECT\n    SPLIT_PART(\n      COALESCE(NULLIF(TRIM(ft.transaction_memo), ''), NULLIF(TRIM(ft.transaction_description), ''), 'Unknown'),\n      ' - ', 1\n    ) AS merchant,\n    COUNT(*) AS txn_count,\n    SUM(ABS(ft.transaction_amount)) AS total_spend,\n    MAX(ft.transaction_date) AS last_seen\n  FROM reporting.fct_transactions ft\n  LEFT JOIN reporting.dim_categories dc ON ft.category_key = dc.category_key\n  WHERE dc.level_1_category = 'Uncategorized'\n    AND ft.transaction_amount < 0\n    AND NOT COALESCE(ft.is_internal_transfer, FALSE)\n    AND COALESCE(NULLIF(TRIM(ft.transaction_memo), ''), NULLIF(TRIM(ft.transaction_description), '')) IS NOT NULL\n  GROUP BY SPLIT_PART(\n    COALESCE(NULLIF(TRIM(ft.transaction_memo), ''), NULLIF(TRIM(ft.transaction_description), ''), 'Unknown'),\n    ' - ', 1\n  )\n  HAVING COUNT(*) >= 2 OR SUM(ABS(ft.transaction_amount)) >= 100\n),\ndata AS (\n  SELECT merchant, txn_count, ROUND(total_spend, 2) AS total_spend, last_seen\n  FROM uncategorized\n  ORDER BY total_spend DESC\n  LIMIT 10\n)\nSELECT\n  merchant AS \"Merchant\",\n  txn_count AS \"Txn Count\",\n  total_spend AS \"Total Spend\",\n  last_seen AS \"Last Seen\"\nFROM data\nUNION ALL\nSELECT 'None', 0, 0, NULL::date\nWHERE NOT EXISTS (SELECT 1 FROM data)",
+          "rawSql": "WITH data AS (\\n  SELECT\\n    original_memo AS merchant,\\n    transaction_count AS txn_count,\\n    ROUND(total_amount, 2) AS total_spend,\\n    last_transaction_date AS last_seen,\\n    priority_level\\n  FROM reporting.viz_uncategorized_transactions_with_original_memo\\n  ORDER BY total_amount DESC, transaction_count DESC\\n  LIMIT 10\\n)\\nSELECT\\n  merchant AS \\\"Merchant\\\",\\n  txn_count AS \\\"Txn Count\\\",\\n  total_spend AS \\\"Total Spend\\\",\\n  last_seen AS \\\"Last Seen\\\",\\n  priority_level AS \\\"Priority\\\"\\nFROM data\\nUNION ALL\\nSELECT 'None', 0, 0, NULL::date, 'N/A'\\nWHERE NOT EXISTS (SELECT 1 FROM data);",
           "refId": "A"
         }
       ],
@@ -1590,7 +1590,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest_two_months AS (\n  SELECT budget_year_month, ROW_NUMBER() OVER (ORDER BY budget_year_month DESC) as rn\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\n  GROUP BY budget_year_month\n  ORDER BY budget_year_month DESC\n  LIMIT 2\n),\nvariance_categories AS (\n  SELECT level_1_category,\n    ABS(SUM(CASE WHEN budget_year_month = (SELECT budget_year_month FROM latest_two_months WHERE rn = 1)\n      THEN monthly_spending ELSE -COALESCE(monthly_spending, 0) END)) as variance\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month IN (SELECT budget_year_month FROM latest_two_months)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n  GROUP BY level_1_category\n  ORDER BY variance DESC\n  LIMIT 1\n)\nSELECT\n  ft.transaction_date::date AS transaction_date,\n  COALESCE(NULLIF(TRIM(ft.transaction_memo), ''), NULLIF(TRIM(ft.transaction_description), ''), 'Unknown') AS merchant,\n  ft.transaction_amount_abs AS amount,\n  dc.level_1_category AS category\nFROM reporting.fct_transactions ft\nLEFT JOIN reporting.dim_categories dc ON ft.category_key = dc.category_key\nWHERE dc.level_1_category = (SELECT level_1_category FROM variance_categories)\n  AND DATE_TRUNC('month', ft.transaction_date) = (\n    SELECT TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') FROM latest_two_months WHERE rn = 1\n  )\n  AND ft.transaction_amount < 0\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\nORDER BY ft.transaction_amount_abs DESC\nLIMIT 5",
+          "rawSql": "WITH latest_two_months AS (\n  SELECT budget_year_month, ROW_NUMBER() OVER (ORDER BY budget_year_month DESC) as rn\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\n  GROUP BY budget_year_month\n  ORDER BY budget_year_month DESC\n  LIMIT 2\n),\nvariance_categories AS (\n  SELECT level_1_category, ABS(SUM(CASE WHEN budget_year_month = (SELECT budget_year_month FROM latest_two_months WHERE rn = 1) THEN monthly_spending ELSE -COALESCE(monthly_spending, 0) END)) as variance\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month IN (SELECT budget_year_month FROM latest_two_months)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n  GROUP BY level_1_category\n  ORDER BY variance DESC\n  LIMIT 1\n)\nSELECT\n  DATE(f.transaction_date) as transaction_date,\n  f.merchant_name as merchant,\n  ABS(f.amount) as amount,\n  f.category_l1 as category\nFROM transformation.fct_transactions f\nWHERE f.category_l1 = (SELECT level_1_category FROM variance_categories)\n  AND DATE_TRUNC('month', f.transaction_date) = (SELECT TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') FROM latest_two_months WHERE rn = 1)\nORDER BY ABS(f.amount) DESC\nLIMIT 5;",
           "refId": "A"
         }
       ],
@@ -1822,7 +1822,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest_month AS (\n  SELECT MAX(budget_year_month) AS budget_year_month\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\n),\nprior_year_month AS (\n  SELECT TO_CHAR(TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') - INTERVAL '1 year', 'YYYY-MM') AS budget_year_month\n  FROM latest_month\n),\ncomparison_months AS (\n  SELECT budget_year_month FROM latest_month\n  UNION ALL\n  SELECT budget_year_month FROM prior_year_month\n),\nvariance_categories AS (\n  SELECT level_1_category,\n    ABS(SUM(CASE WHEN budget_year_month = (SELECT budget_year_month FROM latest_month)\n      THEN monthly_spending ELSE -COALESCE(monthly_spending, 0) END)) as variance\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month IN (SELECT budget_year_month FROM comparison_months)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n  GROUP BY level_1_category\n  ORDER BY variance DESC\n  LIMIT 1\n)\nSELECT\n  ft.transaction_date::date AS transaction_date,\n  COALESCE(NULLIF(TRIM(ft.transaction_memo), ''), NULLIF(TRIM(ft.transaction_description), ''), 'Unknown') AS merchant,\n  ft.transaction_amount_abs AS amount,\n  dc.level_1_category AS category\nFROM reporting.fct_transactions ft\nLEFT JOIN reporting.dim_categories dc ON ft.category_key = dc.category_key\nWHERE dc.level_1_category = (SELECT level_1_category FROM variance_categories)\n  AND DATE_TRUNC('month', ft.transaction_date) = (\n    SELECT TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') FROM latest_month\n  )\n  AND ft.transaction_amount < 0\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\nORDER BY ft.transaction_amount_abs DESC\nLIMIT 5",
+          "rawSql": "WITH latest_month AS (\n  SELECT MAX(budget_year_month) AS budget_year_month\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month < TO_CHAR(DATE_TRUNC('month', CURRENT_DATE), 'YYYY-MM')\n),\nprior_year_month AS (\n  SELECT TO_CHAR(TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') - INTERVAL '1 year', 'YYYY-MM') AS budget_year_month\n  FROM latest_month\n),\ncomparison_months AS (\n  SELECT budget_year_month FROM latest_month\n  UNION ALL\n  SELECT budget_year_month FROM prior_year_month\n),\nvariance_categories AS (\n  SELECT level_1_category, \n    ABS(SUM(CASE WHEN budget_year_month = (SELECT budget_year_month FROM latest_month) THEN monthly_spending ELSE -COALESCE(monthly_spending, 0) END)) as variance\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month IN (SELECT budget_year_month FROM comparison_months)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n  GROUP BY level_1_category\n  ORDER BY variance DESC\n  LIMIT 1\n)\nSELECT\n  DATE(f.transaction_date) as transaction_date,\n  f.merchant_name as merchant,\n  ABS(f.amount) as amount,\n  f.category_l1 as category\nFROM transformation.fct_transactions f\nWHERE f.category_l1 = (SELECT level_1_category FROM variance_categories)\n  AND DATE_TRUNC('month', f.transaction_date) = (SELECT TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') FROM latest_month)\nORDER BY ABS(f.amount) DESC\nLIMIT 5;",
           "refId": "A"
         }
       ],
@@ -1835,16 +1835,37 @@
   "tags": [
     "outflows",
     "insights",
-    "analysis"
+    "analysis",
+    "time_control_rollout:tranche_b",
+    "time_control_archetype:historical_windowed"
   ],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-6M",
-    "to": "now"
+    "from": "now-1M/M",
+    "to": "now/M"
   },
-  "timepicker": {},
+  "timepicker": {
+    "hidden": false,
+    "quick_ranges": [
+      {
+        "from": "now-1M/M",
+        "to": "now/M",
+        "display": "Last complete month"
+      },
+      {
+        "from": "now/Y",
+        "to": "now",
+        "display": "Year to date"
+      },
+      {
+        "from": "now-12M/M",
+        "to": "now/M",
+        "display": "Trailing 12 months"
+      }
+    ]
+  },
   "timezone": "Australia/Melbourne",
   "title": "Outflows Insights Dashboard",
   "uid": "outflows_insights",
