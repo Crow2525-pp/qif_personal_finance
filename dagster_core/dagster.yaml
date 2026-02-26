@@ -25,6 +25,10 @@ run_launcher:
       - DAGSTER_POSTGRES_PORT
       - DAGSTER_POSTGRES_USER
       - DAGSTER_POSTGRES_PASSWORD
+      - POSTGRES_ADMIN_USER
+      - POSTGRES_ADMIN_PASSWORD
+      - GRAFANA_USER
+      - DBT_EXECUTION_CONTEXT
     network: qif_personal_finance_dagster_network
     container_kwargs:
       volumes: # Make docker client accessible to any launched containers as well

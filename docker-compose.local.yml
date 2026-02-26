@@ -11,3 +11,13 @@ services:
       - ./pipeline_personal_finance/dbt_finance/duckdb:/var/lib/grafana/duckdb
       - ./grafana/provisioning_local/datasources:/etc/grafana/provisioning/datasources
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+
+  dagster_webserver:
+    # Expose on 3002 to avoid conflict with any service already on 3000
+    ports:
+      - "3002:3000"
+
+  dagster_postgres:
+    # Expose postgres to the host for debugging (remapped to 5433 to avoid local postgres conflict)
+    ports:
+      - "5433:5432"

@@ -10,3 +10,4 @@
 pipeline_personal_finance/**/target/
 !dagster_core/**
 !scripts/**
+!grafana/**

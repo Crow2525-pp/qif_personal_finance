@@ -24,8 +24,10 @@ COPY uv.lock uv.lock
 COPY pyproject.toml pyproject.toml
 COPY pipeline_personal_finance pipeline_personal_finance
 COPY scripts scripts
+COPY grafana grafana
 
 RUN --mount=type=cache,target=/root/.cache/uv \
+    rm -rf /root/.cache/uv/* && \
     uv sync --frozen --no-dev --package pipeline_personal_finance
 
 # Set the working directory to dbt dir to build the script
