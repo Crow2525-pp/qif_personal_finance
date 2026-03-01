@@ -37,8 +37,6 @@ FIXED_PERIOD_QUICK_RANGES = [
 
 # --- Dashboard classification ---
 
-ARCHETYPE_MAP: dict[str, str] = {}  # populated from tags at runtime
-
 EXCEPTION_TAGS = {
     "time_control:time_specific_exception",
     "time_control:no_time_component_exception",

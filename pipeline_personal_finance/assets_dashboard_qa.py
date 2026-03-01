@@ -23,15 +23,16 @@ from .dashboard_policy_gate import (
     dashboard_time_control_policy_gate,
 )
 
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+_SCRIPTS_DIR = _REPO_ROOT / "scripts"
+
+
 def _import_checker():
     """Import check_grafana_dashboards lazily to avoid sys.path pollution at module load."""
     if str(_SCRIPTS_DIR) not in sys.path:
         sys.path.insert(0, str(_SCRIPTS_DIR))
     import check_grafana_dashboards as _mod
     return _mod
-
-_REPO_ROOT = Path(__file__).resolve().parents[1]
-_SCRIPTS_DIR = _REPO_ROOT / "scripts"
 
 # ---------------------------------------------------------------------------
 # Configuration — all overridable via environment variables.
@@ -41,6 +42,8 @@ _GRAFANA_URL = os.environ.get("GRAFANA_URL", "http://grafana:3000")
 _GRAFANA_TOKEN = os.environ.get("GRAFANA_TOKEN")
 _GRAFANA_USER = os.environ.get("GRAFANA_USER", "admin")
 _GRAFANA_PASSWORD = os.environ.get("GRAFANA_ADMIN_PASSWORD")
+
+
 @asset(
     deps=[dashboard_json_lint_gate, dashboard_time_control_policy_gate],
     group_name="post_dbt_qa",

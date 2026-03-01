@@ -137,7 +137,7 @@ class GrafanaClient:
 def flatten_panels(panels: Iterable[Dict]) -> Iterable[Dict]:
     """Yield all panels, flattening any rows/collapsed children."""
     for panel in panels:
-        sub_panels = panel.get("panels") or panel.get("collapsed") or []
+        sub_panels = panel.get("panels") or []
         if sub_panels:
             yield from flatten_panels(sub_panels)
         else:
@@ -189,12 +189,10 @@ def render_sql(raw_sql: str, scoped_vars: Dict) -> str:
     """
     raw_sql_text = raw_sql
 
-    def render_value(var_name: str, fmt: str | None) -> str:
+    def render_value(var_name: str, fmt: str | None) -> list:
         entry = scoped_vars.get(var_name, {}) or {}
         value = entry.get("value")
-
-        values = value if isinstance(value, list) else [value]
-        return values
+        return value if isinstance(value, list) else [value]
 
     pattern = re.compile(
         r"\$\{(?P<var>[A-Za-z0-9_]+)(?::(?P<fmt>[A-Za-z0-9_]+))?\}|\$(?P<plain>[A-Za-z0-9_]+)"
