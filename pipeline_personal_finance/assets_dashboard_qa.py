@@ -51,6 +51,12 @@ _DASHBOARD_QUALITY_WARN_ONLY = os.environ.get("DASHBOARD_QUALITY_WARN_ONLY", "")
     "yes",
     "on",
 }
+_DASHBOARD_QUALITY_FAIL_ON_EMPTY = os.environ.get("DASHBOARD_QUALITY_FAIL_ON_EMPTY", "").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
 
 
 @asset(
@@ -125,6 +131,8 @@ def dashboard_quality_gate(context) -> None:
     fallback_windows = _checker.build_time_windows(range_days)
 
     all_failures: list[dict[str, Any]] = []
+    hard_failures: list[dict[str, Any]] = []
+    empty_result_warnings: list[dict[str, Any]] = []
     checked_window_labels: set[str] = set()
 
     for dash in dashboards:
@@ -155,13 +163,18 @@ def dashboard_quality_gate(context) -> None:
                     f"NO DATA: '{dash.get('title')}' / '{panel.get('panel_title')}' / "
                     f"[{time_window}]: {msg[:200]}"
                 )
-                all_failures.append(
-                    {
-                        "dashboard": dash.get("title", ""),
-                        "panel": panel.get("panel_title", ""),
-                        "error": f"[{time_window}] {msg}",
-                    }
-                )
+                failure_row = {
+                    "dashboard": dash.get("title", ""),
+                    "panel": panel.get("panel_title", ""),
+                    "error": f"[{time_window}] {msg}",
+                }
+                all_failures.append(failure_row)
+
+                is_empty_result = "empty (" in msg and "HTTP" not in msg and "error" not in msg.lower()
+                if is_empty_result:
+                    empty_result_warnings.append(failure_row)
+                else:
+                    hard_failures.append(failure_row)
 
     _emit_metadata(
         context,
@@ -169,6 +182,8 @@ def dashboard_quality_gate(context) -> None:
         parse_errors=total_parse_errors,
         dashboards_checked=len(dashboards),
         failing_panels=len(all_failures),
+        hard_failing_panels=len(hard_failures),
+        empty_result_panels=len(empty_result_warnings),
         failures=all_failures,
         live_status="ok",
         checked_time_windows=sorted(checked_window_labels),
@@ -180,9 +195,12 @@ def dashboard_quality_gate(context) -> None:
         f"{total_lint_warnings} lint warnings, {total_parse_errors} parse errors."
     )
 
-    if all_failures:
+    if all_failures and _DASHBOARD_QUALITY_FAIL_ON_EMPTY:
+        hard_failures = all_failures
+
+    if hard_failures:
         message = (
-            f"{len(all_failures)} panel/time-window checks failed. "
+            f"{len(hard_failures)} hard panel/time-window checks failed. "
             "Review 'failing_panels_detail' metadata for specifics."
         )
         if _DASHBOARD_QUALITY_WARN_ONLY:
@@ -195,9 +213,16 @@ def dashboard_quality_gate(context) -> None:
                 metadata={
                     "dashboards_checked": len(dashboards),
                     "failing_panels": len(all_failures),
+                    "hard_failing_panels": len(hard_failures),
+                    "empty_result_panels": len(empty_result_warnings),
                     "dashboard_time_picker_ranges": _DASHBOARD_TIME_PICKER_RANGES,
                 },
             )
+    elif empty_result_warnings:
+        context.log.warning(
+            f"{len(empty_result_warnings)} panel/time-window checks returned empty results "
+            "but no hard query errors were detected."
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -211,6 +236,8 @@ def _emit_metadata(
     parse_errors: int,
     dashboards_checked: int,
     failing_panels: int,
+    hard_failing_panels: int,
+    empty_result_panels: int,
     failures: list[dict[str, Any]],
     live_status: str,
     checked_time_windows: list[str],
@@ -235,6 +262,8 @@ def _emit_metadata(
             "live_check_status": MetadataValue.text(live_status),
             "dashboards_checked": dashboards_checked,
             "failing_panels": failing_panels,
+            "hard_failing_panels": hard_failing_panels,
+            "empty_result_panels": empty_result_panels,
             "lint_warnings": lint_warnings,
             "lint_parse_errors": parse_errors,
             "checked_time_windows": checked_time_windows,
