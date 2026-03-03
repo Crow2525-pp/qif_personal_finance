@@ -50,6 +50,53 @@ def epoch_ms(value: dt.datetime) -> int:
     return int(value.timestamp() * 1000)
 
 
+def parse_time_picker_ranges(spec: str) -> List[int]:
+    """
+    Parse a comma-separated list of time-picker ranges into day counts.
+
+    Supports tokens like: 7, 30d, 12w, 6m, 1y.
+    """
+    tokens = [token.strip().lower() for token in spec.split(",") if token.strip()]
+    if not tokens:
+        raise ValueError("time picker ranges cannot be empty")
+
+    multipliers = {
+        "d": 1,
+        "w": 7,
+        "m": 30,
+        "y": 365,
+    }
+
+    parsed: List[int] = []
+    for token in tokens:
+        match = re.fullmatch(r"(\d+)([dwmy]?)", token)
+        if not match:
+            raise ValueError(
+                f"invalid range token '{token}'. Expected format like 7, 30d, 12w, 6m, 1y."
+            )
+        value = int(match.group(1))
+        suffix = match.group(2) or "d"
+        days = value * multipliers[suffix]
+        if days <= 0:
+            raise ValueError(f"range token '{token}' resolves to non-positive days")
+        parsed.append(days)
+
+    # Keep order stable while removing duplicates.
+    deduped = list(dict.fromkeys(parsed))
+    if not deduped:
+        raise ValueError("no valid time picker ranges parsed")
+    return deduped
+
+
+def build_time_windows(range_days: List[int], now_utc: dt.datetime | None = None) -> List[Tuple[str, dt.datetime, dt.datetime]]:
+    """Build labelled [from,to] windows anchored to now."""
+    now = now_utc or dt.datetime.now(dt.timezone.utc)
+    windows = []
+    for days in range_days:
+        windows.append((f"last_{days}d", now - dt.timedelta(days=days), now))
+    return windows
+
+
 class GrafanaClient:
     """Small wrapper around the Grafana HTTP API."""
 
@@ -383,6 +430,50 @@ def check_dashboard(
             failing_panels.append(status)
 
     return ok_panels, failing_panels
+
+
+def check_dashboard_across_time_windows(
+    client: GrafanaClient,
+    dashboard_meta: Dict,
+    datasources: Dict[str, Dict],
+    time_windows: List[Tuple[str, dt.datetime, dt.datetime]],
+    min_rows: int,
+) -> Dict:
+    """
+    Run live panel checks for a dashboard across multiple time-picker windows.
+
+    Returns a dict with aggregated counts and failures by window.
+    """
+    by_window: List[Dict] = []
+    total_ok = 0
+    total_fail = 0
+
+    for label, time_from, time_to in time_windows:
+        ok_panels, failing_panels = check_dashboard(
+            client=client,
+            dashboard_meta=dashboard_meta,
+            datasources=datasources,
+            time_from=time_from,
+            time_to=time_to,
+            min_rows=min_rows,
+        )
+        for panel in failing_panels:
+            panel["time_window"] = label
+        by_window.append(
+            {
+                "time_window": label,
+                "ok_panels": len(ok_panels),
+                "failing_panels": failing_panels,
+            }
+        )
+        total_ok += len(ok_panels)
+        total_fail += len(failing_panels)
+
+    return {
+        "ok_panels": total_ok,
+        "failing_panels": total_fail,
+        "by_time_window": by_window,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -724,7 +815,18 @@ def parse_args() -> argparse.Namespace:
         "--days",
         type=int,
         default=365,
-        help="Time range to query backwards from now (in days). Default: 365.",
+        help=(
+            "Legacy single time range (in days). Used only when "
+            "--time-picker-ranges is not provided."
+        ),
+    )
+    parser.add_argument(
+        "--time-picker-ranges",
+        default=os.environ.get("DASHBOARD_TIME_PICKER_RANGES"),
+        help=(
+            "Comma-separated lookback ranges to validate, e.g. '7,30,90,365' "
+            "or '7d,30d,12w'. If omitted, falls back to --days."
+        ),
     )
     parser.add_argument(
         "--dashboard",
@@ -857,8 +959,16 @@ def main() -> int:
     # ------------------------------------------------------------------
     # Normal mode: connect to Grafana, check live panels, run lint.
     # ------------------------------------------------------------------
-    time_to = dt.datetime.now(dt.timezone.utc)
-    time_from = time_to - dt.timedelta(days=args.days)
+    if args.time_picker_ranges:
+        try:
+            range_days = parse_time_picker_ranges(args.time_picker_ranges)
+        except ValueError as exc:
+            print(f"Invalid --time-picker-ranges: {exc}", file=sys.stderr)
+            return 2
+    else:
+        range_days = [args.days]
+
+    time_windows = build_time_windows(range_days)
 
     client = GrafanaClient(
         base_url=args.base_url,
@@ -894,14 +1004,19 @@ def main() -> int:
     json_results: List[Dict] = []
 
     for dash in dashboards:
-        ok_panels, failing_panels = check_dashboard(
+        time_window_result = check_dashboard_across_time_windows(
             client,
             dash,
             datasources,
-            time_from=time_from,
-            time_to=time_to,
+            time_windows=time_windows,
             min_rows=args.min_rows,
         )
+        ok_panels = time_window_result["ok_panels"]
+        failing_panels = [
+            panel
+            for window in time_window_result["by_time_window"]
+            for panel in window["failing_panels"]
+        ]
 
         layout_issues: List[Dict] = []
         static_warnings: List[Dict] = []
@@ -934,8 +1049,9 @@ def main() -> int:
                 {
                     "dashboard": dash.get("title"),
                     "uid": dash.get("uid"),
-                    "ok_panels": len(ok_panels),
+                    "ok_panels": ok_panels,
                     "failing_panels": failing_panels,
+                    "checks_by_time_window": time_window_result["by_time_window"],
                     "layout_lint": layout_issues,
                     "static_warnings": static_warnings,
                     "parity_warnings": parity_warnings,
@@ -944,7 +1060,7 @@ def main() -> int:
         else:
             print(
                 f"\nDashboard '{dash.get('title')}' ({dash.get('uid')}): "
-                f"{len(ok_panels)} panels OK, {len(failing_panels)} failing, "
+                f"{ok_panels} panels OK, {len(failing_panels)} failing, "
                 f"{len(layout_issues)} layout warnings, "
                 f"{len(static_warnings)} static warnings, "
                 f"{len(parity_warnings)} parity warnings"
@@ -952,7 +1068,7 @@ def main() -> int:
             for panel in failing_panels:
                 print(
                     f"  - Panel {panel['panel_id']} '{panel['panel_title']}': "
-                    f"{panel['messages']}"
+                    f"[{panel.get('time_window', 'unknown')}] {panel['messages']}"
                 )
             for issue in layout_issues:
                 title_len = issue.get("title_len") or issue.get("content_len")
@@ -977,6 +1093,7 @@ def main() -> int:
 
     if args.json_output:
         summary = {
+            "time_windows": [window[0] for window in time_windows],
             "total_failing_panels": total_failures,
             "total_layout_warnings": total_layout_lint,
             "total_static_warnings": total_static_lint,

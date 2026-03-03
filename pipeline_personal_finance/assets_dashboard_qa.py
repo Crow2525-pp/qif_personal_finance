@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from dagster import MetadataValue, asset
+from dagster import Failure, MetadataValue, asset
 
 from .dashboard_policy_gate import (
     dashboard_json_lint_gate,
@@ -44,6 +44,13 @@ _GRAFANA_TOKEN = os.environ.get("GRAFANA_TOKEN")
 # This is distinct from GRAFANA_USER which is the PostgreSQL datasource reader account.
 _GRAFANA_USER = os.environ.get("GRAFANA_ADMIN_USER", "admin")
 _GRAFANA_PASSWORD = os.environ.get("GRAFANA_ADMIN_PASSWORD")
+_DASHBOARD_TIME_PICKER_RANGES = os.environ.get("DASHBOARD_TIME_PICKER_RANGES", "7,30,90,365")
+_DASHBOARD_QUALITY_WARN_ONLY = os.environ.get("DASHBOARD_QUALITY_WARN_ONLY", "").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
 
 
 @asset(
@@ -78,6 +85,7 @@ def dashboard_quality_gate(context) -> None:
             failing_panels=0,
             failures=[],
             live_status="skipped — no credentials",
+            checked_time_windows=[],
         )
         return
 
@@ -103,22 +111,28 @@ def dashboard_quality_gate(context) -> None:
             failing_panels=0,
             failures=[],
             live_status=f"skipped — connection failed: {exc}",
+            checked_time_windows=[],
         )
         return
 
-    time_to = dt.datetime.now(dt.timezone.utc)
-    time_from = time_to - dt.timedelta(days=365)
+    try:
+        range_days = _checker.parse_time_picker_ranges(_DASHBOARD_TIME_PICKER_RANGES)
+    except ValueError as exc:
+        raise Failure(
+            "dashboard_quality_gate configuration invalid",
+            metadata={"dashboard_time_picker_ranges": _DASHBOARD_TIME_PICKER_RANGES, "error": str(exc)},
+        ) from exc
+    time_windows = _checker.build_time_windows(range_days)
 
     all_failures: list[dict[str, Any]] = []
 
     for dash in dashboards:
         try:
-            _, failing_panels = _checker.check_dashboard(
+            check_result = _checker.check_dashboard_across_time_windows(
                 client,
                 dash,
                 datasources,
-                time_from=time_from,
-                time_to=time_to,
+                time_windows=time_windows,
                 min_rows=1,
             )
         except Exception as exc:
@@ -126,19 +140,21 @@ def dashboard_quality_gate(context) -> None:
                 f"Could not check dashboard '{dash.get('title')}': {exc}. Skipping."
             )
             continue
-        for panel in failing_panels:
-            msg = panel.get("messages", "")
-            context.log.warning(
-                f"NO DATA: '{dash.get('title')}' / '{panel.get('panel_title')}': "
-                f"{msg[:200]}"
-            )
-            all_failures.append(
-                {
-                    "dashboard": dash.get("title", ""),
-                    "panel": panel.get("panel_title", ""),
-                    "error": msg,
-                }
-            )
+        for by_window in check_result.get("by_time_window", []):
+            time_window = by_window.get("time_window", "unknown")
+            for panel in by_window.get("failing_panels", []):
+                msg = panel.get("messages", "")
+                context.log.warning(
+                    f"NO DATA: '{dash.get('title')}' / '{panel.get('panel_title')}' / "
+                    f"[{time_window}]: {msg[:200]}"
+                )
+                all_failures.append(
+                    {
+                        "dashboard": dash.get("title", ""),
+                        "panel": panel.get("panel_title", ""),
+                        "error": f"[{time_window}] {msg}",
+                    }
+                )
 
     _emit_metadata(
         context,
@@ -148,6 +164,7 @@ def dashboard_quality_gate(context) -> None:
         failing_panels=len(all_failures),
         failures=all_failures,
         live_status="ok",
+        checked_time_windows=[window[0] for window in time_windows],
     )
 
     context.log.info(
@@ -157,11 +174,23 @@ def dashboard_quality_gate(context) -> None:
     )
 
     if all_failures:
-        context.log.warning(
-            f"{len(all_failures)} panels returned no data. "
-            "Review the 'failing_panels_detail' metadata above for specifics. "
-            "These are warnings — the pipeline data itself is valid."
+        message = (
+            f"{len(all_failures)} panel/time-window checks failed. "
+            "Review 'failing_panels_detail' metadata for specifics."
         )
+        if _DASHBOARD_QUALITY_WARN_ONLY:
+            context.log.warning(
+                f"{message} Continuing due to DASHBOARD_QUALITY_WARN_ONLY=true."
+            )
+        else:
+            raise Failure(
+                message,
+                metadata={
+                    "dashboards_checked": len(dashboards),
+                    "failing_panels": len(all_failures),
+                    "dashboard_time_picker_ranges": _DASHBOARD_TIME_PICKER_RANGES,
+                },
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -177,6 +206,7 @@ def _emit_metadata(
     failing_panels: int,
     failures: list[dict[str, Any]],
     live_status: str,
+    checked_time_windows: list[str],
 ) -> None:
     rows = failures[:50]  # cap table at 50 rows for the UI
     table_rows = "\n".join(
@@ -200,6 +230,7 @@ def _emit_metadata(
             "failing_panels": failing_panels,
             "lint_warnings": lint_warnings,
             "lint_parse_errors": parse_errors,
+            "checked_time_windows": checked_time_windows,
             "failing_panels_detail": MetadataValue.md(table_md),
         }
     )
