@@ -57,6 +57,14 @@ _DASHBOARD_QUALITY_FAIL_ON_EMPTY = os.environ.get("DASHBOARD_QUALITY_FAIL_ON_EMP
     "yes",
     "on",
 }
+_DASHBOARD_QUALITY_LOG_EMPTY_AS_WARNING = os.environ.get(
+    "DASHBOARD_QUALITY_LOG_EMPTY_AS_WARNING", ""
+).strip().lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
 
 
 @asset(
@@ -159,29 +167,35 @@ def dashboard_quality_gate(context) -> None:
             time_window = by_window.get("time_window", "unknown")
             for panel in by_window.get("failing_panels", []):
                 msg = panel.get("messages", "")
-                context.log.warning(
-                    f"NO DATA: '{dash.get('title')}' / '{panel.get('panel_title')}' / "
-                    f"[{time_window}]: {msg[:200]}"
-                )
                 failure_row = {
                     "dashboard": dash.get("title", ""),
                     "panel": panel.get("panel_title", ""),
                     "error": f"[{time_window}] {msg}",
                 }
-                all_failures.append(failure_row)
 
                 is_empty_result = "empty (" in msg and "HTTP" not in msg and "error" not in msg.lower()
                 if is_empty_result:
+                    all_failures.append(failure_row)
                     empty_result_warnings.append(failure_row)
+                    log_fn = context.log.warning if _DASHBOARD_QUALITY_LOG_EMPTY_AS_WARNING else context.log.info
+                    log_fn(
+                        f"NO DATA: '{dash.get('title')}' / '{panel.get('panel_title')}' / "
+                        f"[{time_window}]: {msg[:200]}"
+                    )
                 else:
+                    all_failures.append(failure_row)
                     hard_failures.append(failure_row)
+                    context.log.warning(
+                        f"QUERY ERROR: '{dash.get('title')}' / '{panel.get('panel_title')}' / "
+                        f"[{time_window}]: {msg[:200]}"
+                    )
 
     _emit_metadata(
         context,
         lint_warnings=total_lint_warnings,
         parse_errors=total_parse_errors,
         dashboards_checked=len(dashboards),
-        failing_panels=len(all_failures),
+        failing_panels=len(hard_failures),
         hard_failing_panels=len(hard_failures),
         empty_result_panels=len(empty_result_warnings),
         failures=all_failures,
@@ -191,7 +205,8 @@ def dashboard_quality_gate(context) -> None:
 
     context.log.info(
         f"Quality gate: {len(dashboards)} dashboards checked, "
-        f"{len(all_failures)} failing panels, "
+        f"{len(hard_failures)} hard failing panels, "
+        f"{len(empty_result_warnings)} empty-result panels, "
         f"{total_lint_warnings} lint warnings, {total_parse_errors} parse errors."
     )
 
@@ -212,14 +227,14 @@ def dashboard_quality_gate(context) -> None:
                 message,
                 metadata={
                     "dashboards_checked": len(dashboards),
-                    "failing_panels": len(all_failures),
+                    "failing_panels": len(hard_failures),
                     "hard_failing_panels": len(hard_failures),
                     "empty_result_panels": len(empty_result_warnings),
                     "dashboard_time_picker_ranges": _DASHBOARD_TIME_PICKER_RANGES,
                 },
             )
     elif empty_result_warnings:
-        context.log.warning(
+        context.log.info(
             f"{len(empty_result_warnings)} panel/time-window checks returned empty results "
             "but no hard query errors were detected."
         )
