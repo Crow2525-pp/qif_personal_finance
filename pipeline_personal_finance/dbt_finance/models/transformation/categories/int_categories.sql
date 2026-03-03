@@ -1,5 +1,14 @@
 WITH transaction_data AS (
-    SELECT {{ dbt_utils.star(from=ref('int_append_accounts')) }}
+    SELECT
+        {{ dbt_utils.star(from=ref('int_append_accounts')) }},
+        -- Normalize account names so seed mappings like "ing_countdown"
+        -- match transaction account names like "Countdown".
+        REGEXP_REPLACE(
+            LOWER(REGEXP_REPLACE(account_name, '[^a-zA-Z0-9_]+', '', 'g')),
+            '^(adelaide_|bendigo_|ing_)',
+            '',
+            'g'
+        ) AS normalized_account_name
     FROM {{ ref('int_append_accounts') }}
 ),
 
@@ -15,7 +24,13 @@ category_mappings AS (
         bc.category AS map_category,
         bc.subcategory AS map_subcategory,
         bc.store AS map_store,
-        bc.internal_indicator AS map_internal_indicator
+        bc.internal_indicator AS map_internal_indicator,
+        REGEXP_REPLACE(
+            LOWER(REGEXP_REPLACE(bc.account_name, '[^a-zA-Z0-9_]+', '', 'g')),
+            '^(adelaide_|bendigo_|ing_)',
+            '',
+            'g'
+        ) AS normalized_account_name
     FROM {{ ref('banking_categories') }} bc
 ),
 
@@ -53,7 +68,7 @@ categorised_transactions AS (
     FROM transaction_data AS transactions
     LEFT JOIN category_mappings AS category
         ON
-            UPPER(transactions.account_name) = UPPER(category.account_name)
+            transactions.normalized_account_name = category.normalized_account_name
             AND (
                 (
                     transactions.sender IS NOT NULL
@@ -89,14 +104,13 @@ ranked AS (
 SELECT
     {{ dbt_utils.star(from=ref('int_append_accounts')) }},
     -- Build foreign key to dim_categories (matches its category_key)
-    COALESCE(
-      md5(
-        CAST(COALESCE(matched_category, '_dbt_utils_surrogate_key_null_') AS TEXT) || '-' ||
-        CAST(COALESCE(matched_subcategory, '_dbt_utils_surrogate_key_null_') AS TEXT) || '-' ||
-        CAST(COALESCE(matched_store, '_dbt_utils_surrogate_key_null_') AS TEXT) || '-' ||
-        CAST(COALESCE(matched_internal_indicator, '_dbt_utils_surrogate_key_null_') AS TEXT)
-      ),
-      NULL
-    ) AS category_foreign_key
+    CASE
+      WHEN matched_category IS NULL
+        OR matched_subcategory IS NULL
+        OR matched_store IS NULL
+        OR matched_internal_indicator IS NULL
+      THEN NULL
+      ELSE {{ dbt_utils.generate_surrogate_key(['matched_category', 'matched_subcategory', 'matched_store', 'matched_internal_indicator']) }}
+    END AS category_foreign_key
 FROM ranked
 WHERE rn = 1

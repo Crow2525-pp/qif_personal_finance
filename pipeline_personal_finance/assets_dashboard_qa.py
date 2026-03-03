@@ -58,7 +58,7 @@ _DASHBOARD_QUALITY_FAIL_ON_EMPTY = os.environ.get("DASHBOARD_QUALITY_FAIL_ON_EMP
     "on",
 }
 _DASHBOARD_QUALITY_LOG_EMPTY_AS_WARNING = os.environ.get(
-    "DASHBOARD_QUALITY_LOG_EMPTY_AS_WARNING", ""
+    "DASHBOARD_QUALITY_LOG_EMPTY_AS_WARNING", "true"
 ).strip().lower() in {
     "1",
     "true",
@@ -234,7 +234,7 @@ def dashboard_quality_gate(context) -> None:
                 },
             )
     elif empty_result_warnings:
-        context.log.info(
+        context.log.warning(
             f"{len(empty_result_warnings)} panel/time-window checks returned empty results "
             "but no hard query errors were detected."
         )
