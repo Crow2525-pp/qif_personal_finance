@@ -540,7 +540,7 @@
           "editorMode": "code",
           "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n    account_type,\n    SUM(CASE WHEN end_of_month_balance > 0 THEN end_of_month_balance ELSE 0 END) as value\nFROM reporting.rpt_account_performance\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_account_performance)\nGROUP BY account_type\nHAVING SUM(CASE WHEN end_of_month_balance > 0 THEN end_of_month_balance ELSE 0 END) > 0\nORDER BY SUM(CASE WHEN end_of_month_balance > 0 THEN end_of_month_balance ELSE 0 END) DESC;",
+          "rawSql": "WITH latest_month AS (\n  SELECT MAX(budget_year_month) AS budget_year_month\n  FROM reporting.rpt_account_performance\n),\nbase AS (\n  SELECT\n    COALESCE(NULLIF(account_type, ''), 'Unknown') AS account_type,\n    SUM(GREATEST(COALESCE(end_of_month_balance, 0), 0)) AS value\n  FROM reporting.rpt_account_performance\n  WHERE budget_year_month = (SELECT budget_year_month FROM latest_month)\n  GROUP BY 1\n)\nSELECT account_type, value\nFROM base\nWHERE value > 0\nUNION ALL\nSELECT 'No Asset Data' AS account_type, 0::numeric AS value\nWHERE NOT EXISTS (SELECT 1 FROM base WHERE value > 0)\nORDER BY value DESC;",
           "refId": "A"
         }
       ],
@@ -659,4 +659,3 @@
   "version": 1,
   "weekStart": ""
 }
-

@@ -1522,7 +1522,7 @@
           "editorMode": "code",
           "format": 1,
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CURRENT_DATE AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nwindow_range AS (\n  SELECT\n    (CURRENT_DATE - INTERVAL '12 months') AS start_date,\n    CURRENT_DATE AS end_date\n),\ncurrent_nw AS (\n  SELECT total_assets, total_liabilities, net_worth, debt_to_asset_ratio\n  FROM reporting.rpt_household_net_worth\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT end_date FROM window_range)\n)\nSELECT\n  ROUND(total_assets, 2) AS total_assets,\n  ROUND(total_liabilities, 2) AS total_liabilities,\n  ROUND(net_worth, 2) AS current_net_worth,\n  ROUND(debt_to_asset_ratio * 100, 1) AS debt_to_asset_ratio_percent\nFROM current_nw;",
+          "rawSql": "WITH latest_month AS (\n  SELECT MAX(budget_year_month) AS budget_year_month\n  FROM reporting.rpt_household_net_worth\n),\nbase AS (\n  SELECT\n    ROUND(total_assets, 2) AS total_assets,\n    ROUND(total_liabilities, 2) AS total_liabilities,\n    ROUND(net_worth, 2) AS current_net_worth,\n    ROUND(debt_to_asset_ratio * 100, 1) AS debt_to_asset_ratio_percent\n  FROM reporting.rpt_household_net_worth\n  WHERE budget_year_month = (SELECT budget_year_month FROM latest_month)\n)\nSELECT * FROM base\nUNION ALL\nSELECT 0::numeric AS total_assets, 0::numeric AS total_liabilities, 0::numeric AS current_net_worth, 0::numeric AS debt_to_asset_ratio_percent\nWHERE NOT EXISTS (SELECT 1 FROM base);",
           "refId": "A"
         }
       ],
@@ -1689,7 +1689,7 @@
           "editorMode": "code",
           "format": 1,
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT CURRENT_DATE AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nwindow_range AS (\n  SELECT\n    (CURRENT_DATE - INTERVAL '12 months') AS start_date,\n    CURRENT_DATE AS end_date\n)\nSELECT\n  driver,\n  delta_amount,\n  current_income,\n  previous_income\nFROM reporting.rpt_mom_cash_flow_waterfall\nWHERE budget_year_month = (SELECT month_key FROM selected_key)\nORDER BY sort_order;",
+          "rawSql": "WITH latest_month AS (\n  SELECT MAX(budget_year_month) AS budget_year_month\n  FROM reporting.rpt_mom_cash_flow_waterfall\n),\nbase AS (\n  SELECT\n    driver,\n    delta_amount,\n    current_income,\n    previous_income\n  FROM reporting.rpt_mom_cash_flow_waterfall\n  WHERE budget_year_month = (SELECT budget_year_month FROM latest_month)\n  ORDER BY sort_order\n)\nSELECT * FROM base\nUNION ALL\nSELECT 'No variance drivers' AS driver, 0::numeric AS delta_amount, 0::numeric AS current_income, 0::numeric AS previous_income\nWHERE NOT EXISTS (SELECT 1 FROM base);",
           "refId": "A"
         }
       ],
@@ -2909,4 +2909,3 @@
   "version": 2,
   "weekStart": ""
 }
-

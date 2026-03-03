@@ -66,31 +66,6 @@ _DASHBOARD_QUALITY_LOG_EMPTY_AS_WARNING = os.environ.get(
     "on",
 }
 
-# Panels where an empty result is considered valid (event-driven/anomaly views).
-_ALLOW_EMPTY_PANEL_COMBOS: set[tuple[str, str]] = {
-    ("Cash Flow Analysis (Most Recent Complete Month)", "🚨 Spending Risk Alerts & Large Transactions"),
-    ("Category Spending Analysis", "Top 10 Spending Categories with MoM Change"),
-    ("Category Spending Analysis", "Last Month vs 3-Month Average (Top Variances)"),
-    ("Category Spending Analysis", "MoM Variance Drivers (>10% & >$100)"),
-    ("Category Spending Analysis", "Top 5 Transactions - Highest Variance Category"),
-    ("Category Spending Analysis", "YoY Variance Drivers (>10% & >$100)"),
-    ("Category Spending Analysis", "Top 5 Transactions - Highest Variance Category (YoY)"),
-    ("Executive Financial Overview (Most Recent Complete Month)", "Asset & Liability Snapshot"),
-    ("Executive Financial Overview (Most Recent Complete Month)", "Cash Flow Drivers (Month-over-Month)"),
-    ("Grocery Spending Analysis", "Monthly Budget Target & Variance"),
-    ("Grocery Spending Analysis", "Last Month Market Share"),
-    ("Monthly Budget Summary", "Fixed vs Discretionary Spending"),
-    ("Monthly Budget Summary", "MoM Budget Variance Drivers (>10% & >$100)"),
-    ("Monthly Budget Summary", "Top 5 Transactions - Highest Variance Category"),
-    ("Monthly Budget Summary", "YoY Budget Variance Drivers (>10% & >$100)"),
-    ("Monthly Budget Summary", "Top 5 Transactions - Highest Variance Category (YoY)"),
-    ("Outflows Insights Dashboard", "MoM Variance Drivers - Outflows (>10% & >$100)"),
-    ("Outflows Insights Dashboard", "Top 5 Transactions - Highest Variance Category"),
-    ("Outflows Insights Dashboard", "YoY Variance Drivers - Outflows (>10% & >$100)"),
-    ("Outflows Insights Dashboard", "Top 5 Transactions - Highest Variance Category (YoY)"),
-    ("💎 Assets & Net Worth", "Asset Allocation by Account Type"),
-}
-
 
 @asset(
     deps=[dashboard_json_lint_gate, dashboard_time_control_policy_gate],
@@ -202,19 +177,13 @@ def dashboard_quality_gate(context) -> None:
 
                 is_empty_result = "empty (" in msg and "HTTP" not in msg and "error" not in msg.lower()
                 if is_empty_result:
-                    if (dashboard_title, panel_title) in _ALLOW_EMPTY_PANEL_COMBOS:
-                        context.log.info(
-                            f"ALLOWED EMPTY: '{dashboard_title}' / '{panel_title}' / "
-                            f"[{time_window}]: {msg[:200]}"
-                        )
-                    else:
-                        all_failures.append(failure_row)
-                        empty_result_warnings.append(failure_row)
-                        log_fn = context.log.warning if _DASHBOARD_QUALITY_LOG_EMPTY_AS_WARNING else context.log.info
-                        log_fn(
-                            f"NO DATA: '{dashboard_title}' / '{panel_title}' / "
-                            f"[{time_window}]: {msg[:200]}"
-                        )
+                    all_failures.append(failure_row)
+                    empty_result_warnings.append(failure_row)
+                    log_fn = context.log.warning if _DASHBOARD_QUALITY_LOG_EMPTY_AS_WARNING else context.log.info
+                    log_fn(
+                        f"NO DATA: '{dashboard_title}' / '{panel_title}' / "
+                        f"[{time_window}]: {msg[:200]}"
+                    )
                 else:
                     all_failures.append(failure_row)
                     hard_failures.append(failure_row)

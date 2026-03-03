@@ -147,7 +147,7 @@
           "editorMode": "code",
           "format": 1,
           "rawQuery": true,
-          "rawSql": "WITH budget_targets AS (\n  SELECT 250 AS monthly_budget_target\n), latest_month AS (\n  SELECT \n    total_grocery_spend,\n    (SELECT monthly_budget_target FROM budget_targets) AS budget_target\n  FROM reporting.viz_grocery_monthly_summary \n  WHERE year_month >= DATE_TRUNC('month', (date_trunc('month', NOW()) - INTERVAL '1 month'))\n  ORDER BY year_month DESC\n  LIMIT 1\n)\nSELECT \n  ROUND(budget_target - total_grocery_spend, 2) AS \"Budget Variance\",\n  ROUND(((total_grocery_spend / budget_target) * 100), 1) AS \"% of Budget\"\nFROM latest_month",
+          "rawSql": "WITH latest_month AS (\n  SELECT\n    year_month,\n    total_grocery_spend\n  FROM reporting.viz_grocery_monthly_summary\n  WHERE year_month < date_trunc('month', NOW())\n  ORDER BY year_month DESC\n  LIMIT 1\n)\nSELECT\n  ROUND(250 - COALESCE(total_grocery_spend, 0), 2) AS \"Budget Variance\",\n  ROUND((COALESCE(total_grocery_spend, 0) / 250) * 100, 1) AS \"% of Budget\"\nFROM latest_month\nUNION ALL\nSELECT 250::numeric AS \"Budget Variance\", 0::numeric AS \"% of Budget\"\nWHERE NOT EXISTS (SELECT 1 FROM latest_month);",
           "refId": "A"
         }
       ],
@@ -301,7 +301,7 @@
           "editorMode": "code",
           "format": 0,
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, coles_percentage as \"Coles\", woolworths_percentage as \"Woolworths\", gaskos_percentage as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= (date_trunc('month', NOW()) - INTERVAL '2 month') AND year_month < (date_trunc('month', NOW()) - INTERVAL '1 month') ORDER BY year_month DESC LIMIT 1",
+          "rawSql": "WITH latest_month AS (\n  SELECT\n    year_month AS time,\n    COALESCE(coles_percentage, 0) AS \"Coles\",\n    COALESCE(woolworths_percentage, 0) AS \"Woolworths\",\n    COALESCE(gaskos_percentage, 0) AS \"Gaskos\"\n  FROM reporting.viz_grocery_monthly_summary\n  WHERE year_month < date_trunc('month', NOW())\n  ORDER BY year_month DESC\n  LIMIT 1\n)\nSELECT * FROM latest_month\nUNION ALL\nSELECT date_trunc('month', NOW()) - interval '1 month' AS time, 0::numeric AS \"Coles\", 0::numeric AS \"Woolworths\", 0::numeric AS \"Gaskos\"\nWHERE NOT EXISTS (SELECT 1 FROM latest_month);",
           "refId": "A"
         }
       ],
@@ -1059,4 +1059,3 @@
   "version": 1,
   "weekStart": ""
 }
-
