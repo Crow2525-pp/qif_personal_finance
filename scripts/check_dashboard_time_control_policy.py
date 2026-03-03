@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Iterable
@@ -39,6 +40,11 @@ HISTORICAL_QUICK_RANGES_DISPLAYS = {
     "Year to date",
     "Trailing 12 months",
 }
+
+DATEMATH_RELATIVE_PATTERN = re.compile(
+    r"^now(?:[+-]\d+[smhdwMy])?(?:/[smhdwMy])?$"
+)
+DATE_ABSOLUTE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}")
 
 
 def parse_args() -> argparse.Namespace:
@@ -113,6 +119,20 @@ def references_time_macros(sql: str) -> bool:
     return "$__timeFrom" in sql or "$__timeTo" in sql or "$__timeFilter" in sql
 
 
+def is_valid_time_expr(value: object) -> bool:
+    """Validate Grafana quick-range from/to date-math expressions."""
+    if not isinstance(value, str):
+        return False
+    expr = value.strip()
+    if not expr:
+        return False
+    if DATE_ABSOLUTE_PATTERN.match(expr):
+        return True
+    if DATEMATH_RELATIVE_PATTERN.match(expr):
+        return True
+    return False
+
+
 def get_var(dashboard: dict, var_name: str) -> dict | None:
     for var in dashboard.get("templating", {}).get("list", []):
         if isinstance(var, dict) and var.get("name") == var_name:
@@ -180,6 +200,24 @@ def check_dashboard(dashboard: dict, file_path: Path) -> list[str]:
         quick_ranges = timepicker.get("quick_ranges", [])
         if not quick_ranges:
             violations.append("non-atemporal dashboards must have timepicker.quick_ranges configured")
+        else:
+            for idx, qr in enumerate(quick_ranges):
+                if not isinstance(qr, dict):
+                    violations.append(
+                        f"timepicker.quick_ranges[{idx}] must be an object with display/from/to"
+                    )
+                    continue
+                for field in ("display", "from", "to"):
+                    if field not in qr:
+                        violations.append(
+                            f"timepicker.quick_ranges[{idx}] missing '{field}'"
+                        )
+                for field in ("from", "to"):
+                    value = qr.get(field)
+                    if field in qr and not is_valid_time_expr(value):
+                        violations.append(
+                            f"timepicker.quick_ranges[{idx}].{field} has invalid date math: {value!r}"
+                        )
 
         # Historical dashboards: check for canonical presets
         if archetype == "historical_windowed":

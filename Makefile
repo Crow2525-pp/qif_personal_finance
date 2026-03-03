@@ -1,5 +1,7 @@
 .PHONY: help setup up down logs clean restart rebuild lint lint-fix test dagster-ui grafana-ui status dagster-run dbt-deps dbt-compile dbt-build dbt-test
 
+COMPOSE = docker-compose -f docker-compose.yml -f docker-compose.local.yml
+
 # Default target
 help:
 	@echo "Available commands:"
@@ -52,33 +54,33 @@ print('\n'.join(missing)) if missing else None" > /tmp/_env_missing.txt; \
 		fi; \
 		rm -f /tmp/_env_missing.txt; \
 	fi
-	docker-compose up -d
+	$(COMPOSE) up -d
 	@echo "Services starting..."
-	@echo "Dagster UI will be available at http://localhost:3000"
+	@echo "Dagster UI will be available at http://localhost:3002"
 	@echo "Grafana UI will be available at http://localhost:3001"
 
 # Stop services
 down:
-	docker-compose down
+	$(COMPOSE) down
 
 # Show logs
 logs:
-	docker-compose logs -f
+	$(COMPOSE) logs -f
 
 # Clean up
 clean:
-	docker-compose down -v --remove-orphans
+	$(COMPOSE) down -v --remove-orphans
 	docker system prune -f
 
 # Restart services
 restart:
-	docker-compose restart
+	$(COMPOSE) restart
 
 # Rebuild and restart
 rebuild:
-	docker-compose down
-	docker-compose build --no-cache
-	docker-compose up -d
+	$(COMPOSE) down
+	$(COMPOSE) build --no-cache
+	$(COMPOSE) up -d
 
 # SQL linting
 lint:
@@ -90,9 +92,9 @@ lint-fix:
 
 # Open Dagster UI (works on macOS and Linux)
 dagster-ui:
-	@which open >/dev/null 2>&1 && open http://localhost:3000 || \
-	 which xdg-open >/dev/null 2>&1 && xdg-open http://localhost:3000 || \
-	 echo "Please open http://localhost:3000 in your browser"
+	@which open >/dev/null 2>&1 && open http://localhost:3002 || \
+	 which xdg-open >/dev/null 2>&1 && xdg-open http://localhost:3002 || \
+	 echo "Please open http://localhost:3002 in your browser"
 
 # Open Grafana UI (works on macOS and Linux)
 grafana-ui:
@@ -102,11 +104,11 @@ grafana-ui:
 
 # Preferred deployment path: run through Dagster so lineage/ordering/checks are preserved
 dagster-run:
-	docker-compose exec pipeline_personal_finance dagster job execute -m pipeline_personal_finance -j qif_pipeline_job
+	$(COMPOSE) exec pipeline_personal_finance dagster job execute -m pipeline_personal_finance -j qif_pipeline_job
 
 # Show service status
 status:
-	docker-compose ps
+	$(COMPOSE) ps
 
 # dbt helpers (run from finance dbt dir)
 dbt-deps:

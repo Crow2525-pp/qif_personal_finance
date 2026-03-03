@@ -50,6 +50,95 @@ def epoch_ms(value: dt.datetime) -> int:
     return int(value.timestamp() * 1000)
 
 
+def _serialize_time_bound(value: dt.datetime | str) -> str:
+    """Render a Grafana time bound as a query payload string."""
+    if isinstance(value, dt.datetime):
+        return str(epoch_ms(value))
+    return str(value)
+
+
+def parse_time_picker_ranges(spec: str) -> List[int]:
+    """
+    Parse a comma-separated list of time-picker ranges into day counts.
+
+    Supports tokens like: 7, 30d, 12w, 6m, 1y.
+    """
+    tokens = [token.strip().lower() for token in spec.split(",") if token.strip()]
+    if not tokens:
+        raise ValueError("time picker ranges cannot be empty")
+
+    multipliers = {
+        "d": 1,
+        "w": 7,
+        "m": 30,
+        "y": 365,
+    }
+
+    parsed: List[int] = []
+    for token in tokens:
+        match = re.fullmatch(r"(\d+)([dwmy]?)", token)
+        if not match:
+            raise ValueError(
+                f"invalid range token '{token}'. Expected format like 7, 30d, 12w, 6m, 1y."
+            )
+        value = int(match.group(1))
+        suffix = match.group(2) or "d"
+        days = value * multipliers[suffix]
+        if days <= 0:
+            raise ValueError(f"range token '{token}' resolves to non-positive days")
+        parsed.append(days)
+
+    # Keep order stable while removing duplicates.
+    deduped = list(dict.fromkeys(parsed))
+    if not deduped:
+        raise ValueError("no valid time picker ranges parsed")
+    return deduped
+
+
+def build_time_windows(range_days: List[int], now_utc: dt.datetime | None = None) -> List[Tuple[str, dt.datetime, dt.datetime]]:
+    """Build labelled [from,to] windows anchored to now."""
+    now = now_utc or dt.datetime.now(dt.timezone.utc)
+    windows = []
+    for days in range_days:
+        windows.append((f"last_{days}d", now - dt.timedelta(days=days), now))
+    return windows
+
+
+def _slugify_label(label: str) -> str:
+    value = re.sub(r"[^a-z0-9]+", "_", label.strip().lower()).strip("_")
+    return value or "time_range"
+
+
+def dashboard_quick_range_windows(dashboard: Dict) -> List[Tuple[str, str, str]]:
+    """
+    Build labelled windows directly from a dashboard's configured quick ranges.
+
+    Returns tuples of (label_slug, from_expr, to_expr).
+    """
+    quick_ranges = (dashboard.get("timepicker") or {}).get("quick_ranges") or []
+    windows: List[Tuple[str, str, str]] = []
+    seen: Set[Tuple[str, str, str]] = set()
+
+    for idx, entry in enumerate(quick_ranges):
+        if not isinstance(entry, dict):
+            continue
+        display = str(entry.get("display", "")).strip()
+        from_expr = entry.get("from")
+        to_expr = entry.get("to")
+        if not isinstance(from_expr, str) or not isinstance(to_expr, str):
+            continue
+        if not from_expr.strip() or not to_expr.strip():
+            continue
+        label = _slugify_label(display) if display else f"quick_range_{idx + 1}"
+        key = (label, from_expr, to_expr)
+        if key in seen:
+            continue
+        seen.add(key)
+        windows.append(key)
+
+    return windows
+
+
 class GrafanaClient:
     """Small wrapper around the Grafana HTTP API."""
 
@@ -105,12 +194,20 @@ class GrafanaClient:
         self,
         datasource: Dict,
         raw_sql: str,
-        time_from: dt.datetime,
-        time_to: dt.datetime,
+        time_from: dt.datetime | str,
+        time_to: dt.datetime | str,
         scoped_vars: Dict,
         ref_id: str = "A",
         format_hint: str | None = None,
     ) -> Dict:
+        # PostgreSQL plugin requires string format; DuckDB uses integers.
+        _INT_TO_PG_FORMAT = {0: "time_series", 1: "table", 2: "logs"}
+        raw_format = format_hint if format_hint is not None else 1
+        if datasource.get("type") == "grafana-postgresql-datasource" and isinstance(raw_format, int):
+            resolved_format = _INT_TO_PG_FORMAT.get(raw_format, "table")
+        else:
+            resolved_format = raw_format
+
         body = {
             "queries": [
                 {
@@ -120,7 +217,7 @@ class GrafanaClient:
                         "id": datasource["id"],
                     },
                     "datasourceId": datasource["id"],
-                    "format": format_hint or "table",
+                    "format": resolved_format,
                     "intervalMs": 60000,
                     "maxDataPoints": 1000,
                     "refId": ref_id,
@@ -128,8 +225,8 @@ class GrafanaClient:
                     "scopedVars": scoped_vars,
                 }
             ],
-            "from": str(epoch_ms(time_from)),
-            "to": str(epoch_ms(time_to)),
+            "from": _serialize_time_bound(time_from),
+            "to": _serialize_time_bound(time_to),
         }
         return self.post("/api/ds/query", body)
 
@@ -137,7 +234,7 @@ class GrafanaClient:
 def flatten_panels(panels: Iterable[Dict]) -> Iterable[Dict]:
     """Yield all panels, flattening any rows/collapsed children."""
     for panel in panels:
-        sub_panels = panel.get("panels") or panel.get("collapsed") or []
+        sub_panels = panel.get("panels") or []
         if sub_panels:
             yield from flatten_panels(sub_panels)
         else:
@@ -189,12 +286,10 @@ def render_sql(raw_sql: str, scoped_vars: Dict) -> str:
     """
     raw_sql_text = raw_sql
 
-    def render_value(var_name: str, fmt: str | None) -> str:
+    def render_value(var_name: str, fmt: str | None) -> list:
         entry = scoped_vars.get(var_name, {}) or {}
         value = entry.get("value")
-
-        values = value if isinstance(value, list) else [value]
-        return values
+        return value if isinstance(value, list) else [value]
 
     pattern = re.compile(
         r"\$\{(?P<var>[A-Za-z0-9_]+)(?::(?P<fmt>[A-Za-z0-9_]+))?\}|\$(?P<plain>[A-Za-z0-9_]+)"
@@ -234,8 +329,8 @@ def resolve_variable_options(
     client: GrafanaClient,
     var_def: Dict,
     datasources: Dict[str, Dict],
-    time_from: dt.datetime,
-    time_to: dt.datetime,
+    time_from: dt.datetime | str,
+    time_to: dt.datetime | str,
 ) -> List:
     """Execute a templating query variable to collect its option values."""
     if var_def.get("type") != "query":
@@ -282,8 +377,8 @@ def build_scoped_vars(
     client: GrafanaClient,
     dashboard: Dict,
     datasources: Dict[str, Dict],
-    time_from: dt.datetime,
-    time_to: dt.datetime,
+    time_from: dt.datetime | str,
+    time_to: dt.datetime | str,
 ) -> Dict:
     scoped = {}
     for var in dashboard.get("templating", {}).get("list", []):
@@ -310,11 +405,12 @@ def check_dashboard(
     client: GrafanaClient,
     dashboard_meta: Dict,
     datasources: Dict[str, Dict],
-    time_from: dt.datetime,
-    time_to: dt.datetime,
+    time_from: dt.datetime | str,
+    time_to: dt.datetime | str,
     min_rows: int,
+    dashboard_data: Dict | None = None,
 ) -> Tuple[List[Dict], List[Dict]]:
-    dashboard = client.dashboard(dashboard_meta["uid"])
+    dashboard = dashboard_data if dashboard_data is not None else client.dashboard(dashboard_meta["uid"])
     scoped_vars = build_scoped_vars(client, dashboard, datasources, time_from, time_to)
 
     ok_panels: List[Dict] = []
@@ -377,6 +473,52 @@ def check_dashboard(
             failing_panels.append(status)
 
     return ok_panels, failing_panels
+
+
+def check_dashboard_across_time_windows(
+    client: GrafanaClient,
+    dashboard_meta: Dict,
+    datasources: Dict[str, Dict],
+    time_windows: List[Tuple[str, dt.datetime | str, dt.datetime | str]],
+    min_rows: int,
+    dashboard_data: Dict | None = None,
+) -> Dict:
+    """
+    Run live panel checks for a dashboard across multiple time-picker windows.
+
+    Returns a dict with aggregated counts and failures by window.
+    """
+    by_window: List[Dict] = []
+    total_ok = 0
+    total_fail = 0
+
+    for label, time_from, time_to in time_windows:
+        ok_panels, failing_panels = check_dashboard(
+            client=client,
+            dashboard_meta=dashboard_meta,
+            datasources=datasources,
+            time_from=time_from,
+            time_to=time_to,
+            min_rows=min_rows,
+            dashboard_data=dashboard_data,
+        )
+        for panel in failing_panels:
+            panel["time_window"] = label
+        by_window.append(
+            {
+                "time_window": label,
+                "ok_panels": len(ok_panels),
+                "failing_panels": failing_panels,
+            }
+        )
+        total_ok += len(ok_panels)
+        total_fail += len(failing_panels)
+
+    return {
+        "ok_panels": total_ok,
+        "failing_panels": total_fail,
+        "by_time_window": by_window,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -718,7 +860,18 @@ def parse_args() -> argparse.Namespace:
         "--days",
         type=int,
         default=365,
-        help="Time range to query backwards from now (in days). Default: 365.",
+        help=(
+            "Legacy single time range (in days). Used only when "
+            "--time-picker-ranges is not provided."
+        ),
+    )
+    parser.add_argument(
+        "--time-picker-ranges",
+        default=os.environ.get("DASHBOARD_TIME_PICKER_RANGES"),
+        help=(
+            "Comma-separated lookback ranges to validate, e.g. '7,30,90,365' "
+            "or '7d,30d,12w'. If omitted, falls back to --days."
+        ),
     )
     parser.add_argument(
         "--dashboard",
@@ -851,8 +1004,16 @@ def main() -> int:
     # ------------------------------------------------------------------
     # Normal mode: connect to Grafana, check live panels, run lint.
     # ------------------------------------------------------------------
-    time_to = dt.datetime.now(dt.timezone.utc)
-    time_from = time_to - dt.timedelta(days=args.days)
+    if args.time_picker_ranges:
+        try:
+            fallback_range_days = parse_time_picker_ranges(args.time_picker_ranges)
+        except ValueError as exc:
+            print(f"Invalid --time-picker-ranges: {exc}", file=sys.stderr)
+            return 2
+    else:
+        fallback_range_days = [args.days]
+
+    fallback_time_windows = build_time_windows(fallback_range_days)
 
     client = GrafanaClient(
         base_url=args.base_url,
@@ -884,28 +1045,42 @@ def main() -> int:
     total_layout_lint = 0
     total_static_lint = 0
     total_parity_warnings = 0
+    used_time_window_labels: Set[str] = set()
 
     json_results: List[Dict] = []
 
     for dash in dashboards:
-        ok_panels, failing_panels = check_dashboard(
+        dash_data = client.dashboard(dash["uid"])
+        dashboard_windows = dashboard_quick_range_windows(dash_data)
+        if dashboard_windows:
+            check_windows: List[Tuple[str, dt.datetime | str, dt.datetime | str]] = dashboard_windows
+            time_window_source = "dashboard_quick_ranges"
+        else:
+            check_windows = fallback_time_windows
+            time_window_source = "fallback_days"
+
+        used_time_window_labels.update(label for label, _, _ in check_windows)
+
+        time_window_result = check_dashboard_across_time_windows(
             client,
             dash,
             datasources,
-            time_from=time_from,
-            time_to=time_to,
+            time_windows=check_windows,
             min_rows=args.min_rows,
+            dashboard_data=dash_data,
         )
+        ok_panels = time_window_result["ok_panels"]
+        failing_panels = [
+            panel
+            for window in time_window_result["by_time_window"]
+            for panel in window["failing_panels"]
+        ]
 
         layout_issues: List[Dict] = []
         static_warnings: List[Dict] = []
         parity_warnings: List[Dict] = []
 
-        dash_data: Dict | None = None
-        if not args.no_lint or not args.no_parity:
-            dash_data = client.dashboard(dash["uid"])
-
-        if not args.no_lint and dash_data is not None:
+        if not args.no_lint:
             layout_issues = lint_dashboard_titles(
                 dash_data,
                 max_chars_per_col=args.lint_max_chars_per_col,
@@ -915,7 +1090,7 @@ def main() -> int:
             )
             static_warnings = lint_static_dashboard(dash_data)
 
-        if not args.no_parity and dash_data is not None:
+        if not args.no_parity:
             parity_warnings = lint_mobile_parity(dash_data)
 
         total_failures += len(failing_panels)
@@ -928,8 +1103,10 @@ def main() -> int:
                 {
                     "dashboard": dash.get("title"),
                     "uid": dash.get("uid"),
-                    "ok_panels": len(ok_panels),
+                    "ok_panels": ok_panels,
                     "failing_panels": failing_panels,
+                    "time_window_source": time_window_source,
+                    "checks_by_time_window": time_window_result["by_time_window"],
                     "layout_lint": layout_issues,
                     "static_warnings": static_warnings,
                     "parity_warnings": parity_warnings,
@@ -938,15 +1115,16 @@ def main() -> int:
         else:
             print(
                 f"\nDashboard '{dash.get('title')}' ({dash.get('uid')}): "
-                f"{len(ok_panels)} panels OK, {len(failing_panels)} failing, "
+                f"{ok_panels} panels OK, {len(failing_panels)} failing, "
                 f"{len(layout_issues)} layout warnings, "
                 f"{len(static_warnings)} static warnings, "
-                f"{len(parity_warnings)} parity warnings"
+                f"{len(parity_warnings)} parity warnings "
+                f"[windows={','.join(label for label, _, _ in check_windows)}]"
             )
             for panel in failing_panels:
                 print(
                     f"  - Panel {panel['panel_id']} '{panel['panel_title']}': "
-                    f"{panel['messages']}"
+                    f"[{panel.get('time_window', 'unknown')}] {panel['messages']}"
                 )
             for issue in layout_issues:
                 title_len = issue.get("title_len") or issue.get("content_len")
@@ -971,6 +1149,8 @@ def main() -> int:
 
     if args.json_output:
         summary = {
+            "checked_time_windows": sorted(used_time_window_labels),
+            "fallback_time_windows": [window[0] for window in fallback_time_windows],
             "total_failing_panels": total_failures,
             "total_layout_warnings": total_layout_lint,
             "total_static_warnings": total_static_lint,

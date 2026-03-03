@@ -152,7 +152,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "time_series",
+          "format": 0,
           "rawQuery": true,
           "rawSql": "SELECT \n    projection_date as time,\n    CASE \n        WHEN scenario = 'full_time' THEN projected_net_flow \n        ELSE NULL \n    END as \"Full-time Net Flow\",\n    CASE \n        WHEN scenario = 'part_time' THEN projected_net_flow \n        ELSE NULL \n    END as \"Part-time Net Flow\"\nFROM reporting.fct_financial_projections\nWHERE projection_date >= CURRENT_DATE\nORDER BY projection_date\nLIMIT 12;",
           "refId": "A"
@@ -232,7 +232,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT \n    CASE \n        WHEN scenario = 'full_time' THEN 'Full-time Scenario'\n        WHEN scenario = 'part_time' THEN 'Part-time Scenario'\n        ELSE 'Other Scenario'\n    END as \"Scenario\",\n    AVG(total_projected_income) as \"Avg Monthly Income\",\n    AVG(projected_net_flow) as \"Avg Net Flow\",\n    AVG(projected_savings_rate) as \"Avg Savings Rate\"\nFROM reporting.fct_financial_projections\nWHERE projection_date >= CURRENT_DATE\nAND projection_date <= CURRENT_DATE + INTERVAL '12 months'\nGROUP BY scenario\nORDER BY scenario DESC;",
           "refId": "A"
@@ -295,7 +295,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "WITH full_time_income AS (\n    SELECT projection_date, total_projected_income as full_income\n    FROM reporting.fct_financial_projections WHERE scenario = 'full_time'\n    AND projection_date >= CURRENT_DATE\n    AND projection_date <= CURRENT_DATE + INTERVAL '12 months'\n),\npart_time_income AS (\n    SELECT projection_date, total_projected_income as part_income\n    FROM reporting.fct_financial_projections WHERE scenario = 'part_time'\n    AND projection_date >= CURRENT_DATE\n    AND projection_date <= CURRENT_DATE + INTERVAL '12 months'\n)\nSELECT \n    COALESCE(SUM(ft.full_income - pt.part_income), 0) as \"Part-time Opportunity Cost (12 Months)\"\nFROM full_time_income ft\nFULL OUTER JOIN part_time_income pt ON ft.projection_date = pt.projection_date;",
           "refId": "A"
@@ -417,9 +417,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "time_series",
+          "format": 0,
           "rawQuery": true,
-          "rawSql": "WITH current_year_data AS (\n    SELECT \n        TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n        total_savings_rate_percent as \"Current Year\"\n    FROM reporting.rpt_savings_analysis\n    WHERE SUBSTRING(budget_year_month, 1, 4) = TO_CHAR(CURRENT_DATE, 'YYYY')\n),\nprevious_year_data AS (\n    SELECT \n        TO_TIMESTAMP((TO_CHAR(TO_DATE(budget_year_month, 'YYYY-MM') + INTERVAL '1 year', 'YYYY-MM') || '-01'), 'YYYY-MM-DD')::date as time,\n        total_savings_rate_percent as \"Previous Year\"\n    FROM reporting.rpt_savings_analysis\n    WHERE SUBSTRING(budget_year_month, 1, 4) = TO_CHAR(CURRENT_DATE - INTERVAL '1 year', 'YYYY')\n)\nSELECT \n    COALESCE(cy.time, py.time) as time,\n    cy.\"Current Year\",\n    py.\"Previous Year\"\nFROM current_year_data cy\nFULL OUTER JOIN previous_year_data py ON cy.time = py.time\nORDER BY time;",
+          "rawSql": "WITH current_year_data AS (\n    SELECT \n        TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n        total_savings_rate_percent as \"Current Year\"\n    FROM reporting.rpt_savings_analysis\n    WHERE SUBSTRING(budget_year_month, 1, 4) = TO_CHAR(CURRENT_DATE, 'YYYY')\n),\nprevious_year_data AS (\n    SELECT \n        TO_TIMESTAMP((TO_CHAR(TO_DATE(budget_year_month, 'YYYY-MM') + INTERVAL '1 year', 'YYYY-MM') || '-01'), 'YYYY-MM-DD')::date as time,\n        total_savings_rate_percent as \"Previous Year\"\n    FROM reporting.rpt_savings_analysis\n    WHERE SUBSTRING(budget_year_month, 1, 4) = TO_CHAR((date_trunc('month', NOW()) - INTERVAL '1 year'), 'YYYY')\n)\nSELECT \n    COALESCE(cy.time, py.time) as time,\n    cy.\"Current Year\",\n    py.\"Previous Year\"\nFROM current_year_data cy\nFULL OUTER JOIN previous_year_data py ON cy.time = py.time\nORDER BY time;",
           "refId": "A"
         }
       ],
@@ -523,9 +523,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n    'Total Income' as \"Financial Metric\",\n    annual_income as \"Current YTD\",\n    prev_year_income as \"Previous YTD\",\n    yoy_income_change_percent as \"YoY Change %\"\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison)\nUNION ALL\nSELECT \n    'Total Expenses',\n    annual_expenses,\n    prev_year_expenses,\n    yoy_expense_change_percent\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison)\nUNION ALL\nSELECT \n    'Net Cash Flow',\n    annual_net_cash_flow,\n    prev_year_income - prev_year_expenses,\n    CASE WHEN (prev_year_income - prev_year_expenses) != 0 THEN \n        (annual_net_cash_flow - (prev_year_income - prev_year_expenses)) / ABS(prev_year_income - prev_year_expenses)\n        ELSE NULL END\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison)\nUNION ALL\nSELECT \n    'Avg Savings Rate',\n    avg_savings_rate_percent,\n    prev_year_savings_rate,\n    yoy_savings_rate_change\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison);",
+          "rawSql": "SELECT \n    'Total Income' as \"Financial Metric\",\n    annual_income as \"Current YTD\",\n    prev_year_income as \"Previous YTD\",\n    yoy_income_change_percent as \"YoY Change %\"\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison)\nUNION ALL\nSELECT \n    'Total Expenses',\n    annual_expenses,\n    prev_year_expenses,\n    yoy_expense_change_percent\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison)\nUNION ALL\nSELECT \n    'Net Cash Flow',\n    annual_net_cash_flow,\n    prev_year_income - prev_year_expenses,\n    CASE WHEN (prev_year_income - prev_year_expenses) != 0 THEN \n        (annual_net_cash_flow - (prev_year_income - prev_year_expenses)) / ABS(prev_year_income - prev_year_expenses)\n        ELSE NULL END\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison)\nUNION ALL\nSELECT \n    'Avg Savings Rate',\n    avg_savings_rate_percent,\n    prev_year_savings_rate,\n    yoy_savings_rate_change\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison)",
           "refId": "A"
         }
       ],
@@ -612,7 +612,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "time_series",
+          "format": 0,
           "rawQuery": true,
           "rawSql": "SELECT \n    TO_TIMESTAMP(comparison_year || '-12-31', 'YYYY-MM-DD')::date as time,\n    annual_income as \"Annual Income\",\n    annual_expenses as \"Annual Expenses\",\n    annual_net_cash_flow as \"Annual Net Flow\"\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year >= EXTRACT(YEAR FROM CURRENT_DATE) - 4\nORDER BY comparison_year;",
           "refId": "A"

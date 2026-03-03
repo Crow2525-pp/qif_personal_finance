@@ -104,7 +104,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT annual_financial_progress_score\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
           "refId": "A"
@@ -163,7 +163,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT \n  'Annual Assessment' as \"Metric\",\n  annual_financial_assessment as \"Assessment\",\n  ROUND(annual_financial_progress_score, 0) || '/100' as \"Score\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE))\nUNION ALL\nSELECT \n  'Key Accomplishment' as \"Metric\",\n  top_financial_accomplishment as \"Assessment\",\n  '' as \"Score\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE))\nUNION ALL\nSELECT \n  'Priority Focus' as \"Metric\",\n  next_year_priority_focus as \"Assessment\",\n  '' as \"Score\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year = (SELECT MAX(comparison_year) FROM reporting.rpt_year_over_year_comparison WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE));",
           "refId": "A"
@@ -361,7 +361,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT \n  yoy_income_change_percent,\n  yoy_expense_change_percent,\n  yoy_net_worth_change_percent,\n  yoy_savings_rate_change\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
           "refId": "A"
@@ -519,7 +519,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "WITH latest AS (\n  SELECT *\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n  ORDER BY comparison_year DESC\n  LIMIT 1\n)\nSELECT\n  COALESCE((SELECT annual_financial_progress_score FROM latest), 0)::double precision AS \"Annual Progress Score\",\n  COALESCE((SELECT CASE income_performance\n             WHEN 'Strong Income Growth' THEN 100\n             WHEN 'Moderate Income Growth' THEN 80\n             WHEN 'Stable Income' THEN 60\n             WHEN 'Income Decline' THEN 20\n             ELSE 0 END FROM latest), 0)::double precision AS \"Income Performance\",\n  COALESCE((SELECT CASE expense_performance\n             WHEN 'Excellent Expense Control' THEN 100\n             WHEN 'Good Expense Control' THEN 80\n             WHEN 'Moderate Expense Growth' THEN 60\n             WHEN 'High Expense Growth' THEN 20\n             ELSE 0 END FROM latest), 0)::double precision AS \"Expense Performance\",\n  COALESCE((SELECT CASE net_worth_performance\n             WHEN 'Exceptional Net Worth Growth' THEN 100\n             WHEN 'Strong Net Worth Growth' THEN 80\n             WHEN 'Good Net Worth Growth' THEN 60\n             WHEN 'Modest Net Worth Growth' THEN 40\n             WHEN 'Net Worth Decline' THEN 20\n             ELSE 0 END FROM latest), 0)::double precision AS \"Net Worth Performance\";",
           "refId": "A"
@@ -667,7 +667,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT \n  (comparison_year || '-01-01')::date as time,\n  annual_income,\n  annual_expenses,\n  annual_net_cash_flow\nFROM reporting.rpt_year_over_year_comparison \nORDER BY comparison_year;",
           "refId": "A"
@@ -800,7 +800,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT \n  (comparison_year || '-01-01')::date as time,\n  year_end_net_worth,\n  annual_net_worth_change\nFROM reporting.rpt_year_over_year_comparison \nORDER BY comparison_year;",
           "refId": "A"
@@ -940,7 +940,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT \n  annual_total_savings,\n  annual_liquid_savings,\n  annual_investment_contributions,\n  annual_mortgage_reduction\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
           "refId": "A"
@@ -1106,7 +1106,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT \n  months_positive_cash_flow,\n  months_negative_cash_flow,\n  ROUND(avg_cash_flow_efficiency, 1) as avg_cash_flow_efficiency,\n  annual_transaction_count\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
           "refId": "A"
@@ -1218,7 +1218,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT \n  (comparison_year || '-01-01')::date as time,\n  avg_annual_savings_rate\nFROM reporting.rpt_year_over_year_comparison \nORDER BY comparison_year;",
           "refId": "A"
@@ -1385,7 +1385,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT \n  (comparison_year || '-01-01')::date as time,\n  annual_mortgage_expenses,\n  annual_household_expenses,\n  annual_food_expenses,\n  annual_family_expenses\nFROM reporting.rpt_year_over_year_comparison \nORDER BY comparison_year;",
           "refId": "A"
@@ -1514,7 +1514,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT \n  (comparison_year || '-01-01')::date as time,\n  inflation_adjusted_annual_income,\n  inflation_adjusted_annual_expenses\nFROM reporting.rpt_year_over_year_comparison \nORDER BY comparison_year;",
           "refId": "A"
@@ -1573,7 +1573,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "(SELECT\n  'Top Expense Driver 1' as \"Category\",\n  top_expense_driver_1 as \"Driver\"\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC\nLIMIT 1)\nUNION ALL\n(SELECT\n  'Top Expense Driver 2' as \"Category\",\n  top_expense_driver_2 as \"Driver\"\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC\nLIMIT 1)\nUNION ALL\n(SELECT\n  'Top Net Worth Driver' as \"Category\",\n  top_net_worth_driver_1 as \"Driver\"\nFROM reporting.rpt_year_over_year_comparison\nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC\nLIMIT 1)",
           "refId": "A"
@@ -1652,7 +1652,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT \n  narrative_summary as \"Summary\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 1;",
           "refId": "A"
@@ -1755,7 +1755,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT \n  comparison_year as \"Year\",\n  annual_income as \"Income\",\n  annual_expenses as \"Expenses\",\n  annual_net_cash_flow as \"Net Cash Flow\",\n  year_end_net_worth as \"Year-End Net Worth\",\n  ROUND(avg_annual_savings_rate, 1) as \"Avg Savings Rate %\",\n  annual_total_savings as \"Total Savings\",\n  months_positive_cash_flow as \"Positive Cash Flow Months\",\n  annual_financial_progress_score as \"Progress Score\"\nFROM reporting.rpt_year_over_year_comparison \nWHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\nORDER BY comparison_year DESC \nLIMIT 5;",
           "refId": "A"

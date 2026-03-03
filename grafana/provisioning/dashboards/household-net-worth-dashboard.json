@@ -97,7 +97,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_household_net_worth\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n)\nSELECT\n  to_char((SELECT month_date FROM latest_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_household_net_worth\nWHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM latest_period);",
           "refId": "A"
@@ -170,7 +170,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT net_worth\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
@@ -389,7 +389,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT \n  net_worth_health_score,\n  CASE \n    WHEN financial_position = 'Critical Debt' THEN 0\n    WHEN financial_position = 'High Debt' THEN 20\n    WHEN financial_position = 'Negative Net Worth' THEN 40\n    WHEN financial_position = 'Low Net Worth' THEN 60\n    WHEN financial_position = 'Positive Net Worth' THEN 80\n    WHEN financial_position = 'Strong Net Worth' THEN 100\n    ELSE 40\n  END as financial_position_score,\n  CASE \n    WHEN wealth_milestone = 'Crisis Phase' THEN 0\n    WHEN wealth_milestone = 'Recovery Phase' THEN 20\n    WHEN wealth_milestone = 'Rebuilding Phase' THEN 40\n    WHEN wealth_milestone = 'Stability Phase' THEN 60\n    WHEN wealth_milestone = 'Growth Phase' THEN 80\n    WHEN wealth_milestone = 'Wealth Phase' THEN 100\n    ELSE 40\n  END as wealth_milestone_score\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
@@ -550,9 +550,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_assets,\n  total_liabilities,\n  liquid_assets,\n  property_assets,\n  non_property_assets\nFROM reporting.rpt_household_net_worth \nWHERE period_end_date < date_trunc('month', CURRENT_DATE)\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_assets,\n  total_liabilities,\n  liquid_assets,\n  property_assets,\n  non_property_assets\nFROM reporting.rpt_household_net_worth \nWHERE period_end_date < date_trunc('month', NOW())\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -689,9 +689,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  net_worth,\n  rolling_3m_avg_net_worth\nFROM reporting.rpt_household_net_worth \nORDER BY transaction_year, transaction_month;",
+          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  net_worth,\n  rolling_3m_avg_net_worth\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month BETWEEN TO_CHAR(date_trunc('month', (NOW() - INTERVAL '12 months')), 'YYYY-MM') AND TO_CHAR(date_trunc('month', NOW()), 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
           "refId": "A"
         }
       ],
@@ -875,9 +875,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  total_assets,\n  total_liabilities,\n  liquid_assets,\n  property_assets,\n  non_property_assets\nFROM reporting.rpt_household_net_worth \nWHERE period_end_date < date_trunc('month', CURRENT_DATE)\nORDER BY transaction_year, transaction_month;",
+          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  total_assets,\n  total_liabilities,\n  liquid_assets,\n  property_assets,\n  non_property_assets\nFROM reporting.rpt_household_net_worth \nWHERE period_end_date < date_trunc('month', NOW())\nORDER BY transaction_year, transaction_month;",
           "refId": "A"
         }
       ],
@@ -1053,7 +1053,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT \n  mom_net_worth_change,\n  mom_net_worth_change_percent,\n  debt_to_asset_ratio,\n  growth_classification\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
@@ -1201,7 +1201,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT \n  ytd_net_worth_change,\n  yoy_net_worth_change_percent,\n  monthly_mortgage_principal_reduction,\n  estimated_months_expenses_covered\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
@@ -1291,9 +1291,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT\n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  property_assets,\n  liquid_assets,\n  (total_assets - property_assets - liquid_assets) as other_assets\nFROM reporting.rpt_household_net_worth\nWHERE period_end_date < date_trunc('month', CURRENT_DATE)\nORDER BY transaction_year, transaction_month;",
+          "rawSql": "SELECT\n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  property_assets,\n  liquid_assets,\n  (total_assets - property_assets - liquid_assets) as other_assets\nFROM reporting.rpt_household_net_worth\nWHERE period_end_date < date_trunc('month', NOW())\nORDER BY transaction_year, transaction_month;",
           "refId": "A"
         }
       ],
@@ -1378,9 +1378,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "WITH account_balances AS (\n  SELECT \n    ft.transaction_year,\n    ft.transaction_month,\n    ft.account_key,\n    da.account_name,\n    da.account_type,\n    da.is_liability,\n    make_date(ft.transaction_year::int, ft.transaction_month::int, 1) AS period_start,\n    MAX(ft.account_balance) AS end_of_month_balance\n  FROM reporting.fct_transactions ft\n  LEFT JOIN reporting.dim_accounts da\n    ON ft.account_key = da.account_key\n  WHERE make_date(ft.transaction_year::int, ft.transaction_month::int, 1) >= date_trunc('month', CURRENT_DATE)::date - INTERVAL '2 months'\n    AND make_date(ft.transaction_year::int, ft.transaction_month::int, 1) < date_trunc('month', CURRENT_DATE)::date\n  GROUP BY ft.transaction_year, ft.transaction_month, ft.account_key, da.account_name, da.account_type, da.is_liability\n),\naccount_changes AS (\n  SELECT\n    b.account_name,\n    b.account_type,\n    b.is_liability,\n    b.period_start,\n    (b.end_of_month_balance - LAG(b.end_of_month_balance) OVER (PARTITION BY b.account_key ORDER BY b.period_start)) as monthly_change\n  FROM account_balances b\n)\nSELECT\n  account_name as \"Account\",\n  account_type as \"Type\",\n  CASE WHEN is_liability THEN 'Liability' ELSE 'Asset' END as \"Category\",\n  ROUND(CAST(ABS(monthly_change) as numeric), 2) as \"Change\",\n  CASE\n    WHEN monthly_change > 0 AND is_liability THEN 'Increase (Worse)'\n    WHEN monthly_change < 0 AND is_liability THEN 'Decrease (Better)'\n    WHEN monthly_change > 0 AND NOT is_liability THEN 'Increase (Better)'\n    WHEN monthly_change < 0 AND NOT is_liability THEN 'Decrease (Worse)'\n    ELSE 'Stable'\n  END as \"Impact\"\nFROM account_changes\nWHERE period_start = date_trunc('month', CURRENT_DATE)::date - INTERVAL '1 month'\n  AND ABS(monthly_change) > 100\nORDER BY ABS(monthly_change) DESC\nLIMIT 10;",
+          "rawSql": "WITH account_balances AS (\n  SELECT \n    ft.transaction_year,\n    ft.transaction_month,\n    ft.account_key,\n    da.account_name,\n    da.account_type,\n    da.is_liability,\n    make_date(ft.transaction_year::int, ft.transaction_month::int, 1) AS period_start,\n    MAX(ft.account_balance) AS end_of_month_balance\n  FROM reporting.fct_transactions ft\n  LEFT JOIN reporting.dim_accounts da\n    ON ft.account_key = da.account_key\n  WHERE make_date(ft.transaction_year::int, ft.transaction_month::int, 1) >= date_trunc('month', NOW())::date - INTERVAL '2 months'\n    AND make_date(ft.transaction_year::int, ft.transaction_month::int, 1) < date_trunc('month', NOW())::date\n  GROUP BY ft.transaction_year, ft.transaction_month, ft.account_key, da.account_name, da.account_type, da.is_liability\n),\naccount_changes AS (\n  SELECT\n    b.account_name,\n    b.account_type,\n    b.is_liability,\n    b.period_start,\n    (b.end_of_month_balance - LAG(b.end_of_month_balance) OVER (PARTITION BY b.account_key ORDER BY b.period_start)) as monthly_change\n  FROM account_balances b\n)\nSELECT\n  account_name as \"Account\",\n  account_type as \"Type\",\n  CASE WHEN is_liability THEN 'Liability' ELSE 'Asset' END as \"Category\",\n  ROUND(CAST(ABS(monthly_change) as numeric), 2) as \"Change\",\n  CASE\n    WHEN monthly_change > 0 AND is_liability THEN 'Increase (Worse)'\n    WHEN monthly_change < 0 AND is_liability THEN 'Decrease (Better)'\n    WHEN monthly_change > 0 AND NOT is_liability THEN 'Increase (Better)'\n    WHEN monthly_change < 0 AND NOT is_liability THEN 'Decrease (Worse)'\n    ELSE 'Stable'\n  END as \"Impact\"\nFROM account_changes\nWHERE period_start = date_trunc('month', NOW())::date - INTERVAL '1 month'\n  AND ABS(monthly_change) > 100\nORDER BY ABS(monthly_change) DESC\nLIMIT 10;",
           "refId": "A"
         }
       ],
@@ -1445,7 +1445,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT \n  financial_advice as \"Financial Advice\",\n  wealth_milestone as \"Wealth Milestone\",\n  annual_progress_assessment as \"Annual Progress\",\n  net_worth_trend_direction as \"Trend Direction\"\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
@@ -1585,9 +1585,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  liquid_asset_allocation_pct as \"Liquid Assets\",\n  property_asset_allocation_pct as \"Property Assets\",\n  other_asset_allocation_pct as \"Other Assets\"\nFROM reporting.rpt_household_net_worth \nORDER BY transaction_year, transaction_month;",
+          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  liquid_asset_allocation_pct as \"Liquid Assets\",\n  property_asset_allocation_pct as \"Property Assets\",\n  other_asset_allocation_pct as \"Other Assets\"\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month BETWEEN TO_CHAR(date_trunc('month', (NOW() - INTERVAL '12 months')), 'YYYY-MM') AND TO_CHAR(date_trunc('month', NOW()), 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
           "refId": "A"
         }
       ],
@@ -1768,7 +1768,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT \n  liquid_allocation_drift,\n  property_allocation_drift,\n  other_allocation_drift,\n  total_allocation_drift_score\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
@@ -1898,7 +1898,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT \n  mom_assets_change,\n  mom_liabilities_change,\n  mom_net_worth_change\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year DESC, transaction_month DESC \nLIMIT 1;",
           "refId": "A"
@@ -2027,9 +2027,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  mom_assets_change,\n  mom_liabilities_change\nFROM reporting.rpt_household_net_worth \nORDER BY transaction_year, transaction_month;",
+          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  mom_assets_change,\n  mom_liabilities_change\nFROM reporting.rpt_household_net_worth \nWHERE budget_year_month BETWEEN TO_CHAR(date_trunc('month', (NOW() - INTERVAL '12 months')), 'YYYY-MM') AND TO_CHAR(date_trunc('month', NOW()), 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
           "refId": "A"
         }
       ],
@@ -2066,7 +2066,7 @@
         "display": "Last complete month"
       },
       {
-        "from": "now/Y",
+        "from": "now/y",
         "to": "now",
         "display": "Year to date"
       },
@@ -2083,3 +2083,4 @@
   "version": 1,
   "weekStart": ""
 }
+

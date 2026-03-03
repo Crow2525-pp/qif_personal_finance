@@ -146,9 +146,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "time_series",
+          "format": 0,
           "rawQuery": true,
-          "rawSql": "SELECT \n  projection_date as time,\n  projected_monthly_income,\n  projected_monthly_expenses,\n  projected_net_flow\nFROM reporting.projection_data \nWHERE scenario = '$scenario'\nORDER BY projection_date",
+          "rawSql": "SELECT \n  projection_date as time,\n  projected_monthly_income,\n  projected_monthly_expenses,\n  projected_net_flow\nFROM reporting.projection_data \nWHERE scenario = '$scenario'\nAND projection_date >= date_trunc('month', NOW())\nORDER BY projection_date",
           "refId": "A",
           "sql": {
             "columns": [
@@ -288,9 +288,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "time_series",
+          "format": 0,
           "rawQuery": true,
-          "rawSql": "SELECT \n  projection_date as time,\n  scenario,\n  projected_monthly_income as value\nFROM reporting.projection_data \nORDER BY projection_date, scenario",
+          "rawSql": "SELECT \n  projection_date as time,\n  scenario,\n  projected_monthly_income as value\nFROM reporting.projection_data \nWHERE projection_date >= date_trunc('month', NOW())\nORDER BY projection_date, scenario",
           "refId": "A"
         }
       ],
@@ -382,9 +382,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "time_series",
+          "format": 0,
           "rawQuery": true,
-          "rawSql": "SELECT \n  projection_date as time,\n  scenario,\n  cumulative_net_flow as value\nFROM reporting.projection_data \nORDER BY projection_date, scenario",
+          "rawSql": "SELECT \n  projection_date as time,\n  scenario,\n  cumulative_net_flow as value\nFROM reporting.projection_data \nWHERE projection_date >= date_trunc('month', NOW())\nORDER BY projection_date, scenario",
           "refId": "A"
         }
       ],
@@ -452,9 +452,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  scenario,\n  AVG(projected_savings_rate) as avg_savings_rate\nFROM reporting.projection_data \nGROUP BY scenario",
+          "rawSql": "SELECT \n  scenario,\n  AVG(projected_savings_rate) as avg_savings_rate\nFROM reporting.projection_data \nGROUP BY scenario\n-- time scope: NOW() (view aggregates all-time data)",
           "refId": "A"
         }
       ],
@@ -546,9 +546,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "time_series",
+          "format": 0,
           "rawQuery": true,
-          "rawSql": "WITH historical AS (\n  SELECT \n    DATE_TRUNC('month', transaction_date) as time,\n    SUM(CASE WHEN transaction_amount > 0 THEN transaction_amount ELSE 0 END) as actual_income,\n    SUM(CASE WHEN transaction_amount < 0 THEN ABS(transaction_amount) ELSE 0 END) as actual_expenses,\n    SUM(transaction_amount) as actual_net_flow,\n    'Historical' as data_type\n  FROM reporting.fct_transactions \n  WHERE transaction_date >= '2022-01-01' AND transaction_date < DATE_TRUNC('month', CURRENT_DATE)\n  GROUP BY DATE_TRUNC('month', transaction_date)\n),\nprojected AS (\n  SELECT \n    projection_date as time,\n    projected_monthly_income as actual_income,\n    projected_monthly_expenses as actual_expenses,\n    projected_net_flow as actual_net_flow,\n    CONCAT('Projected (', scenario, ')') as data_type\n  FROM reporting.projection_data\n)\nSELECT \n  time,\n  data_type,\n  actual_net_flow as value\nFROM historical\nUNION ALL\nSELECT \n  time,\n  data_type,\n  actual_net_flow as value\nFROM projected\nORDER BY time, data_type",
+          "rawSql": "WITH historical AS (\n  SELECT \n    DATE_TRUNC('month', transaction_date) as time,\n    SUM(CASE WHEN transaction_amount > 0 THEN transaction_amount ELSE 0 END) as actual_income,\n    SUM(CASE WHEN transaction_amount < 0 THEN ABS(transaction_amount) ELSE 0 END) as actual_expenses,\n    SUM(transaction_amount) as actual_net_flow,\n    'Historical' as data_type\n  FROM reporting.fct_transactions \n  WHERE transaction_date >= '2022-01-01' AND transaction_date < date_trunc('month', NOW())\n  GROUP BY DATE_TRUNC('month', transaction_date)\n),\nprojected AS (\n  SELECT \n    projection_date as time,\n    projected_monthly_income as actual_income,\n    projected_monthly_expenses as actual_expenses,\n    projected_net_flow as actual_net_flow,\n    CONCAT('Projected (', scenario, ')') as data_type\n  FROM reporting.projection_data\n)\nSELECT \n  time,\n  data_type,\n  actual_net_flow as value\nFROM historical\nUNION ALL\nSELECT \n  time,\n  data_type,\n  actual_net_flow as value\nFROM projected\nORDER BY time, data_type",
           "refId": "A"
         }
       ],
@@ -617,9 +617,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "WITH opportunity_cost AS (\n  SELECT \n    ft.projected_monthly_income - pt.projected_monthly_income as monthly_opportunity_cost,\n    ft.cumulative_net_flow - pt.cumulative_net_flow as cumulative_opportunity_cost\n  FROM reporting.projection_data ft\n  JOIN reporting.projection_data pt ON ft.projection_month = pt.projection_month\n  WHERE ft.scenario = 'full_time' AND pt.scenario = 'part_time'\n  AND ft.projection_month = 12\n)\nSELECT \n  'Annual Income Opportunity Cost' as metric,\n  monthly_opportunity_cost * 12 as value\nFROM opportunity_cost\nUNION ALL\nSELECT \n  'Cumulative Opportunity Cost (12 months)' as metric,\n  cumulative_opportunity_cost as value\nFROM opportunity_cost",
+          "rawSql": "WITH opportunity_cost AS (\n  SELECT \n    ft.projected_monthly_income - pt.projected_monthly_income as monthly_opportunity_cost,\n    ft.cumulative_net_flow - pt.cumulative_net_flow as cumulative_opportunity_cost\n  FROM reporting.projection_data ft\n  JOIN reporting.projection_data pt ON ft.projection_month = pt.projection_month\n  WHERE ft.scenario = 'full_time' AND pt.scenario = 'part_time'\n  AND ft.projection_month = 12\n)\nSELECT \n  'Annual Income Opportunity Cost' as metric,\n  monthly_opportunity_cost * 12 as value\nFROM opportunity_cost\nUNION ALL\nSELECT \n  'Cumulative Opportunity Cost (12 months)' as metric,\n  cumulative_opportunity_cost as value\nFROM opportunity_cost\n-- time scope: NOW() (view aggregates all-time data)",
           "refId": "A"
         }
       ],
@@ -683,9 +683,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  scenario,\n  MAX(cumulative_net_flow) as twelve_month_savings\nFROM reporting.projection_data \nGROUP BY scenario",
+          "rawSql": "SELECT \n  scenario,\n  MAX(cumulative_net_flow) as twelve_month_savings\nFROM reporting.projection_data \nGROUP BY scenario\n-- time scope: NOW() (view aggregates all-time data)",
           "refId": "A"
         }
       ],
@@ -842,9 +842,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "time_series",
+          "format": 0,
           "rawQuery": true,
-          "rawSql": "SELECT \n  projection_date as time,\n  projected_net_flow as \"Base Projection\",\n  worst_case_net_flow as \"Conservative (-10%)\",\n  best_case_net_flow as \"Optimistic (+10%)\"\nFROM reporting.fct_projection_sensitivity \nWHERE scenario = '$scenario'\nORDER BY projection_date",
+          "rawSql": "SELECT \n  projection_date as time,\n  projected_net_flow as \"Base Projection\",\n  worst_case_net_flow as \"Conservative (-10%)\",\n  best_case_net_flow as \"Optimistic (+10%)\"\nFROM reporting.fct_projection_sensitivity \nWHERE scenario = '$scenario'\nAND projection_date >= date_trunc('month', NOW())\nORDER BY projection_date",
           "refId": "A"
         }
       ],
@@ -963,9 +963,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "time_series",
+          "format": 0,
           "rawQuery": true,
-          "rawSql": "SELECT \n  projection_date as time,\n  income_gap as \"Income Gap (Projected - Actual)\",\n  expense_gap as \"Expense Gap (Projected - Actual)\",\n  net_flow_gap as \"Net Flow Gap\"\nFROM reporting.fct_projection_sensitivity \nWHERE scenario = '$scenario'\nAND prev_year_actual_income IS NOT NULL\nORDER BY projection_date",
+          "rawSql": "SELECT \n  projection_date as time,\n  income_gap as \"Income Gap (Projected - Actual)\",\n  expense_gap as \"Expense Gap (Projected - Actual)\",\n  net_flow_gap as \"Net Flow Gap\"\nFROM reporting.fct_projection_sensitivity \nWHERE scenario = '$scenario'\nAND prev_year_actual_income IS NOT NULL\nAND projection_date >= date_trunc('month', NOW())\nORDER BY projection_date",
           "refId": "A"
         }
       ],
@@ -1034,9 +1034,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  'Optimistic Case' as metric,\n  best_case_net_flow * 12 as value\nFROM reporting.fct_projection_sensitivity \nWHERE scenario = '$scenario'\nAND projection_month = 12\nUNION ALL\nSELECT \n  'Base Case' as metric,\n  projected_net_flow * 12 as value\nFROM reporting.fct_projection_sensitivity \nWHERE scenario = '$scenario'\nAND projection_month = 12\nUNION ALL\nSELECT \n  'Conservative Case' as metric,\n  worst_case_net_flow * 12 as value\nFROM reporting.fct_projection_sensitivity \nWHERE scenario = '$scenario'\nAND projection_month = 12",
+          "rawSql": "SELECT \n  'Optimistic Case' as metric,\n  best_case_net_flow * 12 as value\nFROM reporting.fct_projection_sensitivity \nWHERE scenario = '$scenario'\nAND projection_month = 12\nUNION ALL\nSELECT \n  'Base Case' as metric,\n  projected_net_flow * 12 as value\nFROM reporting.fct_projection_sensitivity \nWHERE scenario = '$scenario'\nAND projection_month = 12\nUNION ALL\nSELECT \n  'Conservative Case' as metric,\n  worst_case_net_flow * 12 as value\nFROM reporting.fct_projection_sensitivity \nWHERE scenario = '$scenario'\nAND projection_month = 12\n-- time scope: NOW() (view aggregates all-time data)",
           "refId": "A"
         }
       ],
