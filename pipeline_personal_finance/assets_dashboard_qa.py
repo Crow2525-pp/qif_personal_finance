@@ -122,18 +122,25 @@ def dashboard_quality_gate(context) -> None:
             "dashboard_quality_gate configuration invalid",
             metadata={"dashboard_time_picker_ranges": _DASHBOARD_TIME_PICKER_RANGES, "error": str(exc)},
         ) from exc
-    time_windows = _checker.build_time_windows(range_days)
+    fallback_windows = _checker.build_time_windows(range_days)
 
     all_failures: list[dict[str, Any]] = []
+    checked_window_labels: set[str] = set()
 
     for dash in dashboards:
         try:
+            dashboard_data = client.dashboard(dash["uid"])
+            dashboard_windows = _checker.dashboard_quick_range_windows(dashboard_data)
+            time_windows = dashboard_windows if dashboard_windows else fallback_windows
+            checked_window_labels.update(window[0] for window in time_windows)
+
             check_result = _checker.check_dashboard_across_time_windows(
                 client,
                 dash,
                 datasources,
                 time_windows=time_windows,
                 min_rows=1,
+                dashboard_data=dashboard_data,
             )
         except Exception as exc:
             context.log.warning(
@@ -164,7 +171,7 @@ def dashboard_quality_gate(context) -> None:
         failing_panels=len(all_failures),
         failures=all_failures,
         live_status="ok",
-        checked_time_windows=[window[0] for window in time_windows],
+        checked_time_windows=sorted(checked_window_labels),
     )
 
     context.log.info(

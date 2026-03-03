@@ -34,3 +34,35 @@ def test_build_time_windows_uses_shared_end_timestamp():
     assert windows[1][2] == now
     assert windows[0][1] == now - dt.timedelta(days=7)
     assert windows[1][1] == now - dt.timedelta(days=30)
+
+
+def test_dashboard_quick_range_windows_extracts_configured_presets():
+    dashboard = {
+        "timepicker": {
+            "quick_ranges": [
+                {"display": "Last complete month", "from": "now-1M/M", "to": "now/M"},
+                {"display": "Year to date", "from": "now/y", "to": "now"},
+                {"display": "Trailing 12 months", "from": "now-12M/M", "to": "now/M"},
+            ]
+        }
+    }
+    assert checker.dashboard_quick_range_windows(dashboard) == [
+        ("last_complete_month", "now-1M/M", "now/M"),
+        ("year_to_date", "now/y", "now"),
+        ("trailing_12_months", "now-12M/M", "now/M"),
+    ]
+
+
+def test_dashboard_quick_range_windows_skips_invalid_entries():
+    dashboard = {
+        "timepicker": {
+            "quick_ranges": [
+                {"display": "Bad", "from": None, "to": "now"},
+                "not-an-object",
+                {"display": "", "from": "now-30d", "to": "now"},
+            ]
+        }
+    }
+    assert checker.dashboard_quick_range_windows(dashboard) == [
+        ("quick_range_3", "now-30d", "now")
+    ]
