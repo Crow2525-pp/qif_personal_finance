@@ -2066,7 +2066,7 @@
         "display": "Last complete month"
       },
       {
-        "from": "now/Y",
+        "from": "now/y",
         "to": "now",
         "display": "Year to date"
       },
@@ -2083,3 +2083,4 @@
   "version": 1,
   "weekStart": ""
 }
+

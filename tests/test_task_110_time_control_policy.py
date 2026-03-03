@@ -1,9 +1,12 @@
 import json
+import re
 from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DASHBOARD_DIR = REPO_ROOT / "grafana" / "provisioning" / "dashboards"
+_DATEMATH_RELATIVE_PATTERN = re.compile(r"^now(?:[+-]\d+[smhdwMy])?(?:/[smhdwMy])?$")
+_DATE_ABSOLUTE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}")
 
 
 def _load_dashboard(filename: str) -> dict:
@@ -58,6 +61,15 @@ def _is_exception_dashboard(dashboard: dict) -> bool:
     return bool(tags & EXCEPTION_TAGS)
 
 
+def _is_valid_time_expr(value: object) -> bool:
+    if not isinstance(value, str):
+        return False
+    expr = value.strip()
+    if not expr:
+        return False
+    return bool(_DATEMATH_RELATIVE_PATTERN.match(expr) or _DATE_ABSOLUTE_PATTERN.match(expr))
+
+
 # --- Tests ---
 
 
@@ -109,6 +121,25 @@ def test_historical_windowed_dashboards_have_quick_ranges():
         assert expected_displays <= displays, (
             f"{filename} missing quick_ranges: {expected_displays - displays}"
         )
+
+
+def test_quick_ranges_have_valid_date_math():
+    """Every non-atemporal dashboard quick range must have valid from/to date math."""
+    for filename, dashboard in _all_dashboards():
+        if _get_archetype(dashboard) == "atemporal_no_time_component":
+            continue
+        quick_ranges = (dashboard.get("timepicker", {}) or {}).get("quick_ranges", [])
+        for idx, qr in enumerate(quick_ranges):
+            assert isinstance(qr, dict), f"{filename} quick_ranges[{idx}] must be an object"
+            assert "from" in qr and "to" in qr, (
+                f"{filename} quick_ranges[{idx}] must include from/to"
+            )
+            assert _is_valid_time_expr(qr["from"]), (
+                f"{filename} quick_ranges[{idx}].from invalid: {qr['from']!r}"
+            )
+            assert _is_valid_time_expr(qr["to"]), (
+                f"{filename} quick_ranges[{idx}].to invalid: {qr['to']!r}"
+            )
 
 
 def test_atemporal_dashboards_have_hidden_timepicker():
