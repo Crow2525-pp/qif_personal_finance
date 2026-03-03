@@ -111,6 +111,14 @@ class GrafanaClient:
         ref_id: str = "A",
         format_hint: str | None = None,
     ) -> Dict:
+        # PostgreSQL plugin requires string format; DuckDB uses integers.
+        _INT_TO_PG_FORMAT = {0: "time_series", 1: "table", 2: "logs"}
+        raw_format = format_hint if format_hint is not None else 1
+        if datasource.get("type") == "grafana-postgresql-datasource" and isinstance(raw_format, int):
+            resolved_format = _INT_TO_PG_FORMAT.get(raw_format, "table")
+        else:
+            resolved_format = raw_format
+
         body = {
             "queries": [
                 {
@@ -120,7 +128,7 @@ class GrafanaClient:
                         "id": datasource["id"],
                     },
                     "datasourceId": datasource["id"],
-                    "format": format_hint or "table",
+                    "format": resolved_format,
                     "intervalMs": 60000,
                     "maxDataPoints": 1000,
                     "refId": ref_id,

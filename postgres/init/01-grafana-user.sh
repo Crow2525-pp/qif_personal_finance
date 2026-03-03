@@ -61,6 +61,15 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<EO
     REVOKE ALL ON ALL TABLES IN SCHEMA landing, staging, transformation, reporting FROM PUBLIC;
     REVOKE ALL ON ALL SEQUENCES IN SCHEMA landing, staging, transformation, reporting FROM PUBLIC;
 
+    -- Dagster service needs connect + create on the database itself (for dbt schema creation)
+    GRANT CONNECT ON DATABASE "${POSTGRES_DB}" TO "${DAGSTER_POSTGRES_USER}";
+    GRANT CREATE ON DATABASE "${POSTGRES_DB}" TO "${DAGSTER_POSTGRES_USER}";
+
+    -- Dagster needs full access to public schema for its internal run/event tables
+    GRANT ALL ON SCHEMA public TO "${DAGSTER_POSTGRES_USER}";
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO "${DAGSTER_POSTGRES_USER}";
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO "${DAGSTER_POSTGRES_USER}";
+
     GRANT USAGE, CREATE ON SCHEMA landing, staging, transformation, reporting TO "${DAGSTER_POSTGRES_USER}";
     GRANT SELECT, INSERT, UPDATE, TRUNCATE, REFERENCES, TRIGGER ON ALL TABLES IN SCHEMA landing, staging, transformation, reporting TO "${DAGSTER_POSTGRES_USER}";
     REVOKE DELETE ON ALL TABLES IN SCHEMA landing, staging, transformation, reporting FROM "${DAGSTER_POSTGRES_USER}";

@@ -121,11 +121,11 @@
             "type": "grafana-postgresql-datasource",
             "uid": "PCC52D03280B7034C"
           },
-          "format": "time_series",
+          "format": 0,
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT month_start AS time, mortgage_balance AS \"Mortgage Balance\"\nFROM reporting.viz_mortgage_payoff_monthly\nWHERE mortgage_balance IS NOT NULL\nUNION ALL\nSELECT month_start AS time, offset_balance AS \"Offset Balance\"\nFROM reporting.viz_mortgage_payoff_monthly\nWHERE offset_balance IS NOT NULL\nUNION ALL\nSELECT month_start AS time, net_mortgage_exposure AS \"Net Mortgage Exposure\"\nFROM reporting.viz_mortgage_payoff_monthly\nWHERE net_mortgage_exposure IS NOT NULL\nORDER BY time;",
+          "rawSql": "SELECT month_start AS time, mortgage_balance AS \"Mortgage Balance\"\nFROM reporting.viz_mortgage_payoff_monthly\nWHERE mortgage_balance IS NOT NULL\nUNION ALL\nSELECT month_start AS time, offset_balance AS \"Offset Balance\"\nFROM reporting.viz_mortgage_payoff_monthly\nWHERE offset_balance IS NOT NULL\nUNION ALL\nSELECT month_start AS time, net_mortgage_exposure AS \"Net Mortgage Exposure\"\nFROM reporting.viz_mortgage_payoff_monthly\nWHERE net_mortgage_exposure IS NOT NULL\nAND month_start BETWEEN date_trunc('month', (NOW() - INTERVAL '12 months')) AND date_trunc('month', NOW())\nORDER BY time;",
           "refId": "A",
           "select": [
             [
@@ -212,11 +212,11 @@
             "type": "grafana-postgresql-datasource",
             "uid": "PCC52D03280B7034C"
           },
-          "format": "table",
+          "format": 1,
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT years_to_payoff AS \"Years to Payoff\"\nFROM reporting.viz_mortgage_payoff_summary;",
+          "rawSql": "SELECT years_to_payoff AS \"Years to Payoff\"\nFROM reporting.viz_mortgage_payoff_summary;\n-- time scope: NOW() (view aggregates all-time data)",
           "refId": "A",
           "select": [
             [
@@ -299,11 +299,11 @@
             "type": "grafana-postgresql-datasource",
             "uid": "PCC52D03280B7034C"
           },
-          "format": "table",
+          "format": 1,
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT current_mortgage_balance AS \"Current Balance\"\nFROM reporting.viz_mortgage_payoff_summary;",
+          "rawSql": "SELECT current_mortgage_balance AS \"Current Balance\"\nFROM reporting.viz_mortgage_payoff_summary;\n-- time scope: NOW() (view aggregates all-time data)",
           "refId": "A",
           "select": [
             [
@@ -386,11 +386,11 @@
             "type": "grafana-postgresql-datasource",
             "uid": "PCC52D03280B7034C"
           },
-          "format": "table",
+          "format": 1,
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT current_offset_balance AS \"Current Offset Balance\" FROM reporting.viz_mortgage_payoff_summary;",
+          "rawSql": "SELECT current_offset_balance AS \"Current Offset Balance\" FROM reporting.viz_mortgage_payoff_summary;\n-- time scope: NOW() (view aggregates all-time data)",
           "refId": "A",
           "select": [
             [
@@ -473,11 +473,11 @@
             "type": "grafana-postgresql-datasource",
             "uid": "PCC52D03280B7034C"
           },
-          "format": "table",
+          "format": 1,
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT estimated_payoff_year AS \"Estimated Payoff Year\"\nFROM reporting.viz_mortgage_payoff_summary;",
+          "rawSql": "SELECT estimated_payoff_year AS \"Estimated Payoff Year\"\nFROM reporting.viz_mortgage_payoff_summary;\n-- time scope: NOW() (view aggregates all-time data)",
           "refId": "A",
           "select": [
             [
@@ -588,11 +588,11 @@
             "type": "grafana-postgresql-datasource",
             "uid": "PCC52D03280B7034C"
           },
-          "format": "table",
+          "format": 1,
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT extra_payment_label AS \"Extra Payment\", years_to_payoff AS \"Years to Payoff\"\nFROM reporting.viz_mortgage_payoff_sensitivity\nORDER BY sort_order;",
+          "rawSql": "SELECT extra_payment_label AS \"Extra Payment\", years_to_payoff AS \"Years to Payoff\"\nFROM reporting.viz_mortgage_payoff_sensitivity\nORDER BY sort_order;\n-- time scope: NOW() (view aggregates all-time data)",
           "refId": "A",
           "select": [
             [
@@ -660,9 +660,9 @@
             "type": "grafana-postgresql-datasource",
             "uid": "PCC52D03280B7034C"
           },
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT\n  to_char(data_through_month, 'Mon YYYY') AS \"Data Through\",\n  to_char(report_generated_at, 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\",\n  'Australia/Melbourne' AS \"Timezone\",\n  data_note AS \"Data Note\"\nFROM reporting.viz_mortgage_payoff_summary;",
+          "rawSql": "SELECT\n  to_char(data_through_month, 'Mon YYYY') AS \"Data Through\",\n  to_char(report_generated_at, 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\",\n  'Australia/Melbourne' AS \"Timezone\",\n  data_note AS \"Data Note\"\nFROM reporting.viz_mortgage_payoff_summary;\n-- time scope: NOW() (view aggregates all-time data)",
           "refId": "A"
         }
       ],

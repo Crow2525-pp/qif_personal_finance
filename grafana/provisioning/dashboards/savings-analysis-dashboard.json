@@ -125,9 +125,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_savings_analysis\n  WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n)\nSELECT\n  to_char((SELECT month_date FROM latest_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_savings_analysis\nWHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM latest_period);",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_savings_analysis\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n)\nSELECT\n  to_char((SELECT month_date FROM latest_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_savings_analysis\nWHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM latest_period);",
           "refId": "A"
         }
       ],
@@ -196,9 +196,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT savings_health_score\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "rawSql": "SELECT savings_health_score\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -267,9 +267,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_savings_rate_percent,\n  traditional_savings_rate_percent\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "rawSql": "SELECT \n  total_savings_rate_percent,\n  traditional_savings_rate_percent\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -326,9 +326,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  savings_performance_tier as \"Performance Tier\",\n  savings_trend as \"Trend\",\n  savings_consistency as \"Consistency\",\n  savings_goal_progress as \"Goal Progress\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "rawSql": "SELECT \n  savings_performance_tier as \"Performance Tier\",\n  savings_trend as \"Trend\",\n  savings_consistency as \"Consistency\",\n  savings_goal_progress as \"Goal Progress\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -486,9 +486,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  total_savings_rate_percent,\n  traditional_savings_rate_percent,\n  rolling_3m_avg_savings_rate\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
+          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  total_savings_rate_percent,\n  traditional_savings_rate_percent,\n  rolling_3m_avg_savings_rate\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
           "refId": "A"
         }
       ],
@@ -646,9 +646,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  cash_savings,\n  offset_savings,\n  investment_contributions\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
+          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  cash_savings,\n  offset_savings,\n  investment_contributions\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY transaction_year, transaction_month;",
           "refId": "A"
         }
       ],
@@ -788,9 +788,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_savings,\n  cash_savings,\n  offset_savings,\n  investment_contributions\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "rawSql": "SELECT \n  total_savings,\n  cash_savings,\n  offset_savings,\n  investment_contributions\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -944,9 +944,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  liquid_savings_rate_percent,\n  investment_rate_percent,\n  mom_savings_rate_change,\n  savings_rate_volatility\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "rawSql": "SELECT \n  liquid_savings_rate_percent,\n  investment_rate_percent,\n  mom_savings_rate_change,\n  savings_rate_volatility\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -1076,9 +1076,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  ytd_total_savings,\n  ytd_total_income,\n  ytd_savings_rate_percent\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "rawSql": "SELECT \n  ytd_total_savings,\n  ytd_total_income,\n  ytd_savings_rate_percent\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -1190,9 +1190,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  estimated_years_to_50k,\n  additional_monthly_savings_needed_for_15_percent,\n  COALESCE(yoy_savings_rate_improvement, 0) AS yoy_savings_rate_improvement\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "rawSql": "SELECT \n  estimated_years_to_50k,\n  additional_monthly_savings_needed_for_15_percent,\n  COALESCE(yoy_savings_rate_improvement, 0) AS yoy_savings_rate_improvement\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -1346,9 +1346,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  savings_recommendation as \"Savings Recommendation\",\n  savings_performance_tier as \"Performance Tier\",\n  ROUND(estimated_annual_liquid_savings, 0) as \"Est. Annual Liquid Savings\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "rawSql": "SELECT \n  savings_recommendation as \"Savings Recommendation\",\n  savings_performance_tier as \"Performance Tier\",\n  ROUND(estimated_annual_liquid_savings, 0) as \"Est. Annual Liquid Savings\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -1417,9 +1417,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT progress_to_20_percent_goal\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "rawSql": "SELECT progress_to_20_percent_goal\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -1488,9 +1488,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT progress_to_fire_goal\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "rawSql": "SELECT progress_to_fire_goal\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -1547,9 +1547,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT benchmark_status as \"Benchmark Status\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "rawSql": "SELECT benchmark_status as \"Benchmark Status\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -1644,9 +1644,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  ROUND(additional_monthly_savings_needed_for_15_percent, 0) as \"Monthly Savings to Hit 15% Goal\",\n  ROUND(monthly_savings_needed_for_20_percent, 0) as \"Monthly Savings to Hit 20% Goal\",\n  ROUND(monthly_savings_needed_for_fire, 0) as \"Monthly Savings to Hit FIRE Goal\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "rawSql": "SELECT \n  ROUND(additional_monthly_savings_needed_for_15_percent, 0) as \"Monthly Savings to Hit 15% Goal\",\n  ROUND(monthly_savings_needed_for_20_percent, 0) as \"Monthly Savings to Hit 20% Goal\",\n  ROUND(monthly_savings_needed_for_fire, 0) as \"Monthly Savings to Hit FIRE Goal\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM'));",
           "refId": "A"
         }
       ],
@@ -1703,9 +1703,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT action_priorities as \"Action Priorities\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'));",
+          "rawSql": "SELECT action_priorities as \"Action Priorities\"\nFROM reporting.rpt_savings_analysis \nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_savings_analysis WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM'));",
           "refId": "A"
         }
       ],

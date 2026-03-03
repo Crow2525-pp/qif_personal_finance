@@ -40,7 +40,9 @@ def _import_checker():
 # ---------------------------------------------------------------------------
 _GRAFANA_URL = os.environ.get("GRAFANA_URL", "http://grafana:3000")
 _GRAFANA_TOKEN = os.environ.get("GRAFANA_TOKEN")
-_GRAFANA_USER = os.environ.get("GRAFANA_USER", "admin")
+# GRAFANA_ADMIN_USER is the Grafana web app admin account (default: "admin").
+# This is distinct from GRAFANA_USER which is the PostgreSQL datasource reader account.
+_GRAFANA_USER = os.environ.get("GRAFANA_ADMIN_USER", "admin")
 _GRAFANA_PASSWORD = os.environ.get("GRAFANA_ADMIN_PASSWORD")
 
 

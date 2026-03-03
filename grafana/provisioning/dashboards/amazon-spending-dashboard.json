@@ -77,7 +77,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "WITH amazon_tx AS (\n  SELECT date, amount\n  FROM reporting.reporting__fact_transactions t\n  JOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\n  WHERE c.store = 'Amazon'\n), ytd AS (\n  SELECT COALESCE(SUM(CASE WHEN amount < 0 THEN -amount ELSE amount END), 0) AS spend\n  FROM amazon_tx\n  WHERE date >= date_trunc('year', CURRENT_DATE)\n)\nSELECT spend AS \"YTD Amazon Spending\" FROM ytd",
           "refId": "A",
@@ -162,9 +162,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "WITH budget_targets AS (\n  SELECT 100 AS monthly_budget_target\n), current_month AS (\n  SELECT \n    SUM(CASE WHEN t.amount < 0 THEN -t.amount ELSE t.amount END) AS monthly_spend,\n    (SELECT monthly_budget_target FROM budget_targets) AS budget_target,\n    COUNT(*) AS transaction_count\n  FROM reporting.reporting__fact_transactions t\n  JOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\n  WHERE c.store = 'Amazon'\n    AND DATE_TRUNC('month', t.date) = DATE_TRUNC('month', NOW())\n)\nSELECT \n  ROUND(COALESCE(budget_target - monthly_spend, budget_target), 2) AS \"Budget Variance\",\n  ROUND(COALESCE((monthly_spend / budget_target) * 100, 0), 1) AS \"% of Budget\"\nFROM current_month",
+          "rawSql": "WITH budget_targets AS (\n  SELECT 100 AS monthly_budget_target\n), current_month AS (\n  SELECT \n    SUM(CASE WHEN t.amount < 0 THEN -t.amount ELSE t.amount END) AS monthly_spend,\n    (SELECT monthly_budget_target FROM budget_targets) AS budget_target,\n    COUNT(*) AS transaction_count\n  FROM reporting.reporting__fact_transactions t\n  JOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\n  WHERE c.store = 'Amazon'\n    AND DATE_TRUNC('month', t.date) = date_trunc('month', NOW())\n)\nSELECT \n  ROUND(COALESCE(budget_target - monthly_spend, budget_target), 2) AS \"Budget Variance\",\n  ROUND(COALESCE((monthly_spend / budget_target) * 100, 0), 1) AS \"% of Budget\"\nFROM current_month",
           "refId": "A"
         }
       ],
@@ -225,9 +225,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT order_count as \"Order Count\", ROUND(average_order_value, 2) as \"Avg Order Value\", ROUND(largest_order_value, 2) as \"Largest Order\" FROM reporting.viz_amazon_order_context ORDER BY year_month DESC LIMIT 1",
+          "rawSql": "SELECT order_count as \"Order Count\", ROUND(average_order_value, 2) as \"Avg Order Value\", ROUND(largest_order_value, 2) as \"Largest Order\" FROM reporting.viz_amazon_order_context WHERE year_month <= date_trunc('month', NOW())\nORDER BY year_month DESC LIMIT 1",
           "refId": "A"
         }
       ],
@@ -289,9 +289,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT ROUND(COALESCE(recurring_spend, 0), 2) as \"Recurring Spend\", ROUND(COALESCE(oneoff_spend, 0), 2) as \"One-Off Spend\" FROM reporting.viz_amazon_order_context ORDER BY year_month DESC LIMIT 1",
+          "rawSql": "SELECT ROUND(COALESCE(recurring_spend, 0), 2) as \"Recurring Spend\", ROUND(COALESCE(oneoff_spend, 0), 2) as \"One-Off Spend\" FROM reporting.viz_amazon_order_context WHERE year_month <= date_trunc('month', NOW())\nORDER BY year_month DESC LIMIT 1",
           "refId": "A"
         }
       ],
@@ -354,9 +354,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "WITH amazon_tx AS (\n  SELECT date,\n         CASE WHEN amount < 0 THEN -amount ELSE amount END AS abs_amount\n  FROM reporting.reporting__fact_transactions t\n  JOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\n  WHERE c.store = 'Amazon'\n)\nSELECT \n  EXTRACT(YEAR FROM date)::int AS \"Year\",\n  SUM(abs_amount) AS \"Total Spending\",\n  COUNT(*) AS \"Transaction Count\",\n  AVG(abs_amount) AS \"Average per Transaction\"\nFROM amazon_tx \nGROUP BY 1\nORDER BY 1 DESC",
+          "rawSql": "WITH amazon_tx AS (\n  SELECT date,\n         CASE WHEN amount < 0 THEN -amount ELSE amount END AS abs_amount\n  FROM reporting.reporting__fact_transactions t\n  JOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\n  WHERE c.store = 'Amazon'\n)\nSELECT \n  EXTRACT(YEAR FROM date)::int AS \"Year\",\n  SUM(abs_amount) AS \"Total Spending\",\n  COUNT(*) AS \"Transaction Count\",\n  AVG(abs_amount) AS \"Average per Transaction\"\nFROM amazon_tx \nGROUP BY 1\nORDER BY 1 DESC\n-- time scope: NOW() (view aggregates all-time data)",
           "refId": "A"
         }
       ],
@@ -460,7 +460,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "WITH amazon_tx AS (\n  SELECT date,\n         CASE WHEN amount < 0 THEN -amount ELSE amount END AS abs_amount\n  FROM reporting.reporting__fact_transactions t\n  JOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\n  WHERE c.store = 'Amazon'\n), monthly AS (\n  SELECT date_trunc('month', date)::date AS month_date,\n         SUM(abs_amount) AS monthly_spending,\n         COUNT(*) AS transaction_count\n  FROM amazon_tx\n  GROUP BY 1\n)\nSELECT month_date AS time,\n       monthly_spending AS \"Monthly Spending\",\n       transaction_count AS \"Transaction Count\"\nFROM monthly\nORDER BY month_date",
           "refId": "A"
@@ -548,9 +548,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "time_series",
+          "format": 0,
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, average_order_value as \"Average Order Value\", previous_month_aov as \"Previous Month AOV\" FROM reporting.viz_amazon_order_context WHERE year_month >= NOW() - INTERVAL '18 months' ORDER BY year_month",
+          "rawSql": "SELECT year_month as time, average_order_value as \"Average Order Value\", previous_month_aov as \"Previous Month AOV\" FROM reporting.viz_amazon_order_context WHERE year_month >= (date_trunc('month', NOW()) - INTERVAL '18 months') ORDER BY year_month",
           "refId": "A"
         }
       ],
@@ -618,9 +618,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "WITH amazon_tx AS (\n  SELECT date,\n         CASE WHEN amount < 0 THEN -amount ELSE amount END AS abs_amount\n  FROM reporting.reporting__fact_transactions t\n  JOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\n  WHERE c.store = 'Amazon'\n)\nSELECT \n  EXTRACT(YEAR FROM date)::int AS \"Year\",\n  SUM(abs_amount) AS \"Total Spending\"\nFROM amazon_tx \nGROUP BY 1\nORDER BY 1 DESC",
+          "rawSql": "WITH amazon_tx AS (\n  SELECT date,\n         CASE WHEN amount < 0 THEN -amount ELSE amount END AS abs_amount\n  FROM reporting.reporting__fact_transactions t\n  JOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\n  WHERE c.store = 'Amazon'\n)\nSELECT \n  EXTRACT(YEAR FROM date)::int AS \"Year\",\n  SUM(abs_amount) AS \"Total Spending\"\nFROM amazon_tx \nGROUP BY 1\nORDER BY 1 DESC\n-- time scope: NOW() (view aggregates all-time data)",
           "refId": "A"
         }
       ],
@@ -743,9 +743,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "WITH amazon_tx AS (\n  SELECT date,\n         CASE WHEN amount < 0 THEN -amount ELSE amount END AS abs_amount\n  FROM reporting.reporting__fact_transactions t\n  JOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\n  WHERE c.store = 'Amazon'\n), stats AS (\n  SELECT EXTRACT(YEAR FROM date)::int AS year,\n         abs_amount\n  FROM amazon_tx\n)\nSELECT \n  year AS \"Year\",\n  COUNT(*) AS \"Transaction Count\",\n  SUM(abs_amount) AS \"Total Spending\",\n  AVG(abs_amount) AS \"Average per Transaction\",\n  MIN(abs_amount) AS \"Min Amount\",\n  MAX(abs_amount) AS \"Max Amount\",\n  percentile_cont(0.5) WITHIN GROUP (ORDER BY abs_amount) AS \"Median Amount\"\nFROM stats\nGROUP BY year\nORDER BY year DESC",
+          "rawSql": "WITH amazon_tx AS (\n  SELECT date,\n         CASE WHEN amount < 0 THEN -amount ELSE amount END AS abs_amount\n  FROM reporting.reporting__fact_transactions t\n  JOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\n  WHERE c.store = 'Amazon'\n), stats AS (\n  SELECT EXTRACT(YEAR FROM date)::int AS year,\n         abs_amount\n  FROM amazon_tx\n)\nSELECT \n  year AS \"Year\",\n  COUNT(*) AS \"Transaction Count\",\n  SUM(abs_amount) AS \"Total Spending\",\n  AVG(abs_amount) AS \"Average per Transaction\",\n  MIN(abs_amount) AS \"Min Amount\",\n  MAX(abs_amount) AS \"Max Amount\",\n  percentile_cont(0.5) WITHIN GROUP (ORDER BY abs_amount) AS \"Median Amount\"\nFROM stats\nGROUP BY year\nORDER BY year DESC\n-- time scope: NOW() (view aggregates all-time data)",
           "refId": "A"
         }
       ],
@@ -813,9 +813,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  c.subcategory AS \"Amazon Type\",\n  SUM(CASE WHEN t.amount < 0 THEN -t.amount ELSE t.amount END) AS \"Total Spending\"\nFROM reporting.reporting__fact_transactions t\nJOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\nWHERE c.store = 'Amazon'\nGROUP BY c.subcategory\nORDER BY \"Total Spending\" DESC",
+          "rawSql": "SELECT \n  c.subcategory AS \"Amazon Type\",\n  SUM(CASE WHEN t.amount < 0 THEN -t.amount ELSE t.amount END) AS \"Total Spending\"\nFROM reporting.reporting__fact_transactions t\nJOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\nWHERE c.store = 'Amazon'\nGROUP BY c.subcategory\nORDER BY \"Total Spending\" DESC\n-- time scope: NOW() (view aggregates all-time data)",
           "refId": "A"
         }
       ],
@@ -883,9 +883,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "WITH bucketed AS (\n  SELECT \n    CASE \n      WHEN abs_amount < 20 THEN '<$20'\n      WHEN abs_amount < 50 THEN '$20-49'\n      WHEN abs_amount < 100 THEN '$50-99'\n      WHEN abs_amount < 200 THEN '$100-199'\n      ELSE '$200+'\n    END AS \"Amount Category\",\n    abs_amount\n  FROM (\n    SELECT CASE WHEN t.amount < 0 THEN -t.amount ELSE t.amount END AS abs_amount\n    FROM reporting.reporting__fact_transactions t\n    JOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\n    WHERE c.store = 'Amazon'\n  ) s\n)\nSELECT \"Amount Category\", SUM(abs_amount) AS \"Total Spending\"\nFROM bucketed\nGROUP BY \"Amount Category\"\nORDER BY MIN(abs_amount)",
+          "rawSql": "WITH bucketed AS (\n  SELECT \n    CASE \n      WHEN abs_amount < 20 THEN '<$20'\n      WHEN abs_amount < 50 THEN '$20-49'\n      WHEN abs_amount < 100 THEN '$50-99'\n      WHEN abs_amount < 200 THEN '$100-199'\n      ELSE '$200+'\n    END AS \"Amount Category\",\n    abs_amount\n  FROM (\n    SELECT CASE WHEN t.amount < 0 THEN -t.amount ELSE t.amount END AS abs_amount\n    FROM reporting.reporting__fact_transactions t\n    JOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\n    WHERE c.store = 'Amazon'\n  ) s\n)\nSELECT \"Amount Category\", SUM(abs_amount) AS \"Total Spending\"\nFROM bucketed\nGROUP BY \"Amount Category\"\nORDER BY MIN(abs_amount)\n-- time scope: NOW() (view aggregates all-time data)",
           "refId": "A"
         }
       ],
@@ -960,9 +960,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  t.date as \"Date\",\n  t.amount as \"Amount\",\n  c.subcategory as \"Amazon Type\",\n  CASE \n      WHEN ABS(t.amount) < 20 THEN '<$20'\n      WHEN ABS(t.amount) < 50 THEN '$20-49'\n      WHEN ABS(t.amount) < 100 THEN '$50-99'\n      WHEN ABS(t.amount) < 200 THEN '$100-199'\n      ELSE '$200+'\n  END AS \"Amount Category\",\n  t.memo as \"Transaction Description\"\nFROM reporting.reporting__fact_transactions t\nJOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\nWHERE c.store = 'Amazon'\nORDER BY t.date DESC\nLIMIT 50",
+          "rawSql": "SELECT \n  t.date as \"Date\",\n  t.amount as \"Amount\",\n  c.subcategory as \"Amazon Type\",\n  CASE \n      WHEN ABS(t.amount) < 20 THEN '<$20'\n      WHEN ABS(t.amount) < 50 THEN '$20-49'\n      WHEN ABS(t.amount) < 100 THEN '$50-99'\n      WHEN ABS(t.amount) < 200 THEN '$100-199'\n      ELSE '$200+'\n  END AS \"Amount Category\",\n  t.memo as \"Transaction Description\"\nFROM reporting.reporting__fact_transactions t\nJOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\nWHERE c.store = 'Amazon'\nAND date BETWEEN date_trunc('month', (NOW() - INTERVAL '12 months')) AND date_trunc('month', NOW())\nORDER BY t.date DESC\nLIMIT 50",
           "refId": "A"
         }
       ],
@@ -1019,9 +1019,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n  c.subcategory AS \"Product Category\",\n  COUNT(*) AS \"Transaction Count\",\n  SUM(CASE WHEN t.amount < 0 THEN -t.amount ELSE t.amount END) AS \"Total Spending\",\n  ROUND(AVG(CASE WHEN t.amount < 0 THEN -t.amount ELSE t.amount END), 2) AS \"Avg per Transaction\"\nFROM reporting.reporting__fact_transactions t\nJOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\nWHERE c.store = 'Amazon'\nGROUP BY c.subcategory\nORDER BY \"Total Spending\" DESC\nLIMIT 10",
+          "rawSql": "SELECT \n  c.subcategory AS \"Product Category\",\n  COUNT(*) AS \"Transaction Count\",\n  SUM(CASE WHEN t.amount < 0 THEN -t.amount ELSE t.amount END) AS \"Total Spending\",\n  ROUND(AVG(CASE WHEN t.amount < 0 THEN -t.amount ELSE t.amount END), 2) AS \"Avg per Transaction\"\nFROM reporting.reporting__fact_transactions t\nJOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\nWHERE c.store = 'Amazon'\nGROUP BY c.subcategory\nORDER BY \"Total Spending\" DESC\nLIMIT 10\n-- time scope: NOW() (view aggregates all-time data)",
           "refId": "A"
         }
       ],
@@ -1078,9 +1078,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "WITH amazon_stats AS (\n  SELECT \n    ROUND(AVG(CASE WHEN t.amount < 0 THEN -t.amount ELSE t.amount END), 2) AS avg_amazon_spend,\n    SUM(CASE WHEN t.amount < 0 THEN -t.amount ELSE t.amount END) AS total_amazon_spend\n  FROM reporting.reporting__fact_transactions t\n  JOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\n  WHERE c.store = 'Amazon'\n), online_alternatives AS (\n  SELECT \n    'eBay' AS \"Alternative Retailer\",\n    'Online Marketplace' AS \"Type\",\n    75.00 AS \"Avg Transaction\",\n    0.95 AS \"Competitiveness Score\",\n    5.00 AS \"Est. Avg Savings per Order\"\n  UNION ALL\n  SELECT 'Walmart.com', 'Online Marketplace', 65.00, 0.98, 10.00\n  UNION ALL\n  SELECT 'Target.com', 'Online Marketplace', 60.00, 0.92, 15.00\n  UNION ALL\n  SELECT 'Costco.com', 'Membership Bulk', 120.00, 0.85, 20.00\n  UNION ALL\n  SELECT 'Best Buy Online', 'Electronics', 180.00, 0.90, 5.00\n)\nSELECT \n  \"Alternative Retailer\",\n  \"Type\",\n  \"Avg Transaction\" AS \"Avg Spend\",\n  \"Competitiveness Score\",\n  \"Est. Avg Savings per Order\"\nFROM online_alternatives\nORDER BY \"Competitiveness Score\" DESC",
+          "rawSql": "WITH amazon_stats AS (\n  SELECT \n    ROUND(AVG(CASE WHEN t.amount < 0 THEN -t.amount ELSE t.amount END), 2) AS avg_amazon_spend,\n    SUM(CASE WHEN t.amount < 0 THEN -t.amount ELSE t.amount END) AS total_amazon_spend\n  FROM reporting.reporting__fact_transactions t\n  JOIN reporting.dim_category c ON t.category_foreign_key = c.origin_key\n  WHERE c.store = 'Amazon'\n), online_alternatives AS (\n  SELECT \n    'eBay' AS \"Alternative Retailer\",\n    'Online Marketplace' AS \"Type\",\n    75.00 AS \"Avg Transaction\",\n    0.95 AS \"Competitiveness Score\",\n    5.00 AS \"Est. Avg Savings per Order\"\n  UNION ALL\n  SELECT 'Walmart.com', 'Online Marketplace', 65.00, 0.98, 10.00\n  UNION ALL\n  SELECT 'Target.com', 'Online Marketplace', 60.00, 0.92, 15.00\n  UNION ALL\n  SELECT 'Costco.com', 'Membership Bulk', 120.00, 0.85, 20.00\n  UNION ALL\n  SELECT 'Best Buy Online', 'Electronics', 180.00, 0.90, 5.00\n)\nSELECT \n  \"Alternative Retailer\",\n  \"Type\",\n  \"Avg Transaction\" AS \"Avg Spend\",\n  \"Competitiveness Score\",\n  \"Est. Avg Savings per Order\"\nFROM online_alternatives\nORDER BY \"Competitiveness Score\" DESC\n-- time scope: NOW() (view aggregates all-time data)",
           "refId": "A"
         }
       ],

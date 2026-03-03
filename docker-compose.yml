@@ -68,6 +68,9 @@ services:
       DAGSTER_HOME: ${DAGSTER_HOME}
       DAGSTER_APP: ${DAGSTER_APP}
       DBT_EXECUTION_CONTEXT: dagster
+      DASHBOARD_POLICY_GATE_WARN_ONLY: ${DASHBOARD_POLICY_GATE_WARN_ONLY:-false}
+      GRAFANA_TOKEN: ${GRAFANA_TOKEN}
+      GRAFANA_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
     # no use on windows.
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -103,8 +106,9 @@ services:
       DBT_PROJECT_DIR: ${DBT_PROJECT_DIR}
       DBT_PROFILES_DIR: ${DBT_PROJECT_DIR}
       DAGSTER_DEPLOYMENT: ${DAGSTER_DEPLOYMENT}
-      # Dashboard QA — use the internal Docker service URL, not the host-external one
-      GRAFANA_URL: http://grafana:3000
+      # Dashboard QA — use the internal Docker service URL, not the host-external one.
+      # Override GRAFANA_URL in .env if you rename the service or change the internal port.
+      GRAFANA_URL: ${GRAFANA_URL:-http://grafana:3000}
       # Optional: API token auth for Grafana. If unset, GRAFANA_USER + GRAFANA_ADMIN_PASSWORD are used instead.
       GRAFANA_TOKEN: ${GRAFANA_TOKEN}
       GRAFANA_USER: ${GRAFANA_USER}

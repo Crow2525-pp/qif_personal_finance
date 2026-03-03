@@ -103,9 +103,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n    net_worth as \"Current Net Worth\"\nFROM reporting.rpt_household_net_worth\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_household_net_worth);",
+          "rawSql": "SELECT \n    net_worth as \"Current Net Worth\"\nFROM reporting.rpt_household_net_worth\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_household_net_worth)",
           "refId": "A"
         }
       ],
@@ -166,9 +166,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n    total_assets as \"Total Assets\"\nFROM reporting.rpt_household_net_worth\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_household_net_worth);",
+          "rawSql": "SELECT \n    total_assets as \"Total Assets\"\nFROM reporting.rpt_household_net_worth\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_household_net_worth)",
           "refId": "A"
         }
       ],
@@ -229,9 +229,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n    -total_liabilities as \"Total Liabilities\"\nFROM reporting.rpt_household_net_worth\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_household_net_worth);",
+          "rawSql": "SELECT \n    -total_liabilities as \"Total Liabilities\"\nFROM reporting.rpt_household_net_worth\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_household_net_worth)",
           "refId": "A"
         }
       ],
@@ -363,11 +363,11 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
-          "format": "time_series",
+          "format": 0,
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    net_worth as \"Net Worth\",\n    total_assets as \"Assets\",\n    -total_liabilities as \"Liabilities\"\nFROM reporting.rpt_household_net_worth\nWHERE budget_year_month >= TO_CHAR(CURRENT_DATE - INTERVAL '24 months', 'YYYY-MM')\nORDER BY budget_year_month;",
+          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    net_worth as \"Net Worth\",\n    total_assets as \"Assets\",\n    -total_liabilities as \"Liabilities\"\nFROM reporting.rpt_household_net_worth\nWHERE budget_year_month >= TO_CHAR((date_trunc('month', NOW()) - INTERVAL '24 months'), 'YYYY-MM')\nORDER BY budget_year_month;",
           "refId": "A"
         }
       ],
@@ -467,7 +467,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "WITH current_month AS (\n    SELECT \n        account_name,\n        account_type,\n        end_of_month_balance,\n        mom_balance_change\n    FROM reporting.rpt_account_performance\n    WHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_account_performance)\n)\nSELECT \n    account_name as \"Account\",\n    account_type as \"Type\",\n    end_of_month_balance as \"Current Balance\",\n    (end_of_month_balance - COALESCE(mom_balance_change, 0)) as \"Previous Balance\",\n    COALESCE(mom_balance_change, 0) as \"Change\"\nFROM current_month\nORDER BY ABS(end_of_month_balance) DESC;",
           "refId": "A"
@@ -538,7 +538,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
           "rawSql": "SELECT \n    account_type,\n    SUM(CASE WHEN end_of_month_balance > 0 THEN end_of_month_balance ELSE 0 END) as value\nFROM reporting.rpt_account_performance\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_account_performance)\nGROUP BY account_type\nHAVING SUM(CASE WHEN end_of_month_balance > 0 THEN end_of_month_balance ELSE 0 END) > 0\nORDER BY SUM(CASE WHEN end_of_month_balance > 0 THEN end_of_month_balance ELSE 0 END) DESC;",
           "refId": "A"
@@ -608,9 +608,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": 1,
           "rawQuery": true,
-          "rawSql": "SELECT \n    CASE \n        WHEN total_assets > 0 THEN\n            GREATEST(0, LEAST(1, net_worth / total_assets))\n        ELSE 0\n    END as \"Net Worth Ratio\"\nFROM reporting.rpt_household_net_worth\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_household_net_worth);",
+          "rawSql": "SELECT \n    CASE \n        WHEN total_assets > 0 THEN\n            GREATEST(0, LEAST(1, net_worth / total_assets))\n        ELSE 0\n    END as \"Net Worth Ratio\"\nFROM reporting.rpt_household_net_worth\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_household_net_worth)",
           "refId": "A"
         }
       ],
