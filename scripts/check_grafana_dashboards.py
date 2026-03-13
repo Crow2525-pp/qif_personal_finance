@@ -421,18 +421,12 @@ def check_dashboard(
         if not targets:
             continue
 
-        datasource = panel.get("datasource") or {}
-        ds_uid = datasource.get("uid")
-        if not ds_uid or ds_uid not in datasources:
-            failing_panels.append({
-                "dashboard": dashboard.get("title"),
-                "panel_id": panel.get("id"),
-                "panel_title": panel.get("title"),
-                "messages": f"datasource uid '{ds_uid}' not found in Grafana",
-            })
-            continue
+        # Resolve panel-level datasource as a fallback for targets that don't
+        # specify their own.
+        panel_ds = panel.get("datasource") or {}
+        panel_ds_uid = panel_ds.get("uid")
 
-        panel_ok = True
+        any_target_ok = False
         messages = []
         has_sql_targets = False
 
@@ -442,6 +436,16 @@ def check_dashboard(
                 continue
 
             has_sql_targets = True
+
+            # Prefer target-level datasource; fall back to panel-level.
+            target_ds = target.get("datasource") or {}
+            ds_uid = target_ds.get("uid") or panel_ds_uid
+            if not ds_uid or ds_uid not in datasources:
+                messages.append(
+                    f"{target.get('refId', 'A')}: datasource uid '{ds_uid}' not found"
+                )
+                continue
+
             format_hint = target.get("format")
             ref_id = target.get("refId", "A")
 
@@ -464,8 +468,8 @@ def check_dashboard(
                 messages.append(f"{ref_id}: HTTP {exc.response.status_code if exc.response else ''} {detail}")
                 has_data = False
 
-            if not has_data:
-                panel_ok = False
+            if has_data:
+                any_target_ok = True
 
         if not has_sql_targets:
             continue
@@ -477,7 +481,8 @@ def check_dashboard(
             "messages": "; ".join(messages),
         }
 
-        if panel_ok:
+        # Panel passes if at least one SQL target returned data.
+        if any_target_ok:
             ok_panels.append(status)
         else:
             failing_panels.append(status)

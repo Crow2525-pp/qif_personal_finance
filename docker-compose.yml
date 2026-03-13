@@ -115,12 +115,12 @@ services:
       GRAFANA_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
       POSTGRES_ADMIN_USER: ${POSTGRES_ADMIN_USER}
       POSTGRES_ADMIN_PASSWORD: ${POSTGRES_ADMIN_PASSWORD}
-      DASHBOARD_DIR: /opt/dagster/app/grafana/provisioning/dashboards
+      DASHBOARD_DIR: ${DAGSTER_APP}/grafana/provisioning/dashboards
       DBT_EXECUTION_CONTEXT: dagster
     volumes:
       - /tmp/dagster-data:/tmp/dagster-data
-      - ./pipeline_personal_finance/qif_files:/opt/dagster/app/pipeline_personal_finance/qif_files
-      - ./grafana/provisioning/dashboards:/opt/dagster/app/grafana/provisioning/dashboards:ro
+      - ./pipeline_personal_finance/qif_files:${DAGSTER_APP}/pipeline_personal_finance/qif_files
+      - ./grafana/provisioning/dashboards:${DAGSTER_APP}/grafana/provisioning/dashboards:ro
     networks:
       - dagster_network
     # ports:

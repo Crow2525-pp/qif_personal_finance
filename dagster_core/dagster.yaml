@@ -33,6 +33,7 @@ run_launcher:
       - GRAFANA_URL
       - DBT_EXECUTION_CONTEXT
       - DASHBOARD_POLICY_GATE_WARN_ONLY
+      - DASHBOARD_QUALITY_WARN_ONLY
     network: qif_personal_finance_dagster_network
     container_kwargs:
       volumes: # Make docker client accessible to any launched containers as well

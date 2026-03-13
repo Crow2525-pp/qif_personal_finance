@@ -2256,6 +2256,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "pytest" },
     { name = "sqlfluff" },
     { name = "sqlfluff-templater-dbt" },
 ]
@@ -2270,6 +2271,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "pytest", specifier = ">=9.0.2" },
     { name = "sqlfluff", specifier = ">=3.3.0" },
     { name = "sqlfluff-templater-dbt", specifier = ">=3.3.0" },
 ]
