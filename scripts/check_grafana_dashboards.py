@@ -421,17 +421,29 @@ def check_dashboard(
         if not targets:
             continue
 
-        datasource = panel.get("datasource") or {}
-        ds_uid = datasource.get("uid")
-        if not ds_uid or ds_uid not in datasources:
-            continue
+        # Resolve panel-level datasource as a fallback for targets that don't
+        # specify their own.
+        panel_ds = panel.get("datasource") or {}
+        panel_ds_uid = panel_ds.get("uid")
 
-        panel_ok = False
+        any_target_ok = False
         messages = []
+        has_sql_targets = False
 
         for target in targets:
             raw_sql = target.get("rawSql")
             if not raw_sql:
+                continue
+
+            has_sql_targets = True
+
+            # Prefer target-level datasource; fall back to panel-level.
+            target_ds = target.get("datasource") or {}
+            ds_uid = target_ds.get("uid") or panel_ds_uid
+            if not ds_uid or ds_uid not in datasources:
+                messages.append(
+                    f"{target.get('refId', 'A')}: datasource uid '{ds_uid}' not found"
+                )
                 continue
 
             format_hint = target.get("format")
@@ -457,8 +469,10 @@ def check_dashboard(
                 has_data = False
 
             if has_data:
-                panel_ok = True
-                break
+                any_target_ok = True
+
+        if not has_sql_targets:
+            continue
 
         status = {
             "dashboard": dashboard.get("title"),
@@ -467,7 +481,8 @@ def check_dashboard(
             "messages": "; ".join(messages),
         }
 
-        if panel_ok:
+        # Panel passes if at least one SQL target returned data.
+        if any_target_ok:
             ok_panels.append(status)
         else:
             failing_panels.append(status)

@@ -73,21 +73,11 @@ def dashboard_quality_gate(context) -> None:
     has_credentials = bool(_GRAFANA_TOKEN or (_GRAFANA_USER and _GRAFANA_PASSWORD))
 
     if not has_credentials:
-        context.log.warning(
-            "Neither GRAFANA_TOKEN nor GRAFANA_ADMIN_PASSWORD is set — "
-            "skipping live panel checks. Add credentials to the container env."
+        raise Failure(
+            "dashboard_quality_gate requires Grafana credentials. "
+            "Set GRAFANA_TOKEN or both GRAFANA_ADMIN_USER and GRAFANA_ADMIN_PASSWORD.",
+            metadata={"grafana_url": MetadataValue.url(_GRAFANA_URL)},
         )
-        _emit_metadata(
-            context,
-            lint_warnings=total_lint_warnings,
-            parse_errors=total_parse_errors,
-            dashboards_checked=0,
-            failing_panels=0,
-            failures=[],
-            live_status="skipped — no credentials",
-            checked_time_windows=[],
-        )
-        return
 
     try:
         client = _checker.GrafanaClient(
@@ -99,21 +89,11 @@ def dashboard_quality_gate(context) -> None:
         datasources = client.datasources()
         dashboards = client.search_dashboards()
     except Exception as exc:
-        context.log.warning(
+        raise Failure(
             f"Cannot reach Grafana at {_GRAFANA_URL}: {exc}. "
-            "Skipping live checks — pipeline data is still valid."
-        )
-        _emit_metadata(
-            context,
-            lint_warnings=total_lint_warnings,
-            parse_errors=total_parse_errors,
-            dashboards_checked=0,
-            failing_panels=0,
-            failures=[],
-            live_status=f"skipped — connection failed: {exc}",
-            checked_time_windows=[],
-        )
-        return
+            "Ensure Grafana is running and GRAFANA_URL is correct.",
+            metadata={"grafana_url": MetadataValue.url(_GRAFANA_URL), "error": str(exc)},
+        ) from exc
 
     try:
         range_days = _checker.parse_time_picker_ranges(_DASHBOARD_TIME_PICKER_RANGES)
@@ -144,7 +124,14 @@ def dashboard_quality_gate(context) -> None:
             )
         except Exception as exc:
             context.log.warning(
-                f"Could not check dashboard '{dash.get('title')}': {exc}. Skipping."
+                f"Could not check dashboard '{dash.get('title')}': {exc}"
+            )
+            all_failures.append(
+                {
+                    "dashboard": dash.get("title", ""),
+                    "panel": "(dashboard-level error)",
+                    "error": f"Check failed: {exc}",
+                }
             )
             continue
         for by_window in check_result.get("by_time_window", []):

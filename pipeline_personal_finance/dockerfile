@@ -44,5 +44,7 @@ WORKDIR ${DAGSTER_APP}
 
 RUN chmod -R +x ${DAGSTER_APP}
 
+ENTRYPOINT ["./pipeline_personal_finance/docker-entrypoint.sh"]
+
 # Command to run the Dagster gRPC server
 CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "pipeline_personal_finance"]

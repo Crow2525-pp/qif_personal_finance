@@ -14,7 +14,7 @@ services:
 
   pipeline_personal_finance:
     volumes:
-      - ./scripts:/opt/dagster/app/scripts:ro
+      - ./scripts:${DAGSTER_APP}/scripts:ro
 
   dagster_webserver:
     # Expose on 3002 to avoid conflict with any service already on 3000
