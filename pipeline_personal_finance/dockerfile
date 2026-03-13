@@ -2,7 +2,6 @@
 FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim
 
 ARG DAGSTER_APP
-ARG DAGSTER_HOME
 
 ENV YOUR_ENV=${YOUR_ENV} \
   PYTHONFAULTHANDLER=1 \
@@ -16,7 +15,6 @@ ENV YOUR_ENV=${YOUR_ENV} \
   PIP_DISABLE_PIP_VERSION_CHECK=on \
   PIP_DEFAULT_TIMEOUT=100 \
   # Make sure to update it!
-  DAGSTER_HOME=${DAGSTER_HOME:-homenotset} \
   DAGSTER_APP=${DAGSTER_APP:-appnotset} \
   PATH="${DAGSTER_APP}/.venv/bin:$PATH"
 
@@ -30,8 +28,6 @@ COPY grafana grafana
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --package pipeline_personal_finance
-
-RUN mkdir -p ${DAGSTER_HOME}
 
 # Set the working directory to dbt dir to build the script
 WORKDIR ${DAGSTER_APP}/pipeline_personal_finance/dbt_finance
@@ -47,6 +43,8 @@ EXPOSE 4000
 WORKDIR ${DAGSTER_APP}
 
 RUN chmod -R +x ${DAGSTER_APP}
+
+ENTRYPOINT ["./pipeline_personal_finance/docker-entrypoint.sh"]
 
 # Command to run the Dagster gRPC server
 CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "pipeline_personal_finance"]
