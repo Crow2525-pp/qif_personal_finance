@@ -424,16 +424,24 @@ def check_dashboard(
         datasource = panel.get("datasource") or {}
         ds_uid = datasource.get("uid")
         if not ds_uid or ds_uid not in datasources:
+            failing_panels.append({
+                "dashboard": dashboard.get("title"),
+                "panel_id": panel.get("id"),
+                "panel_title": panel.get("title"),
+                "messages": f"datasource uid '{ds_uid}' not found in Grafana",
+            })
             continue
 
-        panel_ok = False
+        panel_ok = True
         messages = []
+        has_sql_targets = False
 
         for target in targets:
             raw_sql = target.get("rawSql")
             if not raw_sql:
                 continue
 
+            has_sql_targets = True
             format_hint = target.get("format")
             ref_id = target.get("refId", "A")
 
@@ -456,9 +464,11 @@ def check_dashboard(
                 messages.append(f"{ref_id}: HTTP {exc.response.status_code if exc.response else ''} {detail}")
                 has_data = False
 
-            if has_data:
-                panel_ok = True
-                break
+            if not has_data:
+                panel_ok = False
+
+        if not has_sql_targets:
+            continue
 
         status = {
             "dashboard": dashboard.get("title"),
