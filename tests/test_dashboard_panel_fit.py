@@ -116,12 +116,18 @@ def test_short_text_passes():
     assert len(issues) == 0
 
 
-def test_long_text_fails():
+def test_long_text_passes():
     long_content = "\n".join(["Line " + str(i) for i in range(50)])
     panel = _make_text_panel(w=12, h=4, content=long_content)
     issues = fit.check_panel_fit(panel)
+    assert issues == []
+
+
+def test_tiny_text_panel_fails():
+    panel = _make_text_panel(w=12, h=1, content="Hello world")
+    issues = fit.check_panel_fit(panel)
     rules = {i["rule"] for i in issues}
-    assert "text-content-overflow-height" in rules
+    assert "text-panel-too-small" in rules
 
 
 # ---------------------------------------------------------------------------
