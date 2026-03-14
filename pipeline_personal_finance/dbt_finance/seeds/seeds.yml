@@ -179,7 +179,8 @@ seeds:
         tests:
           - not_null
           - accepted_values:
-              values: ['achieved', 'in_progress', 'pending', 'abandoned']
+              arguments:
+                values: ['achieved', 'in_progress', 'pending', 'abandoned']
       - name: notes
         description: Freeform notes on the outcome.
 
