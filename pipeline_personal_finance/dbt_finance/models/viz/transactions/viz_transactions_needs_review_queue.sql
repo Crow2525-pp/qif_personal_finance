@@ -34,6 +34,7 @@ WITH transaction_context AS (
     -- Flags
     ft.is_income_transaction,
     ft.is_internal_transfer,
+    ft.is_property_transaction,
     ft.is_financial_service,
 
     -- First occurrence of merchant
@@ -56,6 +57,7 @@ WITH transaction_context AS (
 
   WHERE ft.transaction_amount < 0  -- Only expenses
     AND NOT COALESCE(ft.is_internal_transfer, FALSE)  -- Exclude internal transfers
+    AND NOT COALESCE(ft.is_property_transaction, FALSE)  -- Exclude property settlements
     AND NOT COALESCE(ft.is_financial_service, FALSE)  -- Exclude financial services
 ),
 

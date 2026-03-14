@@ -30,6 +30,7 @@ WITH transaction_base AS (
     dc.level_2_subcategory,
     COALESCE(dc.is_income, FALSE) AS is_income,
     COALESCE(dc.is_internal_transfer, FALSE) AS is_internal_transfer,
+    COALESCE(dc.is_property_transaction, FALSE) AS is_property_transaction,
     COALESCE(dc.is_financial_service, FALSE) AS is_financial_service,
 
     -- Metadata
@@ -40,6 +41,7 @@ WITH transaction_base AS (
   LEFT JOIN {{ ref('dim_accounts') }} da ON ft.account_key = da.account_key
   LEFT JOIN {{ ref('dim_categories') }} dc ON ft.category_key = dc.category_key
   WHERE NOT COALESCE(ft.is_internal_transfer, FALSE)
+    AND NOT COALESCE(ft.is_property_transaction, FALSE)
     AND ft.transaction_date >= CURRENT_DATE - INTERVAL '12 months'
 ),
 

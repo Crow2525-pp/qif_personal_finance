@@ -550,7 +550,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, average_order_value as \"Average Order Value\", previous_month_aov as \"Previous Month AOV\" FROM reporting.viz_amazon_order_context WHERE year_month >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '18 months') ORDER BY year_month",
+          "rawSql": "SELECT year_month as time, average_order_value as \"Average Order Value\", previous_month_aov as \"Previous Month AOV\" FROM reporting.viz_amazon_order_context WHERE year_month >= date_trunc('month', $__timeFrom()::timestamp) ORDER BY year_month",
           "refId": "A"
         }
       ],

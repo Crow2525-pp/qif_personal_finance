@@ -100,33 +100,24 @@ def _login(page) -> None:
 # ---------------------------------------------------------------------------
 # JavaScript injected into the browser to detect panel content overflow
 # ---------------------------------------------------------------------------
-# Grafana 10/11 does NOT use data-panelid on panel wrappers.  The reliable
-# selector is the panel header's data-testid attribute which encodes the
-# panel title: `data-testid="data-testid Panel header <title>"`.  From the
-# header element we walk up to the panel root then search downward for any
-# div whose scrollHeight meaningfully exceeds its clientHeight.
+# Grafana attaches the panel title test id to the text panel container
+# section itself, so we can stay scoped to that subtree. Limiting the search
+# to the text panel's converted markdown/code nodes avoids false positives
+# from neighboring table grids rendered elsewhere in the dashboard layout.
 _OVERFLOW_JS = f"""
 (panelTitle) => {{
-    // Find the panel header element by its data-testid attribute.
+    // Find the text panel container by its data-testid attribute.
     const testId = 'data-testid Panel header ' + panelTitle;
-    const header = document.querySelector('[data-testid="' + testId + '"]');
-    if (!header) return {{ found: false }};
-
-    // Walk up to the outermost panel wrapper (stops at body).
-    let panel = header;
-    while (panel.parentElement && panel.parentElement !== document.body) {{
-        panel = panel.parentElement;
-        if (panel.getAttribute('data-testid') === 'panel-wrapper' ||
-            panel.classList.contains('panel-wrapper')) {{
-            break;
-        }}
-    }}
+    const panel = document.querySelector('[data-testid="' + testId + '"]');
+    if (!panel) return {{ found: false }};
 
     const THRESHOLD = {OVERFLOW_THRESHOLD_PX};
-    const MIN_CLIENT_H = 50;   // skip title bars and other short elements
+    const MIN_CLIENT_H = 20;
+    const candidates = panel.querySelectorAll(
+        '[data-testid="TextPanel-converted-content"], .markdown-html, pre, code'
+    );
 
-    const divs = panel.querySelectorAll('div');
-    for (const el of divs) {{
+    for (const el of candidates) {{
         if (el.clientHeight < MIN_CLIENT_H) continue;
         const diff = el.scrollHeight - el.clientHeight;
         if (diff > THRESHOLD) {{

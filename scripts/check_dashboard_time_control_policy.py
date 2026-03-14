@@ -119,6 +119,23 @@ def references_time_macros(sql: str) -> bool:
     return "$__timeFrom" in sql or "$__timeTo" in sql or "$__timeFilter" in sql
 
 
+# Detects the anti-pattern: $__timeTo used as end-anchor with a hardcoded
+# INTERVAL lookback (e.g. "- INTERVAL '18 months'") while $__timeFrom is
+# absent.  This silently ignores the picker's start date.
+_HARDCODED_LOOKBACK_PATTERN = re.compile(
+    r"\$__timeTo.*INTERVAL\s+'\d+\s+\w+'|INTERVAL\s+'\d+\s+\w+'.*\$__timeTo",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def uses_hardcoded_lookback(sql: str) -> bool:
+    """Return True when a query anchors on $__timeTo with a hardcoded interval
+    but never references $__timeFrom — meaning the picker start is ignored."""
+    if "$__timeFrom" in sql:
+        return False
+    return bool(_HARDCODED_LOOKBACK_PATTERN.search(sql))
+
+
 def is_valid_time_expr(value: object) -> bool:
     """Validate Grafana quick-range from/to date-math expressions."""
     if not isinstance(value, str):
@@ -233,6 +250,12 @@ def check_dashboard(dashboard: dict, file_path: Path) -> list[str]:
                 if not references_time_macros(sql):
                     violations.append(
                         f"panel \"{panel_title}\" query must reference $__timeFrom, $__timeTo, or $__timeFilter"
+                    )
+                elif uses_hardcoded_lookback(sql):
+                    violations.append(
+                        f"panel \"{panel_title}\" query uses $__timeTo with a hardcoded INTERVAL "
+                        f"but omits $__timeFrom — the picker start date is ignored; "
+                        f"replace the hardcoded interval with $__timeFrom"
                     )
 
     return violations

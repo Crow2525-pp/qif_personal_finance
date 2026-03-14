@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udcb3 Spending & Categories\n\nAnalyze spending patterns, categories, and transaction insights in mobile-friendly format.",
+        "content": "# 💳 Spending & Categories\n\nAnalyze spending patterns, categories, and transaction insights in mobile-friendly format.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -301,11 +301,11 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n    period_date as time,\n    (\"Family & Kids\" + \"Food & Drink\" + \"Health & Beauty\" + \"Household & Services\" + \"Leisure\" + \"Mortgage\" + \"Shopping\" + \"Transport\") as \"Total Monthly Expenses\"\nFROM reporting.viz_spending_by_category_by_month\nWHERE period_date >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '12 months')\nORDER BY period_date;",
+          "rawSql": "SELECT \n    period_date as time,\n    (\"Family & Kids\" + \"Food & Drink\" + \"Health & Beauty\" + \"Household & Services\" + \"Leisure\" + \"Mortgage\" + \"Shopping\" + \"Transport\") as \"Total Monthly Expenses\"\nFROM reporting.viz_spending_by_category_by_month\nWHERE period_date >= date_trunc('month', $__timeFrom()::timestamp)\nORDER BY period_date;",
           "refId": "A"
         }
       ],
-      "title": "12-Month Total Expenses Trend",
+      "title": "Total Expenses Trend",
       "type": "timeseries"
     },
     {
@@ -390,11 +390,11 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT \n    period_date as time,\n    'Food & Drink' as metric,\n    \"Food & Drink\" as value\nFROM reporting.viz_spending_by_category_by_month\nWHERE period_date >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '12 months')\nUNION ALL\nSELECT \n    period_date as time,\n    'Household & Services' as metric,\n    \"Household & Services\" as value\nFROM reporting.viz_spending_by_category_by_month\nWHERE period_date >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '12 months')\nUNION ALL\nSELECT \n    period_date as time,\n    'Transport' as metric,\n    \"Transport\" as value\nFROM reporting.viz_spending_by_category_by_month\nWHERE period_date >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '12 months')\nUNION ALL\nSELECT \n    period_date as time,\n    'Shopping' as metric,\n    \"Shopping\" as value\nFROM reporting.viz_spending_by_category_by_month\nWHERE period_date >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '12 months')\nUNION ALL\nSELECT \n    period_date as time,\n    'Leisure' as metric,\n    \"Leisure\" as value\nFROM reporting.viz_spending_by_category_by_month\nWHERE period_date >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '12 months')\nORDER BY time, metric;",
+          "rawSql": "SELECT \n    period_date as time,\n    'Food & Drink' as metric,\n    \"Food & Drink\" as value\nFROM reporting.viz_spending_by_category_by_month\nWHERE period_date >= date_trunc('month', $__timeFrom()::timestamp)\nUNION ALL\nSELECT \n    period_date as time,\n    'Household & Services' as metric,\n    \"Household & Services\" as value\nFROM reporting.viz_spending_by_category_by_month\nWHERE period_date >= date_trunc('month', $__timeFrom()::timestamp)\nUNION ALL\nSELECT \n    period_date as time,\n    'Transport' as metric,\n    \"Transport\" as value\nFROM reporting.viz_spending_by_category_by_month\nWHERE period_date >= date_trunc('month', $__timeFrom()::timestamp)\nUNION ALL\nSELECT \n    period_date as time,\n    'Shopping' as metric,\n    \"Shopping\" as value\nFROM reporting.viz_spending_by_category_by_month\nWHERE period_date >= date_trunc('month', $__timeFrom()::timestamp)\nUNION ALL\nSELECT \n    period_date as time,\n    'Leisure' as metric,\n    \"Leisure\" as value\nFROM reporting.viz_spending_by_category_by_month\nWHERE period_date >= date_trunc('month', $__timeFrom()::timestamp)\nORDER BY time, metric;",
           "refId": "A"
         }
       ],
-      "title": "Top 5 Categories - 12-Month Trends",
+      "title": "Top 5 Categories Trend",
       "type": "timeseries"
     },
     {
@@ -457,7 +457,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    transaction_memo as \"High Value Merchants\",\n    ABS(transaction_amount) as \"Amount\"\nFROM reporting.fct_transactions\nWHERE transaction_amount <= -500\nAND transaction_date >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '90 days')\nORDER BY ABS(transaction_amount) DESC\nLIMIT 8;",
+          "rawSql": "SELECT \n    transaction_memo as \"High Value Merchants\",\n    ABS(transaction_amount) as \"Amount\"\nFROM reporting.fct_transactions\nWHERE transaction_amount <= -500\nAND transaction_date >= $__timeFrom()::timestamp\nORDER BY ABS(transaction_amount) DESC\nLIMIT 8;",
           "refId": "A"
         }
       ],
@@ -524,7 +524,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    transaction_memo as \"High Value External Merchants\",\n    ABS(transaction_amount) as \"Amount\"\nFROM reporting.fct_transactions\nWHERE transaction_amount <= -500\nAND transaction_date >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '90 days')\nAND transaction_memo NOT ILIKE '%osko payment%'\nAND transaction_memo NOT ILIKE '%transfer%'\nAND transaction_memo NOT ILIKE '%phil pay%'\nORDER BY ABS(transaction_amount) DESC\nLIMIT 8;",
+          "rawSql": "SELECT \n    transaction_memo as \"High Value External Merchants\",\n    ABS(transaction_amount) as \"Amount\"\nFROM reporting.fct_transactions\nWHERE transaction_amount <= -500\nAND transaction_date >= $__timeFrom()::timestamp\nAND transaction_memo NOT ILIKE '%osko payment%'\nAND transaction_memo NOT ILIKE '%transfer%'\nAND transaction_memo NOT ILIKE '%phil pay%'\nORDER BY ABS(transaction_amount) DESC\nLIMIT 8;",
           "refId": "A"
         }
       ],
@@ -591,11 +591,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    transaction_memo as \"Recurring Merchants\",\n    COUNT(*) as \"Count (6m)\",\n    ABS(SUM(transaction_amount)) as \"Total Spent\"\nFROM reporting.fct_transactions\nWHERE transaction_amount < 0\nAND transaction_date >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '6 months')\nGROUP BY transaction_memo\nHAVING COUNT(*) >= 3\nORDER BY COUNT(*) DESC, ABS(SUM(transaction_amount)) DESC\nLIMIT 8;",
+          "rawSql": "SELECT \n    transaction_memo as \"Recurring Merchants\",\n    COUNT(*) as \"Count (6m)\",\n    ABS(SUM(transaction_amount)) as \"Total Spent\"\nFROM reporting.fct_transactions\nWHERE transaction_amount < 0\nAND transaction_date >= $__timeFrom()::timestamp\nGROUP BY transaction_memo\nHAVING COUNT(*) >= 3\nORDER BY COUNT(*) DESC, ABS(SUM(transaction_amount)) DESC\nLIMIT 8;",
           "refId": "A"
         }
       ],
-      "title": "Recurring Merchants (6 Months)",
+      "title": "Recurring Merchants",
       "type": "table"
     },
     {
@@ -611,7 +611,7 @@
       },
       "id": 101,
       "options": {
-        "content": "## \ud83d\uded2 Grocery Spending Analysis\n\nDetailed breakdown of grocery spending across major retailers (Coles, Woolworths, Gaskos, ALDI).",
+        "content": "## 🛒 Grocery Spending Analysis\n\nDetailed breakdown of grocery spending across major retailers (Coles, Woolworths, Gaskos, ALDI).",
         "mode": "markdown"
       },
       "title": "Grocery Analysis",
@@ -674,11 +674,11 @@
           },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH aldi_monthly AS (\n    SELECT \n        DATE_TRUNC('month', transaction_date) as month,\n        ABS(SUM(transaction_amount)) as aldi_spend\n    FROM reporting.fct_transactions \n    WHERE transaction_memo ILIKE '%ALDI STORES%' \n        AND transaction_amount < 0 \n        AND transaction_date >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '12 months')\n    GROUP BY DATE_TRUNC('month', transaction_date)\n),\ngrocery_with_aldi AS (\n    SELECT \n        gms.coles_spend,\n        gms.woolworths_spend, \n        gms.gaskos_spend,\n        COALESCE(am.aldi_spend, 0) as aldi_spend,\n        gms.total_grocery_spend + COALESCE(am.aldi_spend, 0) as total_with_aldi\n    FROM reporting.viz_grocery_monthly_summary gms\n    LEFT JOIN aldi_monthly am ON gms.year_month = am.month\n    WHERE gms.year_month >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '12 months')\n)\nSELECT \n    ROUND(AVG(coles_spend), 2) as \"Coles 12m Avg\", \n    ROUND(AVG(woolworths_spend), 2) as \"Woolworths 12m Avg\", \n    ROUND(AVG(gaskos_spend), 2) as \"Gaskos 12m Avg\",\n    ROUND(AVG(aldi_spend), 2) as \"ALDI 12m Avg\",\n    ROUND(AVG(total_with_aldi), 2) as \"Total 12m Avg\" \nFROM grocery_with_aldi",
+          "rawSql": "WITH aldi_monthly AS (\n    SELECT \n        DATE_TRUNC('month', transaction_date) as month,\n        ABS(SUM(transaction_amount)) as aldi_spend\n    FROM reporting.fct_transactions \n    WHERE transaction_memo ILIKE '%ALDI STORES%' \n        AND transaction_amount < 0 \n        AND transaction_date >= $__timeFrom()::timestamp\n    GROUP BY DATE_TRUNC('month', transaction_date)\n),\ngrocery_with_aldi AS (\n    SELECT \n        gms.coles_spend,\n        gms.woolworths_spend, \n        gms.gaskos_spend,\n        COALESCE(am.aldi_spend, 0) as aldi_spend,\n        gms.total_grocery_spend + COALESCE(am.aldi_spend, 0) as total_with_aldi\n    FROM reporting.viz_grocery_monthly_summary gms\n    LEFT JOIN aldi_monthly am ON gms.year_month = am.month\n    WHERE gms.year_month >= date_trunc('month', $__timeFrom()::timestamp)\n)\nSELECT \n    ROUND(AVG(coles_spend), 2) as \"Coles 12m Avg\", \n    ROUND(AVG(woolworths_spend), 2) as \"Woolworths 12m Avg\", \n    ROUND(AVG(gaskos_spend), 2) as \"Gaskos 12m Avg\",\n    ROUND(AVG(aldi_spend), 2) as \"ALDI 12m Avg\",\n    ROUND(AVG(total_with_aldi), 2) as \"Total 12m Avg\" \nFROM grocery_with_aldi",
           "refId": "A"
         }
       ],
-      "title": "12-Month Average Grocery Spending by Retailer",
+      "title": "Average Grocery Spending by Retailer",
       "type": "stat"
     },
     {
@@ -832,11 +832,11 @@
           },
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "WITH aldi_monthly AS (\n    SELECT \n        DATE_TRUNC('month', transaction_date) as month,\n        ABS(SUM(transaction_amount)) as aldi_spend\n    FROM reporting.fct_transactions \n    WHERE transaction_memo ILIKE '%ALDI STORES%' \n        AND transaction_amount < 0 \n        AND transaction_date >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '18 months')\n    GROUP BY DATE_TRUNC('month', transaction_date)\n)\nSELECT \n    gms.year_month as time,\n    gms.coles_spend as \"Coles\",\n    gms.woolworths_spend as \"Woolworths\",\n    gms.gaskos_spend as \"Gaskos\",\n    COALESCE(am.aldi_spend, 0) as \"ALDI\",\n    gms.total_grocery_spend + COALESCE(am.aldi_spend, 0) as \"Total Grocery\"\nFROM reporting.viz_grocery_monthly_summary gms\nLEFT JOIN aldi_monthly am ON gms.year_month = am.month\nWHERE gms.year_month >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '18 months')\nORDER BY gms.year_month;",
+          "rawSql": "WITH aldi_monthly AS (\n    SELECT \n        DATE_TRUNC('month', transaction_date) as month,\n        ABS(SUM(transaction_amount)) as aldi_spend\n    FROM reporting.fct_transactions \n    WHERE transaction_memo ILIKE '%ALDI STORES%' \n        AND transaction_amount < 0 \n        AND transaction_date >= $__timeFrom()::timestamp\n    GROUP BY DATE_TRUNC('month', transaction_date)\n)\nSELECT \n    gms.year_month as time,\n    gms.coles_spend as \"Coles\",\n    gms.woolworths_spend as \"Woolworths\",\n    gms.gaskos_spend as \"Gaskos\",\n    COALESCE(am.aldi_spend, 0) as \"ALDI\",\n    gms.total_grocery_spend + COALESCE(am.aldi_spend, 0) as \"Total Grocery\"\nFROM reporting.viz_grocery_monthly_summary gms\nLEFT JOIN aldi_monthly am ON gms.year_month = am.month\nWHERE gms.year_month >= date_trunc('month', $__timeFrom()::timestamp)\nORDER BY gms.year_month;",
           "refId": "A"
         }
       ],
-      "title": "18-Month Grocery Spending Trends by Retailer",
+      "title": "Grocery Spending Trends by Retailer",
       "type": "timeseries"
     }
   ],
@@ -876,7 +876,7 @@
     ]
   },
   "timezone": "",
-  "title": "\ud83d\udcb3 Spending & Categories",
+  "title": "💳 Spending & Categories",
   "uid": "spending-categories-mobile",
   "version": 1,
   "weekStart": ""

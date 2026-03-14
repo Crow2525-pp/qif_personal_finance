@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udcb8 Expense Performance Dashboard - Spending Control Analysis\n\n**What This Dashboard Shows:** Detailed breakdown of expense performance drivers that feed into Executive Dashboard ratings.\n\n**Key Metrics Explained:**\n\u2022 **Expense-to-Income Ratio:** Primary driver of expense performance rating (lower is better, target <80-90%)\n\u2022 **Category Breakdown:** Which spending categories are driving expense levels\n\u2022 **Trend Analysis:** Month-over-month and historical expense patterns\n\u2022 **Efficiency Metrics:** How well spending aligns with income and financial goals\n\n**Rating Logic:** Expense performance in Executive Dashboard is calculated as (Total Outflows \u00f7 Total Inflows) \u00d7 100. Lower ratios indicate better expense control.",
+        "content": "# 💸 Expense Performance Dashboard - Spending Control Analysis\n\n**What This Dashboard Shows:** Detailed breakdown of expense performance drivers that feed into Executive Dashboard ratings.\n\n**Key Metrics Explained:**\n• **Expense-to-Income Ratio:** Primary driver of expense performance rating (lower is better, target <80-90%)\n• **Category Breakdown:** Which spending categories are driving expense levels\n• **Trend Analysis:** Month-over-month and historical expense patterns\n• **Efficiency Metrics:** How well spending aligns with income and financial goals\n\n**Rating Logic:** Expense performance in Executive Dashboard is calculated as (Total Outflows ÷ Total Inflows) × 100. Lower ratios indicate better expense control.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -217,11 +217,11 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "WITH expense_trends AS (\n  SELECT \n    to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS time,\n    expense_ratio_percent AS \"Expense Ratio (%)\",\n    0.80 AS \"Target (80%)\"\n  FROM reporting.rpt_monthly_budget_summary \n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') < date_trunc('month', $__timeTo()::timestamp)\n    AND to_date(budget_year_month || '-01', 'YYYY-MM-DD') >= date_trunc('month', $__timeTo()::timestamp) - INTERVAL '12 months'\n  ORDER BY time\n)\nSELECT * FROM expense_trends",
+          "rawSql": "WITH expense_trends AS (\n  SELECT \n    to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS time,\n    expense_ratio_percent AS \"Expense Ratio (%)\",\n    0.80 AS \"Target (80%)\"\n  FROM reporting.rpt_monthly_budget_summary \n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') < date_trunc('month', $__timeTo()::timestamp)\n    AND to_date(budget_year_month || '-01', 'YYYY-MM-DD') >= date_trunc('month', $__timeFrom()::timestamp)\n  ORDER BY time\n)\nSELECT * FROM expense_trends",
           "refId": "A"
         }
       ],
-      "title": "Expense Ratio Trend (12 Months)",
+      "title": "Expense Ratio Trend",
       "type": "timeseries"
     },
     {
@@ -445,7 +445,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH monthly_expenses AS (\n  SELECT \n    budget_year_month,\n    total_expenses\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month >= TO_CHAR((date_trunc('month', $__timeTo()::timestamp) - INTERVAL '2 months'), 'YYYY-MM')\n    AND budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\n  ORDER BY budget_year_month DESC\n  LIMIT 2\n),\nexpense_comparison AS (\n  SELECT \n    (ARRAY_AGG(total_expenses ORDER BY budget_year_month DESC))[1] as current_month,\n    (ARRAY_AGG(total_expenses ORDER BY budget_year_month DESC))[2] as previous_month,\n    (ARRAY_AGG(budget_year_month ORDER BY budget_year_month DESC))[1] as current_period,\n    (ARRAY_AGG(budget_year_month ORDER BY budget_year_month DESC))[2] as previous_period\n  FROM monthly_expenses\n)\nSELECT \n  'Total Monthly Expenses' as \"Category\",\n  current_month as \"Current Month ($)\",\n  previous_month as \"Previous Month ($)\",\n  (current_month - previous_month) as \"Change ($)\",\n  CASE \n    WHEN previous_month > 0 THEN ((current_month - previous_month) / previous_month) * 100\n    ELSE 0\n  END as \"Change (%)\",\n  current_period as \"Current Period\",\n  previous_period as \"Previous Period\"\nFROM expense_comparison",
+          "rawSql": "WITH monthly_expenses AS (\n  SELECT \n    budget_year_month,\n    total_expenses\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month >= TO_CHAR(date_trunc('month', $__timeFrom()::timestamp), 'YYYY-MM')\n    AND budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\n  ORDER BY budget_year_month DESC\n  LIMIT 2\n),\nexpense_comparison AS (\n  SELECT \n    (ARRAY_AGG(total_expenses ORDER BY budget_year_month DESC))[1] as current_month,\n    (ARRAY_AGG(total_expenses ORDER BY budget_year_month DESC))[2] as previous_month,\n    (ARRAY_AGG(budget_year_month ORDER BY budget_year_month DESC))[1] as current_period,\n    (ARRAY_AGG(budget_year_month ORDER BY budget_year_month DESC))[2] as previous_period\n  FROM monthly_expenses\n)\nSELECT \n  'Total Monthly Expenses' as \"Category\",\n  current_month as \"Current Month ($)\",\n  previous_month as \"Previous Month ($)\",\n  (current_month - previous_month) as \"Change ($)\",\n  CASE \n    WHEN previous_month > 0 THEN ((current_month - previous_month) / previous_month) * 100\n    ELSE 0\n  END as \"Change (%)\",\n  current_period as \"Current Period\",\n  previous_period as \"Previous Period\"\nFROM expense_comparison",
           "refId": "A"
         }
       ],

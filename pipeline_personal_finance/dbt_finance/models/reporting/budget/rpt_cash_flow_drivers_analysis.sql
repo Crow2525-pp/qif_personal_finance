@@ -21,6 +21,7 @@ WITH monthly_category_outflows AS (
   JOIN {{ ref('dim_categories') }} c ON t.category_key = c.category_key
   WHERE t.transaction_amount < 0
     AND c.is_internal_transfer = false
+    AND NOT COALESCE(c.is_property_transaction, FALSE)
   GROUP BY
     DATE_TRUNC('month', t.transaction_date),
     EXTRACT(YEAR FROM t.transaction_date),

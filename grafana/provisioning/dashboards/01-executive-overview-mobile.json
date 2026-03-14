@@ -31,7 +31,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udcf1 Executive Overview\n\nKey financial metrics and health indicators at a glance. Optimized for mobile viewing.",
+        "content": "# 📱 Executive Overview\n\nKey financial metrics and health indicators at a glance. Optimized for mobile viewing.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
@@ -269,11 +269,11 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    total_income as \"Income\",\n    total_expenses as \"Expenses\",\n    net_cash_flow as \"Net Cash Flow\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month >= TO_CHAR($__timeTo()::date - INTERVAL '12 months', 'YYYY-MM')\n  AND budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY budget_year_month;",
+          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    total_income as \"Income\",\n    total_expenses as \"Expenses\",\n    net_cash_flow as \"Net Cash Flow\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month >= TO_CHAR($__timeFrom()::date, 'YYYY-MM')\n  AND budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY budget_year_month;",
           "refId": "A"
         }
       ],
-      "title": "12-Month Cash Flow Trend",
+      "title": "Cash Flow Trend",
       "type": "timeseries"
     },
     {
@@ -423,7 +423,7 @@
       },
       "id": 102,
       "options": {
-        "content": "## \ud83d\udd0d Data Quality & Reconciliation\n\nFinancial data validation and reconciliation status across all reporting domains.",
+        "content": "## 🔍 Data Quality & Reconciliation\n\nFinancial data validation and reconciliation status across all reporting domains.",
         "mode": "markdown"
       },
       "title": "Reconciliation Status",
@@ -511,7 +511,7 @@
                 "ALL_PASS": {
                   "color": "green",
                   "index": 0,
-                  "text": "\u2705 ALL PASS"
+                  "text": "✅ ALL PASS"
                 }
               },
               "type": "value"
@@ -521,7 +521,7 @@
                 "SOME_FAIL": {
                   "color": "red",
                   "index": 1,
-                  "text": "\u274c SOME FAIL"
+                  "text": "❌ SOME FAIL"
                 }
               },
               "type": "value"
@@ -812,7 +812,7 @@
     ]
   },
   "timezone": "",
-  "title": "\ud83d\udcf1 Executive Overview",
+  "title": "📱 Executive Overview",
   "uid": "exec-mobile-overview",
   "version": 1,
   "weekStart": ""

@@ -29,6 +29,7 @@ WITH transaction_base AS (
   LEFT JOIN {{ ref('dim_accounts') }} da
     ON ft.account_key = da.account_key
   WHERE NOT COALESCE(ft.is_internal_transfer, FALSE)
+    AND NOT COALESCE(ft.is_property_transaction, FALSE)
     AND ft.transaction_amount < 0  -- Only expenses
 ),
 

@@ -20,19 +20,20 @@ WITH monthly_savings_components AS (
     da.is_mortgage,
     ft.is_income_transaction,
     ft.is_internal_transfer,
+    ft.is_property_transaction,
     dc.level_1_category,
     ft.transaction_amount,
     
     -- Classify savings types
     CASE 
       WHEN da.account_type = 'Offset' AND ft.transaction_amount > 0 
-           AND NOT ft.is_income_transaction AND NOT ft.is_internal_transfer THEN 'Internal_Transfer'
+           AND NOT ft.is_income_transaction AND NOT ft.is_internal_transfer AND NOT ft.is_property_transaction THEN 'Internal_Transfer'
       WHEN da.is_liquid_asset AND da.account_type <> 'Offset' AND ft.transaction_amount > 0 
-           AND NOT ft.is_income_transaction AND NOT ft.is_internal_transfer THEN 'Cash_Savings'
+           AND NOT ft.is_income_transaction AND NOT ft.is_internal_transfer AND NOT ft.is_property_transaction THEN 'Cash_Savings'
       WHEN ft.is_income_transaction THEN 'Income'
       WHEN da.is_mortgage AND ft.transaction_amount < 0 THEN 'Mortgage_Payment'
       WHEN (dc.level_1_category ILIKE '%Investment%' OR da.account_name ILIKE '%Vanguard%' OR ft.transaction_memo ILIKE '%Vanguard%' OR ft.transaction_description ILIKE '%Vanguard%') THEN 'Investment'
-      WHEN NOT ft.is_internal_transfer AND NOT ft.is_income_transaction AND ft.transaction_amount < 0 THEN 'Expense'
+      WHEN NOT ft.is_internal_transfer AND NOT ft.is_income_transaction AND NOT ft.is_property_transaction AND ft.transaction_amount < 0 THEN 'Expense'
       ELSE 'Other'
     END AS transaction_classification
     

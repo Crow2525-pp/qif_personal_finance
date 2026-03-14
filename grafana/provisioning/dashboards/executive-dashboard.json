@@ -2253,7 +2253,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Monthly spending on family essentials: Groceries, Family & Kids, Health, Household",
+      "description": "Monthly spending on core household essentials: groceries, family spending, health, and household costs.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2315,7 +2315,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Estimated Family & Kids spending per child for the selected window. Adjust the Children variable to match your household.",
+      "description": "Estimated selected-window family spending normalized to the fixed household baseline.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2351,7 +2351,7 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "Cost Per Child",
+          "fields": "Normalized Family Spend",
           "values": true
         },
         "textMode": "auto"
@@ -2365,11 +2365,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_family_essentials\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT $__timeTo()::date AS month_date\n),\nwindow_range AS (\n  SELECT\n    $__timeFrom()::date AS start_date,\n    $__timeTo()::date AS end_date\n),\nfamily_costs AS (\n  SELECT COALESCE(SUM(family_kids_spending), 0) AS family_kids_total\n  FROM reporting.rpt_family_essentials\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD')\n        BETWEEN (SELECT start_date FROM window_range)\n        AND     (SELECT end_date   FROM window_range)\n),\nchild_count AS (\n  SELECT CASE\n           WHEN '${child_count}' ~ '^[0-9]+$' THEN '${child_count}'::numeric\n           ELSE 3\n         END AS children\n)\nSELECT\n  ROUND(fc.family_kids_total / NULLIF(cc.children, 0), 2) AS \"Cost Per Child\"\nFROM family_costs fc\nCROSS JOIN child_count cc;",
+          "rawSql": "WITH window_range AS (\n  SELECT\n    $__timeFrom()::date AS start_date,\n    $__timeTo()::date AS end_date\n),\nfamily_costs AS (\n  SELECT COALESCE(SUM(family_kids_spending), 0) AS family_kids_total\n  FROM reporting.rpt_family_essentials\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD')\n        BETWEEN (SELECT start_date FROM window_range)\n        AND     (SELECT end_date   FROM window_range)\n)\nSELECT\n  ROUND(fc.family_kids_total / 3.0, 2) AS \"Normalized Family Spend\"\nFROM family_costs fc;",
           "refId": "A"
         }
       ],
-      "title": "Cost Per Child (Est.)",
+      "title": "Normalized Family Spend (Est.)",
       "type": "stat"
     },
     {
@@ -2377,7 +2377,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Months of essential expenses covered by liquid assets. Target: 3-6 months for families with young children.",
+      "description": "Months of essential expenses covered by liquid assets. Target: 3-6 months for this household.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2829,56 +2829,7 @@
     "time_control_archetype:historical_windowed"
   ],
   "templating": {
-    "list": [
-      {
-        "name": "child_count",
-        "label": "Children",
-        "type": "custom",
-        "hide": 0,
-        "current": {
-          "text": "3",
-          "value": "3",
-          "selected": true
-        },
-        "options": [
-          {
-            "text": "1",
-            "value": "1",
-            "selected": false
-          },
-          {
-            "text": "2",
-            "value": "2",
-            "selected": false
-          },
-          {
-            "text": "3",
-            "value": "3",
-            "selected": true
-          },
-          {
-            "text": "4",
-            "value": "4",
-            "selected": false
-          },
-          {
-            "text": "5",
-            "value": "5",
-            "selected": false
-          },
-          {
-            "text": "6",
-            "value": "6",
-            "selected": false
-          }
-        ],
-        "query": "1,2,3,4,5,6",
-        "includeAll": false,
-        "multi": false,
-        "skipUrlSync": false,
-        "allowCustom": true
-      }
-    ]
+    "list": []
   },
   "time": {
     "from": "now-1M/M",

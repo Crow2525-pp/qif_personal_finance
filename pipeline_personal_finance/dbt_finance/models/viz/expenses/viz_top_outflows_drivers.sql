@@ -43,6 +43,7 @@ WITH recent_outflows AS (
     ON ft.category_key = dc.category_key
   WHERE ft.transaction_amount < 0  -- Only outflows
     AND NOT COALESCE(ft.is_internal_transfer, FALSE)  -- Exclude internal transfers
+    AND NOT COALESCE(ft.is_property_transaction, FALSE)  -- Exclude property settlements
     AND ft.transaction_date >= CURRENT_DATE - INTERVAL '12 months'  -- Last year
 ),
 

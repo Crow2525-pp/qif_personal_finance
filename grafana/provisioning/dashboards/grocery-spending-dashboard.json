@@ -47,7 +47,68 @@
           },
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Coles Avg"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E31D1A"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Woolworths Avg"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#00863D"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Gaskos Avg"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#F5A623"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total Avg"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#8AB8FF"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 10,
@@ -79,11 +140,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT ROUND(AVG(coles_spend), 2) as \"Coles Avg\", ROUND(AVG(woolworths_spend), 2) as \"Woolworths Avg\", ROUND(AVG(gaskos_spend), 2) as \"Gaskos Avg\", ROUND(AVG(total_grocery_spend), 2) as \"Total Avg\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '12 months')",
+          "rawSql": "SELECT ROUND(AVG(coles_spend), 2) as \"Coles Avg\", ROUND(AVG(woolworths_spend), 2) as \"Woolworths Avg\", ROUND(AVG(gaskos_spend), 2) as \"Gaskos Avg\", ROUND(AVG(total_grocery_spend), 2) as \"Total Avg\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= date_trunc('month', $__timeFrom()::timestamp) AND year_month <= date_trunc('month', $__timeTo()::timestamp)",
           "refId": "A"
         }
       ],
-      "title": "12-Month Average Spending",
+      "title": "Average Monthly Spending",
       "type": "stat"
     },
     {
@@ -147,7 +208,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest_month AS (\n  SELECT total_grocery_spend\n  FROM reporting.viz_grocery_monthly_summary\n  WHERE year_month < date_trunc('month', $__timeTo()::timestamp)\n  ORDER BY year_month DESC\n  LIMIT 1\n)\nSELECT\n  ROUND(250 - COALESCE(total_grocery_spend, 0), 2) AS \"Budget Variance\",\n  ROUND((COALESCE(total_grocery_spend, 0) / 250) * 100, 1) AS \"% of Budget\"\nFROM latest_month\nUNION ALL\nSELECT 250::numeric AS \"Budget Variance\", 0::numeric AS \"% of Budget\"\nWHERE NOT EXISTS (SELECT 1 FROM latest_month);\n",
+          "rawSql": "WITH latest_month AS (  SELECT total_grocery_spend  FROM reporting.viz_grocery_monthly_summary  WHERE year_month >= date_trunc('month', $__timeFrom()::timestamp) AND year_month <= date_trunc('month', $__timeTo()::timestamp)  ORDER BY year_month DESC LIMIT 1) SELECT  ROUND(250 - COALESCE(total_grocery_spend, 0), 2) AS \"Budget Variance\",  ROUND((COALESCE(total_grocery_spend, 0) / 250) * 100, 1) AS \"% of Budget\" FROM latest_month UNION ALL SELECT 250::numeric, 0::numeric WHERE NOT EXISTS (SELECT 1 FROM latest_month)",
           "refId": "A"
         }
       ],
@@ -219,7 +280,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT COALESCE(yoy_growth_percent, 0) as \"Total YoY Growth %\", COALESCE(mom_growth_percent, 0) as \"Month-over-Month %\" FROM reporting.viz_grocery_monthly_summary WHERE year_month <= date_trunc('month', $__timeTo()::timestamp)\nORDER BY year_month DESC LIMIT 1",
+          "rawSql": "SELECT COALESCE(yoy_growth_percent, 0) as \"Total YoY Growth %\", COALESCE(mom_growth_percent, 0) as \"Month-over-Month %\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= date_trunc('month', $__timeFrom()::timestamp) AND year_month <= date_trunc('month', $__timeTo()::timestamp) ORDER BY year_month DESC LIMIT 1",
           "refId": "A"
         }
       ],
@@ -270,7 +331,53 @@
           "mappings": [],
           "unit": "percent"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Coles"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E31D1A"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Woolworths"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#00863D"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Gaskos"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#F5A623"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 10,
@@ -301,11 +408,11 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "WITH latest_month AS (\n  SELECT\n    year_month AS time,\n    COALESCE(coles_percentage, 0) AS \"Coles\",\n    COALESCE(woolworths_percentage, 0) AS \"Woolworths\",\n    COALESCE(gaskos_percentage, 0) AS \"Gaskos\"\n  FROM reporting.viz_grocery_monthly_summary\n  WHERE year_month < date_trunc('month', $__timeTo()::timestamp)\n  ORDER BY year_month DESC\n  LIMIT 1\n)\nSELECT * FROM latest_month\nUNION ALL\nSELECT\n  date_trunc('month', $__timeTo()::timestamp) - INTERVAL '1 month' AS time,\n  0::numeric AS \"Coles\",\n  0::numeric AS \"Woolworths\",\n  0::numeric AS \"Gaskos\"\nWHERE NOT EXISTS (SELECT 1 FROM latest_month);\n",
+          "rawSql": "WITH latest_month AS (  SELECT year_month AS time,    COALESCE(coles_percentage, 0) AS \"Coles\",    COALESCE(woolworths_percentage, 0) AS \"Woolworths\",    COALESCE(gaskos_percentage, 0) AS \"Gaskos\"  FROM reporting.viz_grocery_monthly_summary  WHERE year_month >= date_trunc('month', $__timeFrom()::timestamp) AND year_month <= date_trunc('month', $__timeTo()::timestamp)  ORDER BY year_month DESC LIMIT 1) SELECT * FROM latest_month UNION ALL SELECT date_trunc('month', $__timeTo()::timestamp) AS time, 0::numeric, 0::numeric, 0::numeric WHERE NOT EXISTS (SELECT 1 FROM latest_month)",
           "refId": "A"
         }
       ],
-      "title": "Last Month Market Share",
+      "title": "Latest Month Market Share",
       "type": "barchart"
     },
     {
@@ -361,7 +468,53 @@
           },
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Coles"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E31D1A"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Woolworths"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#00863D"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Gaskos"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#F5A623"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 11,
@@ -392,7 +545,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, coles_spend as \"Coles\", woolworths_spend as \"Woolworths\", gaskos_spend as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '18 months') ORDER BY year_month",
+          "rawSql": "SELECT year_month as time, coles_spend as \"Coles\", woolworths_spend as \"Woolworths\", gaskos_spend as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= date_trunc('month', $__timeFrom()::timestamp) AND year_month <= date_trunc('month', $__timeTo()::timestamp) ORDER BY year_month",
           "refId": "A"
         }
       ],
@@ -452,7 +605,53 @@
           },
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Coles"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E31D1A"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Woolworths"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#00863D"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Gaskos"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#F5A623"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 11,
@@ -483,7 +682,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, coles_spend as \"Coles\", woolworths_spend as \"Woolworths\", gaskos_spend as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '18 months') ORDER BY year_month",
+          "rawSql": "SELECT year_month as time, coles_spend as \"Coles\", woolworths_spend as \"Woolworths\", gaskos_spend as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= date_trunc('month', $__timeFrom()::timestamp) AND year_month <= date_trunc('month', $__timeTo()::timestamp) ORDER BY year_month",
           "refId": "A"
         }
       ],
@@ -543,7 +742,53 @@
           },
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Coles"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E31D1A"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Woolworths"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#00863D"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Gaskos"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#F5A623"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 11,
@@ -574,11 +819,11 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, coles_spend as \"Coles\", woolworths_spend as \"Woolworths\", gaskos_spend as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '18 months') ORDER BY year_month",
+          "rawSql": "SELECT year_month as time, coles_spend as \"Coles\", woolworths_spend as \"Woolworths\", gaskos_spend as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= date_trunc('month', $__timeFrom()::timestamp) AND year_month <= date_trunc('month', $__timeTo()::timestamp) ORDER BY year_month",
           "refId": "A"
         }
       ],
-      "title": "18-Month Grocery Spending Trends by Retailer (Stacked)",
+      "title": "Grocery Spending Trends by Retailer (Stacked)",
       "type": "timeseries"
     },
     {
@@ -636,7 +881,53 @@
           "min": -1,
           "max": 1
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Coles"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E31D1A"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Woolworths"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#00863D"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Gaskos"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#F5A623"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 11,
@@ -667,11 +958,11 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, coles_percentage/100 as \"Coles\", woolworths_percentage/100 as \"Woolworths\", gaskos_percentage/100 as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '18 months') ORDER BY year_month",
+          "rawSql": "SELECT year_month as time, coles_percentage/100 as \"Coles\", woolworths_percentage/100 as \"Woolworths\", gaskos_percentage/100 as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= date_trunc('month', $__timeFrom()::timestamp) AND year_month <= date_trunc('month', $__timeTo()::timestamp) ORDER BY year_month",
           "refId": "A"
         }
       ],
-      "title": "18-Month Grocery Market Share Trends (100% Stacked)",
+      "title": "Grocery Market Share Trends (100% Stacked)",
       "type": "timeseries"
     },
     {
@@ -737,7 +1028,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest_month AS (\n  SELECT year_month FROM reporting.viz_grocery_monthly_summary ORDER BY year_month DESC LIMIT 1\n)\nSELECT \n  grocery_store AS \"Store\",\n  monthly_spend AS \"Amount\"\nFROM reporting.viz_grocery_spending_analysis\nWHERE year_month = (SELECT year_month FROM latest_month)\nAND year_month <= date_trunc('month', $__timeTo()::timestamp)\nORDER BY monthly_spend DESC",
+          "rawSql": "SELECT grocery_store AS \"Store\", monthly_spend AS \"Amount\" FROM reporting.viz_grocery_spending_analysis WHERE year_month = (   SELECT MAX(year_month) FROM reporting.viz_grocery_spending_analysis   WHERE year_month >= date_trunc('month', $__timeFrom()::timestamp) AND year_month <= date_trunc('month', $__timeTo()::timestamp) ) ORDER BY monthly_spend DESC",
           "refId": "A"
         }
       ],
@@ -796,7 +1087,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH store_averages AS (\n  SELECT \n    grocery_store,\n    ROUND(AVG(monthly_spend), 2) AS avg_monthly_spend,\n    COUNT(*) AS months_tracked\n  FROM reporting.viz_grocery_spending_analysis\n  WHERE year_month >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '12 months')\n  GROUP BY grocery_store\n), min_store AS (\n  SELECT \n    grocery_store,\n    avg_monthly_spend,\n    months_tracked,\n    FIRST_VALUE(grocery_store) OVER (ORDER BY avg_monthly_spend) AS cheapest_store,\n    FIRST_VALUE(avg_monthly_spend) OVER (ORDER BY avg_monthly_spend) AS cheapest_price\n  FROM store_averages\n)\nSELECT \n  grocery_store AS \"Store\",\n  avg_monthly_spend AS \"Avg Spend\",\n  ROUND(avg_monthly_spend - cheapest_price, 2) AS \"Premium Over Cheapest\",\n  months_tracked AS \"Months\"\nFROM min_store\nORDER BY avg_monthly_spend ASC",
+          "rawSql": "WITH store_averages AS (  SELECT grocery_store,    ROUND(AVG(monthly_spend), 2) AS avg_monthly_spend,    COUNT(*) AS months_tracked  FROM reporting.viz_grocery_spending_analysis  WHERE year_month >= date_trunc('month', $__timeFrom()::timestamp) AND year_month <= date_trunc('month', $__timeTo()::timestamp)  GROUP BY grocery_store), min_store AS (  SELECT grocery_store, avg_monthly_spend, months_tracked,    FIRST_VALUE(grocery_store) OVER (ORDER BY avg_monthly_spend) AS cheapest_store,    FIRST_VALUE(avg_monthly_spend) OVER (ORDER BY avg_monthly_spend) AS cheapest_price  FROM store_averages) SELECT grocery_store AS \"Store\",  avg_monthly_spend AS \"Avg Spend\",  ROUND(avg_monthly_spend - cheapest_price, 2) AS \"Premium Over Cheapest\",  months_tracked AS \"Months\" FROM min_store ORDER BY avg_monthly_spend ASC",
           "refId": "A"
         }
       ],
@@ -859,11 +1150,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT grocery_store, order_count as \"Order Count\", ROUND(average_order_value, 2) as \"Avg Order Value\", ROUND(largest_order_value, 2) as \"Largest Order\" FROM reporting.viz_grocery_order_context WHERE year_month = (SELECT MAX(year_month) FROM reporting.viz_grocery_order_context) AND year_month <= date_trunc('month', $__timeTo()::timestamp)\nORDER BY grocery_store",
+          "rawSql": "SELECT grocery_store,  order_count as \"Order Count\",  ROUND(average_order_value, 2) as \"Avg Order Value\",  ROUND(largest_order_value, 2) as \"Largest Order\" FROM reporting.viz_grocery_order_context WHERE year_month = (   SELECT MAX(year_month) FROM reporting.viz_grocery_order_context   WHERE year_month >= date_trunc('month', $__timeFrom()::timestamp) AND year_month <= date_trunc('month', $__timeTo()::timestamp) ) ORDER BY grocery_store",
           "refId": "A"
         }
       ],
-      "title": "Order Context by Store (Latest Month)",
+      "title": "Order Context by Store (Latest Month in Range)",
       "type": "stat"
     },
     {
@@ -890,7 +1181,38 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Main Shop"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#5794F2"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Top-up"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#FF9830"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -922,11 +1244,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT grocery_store, ROUND(COALESCE(recurring_spend, 0), 2) as \"Recurring Spend\", ROUND(COALESCE(oneoff_spend, 0), 2) as \"One-Off Spend\" FROM reporting.viz_grocery_order_context WHERE year_month = (SELECT MAX(year_month) FROM reporting.viz_grocery_order_context) AND year_month <= date_trunc('month', $__timeTo()::timestamp)\nORDER BY grocery_store",
+          "rawSql": "SELECT grocery_store,  ROUND(COALESCE(main_shop_spend, 0), 2) as \"Main Shop\",  ROUND(COALESCE(topup_spend, 0), 2) as \"Top-up\" FROM reporting.viz_grocery_order_context WHERE year_month = (   SELECT MAX(year_month) FROM reporting.viz_grocery_order_context   WHERE year_month >= date_trunc('month', $__timeFrom()::timestamp) AND year_month <= date_trunc('month', $__timeTo()::timestamp) ) ORDER BY grocery_store",
           "refId": "A"
         }
       ],
-      "title": "Recurring vs One-Off by Store (Latest Month)",
+      "title": "Main Shop vs Top-up by Store (Latest Month in Range)",
       "type": "stat"
     },
     {
@@ -1010,12 +1332,400 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, grocery_store, average_order_value FROM reporting.viz_grocery_order_context WHERE year_month >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '18 months') ORDER BY year_month, grocery_store",
+          "rawSql": "SELECT year_month as time, grocery_store, average_order_value FROM reporting.viz_grocery_order_context WHERE year_month >= date_trunc('month', $__timeFrom()::timestamp) AND year_month <= date_trunc('month', $__timeTo()::timestamp) ORDER BY year_month, grocery_store",
           "refId": "A"
         }
       ],
       "title": "Basket Size Trend by Store (Price Inflation/Volume)",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "barAlignment": 0,
+            "lineWidth": 2,
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "spanNulls": false,
+            "insertNulls": false,
+            "showPoints": "auto",
+            "pointSize": 5,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "axisCenteredZero": false,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "3-Month Avg %"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "dash",
+                  "dash": [
+                    8,
+                    4
+                  ]
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Top-up %"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#FF9830"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "3-Month Avg %"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#FADE2A"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 80
+      },
+      "id": 14,
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "values": [
+            "value"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "WITH monthly AS (  SELECT year_month,    SUM(topup_spend) / NULLIF(SUM(total_monthly_spend), 0) * 100 AS topup_pct  FROM reporting.viz_grocery_order_context  WHERE year_month >= date_trunc('month', $__timeFrom()::timestamp) AND year_month <= date_trunc('month', $__timeTo()::timestamp)  GROUP BY year_month) SELECT year_month AS time,  ROUND(topup_pct::numeric, 1) AS \"Top-up %\",  ROUND(AVG(topup_pct) OVER (ORDER BY year_month ROWS BETWEEN 2 PRECEDING AND CURRENT ROW)::numeric, 1) AS \"3-Month Avg %\" FROM monthly ORDER BY year_month",
+          "refId": "A"
+        }
+      ],
+      "title": "Top-up % of Total Grocery Spend",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "barAlignment": 0,
+            "lineWidth": 2,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "spanNulls": false,
+            "insertNulls": false,
+            "showPoints": "auto",
+            "pointSize": 5,
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            },
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "axisCenteredZero": false,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Main Shop"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#5794F2"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Top-up"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#FF9830"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 90
+      },
+      "id": 15,
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "values": [
+            "value"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT year_month AS time,  ROUND(SUM(main_shop_spend)::numeric, 2) AS \"Main Shop\",  ROUND(SUM(topup_spend)::numeric, 2) AS \"Top-up\" FROM reporting.viz_grocery_order_context WHERE year_month >= date_trunc('month', $__timeFrom()::timestamp) AND year_month <= date_trunc('month', $__timeTo()::timestamp) GROUP BY year_month ORDER BY year_month",
+          "refId": "A"
+        }
+      ],
+      "title": "Main Shop vs Top-up Spend",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "vis": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Avg Main Shop Basket"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#5794F2"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Avg Top-up Basket"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#FF9830"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 100
+      },
+      "id": 16,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.7,
+        "groupWidth": 0.7,
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "values": [
+            "value"
+          ]
+        },
+        "orientation": "horizontal",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 100
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT grocery_store,  ROUND(AVG(CASE WHEN topup_count > 0 THEN topup_spend / topup_count END)::numeric, 2) AS \"Avg Top-up Basket\",  ROUND(AVG(CASE WHEN main_shop_count > 0 THEN main_shop_spend / main_shop_count END)::numeric, 2) AS \"Avg Main Shop Basket\" FROM reporting.viz_grocery_order_context WHERE year_month >= date_trunc('month', $__timeFrom()::timestamp) AND year_month <= date_trunc('month', $__timeTo()::timestamp) GROUP BY grocery_store ORDER BY grocery_store",
+          "refId": "A"
+        }
+      ],
+      "title": "Avg Basket Size: Top-up vs Main Shop by Store",
+      "type": "barchart"
     }
   ],
   "refresh": "5m",

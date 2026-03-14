@@ -47,7 +47,7 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 14,
+        "h": 4,
         "w": 24,
         "x": 0,
         "y": 0
@@ -58,7 +58,6 @@
         "mode": "markdown"
       },
       "title": "Overview",
-      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
       "type": "text"
     },
     {
@@ -88,7 +87,7 @@
         "h": 3,
         "w": 6,
         "x": 0,
-        "y": 14
+        "y": 4
       },
       "id": 200,
       "options": {
@@ -144,7 +143,7 @@
         "h": 3,
         "w": 6,
         "x": 6,
-        "y": 14
+        "y": 4
       },
       "id": 201,
       "options": {
@@ -198,7 +197,7 @@
         "h": 4,
         "w": 12,
         "x": 12,
-        "y": 14
+        "y": 4
       },
       "id": 202,
       "options": {
@@ -242,7 +241,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 8
       },
       "id": 203,
       "options": {
@@ -280,7 +279,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 26
+        "y": 16
       },
       "id": 205,
       "options": {
@@ -301,11 +300,11 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT period_date AS time, failed FROM reporting.rpt_financials_reconciliation_summary WHERE period_date >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '12 months') ORDER BY period_date;",
+          "rawSql": "SELECT period_date AS time, failed FROM reporting.rpt_financials_reconciliation_summary WHERE period_date >= date_trunc('month', $__timeFrom()::timestamp) ORDER BY period_date;",
           "refId": "A"
         }
       ],
-      "title": "Failed Checks Over Time (All Domains, 12M)",
+      "title": "Failed Checks Over Time (All Domains)",
       "type": "timeseries"
     },
     {
@@ -329,7 +328,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 22
       },
       "id": 204,
       "options": {
@@ -345,11 +344,11 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT period_date, domain, test_name, left_value, right_value, delta, pass, notes FROM reporting.rpt_financials_reconciliation_tests WHERE period_date >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '6 months') ORDER BY period_date DESC, domain, test_name;",
+          "rawSql": "SELECT period_date, domain, test_name, left_value, right_value, delta, pass, notes FROM reporting.rpt_financials_reconciliation_tests WHERE period_date >= date_trunc('month', $__timeFrom()::timestamp) ORDER BY period_date DESC, domain, test_name;",
           "refId": "A"
         }
       ],
-      "title": "All Tests (Last 6 Months)",
+      "title": "All Tests",
       "type": "table"
     },
     {
@@ -386,7 +385,7 @@
         "h": 4,
         "w": 12,
         "x": 0,
-        "y": 42
+        "y": 32
       },
       "id": 210,
       "options": {
@@ -430,7 +429,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 46
+        "y": 36
       },
       "id": 211,
       "options": {
@@ -523,7 +522,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 54
+        "y": 44
       },
       "id": 212,
       "options": {
@@ -552,10 +551,10 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 13,
+        "h": 4,
         "w": 24,
         "x": 0,
-        "y": 62
+        "y": 52
       },
       "id": 300,
       "options": {
@@ -563,7 +562,6 @@
         "mode": "markdown"
       },
       "title": "Fix List Section",
-      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
       "type": "text"
     },
     {
@@ -607,10 +605,10 @@
         ]
       },
       "gridPos": {
-        "h": 16,
+        "h": 8,
         "w": 24,
         "x": 0,
-        "y": 75
+        "y": 56
       },
       "id": 301,
       "options": {
@@ -639,10 +637,10 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 13,
+        "h": 4,
         "w": 24,
         "x": 0,
-        "y": 91
+        "y": 64
       },
       "id": 302,
       "options": {
@@ -650,7 +648,6 @@
         "mode": "markdown"
       },
       "title": "Blockers Section",
-      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
       "type": "text"
     },
     {
@@ -703,7 +700,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 104
+        "y": 68
       },
       "id": 303,
       "options": {
@@ -732,10 +729,10 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 13,
+        "h": 4,
         "w": 24,
         "x": 0,
-        "y": 110
+        "y": 74
       },
       "id": 304,
       "options": {
@@ -743,7 +740,6 @@
         "mode": "markdown"
       },
       "title": "Details Section",
-      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
       "type": "text"
     },
     {
@@ -766,7 +762,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 123
+        "y": 78
       },
       "id": 305,
       "options": {
