@@ -15,6 +15,7 @@ services:
   pipeline_personal_finance:
     volumes:
       - ./scripts:${DAGSTER_APP}/scripts:ro
+      - ./dagster_core/dagster.yaml:/docker/appdata/dagster/dagster_home/dagster.yaml:ro
 
   dagster_webserver:
     # Expose on 3002 to avoid conflict with any service already on 3000
