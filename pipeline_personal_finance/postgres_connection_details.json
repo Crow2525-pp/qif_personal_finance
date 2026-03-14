@@ -1,4 +1,7 @@
 {
+    "purpose": "Reference details for the remote home/production Postgres instance.",
+    "usage_note": "Do not use these settings for local development on the laptop. Local runs use the Docker Compose Postgres service via environment-configured dbt/Dagster settings (for example dagster_postgres/localhost depending on where the client is running).",
+    "environment": "remote_home_server",
     "hostname": "192.168.1.103",
     "port": 5000,
     "username": "postgres",
@@ -6,4 +9,3 @@
     "database": "personalfinance",
     "schema": "landing"
   }
-  

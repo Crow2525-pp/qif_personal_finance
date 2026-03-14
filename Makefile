@@ -1,6 +1,6 @@
 .PHONY: help setup up down logs clean restart rebuild lint lint-fix test dagster-ui grafana-ui status dagster-run dbt-deps dbt-compile dbt-build dbt-test
 
-COMPOSE = docker-compose -f docker-compose.yml -f docker-compose.local.yml
+COMPOSE = docker compose -f docker-compose.yml
 
 # Default target
 help:

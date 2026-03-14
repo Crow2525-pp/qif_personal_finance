@@ -6,7 +6,7 @@
 1. ensure that docker is installed and running (windows)
 2. copy .env.template to .env and update with your own credentials
 3. download qif files from bank and add them in pipeline_personal_finance\qif_files
-4. run docker-compose up -d and then goto localhost:3000
+4. run `docker compose up -d` and then go to `http://localhost:3002`
 5. reload the definitions and then run the asset.
 6. [TBC]
 
