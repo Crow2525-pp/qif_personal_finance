@@ -28,7 +28,7 @@ def test_create_engine(mock_env_vars):
 def test_get_connection(mock_env_vars):
     resource = SqlAlchemyClientResource()
 
-    with patch.object(resource, 'create_engine') as mock_create_engine:
+    with patch.object(SqlAlchemyClientResource, "create_engine") as mock_create_engine:
         mock_engine = MagicMock()
         mock_connection = MagicMock()
         mock_engine.connect.return_value = mock_connection
