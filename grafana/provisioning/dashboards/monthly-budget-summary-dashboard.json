@@ -97,9 +97,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n)\nSELECT\n  to_char((SELECT month_date FROM latest_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM latest_period);",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n)\nSELECT\n  to_char((SELECT month_date FROM latest_period), 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') = (SELECT month_date FROM latest_period);",
           "refId": "A"
         }
       ],
@@ -239,9 +239,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_income,\n  total_expenses,\n  net_cash_flow\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_income,\n  total_expenses,\n  net_cash_flow\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -343,9 +343,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  savings_rate_percent,\n  expense_ratio_percent\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  savings_rate_percent,\n  expense_ratio_percent\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -530,9 +530,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  total_income,\n  total_expenses,\n  rolling_3m_avg_income,\n  rolling_3m_avg_expenses\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(date_trunc('month', NOW()), 'YYYY-MM')\nORDER BY budget_year, budget_month;",
+          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  total_income,\n  total_expenses,\n  rolling_3m_avg_income,\n  rolling_3m_avg_expenses\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(date_trunc('month', $__timeTo()::timestamp), 'YYYY-MM')\nORDER BY budget_year, budget_month;",
           "refId": "A"
         }
       ],
@@ -672,9 +672,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  mortgage_expenses,\n  household_expenses,\n  food_expenses,\n  family_expenses\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  mortgage_expenses,\n  household_expenses,\n  food_expenses,\n  family_expenses\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -790,9 +790,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_transactions,\n  income_transaction_count,\n  expense_transaction_count,\n  avg_expense_amount\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_transactions,\n  income_transaction_count,\n  expense_transaction_count,\n  avg_expense_amount\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -932,9 +932,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  ytd_income,\n  ytd_expenses,\n  ytd_net_cash_flow\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  ytd_income,\n  ytd_expenses,\n  ytd_net_cash_flow\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1042,9 +1042,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  net_cash_flow\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(date_trunc('month', NOW()), 'YYYY-MM')\nORDER BY budget_year, budget_month;",
+          "rawSql": "SELECT \n  to_date(budget_year_month || '-01', 'YYYY-MM-DD') as time,\n  net_cash_flow\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(date_trunc('month', $__timeTo()::timestamp), 'YYYY-MM')\nORDER BY budget_year, budget_month;",
           "refId": "A"
         }
       ],
@@ -1217,9 +1217,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  daily_expense_target,\n  actual_daily_burn_rate,\n  mtd_expenses,\n  current_day_of_month,\n  days_remaining,\n  pace_status,\n  ROUND(pace_vs_target_ratio, 2) as pace_ratio,\n  ROUND(projected_month_end_expenses, 2) as projected_end_expenses,\n  ROUND(mtd_variance_from_target, 2) as mtd_variance\nFROM reporting.rpt_budget_cockpit_pace_tracker;\n-- time scope: NOW() (view aggregates all-time data)",
+          "rawSql": "SELECT \n  daily_expense_target,\n  actual_daily_burn_rate,\n  mtd_expenses,\n  current_day_of_month,\n  days_remaining,\n  pace_status,\n  ROUND(pace_vs_target_ratio, 2) as pace_ratio,\n  ROUND(projected_month_end_expenses, 2) as projected_end_expenses,\n  ROUND(mtd_variance_from_target, 2) as mtd_variance\nFROM reporting.rpt_budget_cockpit_pace_tracker;\n-- time scope: $__timeTo() (view aggregates all-time data)",
           "refId": "A"
         }
       ],
@@ -1325,9 +1325,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  spending_type as \"Type\",\n  ROUND(amount, 2) as \"Amount\",\n  total_transactions as \"Transactions\",\n  ROUND(avg_transaction_size, 2) as \"Avg Size\",\n  ROUND(pct_of_total_spending, 1) as \"% of Total\",\n  ROUND(rolling_3m_avg, 2) as \"3m Avg\",\n  ROUND(variance_from_historical_avg, 2) as \"Variance $\",\n  variance_assessment as \"Assessment\"\nFROM reporting.rpt_budget_cockpit_fixed_vs_discretionary\nWHERE budget_year_month = TO_CHAR((date_trunc('month', NOW()) - INTERVAL '1 month'), 'YYYY-MM')\nORDER BY \n  CASE WHEN spending_type = 'Fixed' THEN 0 ELSE 1 END,\n  amount DESC;",
+          "rawSql": "WITH latest_month AS (\n  SELECT MAX(budget_year_month) AS budget_year_month\n  FROM reporting.rpt_budget_cockpit_fixed_vs_discretionary\n  WHERE budget_year_month < TO_CHAR(date_trunc('month', $__timeTo()::timestamp), 'YYYY-MM')\n),\nbase AS (\n  SELECT\n    spending_type AS \"Type\",\n    ROUND(amount, 2) AS \"Amount\",\n    total_transactions AS \"Transactions\",\n    ROUND(avg_transaction_size, 2) AS \"Avg Size\",\n    ROUND(pct_of_total_spending, 1) AS \"% of Total\",\n    ROUND(rolling_3m_avg, 2) AS \"3m Avg\",\n    ROUND(variance_from_historical_avg, 2) AS \"Variance $\",\n    variance_assessment AS \"Assessment\"\n  FROM reporting.rpt_budget_cockpit_fixed_vs_discretionary\n  WHERE budget_year_month = (SELECT budget_year_month FROM latest_month)\n  ORDER BY CASE WHEN spending_type = 'Fixed' THEN 0 ELSE 1 END, amount DESC\n)\nSELECT * FROM base\nUNION ALL\nSELECT\n  'No spending mix data' AS \"Type\",\n  0::numeric AS \"Amount\",\n  0::int AS \"Transactions\",\n  0::numeric AS \"Avg Size\",\n  0::numeric AS \"% of Total\",\n  0::numeric AS \"3m Avg\",\n  0::numeric AS \"Variance $\",\n  'N/A' AS \"Assessment\"\nWHERE NOT EXISTS (SELECT 1 FROM base);\n",
           "refId": "A"
         }
       ],
@@ -1479,9 +1479,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH data AS (\n  SELECT\n    level_1_category AS \"Category\",\n    months_of_consecutive_overspend AS \"Consecutive Months\",\n    ROUND(suggested_budget_amount, 0) AS \"Suggested Budget\",\n    ROUND(total_overspend, 0) AS \"Total Overspend\",\n    ROUND(reduction_pct, 1) AS \"Reduction %\",\n    adjustment_rationale AS \"Rationale\",\n    priority\n  FROM reporting.rpt_budget_cockpit_adjustment_suggestions\n  ORDER BY priority ASC, total_overspend DESC\n  LIMIT 10\n)\nSELECT * FROM data\nUNION ALL\nSELECT 'No adjustments needed', NULL, NULL, NULL, NULL, 'All categories within budget', NULL\nWHERE NOT EXISTS (SELECT 1 FROM data)\n-- time scope: NOW() (view aggregates all-time data)",
+          "rawSql": "WITH data AS (\n  SELECT\n    level_1_category AS \"Category\",\n    months_of_consecutive_overspend AS \"Consecutive Months\",\n    ROUND(suggested_budget_amount, 0) AS \"Suggested Budget\",\n    ROUND(total_overspend, 0) AS \"Total Overspend\",\n    ROUND(reduction_pct, 1) AS \"Reduction %\",\n    adjustment_rationale AS \"Rationale\",\n    priority\n  FROM reporting.rpt_budget_cockpit_adjustment_suggestions\n  ORDER BY priority ASC, total_overspend DESC\n  LIMIT 10\n)\nSELECT * FROM data\nUNION ALL\nSELECT 'No adjustments needed', NULL, NULL, NULL, NULL, 'All categories within budget', NULL\nWHERE NOT EXISTS (SELECT 1 FROM data)\n-- time scope: $__timeTo() (view aggregates all-time data)",
           "refId": "A"
         }
       ],
@@ -1582,9 +1582,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  budget_year_month as \"Month\",\n  total_income as \"Income\",\n  total_expenses as \"Expenses\",\n  net_cash_flow as \"Net Cash Flow\",\n  ROUND(savings_rate_percent, 1) as \"Savings Rate %\",\n  ROUND(expense_ratio_percent, 1) as \"Expense Ratio %\",\n  total_transactions as \"Transactions\"\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 12;",
+          "rawSql": "SELECT \n  budget_year_month as \"Month\",\n  total_income as \"Income\",\n  total_expenses as \"Expenses\",\n  net_cash_flow as \"Net Cash Flow\",\n  ROUND(savings_rate_percent, 1) as \"Savings Rate %\",\n  ROUND(expense_ratio_percent, 1) as \"Expense Ratio %\",\n  total_transactions as \"Transactions\"\nFROM reporting.rpt_monthly_budget_summary \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 12;",
           "refId": "A"
         }
       ],
@@ -1724,9 +1724,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  total_income,\n  target_income,\n  ROUND(income_variance_delta, 2) as income_variance_delta,\n  income_variance_pct,\n  total_expenses,\n  target_expenses,\n  ROUND(expense_variance_delta, 2) as expense_variance_delta,\n  expense_variance_pct,\n  expense_status\nFROM reporting.rpt_budget_variance_summary \nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
+          "rawSql": "SELECT \n  total_income,\n  target_income,\n  ROUND(income_variance_delta, 2) as income_variance_delta,\n  income_variance_pct,\n  total_expenses,\n  target_expenses,\n  ROUND(expense_variance_delta, 2) as expense_variance_delta,\n  expense_variance_pct,\n  expense_status\nFROM reporting.rpt_budget_variance_summary \nWHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY budget_year DESC, budget_month DESC \nLIMIT 1;",
           "refId": "A"
         }
       ],
@@ -1838,9 +1838,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  category_name,\n  category_expenses,\n  target_expenses,\n  variance_delta,\n  variance_pct,\n  budget_status,\n  transaction_count\nFROM reporting.rpt_category_budget_heatmap \nWHERE budget_year_month = (\n  SELECT MAX(budget_year_month) FROM reporting.rpt_category_budget_heatmap\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') < date_trunc('month', NOW())\n)\nORDER BY spending_rank ASC;",
+          "rawSql": "SELECT \n  category_name,\n  category_expenses,\n  target_expenses,\n  variance_delta,\n  variance_pct,\n  budget_status,\n  transaction_count\nFROM reporting.rpt_category_budget_heatmap \nWHERE budget_year_month = (\n  SELECT MAX(budget_year_month) FROM reporting.rpt_category_budget_heatmap\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') < date_trunc('month', $__timeTo()::timestamp)\n)\nORDER BY spending_rank ASC;",
           "refId": "A"
         }
       ],
@@ -1954,9 +1954,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  adjustment_priority,\n  suggestion_text,\n  recommended_action,\n  current_savings_rate_pct,\n  potential_monthly_savings\nFROM reporting.rpt_budget_adjustment_suggestions \nORDER BY \n  CASE adjustment_priority WHEN 'Critical' THEN 1 WHEN 'High' THEN 2 ELSE 3 END,\n  potential_monthly_savings DESC\nLIMIT 5;\n-- time scope: NOW() (view aggregates all-time data)",
+          "rawSql": "SELECT \n  adjustment_priority,\n  suggestion_text,\n  recommended_action,\n  current_savings_rate_pct,\n  potential_monthly_savings\nFROM reporting.rpt_budget_adjustment_suggestions \nORDER BY \n  CASE adjustment_priority WHEN 'Critical' THEN 1 WHEN 'High' THEN 2 ELSE 3 END,\n  potential_monthly_savings DESC\nLIMIT 5;\n-- time scope: $__timeTo() (view aggregates all-time data)",
           "refId": "A"
         }
       ],
@@ -2082,9 +2082,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest_two_months AS (\n  SELECT budget_year_month, ROW_NUMBER() OVER (ORDER BY budget_year_month DESC) as rn\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month < TO_CHAR(date_trunc('month', NOW()), 'YYYY-MM')\n  GROUP BY budget_year_month\n  ORDER BY budget_year_month DESC\n  LIMIT 2\n),\ncurrent_month_data AS (\n  SELECT level_1_category, SUM(monthly_spending) as amount\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month = (SELECT budget_year_month FROM latest_two_months WHERE rn = 1)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n  GROUP BY level_1_category\n),\nprior_month_data AS (\n  SELECT level_1_category, SUM(monthly_spending) as amount\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month = (SELECT budget_year_month FROM latest_two_months WHERE rn = 2)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n  GROUP BY level_1_category\n)\nSELECT\n  c.level_1_category as category,\n  c.amount as current_month,\n  COALESCE(p.amount, 0) as prior_month,\n  (c.amount - COALESCE(p.amount, 0)) as variance_dollars,\n  CASE \n    WHEN COALESCE(p.amount, 0) = 0 THEN 100.0\n    ELSE ROUND((c.amount - COALESCE(p.amount, 0)) / COALESCE(p.amount, 1) * 100, 1)\n  END as variance_percent\nFROM current_month_data c\nLEFT JOIN prior_month_data p ON c.level_1_category = p.level_1_category\nWHERE ABS(c.amount - COALESCE(p.amount, 0)) >= 100\n  AND ABS(CASE WHEN COALESCE(p.amount, 0) = 0 THEN 100.0 ELSE (c.amount - COALESCE(p.amount, 0)) / COALESCE(p.amount, 1) * 100 END) >= 10\nORDER BY ABS(c.amount - COALESCE(p.amount, 0)) DESC\nLIMIT 10;",
+          "rawSql": "WITH latest_two_months AS (\n  SELECT budget_year_month, ROW_NUMBER() OVER (ORDER BY budget_year_month DESC) AS rn\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month < TO_CHAR(date_trunc('month', $__timeTo()::timestamp), 'YYYY-MM')\n  GROUP BY budget_year_month\n  ORDER BY budget_year_month DESC\n  LIMIT 2\n),\ncurrent_month_data AS (\n  SELECT level_1_category, SUM(monthly_spending) AS amount\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month = (SELECT budget_year_month FROM latest_two_months WHERE rn = 1)\n    AND level_1_category NOT IN ('Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n  GROUP BY level_1_category\n),\nprior_month_data AS (\n  SELECT level_1_category, SUM(monthly_spending) AS amount\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month = (SELECT budget_year_month FROM latest_two_months WHERE rn = 2)\n    AND level_1_category NOT IN ('Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n  GROUP BY level_1_category\n),\nbase AS (\n  SELECT\n    c.level_1_category AS category,\n    c.amount AS current_month,\n    COALESCE(p.amount, 0) AS prior_month,\n    (c.amount - COALESCE(p.amount, 0)) AS variance_dollars,\n    CASE\n      WHEN COALESCE(p.amount, 0) = 0 THEN 100.0\n      ELSE ROUND((c.amount - COALESCE(p.amount, 0)) / NULLIF(p.amount, 0) * 100, 1)\n    END AS variance_percent\n  FROM current_month_data c\n  LEFT JOIN prior_month_data p ON c.level_1_category = p.level_1_category\n  WHERE ABS(c.amount - COALESCE(p.amount, 0)) >= 100\n    AND ABS(\n      CASE\n        WHEN COALESCE(p.amount, 0) = 0 THEN 100.0\n        ELSE (c.amount - COALESCE(p.amount, 0)) / NULLIF(p.amount, 0) * 100\n      END\n    ) >= 10\n  ORDER BY ABS(c.amount - COALESCE(p.amount, 0)) DESC\n  LIMIT 10\n)\nSELECT * FROM base\nUNION ALL\nSELECT\n  'No variance categories' AS category,\n  0::numeric AS current_month,\n  0::numeric AS prior_month,\n  0::numeric AS variance_dollars,\n  0::numeric AS variance_percent\nWHERE NOT EXISTS (SELECT 1 FROM base);\n",
           "refId": "A"
         }
       ],
@@ -2186,9 +2186,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest_two_months AS (\n  SELECT budget_year_month, ROW_NUMBER() OVER (ORDER BY budget_year_month DESC) as rn\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month < TO_CHAR(date_trunc('month', NOW()), 'YYYY-MM')\n  GROUP BY budget_year_month\n  ORDER BY budget_year_month DESC\n  LIMIT 2\n),\nvariance_categories AS (\n  SELECT level_1_category,\n    ABS(SUM(CASE WHEN budget_year_month = (SELECT budget_year_month FROM latest_two_months WHERE rn = 1)\n      THEN monthly_spending ELSE -COALESCE(monthly_spending, 0) END)) as variance\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month IN (SELECT budget_year_month FROM latest_two_months)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n  GROUP BY level_1_category\n  ORDER BY variance DESC\n  LIMIT 1\n)\nSELECT\n  ft.transaction_date::date AS transaction_date,\n  COALESCE(NULLIF(TRIM(ft.transaction_memo), ''), NULLIF(TRIM(ft.transaction_description), ''), 'Unknown') AS merchant,\n  ft.transaction_amount_abs AS amount,\n  dc.level_1_category AS category\nFROM reporting.fct_transactions ft\nLEFT JOIN reporting.dim_categories dc ON ft.category_key = dc.category_key\nWHERE dc.level_1_category = (SELECT level_1_category FROM variance_categories)\n  AND DATE_TRUNC('month', ft.transaction_date) = (\n    SELECT TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') FROM latest_two_months WHERE rn = 1\n  )\n  AND ft.transaction_amount < 0\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\nORDER BY ft.transaction_amount_abs DESC\nLIMIT 5",
+          "rawSql": "WITH latest_two_months AS (\n  SELECT budget_year_month, ROW_NUMBER() OVER (ORDER BY budget_year_month DESC) AS rn\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month < TO_CHAR(date_trunc('month', $__timeTo()::timestamp), 'YYYY-MM')\n  GROUP BY budget_year_month\n  ORDER BY budget_year_month DESC\n  LIMIT 2\n),\nvariance_categories AS (\n  SELECT\n    level_1_category,\n    ABS(\n      SUM(\n        CASE\n          WHEN budget_year_month = (SELECT budget_year_month FROM latest_two_months WHERE rn = 1)\n            THEN monthly_spending\n          ELSE -COALESCE(monthly_spending, 0)\n        END\n      )\n    ) AS variance\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month IN (SELECT budget_year_month FROM latest_two_months)\n    AND level_1_category NOT IN ('Bank Transaction', 'Salary')\n  GROUP BY level_1_category\n  ORDER BY variance DESC\n  LIMIT 1\n),\nbase AS (\n  SELECT\n    ft.transaction_date::date AS transaction_date,\n    COALESCE(NULLIF(TRIM(ft.transaction_memo), ''), NULLIF(TRIM(ft.transaction_description), ''), 'Unknown') AS merchant,\n    ft.transaction_amount_abs AS amount,\n    COALESCE(dc.level_1_category, 'Uncategorized') AS category\n  FROM reporting.fct_transactions ft\n  LEFT JOIN reporting.dim_categories dc ON ft.category_key = dc.category_key\n  WHERE COALESCE(dc.level_1_category, 'Uncategorized') = (SELECT level_1_category FROM variance_categories)\n    AND DATE_TRUNC('month', ft.transaction_date) = (\n      SELECT TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') FROM latest_two_months WHERE rn = 1\n    )\n    AND ft.transaction_amount < 0\n    AND NOT COALESCE(ft.is_internal_transfer, FALSE)\n  ORDER BY ft.transaction_amount_abs DESC\n  LIMIT 5\n)\nSELECT * FROM base\nUNION ALL\nSELECT\n  date_trunc('month', $__timeTo()::timestamp)::date AS transaction_date,\n  'No transactions for top variance category' AS merchant,\n  0::numeric AS amount,\n  'N/A' AS category\nWHERE NOT EXISTS (SELECT 1 FROM base);\n",
           "refId": "A"
         }
       ],
@@ -2314,9 +2314,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest_month AS (\n  SELECT MAX(budget_year_month) AS budget_year_month\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month < TO_CHAR(date_trunc('month', NOW()), 'YYYY-MM')\n),\nprior_year_month AS (\n  SELECT TO_CHAR(TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') - INTERVAL '1 year', 'YYYY-MM') AS budget_year_month\n  FROM latest_month\n),\ncurrent_year_month AS (\n  SELECT level_1_category, SUM(monthly_spending) as amount\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month = (SELECT budget_year_month FROM latest_month)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n  GROUP BY level_1_category\n),\nprior_year_month_data AS (\n  SELECT level_1_category, SUM(monthly_spending) as amount\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month = (SELECT budget_year_month FROM prior_year_month)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n  GROUP BY level_1_category\n)\nSELECT\n  c.level_1_category as category,\n  c.amount as current_year,\n  COALESCE(p.amount, 0) as prior_year,\n  (c.amount - COALESCE(p.amount, 0)) as variance_dollars,\n  CASE \n    WHEN COALESCE(p.amount, 0) = 0 THEN 100.0\n    ELSE ROUND((c.amount - COALESCE(p.amount, 0)) / COALESCE(p.amount, 1) * 100, 1)\n  END as variance_percent\nFROM current_year_month c\nLEFT JOIN prior_year_month_data p ON c.level_1_category = p.level_1_category\nWHERE ABS(c.amount - COALESCE(p.amount, 0)) >= 100\n  AND ABS(CASE WHEN COALESCE(p.amount, 0) = 0 THEN 100.0 ELSE (c.amount - COALESCE(p.amount, 0)) / COALESCE(p.amount, 1) * 100 END) >= 10\nORDER BY ABS(c.amount - COALESCE(p.amount, 0)) DESC\nLIMIT 10;",
+          "rawSql": "WITH latest_month AS (\n  SELECT MAX(budget_year_month) AS budget_year_month\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month < TO_CHAR(date_trunc('month', $__timeTo()::timestamp), 'YYYY-MM')\n),\nprior_year_month AS (\n  SELECT TO_CHAR(TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') - INTERVAL '1 year', 'YYYY-MM') AS budget_year_month\n  FROM latest_month\n),\ncurrent_year_month AS (\n  SELECT level_1_category, SUM(monthly_spending) AS amount\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month = (SELECT budget_year_month FROM latest_month)\n    AND level_1_category NOT IN ('Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n  GROUP BY level_1_category\n),\nprior_year_month_data AS (\n  SELECT level_1_category, SUM(monthly_spending) AS amount\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month = (SELECT budget_year_month FROM prior_year_month)\n    AND level_1_category NOT IN ('Bank Transaction', 'Salary')\n    AND monthly_spending > 0\n  GROUP BY level_1_category\n),\nbase AS (\n  SELECT\n    c.level_1_category AS category,\n    c.amount AS current_year,\n    COALESCE(p.amount, 0) AS prior_year,\n    (c.amount - COALESCE(p.amount, 0)) AS variance_dollars,\n    CASE\n      WHEN COALESCE(p.amount, 0) = 0 THEN 100.0\n      ELSE ROUND((c.amount - COALESCE(p.amount, 0)) / NULLIF(p.amount, 0) * 100, 1)\n    END AS variance_percent\n  FROM current_year_month c\n  LEFT JOIN prior_year_month_data p ON c.level_1_category = p.level_1_category\n  WHERE ABS(c.amount - COALESCE(p.amount, 0)) >= 100\n    AND ABS(\n      CASE\n        WHEN COALESCE(p.amount, 0) = 0 THEN 100.0\n        ELSE (c.amount - COALESCE(p.amount, 0)) / NULLIF(p.amount, 0) * 100\n      END\n    ) >= 10\n  ORDER BY ABS(c.amount - COALESCE(p.amount, 0)) DESC\n  LIMIT 10\n)\nSELECT * FROM base\nUNION ALL\nSELECT\n  'No YoY variance categories' AS category,\n  0::numeric AS current_year,\n  0::numeric AS prior_year,\n  0::numeric AS variance_dollars,\n  0::numeric AS variance_percent\nWHERE NOT EXISTS (SELECT 1 FROM base);\n",
           "refId": "A"
         }
       ],
@@ -2418,9 +2418,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest_month AS (\n  SELECT MAX(budget_year_month) AS budget_year_month\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month < TO_CHAR(date_trunc('month', NOW()), 'YYYY-MM')\n),\nprior_year_month AS (\n  SELECT TO_CHAR(TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') - INTERVAL '1 year', 'YYYY-MM') AS budget_year_month\n  FROM latest_month\n),\ncomparison_months AS (\n  SELECT budget_year_month FROM latest_month\n  UNION ALL\n  SELECT budget_year_month FROM prior_year_month\n),\nvariance_categories AS (\n  SELECT level_1_category,\n    ABS(SUM(CASE WHEN budget_year_month = (SELECT budget_year_month FROM latest_month)\n      THEN monthly_spending ELSE -COALESCE(monthly_spending, 0) END)) as variance\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month IN (SELECT budget_year_month FROM comparison_months)\n    AND level_1_category NOT IN ('Uncategorized', 'Bank Transaction', 'Salary')\n  GROUP BY level_1_category\n  ORDER BY variance DESC\n  LIMIT 1\n)\nSELECT\n  ft.transaction_date::date AS transaction_date,\n  COALESCE(NULLIF(TRIM(ft.transaction_memo), ''), NULLIF(TRIM(ft.transaction_description), ''), 'Unknown') AS merchant,\n  ft.transaction_amount_abs AS amount,\n  dc.level_1_category AS category\nFROM reporting.fct_transactions ft\nLEFT JOIN reporting.dim_categories dc ON ft.category_key = dc.category_key\nWHERE dc.level_1_category = (SELECT level_1_category FROM variance_categories)\n  AND DATE_TRUNC('month', ft.transaction_date) = (\n    SELECT TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') FROM latest_month\n  )\n  AND ft.transaction_amount < 0\n  AND NOT COALESCE(ft.is_internal_transfer, FALSE)\nORDER BY ft.transaction_amount_abs DESC\nLIMIT 5",
+          "rawSql": "WITH latest_month AS (\n  SELECT MAX(budget_year_month) AS budget_year_month\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month < TO_CHAR(date_trunc('month', $__timeTo()::timestamp), 'YYYY-MM')\n),\nprior_year_month AS (\n  SELECT TO_CHAR(TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') - INTERVAL '1 year', 'YYYY-MM') AS budget_year_month\n  FROM latest_month\n),\ncomparison_months AS (\n  SELECT budget_year_month FROM latest_month\n  UNION ALL\n  SELECT budget_year_month FROM prior_year_month\n),\nvariance_categories AS (\n  SELECT\n    level_1_category,\n    ABS(\n      SUM(\n        CASE\n          WHEN budget_year_month = (SELECT budget_year_month FROM latest_month)\n            THEN monthly_spending\n          ELSE -COALESCE(monthly_spending, 0)\n        END\n      )\n    ) AS variance\n  FROM reporting.rpt_category_spending_trends\n  WHERE budget_year_month IN (SELECT budget_year_month FROM comparison_months)\n    AND level_1_category NOT IN ('Bank Transaction', 'Salary')\n  GROUP BY level_1_category\n  ORDER BY variance DESC\n  LIMIT 1\n),\nbase AS (\n  SELECT\n    ft.transaction_date::date AS transaction_date,\n    COALESCE(NULLIF(TRIM(ft.transaction_memo), ''), NULLIF(TRIM(ft.transaction_description), ''), 'Unknown') AS merchant,\n    ft.transaction_amount_abs AS amount,\n    COALESCE(dc.level_1_category, 'Uncategorized') AS category\n  FROM reporting.fct_transactions ft\n  LEFT JOIN reporting.dim_categories dc ON ft.category_key = dc.category_key\n  WHERE COALESCE(dc.level_1_category, 'Uncategorized') = (SELECT level_1_category FROM variance_categories)\n    AND DATE_TRUNC('month', ft.transaction_date) = (\n      SELECT TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD') FROM latest_month\n    )\n    AND ft.transaction_amount < 0\n    AND NOT COALESCE(ft.is_internal_transfer, FALSE)\n  ORDER BY ft.transaction_amount_abs DESC\n  LIMIT 5\n)\nSELECT * FROM base\nUNION ALL\nSELECT\n  date_trunc('month', $__timeTo()::timestamp)::date AS transaction_date,\n  'No transactions for top YoY variance category' AS merchant,\n  0::numeric AS amount,\n  'N/A' AS category\nWHERE NOT EXISTS (SELECT 1 FROM base);\n",
           "refId": "A"
         }
       ],
@@ -2475,4 +2475,3 @@
   "version": 1,
   "weekStart": ""
 }
-
