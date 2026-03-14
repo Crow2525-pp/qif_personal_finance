@@ -141,7 +141,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    level_1_category as \"Category\",\n    monthly_spending as \"Current Month\",\n    COALESCE(prev_month_spending, 0) as \"Previous Month\",\n    CASE \n        WHEN prev_month_spending > 0 THEN \n            mom_spending_change_percent\n        ELSE NULL\n    END as \"Change %\"\nFROM reporting.rpt_category_spending_trends\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_category_spending_trends WHERE budget_year_month >= TO_CHAR(date_trunc('month', $__timeFrom()::timestamp), 'YYYY-MM') AND budget_year_month < TO_CHAR(date_trunc('month', $__timeTo()::timestamp), 'YYYY-MM'))\nAND monthly_spending > 0\nORDER BY monthly_spending DESC\nLIMIT 10;",
+          "rawSql": "SELECT \n    level_1_category as \"Category\",\n    monthly_spending as \"Current Month\",\n    COALESCE(prev_month_spending, 0) as \"Previous Month\",\n    CASE \n        WHEN prev_month_spending > 0 THEN \n            mom_spending_change_percent\n        ELSE NULL\n    END as \"Change %\"\nFROM reporting.rpt_category_spending_trends\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_category_spending_trends WHERE budget_year_month >= TO_CHAR(date_trunc('month', $__timeFrom()::timestamp), 'YYYY-MM') AND budget_year_month <= TO_CHAR(date_trunc('month', $__timeTo()::timestamp), 'YYYY-MM'))\nAND monthly_spending > 0\nORDER BY monthly_spending DESC\nLIMIT 10;",
           "refId": "A"
         }
       ],
