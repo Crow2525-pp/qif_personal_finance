@@ -149,7 +149,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "3-month average cash flow efficiency score (1-100), smoothing month-to-month volatility",
+      "description": "3-month average cash flow efficiency score (1-100), smoothing month-to-month volatility time_control:latest_snapshot",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -271,7 +271,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "3-month average status rank (1 worst .. 5 best)",
+      "description": "3-month average status rank (1 worst .. 5 best) time_control:latest_snapshot",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -453,7 +453,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH last3 AS (\n  SELECT CASE \n           WHEN cash_flow_trend = 'Declining' THEN 1\n           WHEN cash_flow_trend = 'Stable' THEN 2\n           WHEN cash_flow_trend = 'Improving' THEN 3\n           ELSE 2\n         END as trend_rank\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\n  ORDER BY transaction_year DESC, transaction_month DESC\n  LIMIT 3\n)\nSELECT ROUND(AVG(trend_rank)) AS trend_rank FROM last3;",
+          "rawSql": "WITH last3 AS (\n  SELECT CASE \n           WHEN cash_flow_trend = 'Declining' THEN 1\n           WHEN cash_flow_trend = 'Stable' THEN 2\n           WHEN cash_flow_trend = 'Improving' THEN 3\n           ELSE 2\n         END as trend_rank\n  FROM reporting.rpt_cash_flow_analysis\n  WHERE budget_year_month >= TO_CHAR(date_trunc('month', $__timeFrom()::timestamp), 'YYYY-MM')\n    AND budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\n  ORDER BY transaction_year DESC, transaction_month DESC\n  LIMIT 3\n)\nSELECT ROUND(AVG(trend_rank)) AS trend_rank FROM last3;",
           "refId": "A"
         }
       ],
@@ -1845,7 +1845,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "**CURRENT MONTH OUTFLOW BREAKDOWN & RISK ANALYSIS**\n\n**What This Shows:** Complete breakdown of spending by category for the most recent complete month.\n\n**Column Definitions:**\n• **Current Month ($):** Total amount spent in this category THIS MONTH (sum of all transactions)\n• **# Transactions:** Number of individual transactions in this category this month\n• **Largest Transaction ($):** Single biggest transaction amount within this category this month\n• **% of Total:** This category's share of total monthly outflows\n• **% Change vs Historical:** How much this month's total differs from the 6-month average (>100% = significantly above normal)\n• **Risk Flag:** Automated assessment based on spending patterns\n\n**Risk Flag Meanings:**\n🔴 **High Uncategorized Spending:** >$500 in uncategorized transactions (needs review)\n🔴 **Significantly Above Historical Average:** >200% of normal spending for this category\n🟠 **Contains Large Transaction:** Includes transaction >$1,000\n🟢 **Normal:** Spending within expected ranges\n\n**Example:** If 'Food & Drink' shows $1,065 with 29 transactions, that's $1,065 TOTAL spent across 29 separate purchases this month.",
+      "description": "**CURRENT MONTH OUTFLOW BREAKDOWN & RISK ANALYSIS**\n\n**What This Shows:** Complete breakdown of spending by category for the most recent complete month.\n\n**Column Definitions:**\n• **Current Month ($):** Total amount spent in this category THIS MONTH (sum of all transactions)\n• **# Transactions:** Number of individual transactions in this category this month\n• **Largest Transaction ($):** Single biggest transaction amount within this category this month\n• **% of Total:** This category's share of total monthly outflows\n• **% Change vs Historical:** How much this month's total differs from the 6-month average (>100% = significantly above normal)\n• **Risk Flag:** Automated assessment based on spending patterns\n\n**Risk Flag Meanings:**\n🔴 **High Uncategorized Spending:** >$500 in uncategorized transactions (needs review)\n🔴 **Significantly Above Historical Average:** >200% of normal spending for this category\n🟠 **Contains Large Transaction:** Includes transaction >$1,000\n🟢 **Normal:** Spending within expected ranges\n\n**Example:** If 'Food & Drink' shows $1,065 with 29 transactions, that's $1,065 TOTAL spent across 29 separate purchases this month. time_control:latest_snapshot",
       "fieldConfig": {
         "defaults": {
           "color": {

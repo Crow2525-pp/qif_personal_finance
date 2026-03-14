@@ -403,7 +403,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    level_1_category as \"Top Categories\",\n    monthly_spending as \"Amount\"\nFROM reporting.rpt_category_spending_trends\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_category_spending_trends WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'))\nAND monthly_spending > 0\nORDER BY monthly_spending DESC\nLIMIT 5;",
+          "rawSql": "SELECT \n    level_1_category as \"Top Categories\",\n    monthly_spending as \"Amount\"\nFROM reporting.rpt_category_spending_trends\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_category_spending_trends WHERE budget_year_month >= TO_CHAR(date_trunc('month', $__timeFrom()::timestamp), 'YYYY-MM') AND budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'))\nAND monthly_spending > 0\nORDER BY monthly_spending DESC\nLIMIT 5;",
           "refId": "A"
         }
       ],
