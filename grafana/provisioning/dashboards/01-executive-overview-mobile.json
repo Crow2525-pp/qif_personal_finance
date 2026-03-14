@@ -96,9 +96,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    ROUND(overall_financial_health_score, 0) as \"Financial Health\",\n    ROUND(GREATEST(0, 100 - expense_to_income_ratio_pct), 0) as \"Expense Control\", \n    ROUND(savings_health_score, 0) as \"Savings Efficiency\",\n    ROUND(cash_flow_score, 0) as \"Cash Flow Score\"\nFROM reporting.rpt_executive_dashboard\nWHERE dashboard_month <= TO_CHAR(date_trunc('month', NOW()), 'YYYY-MM')\nORDER BY dashboard_month DESC\nLIMIT 1;",
+          "rawSql": "WITH latest AS (\n  SELECT *\n  FROM reporting.rpt_executive_dashboard\n  WHERE dashboard_month <= TO_CHAR(date_trunc('month', $__timeTo()::timestamp), 'YYYY-MM')\n  ORDER BY dashboard_month DESC\n  LIMIT 1\n)\nSELECT\n  ROUND(overall_financial_health_score, 0) AS \"Financial Health\",\n  ROUND(GREATEST(0, 100 - expense_to_income_ratio_pct), 0) AS \"Expense Control\",\n  ROUND(savings_health_score, 0) AS \"Savings Efficiency\",\n  ROUND(cash_flow_score, 0) AS \"Cash Flow Score\"\nFROM latest\nUNION ALL\nSELECT 0::numeric, 0::numeric, 0::numeric, 0::numeric\nWHERE NOT EXISTS (SELECT 1 FROM latest);\n",
           "refId": "A"
         }
       ],
@@ -176,9 +176,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    'Net Flow' as \"Metric\",\n    monthly_net_cash_flow as \"Value\"\nFROM reporting.rpt_executive_dashboard\nWHERE dashboard_month = (SELECT MAX(dashboard_month) FROM reporting.rpt_executive_dashboard)\nUNION ALL\nSELECT \n    'Income',\n    monthly_income\nFROM reporting.rpt_executive_dashboard\nWHERE dashboard_month = (SELECT MAX(dashboard_month) FROM reporting.rpt_executive_dashboard)\nUNION ALL\nSELECT \n    'Expenses',\n    -monthly_expenses\nFROM reporting.rpt_executive_dashboard\nWHERE dashboard_month = (SELECT MAX(dashboard_month) FROM reporting.rpt_executive_dashboard)\nUNION ALL\nSELECT\n    'Savings Rate',\n    monthly_savings_rate_percent\nFROM reporting.rpt_executive_dashboard\nWHERE dashboard_month = (SELECT MAX(dashboard_month) FROM reporting.rpt_executive_dashboard)",
+          "rawSql": "WITH latest AS (\n  SELECT *\n  FROM reporting.rpt_executive_dashboard\n  WHERE dashboard_month <= TO_CHAR(date_trunc('month', $__timeTo()::timestamp), 'YYYY-MM')\n  ORDER BY dashboard_month DESC\n  LIMIT 1\n),\nbase AS (\n  SELECT 'Net Flow' AS \"Metric\", monthly_net_cash_flow AS \"Value\" FROM latest\n  UNION ALL\n  SELECT 'Income', monthly_income FROM latest\n  UNION ALL\n  SELECT 'Expenses', -monthly_expenses FROM latest\n  UNION ALL\n  SELECT 'Savings Rate', monthly_savings_rate_percent FROM latest\n)\nSELECT * FROM base\nUNION ALL\nSELECT 'No executive data' AS \"Metric\", 0::numeric AS \"Value\"\nWHERE NOT EXISTS (SELECT 1 FROM base);\n",
           "refId": "A"
         }
       ],
@@ -264,11 +264,11 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
-          "format": 0,
+          "format": "time_series",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    total_income as \"Income\",\n    total_expenses as \"Expenses\",\n    net_cash_flow as \"Net Cash Flow\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month >= TO_CHAR(CURRENT_DATE - INTERVAL '12 months', 'YYYY-MM')\n  AND budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year_month;",
+          "rawSql": "SELECT \n    TO_TIMESTAMP(budget_year_month || '-01', 'YYYY-MM-DD')::date as time,\n    total_income as \"Income\",\n    total_expenses as \"Expenses\",\n    net_cash_flow as \"Net Cash Flow\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month >= TO_CHAR($__timeTo()::date - INTERVAL '12 months', 'YYYY-MM')\n  AND budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM')\nORDER BY budget_year_month;",
           "refId": "A"
         }
       ],
@@ -333,9 +333,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    account_type as \"Account Type\",\n    SUM(end_of_month_balance) as \"Balance\"\nFROM reporting.rpt_account_performance\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_account_performance WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM'))\nGROUP BY account_type\nORDER BY SUM(end_of_month_balance) DESC;",
+          "rawSql": "SELECT \n    account_type as \"Account Type\",\n    SUM(end_of_month_balance) as \"Balance\"\nFROM reporting.rpt_account_performance\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_account_performance WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'))\nGROUP BY account_type\nORDER BY SUM(end_of_month_balance) DESC;",
           "refId": "A"
         }
       ],
@@ -400,9 +400,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n    level_1_category as \"Top Categories\",\n    monthly_spending as \"Amount\"\nFROM reporting.rpt_category_spending_trends\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_category_spending_trends WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM'))\nAND monthly_spending > 0\nORDER BY monthly_spending DESC\nLIMIT 5;",
+          "rawSql": "SELECT \n    level_1_category as \"Top Categories\",\n    monthly_spending as \"Amount\"\nFROM reporting.rpt_category_spending_trends\nWHERE budget_year_month = (SELECT MAX(budget_year_month) FROM reporting.rpt_category_spending_trends WHERE budget_year_month < TO_CHAR($__timeTo()::date, 'YYYY-MM'))\nAND monthly_spending > 0\nORDER BY monthly_spending DESC\nLIMIT 5;",
           "refId": "A"
         }
       ],
@@ -484,9 +484,9 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT failed FROM reporting.rpt_financials_reconciliation_summary WHERE period_date <= date_trunc('month', NOW())\nORDER BY period_date DESC LIMIT 1;",
+          "rawSql": "SELECT failed FROM reporting.rpt_financials_reconciliation_summary WHERE period_date <= date_trunc('month', $__timeTo()::timestamp)\nORDER BY period_date DESC LIMIT 1;",
           "refId": "A"
         }
       ],
@@ -565,9 +565,9 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT status FROM reporting.rpt_financials_reconciliation_summary WHERE period_date <= date_trunc('month', NOW())\nORDER BY period_date DESC LIMIT 1;",
+          "rawSql": "SELECT status FROM reporting.rpt_financials_reconciliation_summary WHERE period_date <= date_trunc('month', $__timeTo()::timestamp)\nORDER BY period_date DESC LIMIT 1;",
           "refId": "A"
         }
       ],
@@ -662,9 +662,9 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest AS (SELECT MAX(period_date) AS p FROM reporting.rpt_financials_reconciliation_tests) SELECT domain, COUNT(*) FILTER (WHERE pass) AS passed, COUNT(*) FILTER (WHERE NOT pass) AS failed, COUNT(*) AS total FROM reporting.rpt_financials_reconciliation_tests WHERE period_date = (SELECT p FROM latest) GROUP BY domain\nORDER BY domain;",
+          "rawSql": "WITH latest AS (\n  SELECT MAX(period_date) AS p\n  FROM reporting.rpt_financials_reconciliation_tests\n  WHERE period_date <= date_trunc('month', $__timeTo()::timestamp)\n),\nbase AS (\n  SELECT\n    domain,\n    COUNT(*) FILTER (WHERE pass) AS passed,\n    COUNT(*) FILTER (WHERE NOT pass) AS failed,\n    COUNT(*) AS total\n  FROM reporting.rpt_financials_reconciliation_tests\n  WHERE period_date = (SELECT p FROM latest)\n  GROUP BY domain\n)\nSELECT * FROM base\nUNION ALL\nSELECT 'No reconciliation data' AS domain, 0::bigint AS passed, 0::bigint AS failed, 0::bigint AS total\nWHERE NOT EXISTS (SELECT 1 FROM base)\nORDER BY domain;\n",
           "refId": "A"
         }
       ],
@@ -764,9 +764,9 @@
             "type": "postgres",
             "uid": "PCC52D03280B7034C"
           },
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH data AS (\n  SELECT month, account_name, amount, count, example_transaction, suggested_category, suggested_subcategory, confidence\n  FROM reporting.viz_uncategorized_missing_example_top5\n  ORDER BY amount DESC\n)\nSELECT * FROM data\nUNION ALL\nSELECT 'N/A', 'None', 0, 0, 'No uncategorized transactions'::text, 'N/A', 'N/A', 0\nWHERE NOT EXISTS (SELECT 1 FROM data);\n-- time scope: NOW() (view aggregates all-time data)",
+          "rawSql": "WITH data AS (\n  SELECT month, account_name, amount, count, example_transaction, suggested_category, suggested_subcategory, confidence\n  FROM reporting.viz_uncategorized_missing_example_top5\n  ORDER BY amount DESC\n)\nSELECT * FROM data\nUNION ALL\nSELECT 'N/A', 'None', 0, 0, 'No uncategorized transactions'::text, 'N/A', 'N/A', 0\nWHERE NOT EXISTS (SELECT 1 FROM data);\n-- time scope: $__timeTo() (view aggregates all-time data)",
           "refId": "A"
         }
       ],
