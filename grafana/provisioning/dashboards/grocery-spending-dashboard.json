@@ -77,9 +77,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT ROUND(AVG(coles_spend), 2) as \"Coles Avg\", ROUND(AVG(woolworths_spend), 2) as \"Woolworths Avg\", ROUND(AVG(gaskos_spend), 2) as \"Gaskos Avg\", ROUND(AVG(total_grocery_spend), 2) as \"Total Avg\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= (date_trunc('month', NOW()) - INTERVAL '12 months')",
+          "rawSql": "SELECT ROUND(AVG(coles_spend), 2) as \"Coles Avg\", ROUND(AVG(woolworths_spend), 2) as \"Woolworths Avg\", ROUND(AVG(gaskos_spend), 2) as \"Gaskos Avg\", ROUND(AVG(total_grocery_spend), 2) as \"Total Avg\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '12 months')",
           "refId": "A"
         }
       ],
@@ -145,9 +145,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH budget_targets AS (\n  SELECT 250 AS monthly_budget_target\n), latest_month AS (\n  SELECT \n    total_grocery_spend,\n    (SELECT monthly_budget_target FROM budget_targets) AS budget_target\n  FROM reporting.viz_grocery_monthly_summary \n  WHERE year_month >= DATE_TRUNC('month', (date_trunc('month', NOW()) - INTERVAL '1 month'))\n  ORDER BY year_month DESC\n  LIMIT 1\n)\nSELECT \n  ROUND(budget_target - total_grocery_spend, 2) AS \"Budget Variance\",\n  ROUND(((total_grocery_spend / budget_target) * 100), 1) AS \"% of Budget\"\nFROM latest_month",
+          "rawSql": "WITH latest_month AS (\n  SELECT total_grocery_spend\n  FROM reporting.viz_grocery_monthly_summary\n  WHERE year_month < date_trunc('month', $__timeTo()::timestamp)\n  ORDER BY year_month DESC\n  LIMIT 1\n)\nSELECT\n  ROUND(250 - COALESCE(total_grocery_spend, 0), 2) AS \"Budget Variance\",\n  ROUND((COALESCE(total_grocery_spend, 0) / 250) * 100, 1) AS \"% of Budget\"\nFROM latest_month\nUNION ALL\nSELECT 250::numeric AS \"Budget Variance\", 0::numeric AS \"% of Budget\"\nWHERE NOT EXISTS (SELECT 1 FROM latest_month);\n",
           "refId": "A"
         }
       ],
@@ -217,9 +217,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT COALESCE(yoy_growth_percent, 0) as \"Total YoY Growth %\", COALESCE(mom_growth_percent, 0) as \"Month-over-Month %\" FROM reporting.viz_grocery_monthly_summary WHERE year_month <= date_trunc('month', NOW())\nORDER BY year_month DESC LIMIT 1",
+          "rawSql": "SELECT COALESCE(yoy_growth_percent, 0) as \"Total YoY Growth %\", COALESCE(mom_growth_percent, 0) as \"Month-over-Month %\" FROM reporting.viz_grocery_monthly_summary WHERE year_month <= date_trunc('month', $__timeTo()::timestamp)\nORDER BY year_month DESC LIMIT 1",
           "refId": "A"
         }
       ],
@@ -299,9 +299,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 0,
+          "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, coles_percentage as \"Coles\", woolworths_percentage as \"Woolworths\", gaskos_percentage as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= (date_trunc('month', NOW()) - INTERVAL '2 month') AND year_month < (date_trunc('month', NOW()) - INTERVAL '1 month') ORDER BY year_month DESC LIMIT 1",
+          "rawSql": "WITH latest_month AS (\n  SELECT\n    year_month AS time,\n    COALESCE(coles_percentage, 0) AS \"Coles\",\n    COALESCE(woolworths_percentage, 0) AS \"Woolworths\",\n    COALESCE(gaskos_percentage, 0) AS \"Gaskos\"\n  FROM reporting.viz_grocery_monthly_summary\n  WHERE year_month < date_trunc('month', $__timeTo()::timestamp)\n  ORDER BY year_month DESC\n  LIMIT 1\n)\nSELECT * FROM latest_month\nUNION ALL\nSELECT\n  date_trunc('month', $__timeTo()::timestamp) - INTERVAL '1 month' AS time,\n  0::numeric AS \"Coles\",\n  0::numeric AS \"Woolworths\",\n  0::numeric AS \"Gaskos\"\nWHERE NOT EXISTS (SELECT 1 FROM latest_month);\n",
           "refId": "A"
         }
       ],
@@ -390,9 +390,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 0,
+          "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, coles_spend as \"Coles\", woolworths_spend as \"Woolworths\", gaskos_spend as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= (date_trunc('month', NOW()) - INTERVAL '18 months') ORDER BY year_month",
+          "rawSql": "SELECT year_month as time, coles_spend as \"Coles\", woolworths_spend as \"Woolworths\", gaskos_spend as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '18 months') ORDER BY year_month",
           "refId": "A"
         }
       ],
@@ -481,9 +481,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 0,
+          "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, coles_spend as \"Coles\", woolworths_spend as \"Woolworths\", gaskos_spend as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= (date_trunc('month', NOW()) - INTERVAL '18 months') ORDER BY year_month",
+          "rawSql": "SELECT year_month as time, coles_spend as \"Coles\", woolworths_spend as \"Woolworths\", gaskos_spend as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '18 months') ORDER BY year_month",
           "refId": "A"
         }
       ],
@@ -572,9 +572,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 0,
+          "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, coles_spend as \"Coles\", woolworths_spend as \"Woolworths\", gaskos_spend as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= (date_trunc('month', NOW()) - INTERVAL '18 months') ORDER BY year_month",
+          "rawSql": "SELECT year_month as time, coles_spend as \"Coles\", woolworths_spend as \"Woolworths\", gaskos_spend as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '18 months') ORDER BY year_month",
           "refId": "A"
         }
       ],
@@ -665,9 +665,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 0,
+          "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, coles_percentage/100 as \"Coles\", woolworths_percentage/100 as \"Woolworths\", gaskos_percentage/100 as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= (date_trunc('month', NOW()) - INTERVAL '18 months') ORDER BY year_month",
+          "rawSql": "SELECT year_month as time, coles_percentage/100 as \"Coles\", woolworths_percentage/100 as \"Woolworths\", gaskos_percentage/100 as \"Gaskos\" FROM reporting.viz_grocery_monthly_summary WHERE year_month >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '18 months') ORDER BY year_month",
           "refId": "A"
         }
       ],
@@ -735,9 +735,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest_month AS (\n  SELECT year_month FROM reporting.viz_grocery_monthly_summary ORDER BY year_month DESC LIMIT 1\n)\nSELECT \n  grocery_store AS \"Store\",\n  monthly_spend AS \"Amount\"\nFROM reporting.viz_grocery_spending_analysis\nWHERE year_month = (SELECT year_month FROM latest_month)\nAND year_month <= date_trunc('month', NOW())\nORDER BY monthly_spend DESC",
+          "rawSql": "WITH latest_month AS (\n  SELECT year_month FROM reporting.viz_grocery_monthly_summary ORDER BY year_month DESC LIMIT 1\n)\nSELECT \n  grocery_store AS \"Store\",\n  monthly_spend AS \"Amount\"\nFROM reporting.viz_grocery_spending_analysis\nWHERE year_month = (SELECT year_month FROM latest_month)\nAND year_month <= date_trunc('month', $__timeTo()::timestamp)\nORDER BY monthly_spend DESC",
           "refId": "A"
         }
       ],
@@ -794,9 +794,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH store_averages AS (\n  SELECT \n    grocery_store,\n    ROUND(AVG(monthly_spend), 2) AS avg_monthly_spend,\n    COUNT(*) AS months_tracked\n  FROM reporting.viz_grocery_spending_analysis\n  WHERE year_month >= (date_trunc('month', NOW()) - INTERVAL '12 months')\n  GROUP BY grocery_store\n), min_store AS (\n  SELECT \n    grocery_store,\n    avg_monthly_spend,\n    months_tracked,\n    FIRST_VALUE(grocery_store) OVER (ORDER BY avg_monthly_spend) AS cheapest_store,\n    FIRST_VALUE(avg_monthly_spend) OVER (ORDER BY avg_monthly_spend) AS cheapest_price\n  FROM store_averages\n)\nSELECT \n  grocery_store AS \"Store\",\n  avg_monthly_spend AS \"Avg Spend\",\n  ROUND(avg_monthly_spend - cheapest_price, 2) AS \"Premium Over Cheapest\",\n  months_tracked AS \"Months\"\nFROM min_store\nORDER BY avg_monthly_spend ASC",
+          "rawSql": "WITH store_averages AS (\n  SELECT \n    grocery_store,\n    ROUND(AVG(monthly_spend), 2) AS avg_monthly_spend,\n    COUNT(*) AS months_tracked\n  FROM reporting.viz_grocery_spending_analysis\n  WHERE year_month >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '12 months')\n  GROUP BY grocery_store\n), min_store AS (\n  SELECT \n    grocery_store,\n    avg_monthly_spend,\n    months_tracked,\n    FIRST_VALUE(grocery_store) OVER (ORDER BY avg_monthly_spend) AS cheapest_store,\n    FIRST_VALUE(avg_monthly_spend) OVER (ORDER BY avg_monthly_spend) AS cheapest_price\n  FROM store_averages\n)\nSELECT \n  grocery_store AS \"Store\",\n  avg_monthly_spend AS \"Avg Spend\",\n  ROUND(avg_monthly_spend - cheapest_price, 2) AS \"Premium Over Cheapest\",\n  months_tracked AS \"Months\"\nFROM min_store\nORDER BY avg_monthly_spend ASC",
           "refId": "A"
         }
       ],
@@ -857,9 +857,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT grocery_store, order_count as \"Order Count\", ROUND(average_order_value, 2) as \"Avg Order Value\", ROUND(largest_order_value, 2) as \"Largest Order\" FROM reporting.viz_grocery_order_context WHERE year_month = (SELECT MAX(year_month) FROM reporting.viz_grocery_order_context) AND year_month <= date_trunc('month', NOW())\nORDER BY grocery_store",
+          "rawSql": "SELECT grocery_store, order_count as \"Order Count\", ROUND(average_order_value, 2) as \"Avg Order Value\", ROUND(largest_order_value, 2) as \"Largest Order\" FROM reporting.viz_grocery_order_context WHERE year_month = (SELECT MAX(year_month) FROM reporting.viz_grocery_order_context) AND year_month <= date_trunc('month', $__timeTo()::timestamp)\nORDER BY grocery_store",
           "refId": "A"
         }
       ],
@@ -920,9 +920,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT grocery_store, ROUND(COALESCE(recurring_spend, 0), 2) as \"Recurring Spend\", ROUND(COALESCE(oneoff_spend, 0), 2) as \"One-Off Spend\" FROM reporting.viz_grocery_order_context WHERE year_month = (SELECT MAX(year_month) FROM reporting.viz_grocery_order_context) AND year_month <= date_trunc('month', NOW())\nORDER BY grocery_store",
+          "rawSql": "SELECT grocery_store, ROUND(COALESCE(recurring_spend, 0), 2) as \"Recurring Spend\", ROUND(COALESCE(oneoff_spend, 0), 2) as \"One-Off Spend\" FROM reporting.viz_grocery_order_context WHERE year_month = (SELECT MAX(year_month) FROM reporting.viz_grocery_order_context) AND year_month <= date_trunc('month', $__timeTo()::timestamp)\nORDER BY grocery_store",
           "refId": "A"
         }
       ],
@@ -1008,9 +1008,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 0,
+          "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT year_month as time, grocery_store, average_order_value FROM reporting.viz_grocery_order_context WHERE year_month >= (date_trunc('month', NOW()) - INTERVAL '18 months') ORDER BY year_month, grocery_store",
+          "rawSql": "SELECT year_month as time, grocery_store, average_order_value FROM reporting.viz_grocery_order_context WHERE year_month >= (date_trunc('month', $__timeTo()::timestamp) - INTERVAL '18 months') ORDER BY year_month, grocery_store",
           "refId": "A"
         }
       ],
@@ -1059,4 +1059,3 @@
   "version": 1,
   "weekStart": ""
 }
-
