@@ -714,6 +714,7 @@
       },
       "pluginVersion": "10.0.0",
       "title": "Scenario Assumptions Documentation",
+      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
       "type": "text"
     },
     {

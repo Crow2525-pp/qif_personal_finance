@@ -506,6 +506,7 @@
       },
       "pluginVersion": "12.3.1",
       "title": "Review Checklist",
+      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
       "type": "text"
     },
     {
@@ -527,6 +528,7 @@
       },
       "pluginVersion": "12.3.1",
       "title": "Quick Navigation",
+      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
       "type": "text"
     },
     {

@@ -427,6 +427,7 @@
         "mode": "markdown"
       },
       "title": "Reconciliation Status",
+      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
       "type": "text"
     },
     {

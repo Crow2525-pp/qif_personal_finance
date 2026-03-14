@@ -1717,7 +1717,7 @@
       "id": 102,
       "type": "text",
       "title": "KPI Definitions - Savings Metrics",
-      "description": "Formula lineage for the savings KPIs on this dashboard. Full detail is in KPI_DICTIONARY.md.",
+      "description": "Formula lineage for the savings KPIs on this dashboard. Full detail is in KPI_DICTIONARY.md. overflow-policy:allow-scroll",
       "gridPos": {
         "x": 0,
         "y": 60,

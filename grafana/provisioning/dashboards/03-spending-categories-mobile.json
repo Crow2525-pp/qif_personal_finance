@@ -615,6 +615,7 @@
         "mode": "markdown"
       },
       "title": "Grocery Analysis",
+      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
       "type": "text"
     },
     {
