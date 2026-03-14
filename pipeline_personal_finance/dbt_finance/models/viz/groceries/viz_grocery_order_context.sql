@@ -7,14 +7,6 @@ WITH grocery_transactions AS (
         ft.transaction_memo,
         ft.transaction_description,
         dc.store AS grocery_store,
-        -- Grocery subscription/recurring detection (e.g., home delivery subscriptions)
-        CASE
-            WHEN LOWER(COALESCE(ft.transaction_description, '') || ' ' || COALESCE(ft.transaction_memo, '')) LIKE '%subscription%'
-                OR LOWER(COALESCE(ft.transaction_description, '') || ' ' || COALESCE(ft.transaction_memo, '')) LIKE '%recurring%'
-                OR LOWER(COALESCE(ft.transaction_description, '') || ' ' || COALESCE(ft.transaction_memo, '')) LIKE '%delivery%'
-            THEN 'Subscription/Recurring'
-            ELSE 'One-Off Purchase'
-        END AS purchase_type,
         DATE_TRUNC('month', ft.transaction_date) AS year_month
     FROM {{ ref('fct_transactions') }} ft
     LEFT JOIN {{ ref('dim_categories') }} dc ON ft.category_key = dc.category_key
@@ -25,18 +17,34 @@ WITH grocery_transactions AS (
 ),
 
 grocery_orders AS (
-    -- Group transactions by date and store as a proxy for orders
-    -- Note: This assumes one shopping trip per store per day. Multiple same-day trips to
-    -- the same store will be aggregated into a single order with combined amounts.
-    -- This is a limitation of not having explicit order IDs in the transaction data.
+    -- Group transactions by date and store as a proxy for orders.
+    -- One shopping trip per store per day; same-day multi-transactions are merged.
     SELECT
         transaction_date::date AS order_date,
         DATE_TRUNC('month', transaction_date) AS year_month,
         grocery_store,
-        purchase_type,
         SUM(abs_amount) AS order_amount
     FROM grocery_transactions
-    GROUP BY transaction_date::date, DATE_TRUNC('month', transaction_date), grocery_store, purchase_type
+    GROUP BY transaction_date::date, DATE_TRUNC('month', transaction_date), grocery_store
+),
+
+-- Classify each order as Regular (>1 visit that month) or One-Off (single visit).
+-- Keyword-based subscription detection is not used because bank transaction
+-- descriptions for in-store grocery purchases never contain 'subscription',
+-- 'recurring', or 'delivery' — which caused recurring_spend to always be $0.
+classified_orders AS (
+    SELECT
+        order_date,
+        year_month,
+        grocery_store,
+        order_amount,
+        COUNT(*) OVER (PARTITION BY year_month, grocery_store) AS monthly_order_count,
+        CASE
+            WHEN COUNT(*) OVER (PARTITION BY year_month, grocery_store) > 1
+            THEN 'Regular Shopping'
+            ELSE 'One-Off Visit'
+        END AS purchase_type
+    FROM grocery_orders
 ),
 
 period_stats AS (
@@ -48,7 +56,7 @@ period_stats AS (
         MAX(order_amount) AS largest_order_value,
         MIN(order_amount) AS smallest_order_value,
         SUM(order_amount) AS total_spend
-    FROM grocery_orders
+    FROM classified_orders
     GROUP BY year_month, grocery_store
 ),
 
@@ -60,7 +68,7 @@ purchase_type_split AS (
         COUNT(*) AS order_count,
         SUM(order_amount) AS category_spend,
         ROUND(AVG(order_amount), 2) AS avg_amount
-    FROM grocery_orders
+    FROM classified_orders
     GROUP BY year_month, grocery_store, purchase_type
 ),
 
@@ -90,13 +98,13 @@ SELECT
     bst.previous_month_aov,
     bst.aov_mom_change_percent,
     bst.same_month_last_year_orders,
-    (SELECT SUM(CASE WHEN pt.purchase_type = 'Subscription/Recurring' THEN pt.category_spend ELSE 0 END)
+    (SELECT SUM(CASE WHEN pt.purchase_type = 'Regular Shopping' THEN pt.category_spend ELSE 0 END)
      FROM purchase_type_split pt WHERE pt.year_month = bst.year_month AND pt.grocery_store = bst.grocery_store) AS recurring_spend,
-    (SELECT SUM(CASE WHEN pt.purchase_type = 'One-Off Purchase' THEN pt.category_spend ELSE 0 END)
+    (SELECT SUM(CASE WHEN pt.purchase_type = 'One-Off Visit' THEN pt.category_spend ELSE 0 END)
      FROM purchase_type_split pt WHERE pt.year_month = bst.year_month AND pt.grocery_store = bst.grocery_store) AS oneoff_spend,
-    (SELECT SUM(CASE WHEN pt.purchase_type = 'Subscription/Recurring' THEN pt.order_count ELSE 0 END)
+    (SELECT SUM(CASE WHEN pt.purchase_type = 'Regular Shopping' THEN pt.order_count ELSE 0 END)
      FROM purchase_type_split pt WHERE pt.year_month = bst.year_month AND pt.grocery_store = bst.grocery_store) AS recurring_count,
-    (SELECT SUM(CASE WHEN pt.purchase_type = 'One-Off Purchase' THEN pt.order_count ELSE 0 END)
+    (SELECT SUM(CASE WHEN pt.purchase_type = 'One-Off Visit' THEN pt.order_count ELSE 0 END)
      FROM purchase_type_split pt WHERE pt.year_month = bst.year_month AND pt.grocery_store = bst.grocery_store) AS oneoff_count,
     (SELECT total_spend FROM period_stats ps WHERE ps.year_month = bst.year_month AND ps.grocery_store = bst.grocery_store) AS total_monthly_spend
 FROM basket_size_trend bst

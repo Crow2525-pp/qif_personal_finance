@@ -98,9 +98,17 @@ COLES EXPRESS,,,,,Transport,Fuel,Coles Express,External
 MCARE BENEFITS,,,,,Health & Beauty,Medicare Rebate,Medicare,External
 PARENTALLEAVEPAY,,,,,Salary,Wages,PARENTALLEAVEPAY,External
 QBE MANAGEMENT,,,,,Salary,Wages,QBE,External
+DEPARTMENT OF ED 09412323,,,,,Salary,Wages,Department of Education,External
+ARCH UNDERWRITIN AD104280,,,,,Salary,Wages,Arch Underwriting,External
 AMAZON,,,,,Shopping,Online Retail,Amazon,External
 AMZN,,,,,Shopping,Online Retail,Amazon,External
 mortgage,,,,,Bank Transaction,Internal Transfer,mortgage,External
+Internal Transfer - Internal Transfer - Receipt,,,,,Bank Transaction,Internal Transfer,Internal,Internal
+Internal Transfer - Receipt,,,,,Bank Transaction,Internal Transfer,Internal,Internal
+philswalkingroundmo - Receipt,,,,Countdown,Bank Transaction,Internal Transfer,Internal,Internal
+DIRECT CREDIT Philip Patterson,,,,Offset,Bank Transaction,Internal Transfer,Internal,Internal
+Transfer to Stephanie Patterson,,,,,Bank Transaction,Internal Transfer,Transfer,External
+Transfer to S Patterson,,,,,Bank Transaction,Internal Transfer,Transfer,External
 TRANSFER 00538977991401,,,,homeloan,Bank Transaction,Internal Transfer,Internal,Internal
 TRANSFER 00538977996701,,,,offset,Bank Transaction,Internal Transfer,Internal,Internal
 TRANSFER TO 00538977996701,,,,offset,Bank Transaction,Internal Transfer,Internal,Internal
