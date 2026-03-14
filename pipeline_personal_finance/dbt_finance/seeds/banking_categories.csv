@@ -1,157 +1,165 @@
-transaction_description,transaction_type,sender,recipient,account_name,category,subcategory,store,internal_indicator
-PAYROLL,CREDIT,ACME_PAYROLL,YOU,,Salary,Wages,Employer,External
-COLES,DEBIT,YOU,COLES,,Food & Drink,Groceries,Coles,External
-UTIL,DEBIT,YOU,UTILITY_CO,,Household & Services,Utilities,UtilityCo,External
-MORTGAGE PAYMENT,DEBIT,YOU,BANK_MORTGAGE,,Mortgage,Home Loan,Mortgage,External
-INTEREST,INTEREST,BANK_MORTGAGE,YOU,,Mortgage,Interest,Mortgage,External
-TRANSFER,DEBIT,YOU,TRANSFER,,Bank Transaction,Internal Transfer,Internal,Internal
-AMAZON,DEBIT,YOU,AMAZON,,Shopping,Online Retail,Amazon,External
-FAMILY,DEBIT,YOU,FAMILY_ACTIVITY,,Family & Kids,Activities,Family,External
-HEALTH,DEBIT,YOU,HEALTH_SHOP,,Health & Beauty,Pharmacy,Health,External
-LEISURE,DEBIT,YOU,LEISURE_OUTLET,,Leisure,Entertainment,Leisure,External
-SHOPPING,DEBIT,YOU,SHOPPING_MALL,,Shopping,Retail,Shopping,External
-TRANSPORT,DEBIT,YOU,TRANSPORT_CO,,Transport,Public Transport,Transport,External
-PAYROLL,CREDIT,ACME_PAYROLL,YOU,ING_Countdown,Salary,Wages,Employer,External
-COLES,DEBIT,YOU,COLES,ING_Countdown,Food & Drink,Groceries,Coles,External
-UTIL,DEBIT,YOU,UTILITY_CO,ING_Countdown,Household & Services,Utilities,UtilityCo,External
-MORTGAGE PAYMENT,DEBIT,YOU,BANK_MORTGAGE,ING_Countdown,Mortgage,Home Loan,Mortgage,External
-INTEREST,INTEREST,BANK_MORTGAGE,YOU,ING_Countdown,Mortgage,Interest,Mortgage,External
-TRANSFER,DEBIT,YOU,TRANSFER,ING_Countdown,Bank Transaction,Internal Transfer,Internal,Internal
-AMAZON,DEBIT,YOU,AMAZON,ING_Countdown,Shopping,Online Retail,Amazon,External
-FAMILY,DEBIT,YOU,FAMILY_ACTIVITY,ING_Countdown,Family & Kids,Activities,Family,External
-HEALTH,DEBIT,YOU,HEALTH_SHOP,ING_Countdown,Health & Beauty,Pharmacy,Health,External
-LEISURE,DEBIT,YOU,LEISURE_OUTLET,ING_Countdown,Leisure,Entertainment,Leisure,External
-SHOPPING,DEBIT,YOU,SHOPPING_MALL,ING_Countdown,Shopping,Retail,Shopping,External
-TRANSPORT,DEBIT,YOU,TRANSPORT_CO,ING_Countdown,Transport,Public Transport,Transport,External
-PAYROLL,CREDIT,ACME_PAYROLL,YOU,ING_BillsBillsBills,Salary,Wages,Employer,External
-COLES,DEBIT,YOU,COLES,ING_BillsBillsBills,Food & Drink,Groceries,Coles,External
-UTIL,DEBIT,YOU,UTILITY_CO,ING_BillsBillsBills,Household & Services,Utilities,UtilityCo,External
-MORTGAGE PAYMENT,DEBIT,YOU,BANK_MORTGAGE,ING_BillsBillsBills,Mortgage,Home Loan,Mortgage,External
-INTEREST,INTEREST,BANK_MORTGAGE,YOU,ING_BillsBillsBills,Mortgage,Interest,Mortgage,External
-TRANSFER,DEBIT,YOU,TRANSFER,ING_BillsBillsBills,Bank Transaction,Internal Transfer,Internal,Internal
-AMAZON,DEBIT,YOU,AMAZON,ING_BillsBillsBills,Shopping,Online Retail,Amazon,External
-FAMILY,DEBIT,YOU,FAMILY_ACTIVITY,ING_BillsBillsBills,Family & Kids,Activities,Family,External
-HEALTH,DEBIT,YOU,HEALTH_SHOP,ING_BillsBillsBills,Health & Beauty,Pharmacy,Health,External
-LEISURE,DEBIT,YOU,LEISURE_OUTLET,ING_BillsBillsBills,Leisure,Entertainment,Leisure,External
-SHOPPING,DEBIT,YOU,SHOPPING_MALL,ING_BillsBillsBills,Shopping,Retail,Shopping,External
-TRANSPORT,DEBIT,YOU,TRANSPORT_CO,ING_BillsBillsBills,Transport,Public Transport,Transport,External
-PAYROLL,CREDIT,ACME_PAYROLL,YOU,Adelaide_Offset,Salary,Wages,Employer,External
-COLES,DEBIT,YOU,COLES,Adelaide_Offset,Food & Drink,Groceries,Coles,External
-UTIL,DEBIT,YOU,UTILITY_CO,Adelaide_Offset,Household & Services,Utilities,UtilityCo,External
-MORTGAGE PAYMENT,DEBIT,YOU,BANK_MORTGAGE,Adelaide_Offset,Mortgage,Home Loan,Mortgage,External
-INTEREST,INTEREST,BANK_MORTGAGE,YOU,Adelaide_Offset,Mortgage,Interest,Mortgage,External
-TRANSFER,DEBIT,YOU,TRANSFER,Adelaide_Offset,Bank Transaction,Internal Transfer,Internal,Internal
-AMAZON,DEBIT,YOU,AMAZON,Adelaide_Offset,Shopping,Online Retail,Amazon,External
-FAMILY,DEBIT,YOU,FAMILY_ACTIVITY,Adelaide_Offset,Family & Kids,Activities,Family,External
-HEALTH,DEBIT,YOU,HEALTH_SHOP,Adelaide_Offset,Health & Beauty,Pharmacy,Health,External
-LEISURE,DEBIT,YOU,LEISURE_OUTLET,Adelaide_Offset,Leisure,Entertainment,Leisure,External
-SHOPPING,DEBIT,YOU,SHOPPING_MALL,Adelaide_Offset,Shopping,Retail,Shopping,External
-TRANSPORT,DEBIT,YOU,TRANSPORT_CO,Adelaide_Offset,Transport,Public Transport,Transport,External
-PAYROLL,CREDIT,ACME_PAYROLL,YOU,Adelaide_Homeloan,Salary,Wages,Employer,External
-COLES,DEBIT,YOU,COLES,Adelaide_Homeloan,Food & Drink,Groceries,Coles,External
-UTIL,DEBIT,YOU,UTILITY_CO,Adelaide_Homeloan,Household & Services,Utilities,UtilityCo,External
-MORTGAGE PAYMENT,DEBIT,YOU,BANK_MORTGAGE,Adelaide_Homeloan,Mortgage,Home Loan,Mortgage,External
-INTEREST,INTEREST,BANK_MORTGAGE,YOU,Adelaide_Homeloan,Mortgage,Interest,Mortgage,External
-TRANSFER,DEBIT,YOU,TRANSFER,Adelaide_Homeloan,Bank Transaction,Internal Transfer,Internal,Internal
-AMAZON,DEBIT,YOU,AMAZON,Adelaide_Homeloan,Shopping,Online Retail,Amazon,External
-FAMILY,DEBIT,YOU,FAMILY_ACTIVITY,Adelaide_Homeloan,Family & Kids,Activities,Family,External
-HEALTH,DEBIT,YOU,HEALTH_SHOP,Adelaide_Homeloan,Health & Beauty,Pharmacy,Health,External
-LEISURE,DEBIT,YOU,LEISURE_OUTLET,Adelaide_Homeloan,Leisure,Entertainment,Leisure,External
-SHOPPING,DEBIT,YOU,SHOPPING_MALL,Adelaide_Homeloan,Shopping,Retail,Shopping,External
-TRANSPORT,DEBIT,YOU,TRANSPORT_CO,Adelaide_Homeloan,Transport,Public Transport,Transport,External
-PAYROLL,CREDIT,ACME_PAYROLL,YOU,Bendigo_Offset,Salary,Wages,Employer,External
-COLES,DEBIT,YOU,COLES,Bendigo_Offset,Food & Drink,Groceries,Coles,External
-UTIL,DEBIT,YOU,UTILITY_CO,Bendigo_Offset,Household & Services,Utilities,UtilityCo,External
-MORTGAGE PAYMENT,DEBIT,YOU,BANK_MORTGAGE,Bendigo_Offset,Mortgage,Home Loan,Mortgage,External
-INTEREST,INTEREST,BANK_MORTGAGE,YOU,Bendigo_Offset,Mortgage,Interest,Mortgage,External
-TRANSFER,DEBIT,YOU,TRANSFER,Bendigo_Offset,Bank Transaction,Internal Transfer,Internal,Internal
-AMAZON,DEBIT,YOU,AMAZON,Bendigo_Offset,Shopping,Online Retail,Amazon,External
-FAMILY,DEBIT,YOU,FAMILY_ACTIVITY,Bendigo_Offset,Family & Kids,Activities,Family,External
-HEALTH,DEBIT,YOU,HEALTH_SHOP,Bendigo_Offset,Health & Beauty,Pharmacy,Health,External
-LEISURE,DEBIT,YOU,LEISURE_OUTLET,Bendigo_Offset,Leisure,Entertainment,Leisure,External
-SHOPPING,DEBIT,YOU,SHOPPING_MALL,Bendigo_Offset,Shopping,Retail,Shopping,External
-TRANSPORT,DEBIT,YOU,TRANSPORT_CO,Bendigo_Offset,Transport,Public Transport,Transport,External
-PAYROLL,CREDIT,ACME_PAYROLL,YOU,Bendigo_Homeloan,Salary,Wages,Employer,External
-COLES,DEBIT,YOU,COLES,Bendigo_Homeloan,Food & Drink,Groceries,Coles,External
-UTIL,DEBIT,YOU,UTILITY_CO,Bendigo_Homeloan,Household & Services,Utilities,UtilityCo,External
-MORTGAGE PAYMENT,DEBIT,YOU,BANK_MORTGAGE,Bendigo_Homeloan,Mortgage,Home Loan,Mortgage,External
-INTEREST,INTEREST,BANK_MORTGAGE,YOU,Bendigo_Homeloan,Mortgage,Interest,Mortgage,External
-TRANSFER,DEBIT,YOU,TRANSFER,Bendigo_Homeloan,Bank Transaction,Internal Transfer,Internal,Internal
-AMAZON,DEBIT,YOU,AMAZON,Bendigo_Homeloan,Shopping,Online Retail,Amazon,External
-FAMILY,DEBIT,YOU,FAMILY_ACTIVITY,Bendigo_Homeloan,Family & Kids,Activities,Family,External
-HEALTH,DEBIT,YOU,HEALTH_SHOP,Bendigo_Homeloan,Health & Beauty,Pharmacy,Health,External
-LEISURE,DEBIT,YOU,LEISURE_OUTLET,Bendigo_Homeloan,Leisure,Entertainment,Leisure,External
-SHOPPING,DEBIT,YOU,SHOPPING_MALL,Bendigo_Homeloan,Shopping,Retail,Shopping,External
-TRANSPORT,DEBIT,YOU,TRANSPORT_CO,Bendigo_Homeloan,Transport,Public Transport,Transport,External
-COLES 7,,,,,Food & Drink,Groceries,Coles,External
-COLES 0,,,,,Food & Drink,Groceries,Coles,External
-COLES  0,,,,,Food & Drink,Groceries,Coles,External
-COLES 4,,,,,Food & Drink,Groceries,Coles,External
-COLES 5,,,,,Food & Drink,Groceries,Coles,External
-COLES 8,,,,,Food & Drink,Groceries,Coles,External
-COLES ONLINE,,,,,Food & Drink,Groceries,Coles,External
-WOOLWORTHS,,,,,Food & Drink,Groceries,Woolworths,External
-WOOLIES,,,,,Food & Drink,Groceries,Woolworths,External
-GASKOS,,,,,Food & Drink,Groceries,Gaskos,External
-GASCOS,,,,,Food & Drink,Groceries,Gaskos,External
-COLES EXPRESS,,,,,Transport,Fuel,Coles Express,External
-MCARE BENEFITS,,,,,Health & Beauty,Medicare Rebate,Medicare,External
-PARENTALLEAVEPAY,,,,,Salary,Wages,PARENTALLEAVEPAY,External
-QBE MANAGEMENT,,,,,Salary,Wages,QBE,External
-DEPARTMENT OF ED 09412323,,,,,Salary,Wages,Department of Education,External
-ARCH UNDERWRITIN AD104280,,,,,Salary,Wages,Arch Underwriting,External
-AMAZON,,,,,Shopping,Online Retail,Amazon,External
-AMZN,,,,,Shopping,Online Retail,Amazon,External
-mortgage,,,,,Bank Transaction,Internal Transfer,mortgage,External
-Internal Transfer - Internal Transfer - Receipt,,,,,Bank Transaction,Internal Transfer,Internal,Internal
-Internal Transfer - Receipt,,,,,Bank Transaction,Internal Transfer,Internal,Internal
-philswalkingroundmo - Receipt,,,,Countdown,Bank Transaction,Internal Transfer,Internal,Internal
-DIRECT CREDIT Philip Patterson,,,,Offset,Bank Transaction,Internal Transfer,Internal,Internal
-Transfer to Stephanie Patterson,,,,,Bank Transaction,Internal Transfer,Transfer,External
-Transfer to S Patterson,,,,,Bank Transaction,Internal Transfer,Transfer,External
-TRANSFER 00538977991401,,,,homeloan,Bank Transaction,Internal Transfer,Internal,Internal
-TRANSFER 00538977996701,,,,offset,Bank Transaction,Internal Transfer,Internal,Internal
-TRANSFER TO 00538977996701,,,,offset,Bank Transaction,Internal Transfer,Internal,Internal
-STANDING ORDER AUTOPAY                   - 0042279679YX01,,,,offset,Bank Transaction,Internal Transfer,Internal,Internal
-INTERNET TRANSFER DEBIT                  - 0042279679YX01       1518447088 Refil countdown,,,,offset,Bank Transaction,Internal Transfer,Internal,Internal
-INTEREST,,,,homeloan,Mortgage,Interest,Mortgage,External
-DEBIT INTEREST,,,,homeloan,Mortgage,Interest,Mortgage,External
-MONTHLY SERVICE FEE,,,,homeloan,Mortgage,Fees,Mortgage,External
-MONTHLY ADMINISTRATION FEE,,,,homeloan,Mortgage,Fees,Mortgage,External
-offset,,,,,Bank Transaction,Internal Transfer,offset,External
-Transfer to S Van Den Hoff,,,,,Bank Transaction,Internal Transfer,Transfer,External
-THE AUSTRALIAN C SP Pay from ACHPER,,,,,Salary,Wages,Achper,External
-save plus health insurance,,,,,Bank Transaction,Internal Transfer,save,External
-MCARE BENEFITS   010190106 CYWQ,,,,,Health & Beauty,Medicare Rebate,Medicare,External
-A AND S WHOLESALE FR,,,,,Food & Drink,Groceries,MarketPlace Fresh Highpoint,External
-save for pps garage,,,,,Bank Transaction,Internal Transfer,save,External
-SQ *TP COFFEE HOUSE,,,,,Food & Drink,Coffee,TP Coffee,External
-PUBLIC TRANSPORT VICT,,,,,Transport,Public Transport,PTV,External
-MCARE BENEFITS   020041372 CYWQ,,,,,Health & Beauty,Medicare Rebate,MCARE,External
-GOURMET DELI HOUSE,,,,,Food & Drink,Groceries,GOURMET,External
-Reversal,,,,,Bank Transaction,reversal,Reversal,External
-International Transaction Fee,,,,,Bank Transaction,international trans fee,International,External
-International Transaction Fee Rebate,,,,,Bank Transaction,international trans fee,International,External
-KMART,,,,,Shopping,Retail,KMART,External
-THE WESTERN MEDICAL,,,,,Health & Beauty,GP,Western Medical,External
-A.E.U. VICTORIAN,,,,,Salary,Membership Fees,A.E.U.,External
-TIAN TRADINGS PTY LT,,,,,Food & Drink,Groceries,TIAN,External
-The Other Brother,,,,,Food & Drink,Coffee,Other Brother,External
-MARKETPLACE FRESH,,,,,Food & Drink,Groceries,MARKETPLACE,External
-PRIMUS TELECOMS,,,,,Household & Services,Utilities,iPrimus,External
-APPLE.COM/BILL,,,,,Household & Services,mobile,APPLE.COM/BILL,External
-YMCA CP FOOTSCRAY,,,,,Household & Services,Gym,YMCA,External
-Telstra Services,,,,,Household & Services,Mobile,Telstra,External
-THE WESTERN MEDICAL CE,,,,,Health & Beauty,GP,Western Medical,External
-PARENTALLEAVEPAY TP1J1155304023246L,,,,,Salary,Wages,PARENTALLEAVEPAY,External
-RAINBOW MEATS,,,,,Food & Drink,Groceries,RAINBOW,External
-534 BARKLY ST DTL P/L,,,,,Health & Beauty,Dentist,534 BARKLY ST,External
-GOODSTART EARLY LEARNING,,,,,Family & Kids,Childcare & Early Education,Goodstart,External
-YMCA EARLY LEARNING,,,,,Family & Kids,Childcare & Early Education,YMCA Early Learning,External
-CHILDCARE FEES,,,,,Family & Kids,Childcare & Early Education,Childcare Fees,External
-DAYCARE FEES,,,,,Family & Kids,Childcare & Early Education,Daycare Fees,External
-PRESCHOOL FEES,,,,,Family & Kids,Childcare & Early Education,Preschool Fees,External
-KINDERGARTEN FEES,,,,,Family & Kids,Childcare & Early Education,Kindergarten Fees,External
-OSHC FEES,,,,,Family & Kids,Childcare & Early Education,OSHC,External
-AFTER SCHOOL CARE,,,,,Family & Kids,Childcare & Early Education,After School Care,External
-BABYSITTING,,,,,Family & Kids,Childcare & Early Education,Babysitting,External
+transaction_description,transaction_type,sender,recipient,account_name,category,subcategory,store,internal_indicator,payment_frequency
+PAYROLL,CREDIT,ACME_PAYROLL,YOU,,Salary,Wages,Employer,External,fortnightly
+COLES,DEBIT,YOU,COLES,,Food & Drink,Groceries,Coles,External,weekly
+UTIL,DEBIT,YOU,UTILITY_CO,,Household & Services,Utilities,UtilityCo,External,monthly
+MORTGAGE PAYMENT,DEBIT,YOU,BANK_MORTGAGE,,Mortgage,Home Loan,Mortgage,External,monthly
+INTEREST,INTEREST,BANK_MORTGAGE,YOU,,Mortgage,Interest,Mortgage,External,monthly
+TRANSFER,DEBIT,YOU,TRANSFER,,Bank Transaction,Internal Transfer,Internal,Internal,
+AMAZON,DEBIT,YOU,AMAZON,,Shopping,Online Retail,Amazon,External,
+FAMILY,DEBIT,YOU,FAMILY_ACTIVITY,,Family & Kids,Activities,Family,External,
+HEALTH,DEBIT,YOU,HEALTH_SHOP,,Health & Beauty,Pharmacy,Health,External,
+LEISURE,DEBIT,YOU,LEISURE_OUTLET,,Leisure,Entertainment,Leisure,External,
+SHOPPING,DEBIT,YOU,SHOPPING_MALL,,Shopping,Retail,Shopping,External,
+TRANSPORT,DEBIT,YOU,TRANSPORT_CO,,Transport,Public Transport,Transport,External,
+PAYROLL,CREDIT,ACME_PAYROLL,YOU,ING_Countdown,Salary,Wages,Employer,External,fortnightly
+COLES,DEBIT,YOU,COLES,ING_Countdown,Food & Drink,Groceries,Coles,External,weekly
+UTIL,DEBIT,YOU,UTILITY_CO,ING_Countdown,Household & Services,Utilities,UtilityCo,External,monthly
+MORTGAGE PAYMENT,DEBIT,YOU,BANK_MORTGAGE,ING_Countdown,Mortgage,Home Loan,Mortgage,External,monthly
+INTEREST,INTEREST,BANK_MORTGAGE,YOU,ING_Countdown,Mortgage,Interest,Mortgage,External,monthly
+TRANSFER,DEBIT,YOU,TRANSFER,ING_Countdown,Bank Transaction,Internal Transfer,Internal,Internal,
+AMAZON,DEBIT,YOU,AMAZON,ING_Countdown,Shopping,Online Retail,Amazon,External,
+FAMILY,DEBIT,YOU,FAMILY_ACTIVITY,ING_Countdown,Family & Kids,Activities,Family,External,
+HEALTH,DEBIT,YOU,HEALTH_SHOP,ING_Countdown,Health & Beauty,Pharmacy,Health,External,
+LEISURE,DEBIT,YOU,LEISURE_OUTLET,ING_Countdown,Leisure,Entertainment,Leisure,External,
+SHOPPING,DEBIT,YOU,SHOPPING_MALL,ING_Countdown,Shopping,Retail,Shopping,External,
+TRANSPORT,DEBIT,YOU,TRANSPORT_CO,ING_Countdown,Transport,Public Transport,Transport,External,
+PAYROLL,CREDIT,ACME_PAYROLL,YOU,ING_BillsBillsBills,Salary,Wages,Employer,External,fortnightly
+COLES,DEBIT,YOU,COLES,ING_BillsBillsBills,Food & Drink,Groceries,Coles,External,weekly
+UTIL,DEBIT,YOU,UTILITY_CO,ING_BillsBillsBills,Household & Services,Utilities,UtilityCo,External,monthly
+MORTGAGE PAYMENT,DEBIT,YOU,BANK_MORTGAGE,ING_BillsBillsBills,Mortgage,Home Loan,Mortgage,External,monthly
+INTEREST,INTEREST,BANK_MORTGAGE,YOU,ING_BillsBillsBills,Mortgage,Interest,Mortgage,External,monthly
+TRANSFER,DEBIT,YOU,TRANSFER,ING_BillsBillsBills,Bank Transaction,Internal Transfer,Internal,Internal,
+AMAZON,DEBIT,YOU,AMAZON,ING_BillsBillsBills,Shopping,Online Retail,Amazon,External,
+FAMILY,DEBIT,YOU,FAMILY_ACTIVITY,ING_BillsBillsBills,Family & Kids,Activities,Family,External,
+HEALTH,DEBIT,YOU,HEALTH_SHOP,ING_BillsBillsBills,Health & Beauty,Pharmacy,Health,External,
+LEISURE,DEBIT,YOU,LEISURE_OUTLET,ING_BillsBillsBills,Leisure,Entertainment,Leisure,External,
+SHOPPING,DEBIT,YOU,SHOPPING_MALL,ING_BillsBillsBills,Shopping,Retail,Shopping,External,
+TRANSPORT,DEBIT,YOU,TRANSPORT_CO,ING_BillsBillsBills,Transport,Public Transport,Transport,External,
+PAYROLL,CREDIT,ACME_PAYROLL,YOU,Adelaide_Offset,Salary,Wages,Employer,External,fortnightly
+COLES,DEBIT,YOU,COLES,Adelaide_Offset,Food & Drink,Groceries,Coles,External,weekly
+UTIL,DEBIT,YOU,UTILITY_CO,Adelaide_Offset,Household & Services,Utilities,UtilityCo,External,monthly
+MORTGAGE PAYMENT,DEBIT,YOU,BANK_MORTGAGE,Adelaide_Offset,Mortgage,Home Loan,Mortgage,External,monthly
+INTEREST,INTEREST,BANK_MORTGAGE,YOU,Adelaide_Offset,Mortgage,Interest,Mortgage,External,monthly
+TRANSFER,DEBIT,YOU,TRANSFER,Adelaide_Offset,Bank Transaction,Internal Transfer,Internal,Internal,
+AMAZON,DEBIT,YOU,AMAZON,Adelaide_Offset,Shopping,Online Retail,Amazon,External,
+FAMILY,DEBIT,YOU,FAMILY_ACTIVITY,Adelaide_Offset,Family & Kids,Activities,Family,External,
+HEALTH,DEBIT,YOU,HEALTH_SHOP,Adelaide_Offset,Health & Beauty,Pharmacy,Health,External,
+LEISURE,DEBIT,YOU,LEISURE_OUTLET,Adelaide_Offset,Leisure,Entertainment,Leisure,External,
+SHOPPING,DEBIT,YOU,SHOPPING_MALL,Adelaide_Offset,Shopping,Retail,Shopping,External,
+TRANSPORT,DEBIT,YOU,TRANSPORT_CO,Adelaide_Offset,Transport,Public Transport,Transport,External,
+PAYROLL,CREDIT,ACME_PAYROLL,YOU,Adelaide_Homeloan,Salary,Wages,Employer,External,fortnightly
+COLES,DEBIT,YOU,COLES,Adelaide_Homeloan,Food & Drink,Groceries,Coles,External,weekly
+UTIL,DEBIT,YOU,UTILITY_CO,Adelaide_Homeloan,Household & Services,Utilities,UtilityCo,External,monthly
+MORTGAGE PAYMENT,DEBIT,YOU,BANK_MORTGAGE,Adelaide_Homeloan,Mortgage,Home Loan,Mortgage,External,monthly
+INTEREST,INTEREST,BANK_MORTGAGE,YOU,Adelaide_Homeloan,Mortgage,Interest,Mortgage,External,monthly
+TRANSFER,DEBIT,YOU,TRANSFER,Adelaide_Homeloan,Bank Transaction,Internal Transfer,Internal,Internal,
+AMAZON,DEBIT,YOU,AMAZON,Adelaide_Homeloan,Shopping,Online Retail,Amazon,External,
+FAMILY,DEBIT,YOU,FAMILY_ACTIVITY,Adelaide_Homeloan,Family & Kids,Activities,Family,External,
+HEALTH,DEBIT,YOU,HEALTH_SHOP,Adelaide_Homeloan,Health & Beauty,Pharmacy,Health,External,
+LEISURE,DEBIT,YOU,LEISURE_OUTLET,Adelaide_Homeloan,Leisure,Entertainment,Leisure,External,
+SHOPPING,DEBIT,YOU,SHOPPING_MALL,Adelaide_Homeloan,Shopping,Retail,Shopping,External,
+TRANSPORT,DEBIT,YOU,TRANSPORT_CO,Adelaide_Homeloan,Transport,Public Transport,Transport,External,
+PAYROLL,CREDIT,ACME_PAYROLL,YOU,Bendigo_Offset,Salary,Wages,Employer,External,fortnightly
+COLES,DEBIT,YOU,COLES,Bendigo_Offset,Food & Drink,Groceries,Coles,External,weekly
+UTIL,DEBIT,YOU,UTILITY_CO,Bendigo_Offset,Household & Services,Utilities,UtilityCo,External,monthly
+MORTGAGE PAYMENT,DEBIT,YOU,BANK_MORTGAGE,Bendigo_Offset,Mortgage,Home Loan,Mortgage,External,monthly
+INTEREST,INTEREST,BANK_MORTGAGE,YOU,Bendigo_Offset,Mortgage,Interest,Mortgage,External,monthly
+TRANSFER,DEBIT,YOU,TRANSFER,Bendigo_Offset,Bank Transaction,Internal Transfer,Internal,Internal,
+AMAZON,DEBIT,YOU,AMAZON,Bendigo_Offset,Shopping,Online Retail,Amazon,External,
+FAMILY,DEBIT,YOU,FAMILY_ACTIVITY,Bendigo_Offset,Family & Kids,Activities,Family,External,
+HEALTH,DEBIT,YOU,HEALTH_SHOP,Bendigo_Offset,Health & Beauty,Pharmacy,Health,External,
+LEISURE,DEBIT,YOU,LEISURE_OUTLET,Bendigo_Offset,Leisure,Entertainment,Leisure,External,
+SHOPPING,DEBIT,YOU,SHOPPING_MALL,Bendigo_Offset,Shopping,Retail,Shopping,External,
+TRANSPORT,DEBIT,YOU,TRANSPORT_CO,Bendigo_Offset,Transport,Public Transport,Transport,External,
+PAYROLL,CREDIT,ACME_PAYROLL,YOU,Bendigo_Homeloan,Salary,Wages,Employer,External,fortnightly
+COLES,DEBIT,YOU,COLES,Bendigo_Homeloan,Food & Drink,Groceries,Coles,External,weekly
+UTIL,DEBIT,YOU,UTILITY_CO,Bendigo_Homeloan,Household & Services,Utilities,UtilityCo,External,monthly
+MORTGAGE PAYMENT,DEBIT,YOU,BANK_MORTGAGE,Bendigo_Homeloan,Mortgage,Home Loan,Mortgage,External,monthly
+INTEREST,INTEREST,BANK_MORTGAGE,YOU,Bendigo_Homeloan,Mortgage,Interest,Mortgage,External,monthly
+TRANSFER,DEBIT,YOU,TRANSFER,Bendigo_Homeloan,Bank Transaction,Internal Transfer,Internal,Internal,
+AMAZON,DEBIT,YOU,AMAZON,Bendigo_Homeloan,Shopping,Online Retail,Amazon,External,
+FAMILY,DEBIT,YOU,FAMILY_ACTIVITY,Bendigo_Homeloan,Family & Kids,Activities,Family,External,
+HEALTH,DEBIT,YOU,HEALTH_SHOP,Bendigo_Homeloan,Health & Beauty,Pharmacy,Health,External,
+LEISURE,DEBIT,YOU,LEISURE_OUTLET,Bendigo_Homeloan,Leisure,Entertainment,Leisure,External,
+SHOPPING,DEBIT,YOU,SHOPPING_MALL,Bendigo_Homeloan,Shopping,Retail,Shopping,External,
+TRANSPORT,DEBIT,YOU,TRANSPORT_CO,Bendigo_Homeloan,Transport,Public Transport,Transport,External,
+COLES 7,,,,,Food & Drink,Groceries,Coles,External,weekly
+COLES 0,,,,,Food & Drink,Groceries,Coles,External,weekly
+COLES  0,,,,,Food & Drink,Groceries,Coles,External,weekly
+COLES 4,,,,,Food & Drink,Groceries,Coles,External,weekly
+COLES 5,,,,,Food & Drink,Groceries,Coles,External,weekly
+COLES 8,,,,,Food & Drink,Groceries,Coles,External,weekly
+COLES ONLINE,,,,,Food & Drink,Groceries,Coles,External,weekly
+WOOLWORTHS,,,,,Food & Drink,Groceries,Woolworths,External,weekly
+WOOLIES,,,,,Food & Drink,Groceries,Woolworths,External,weekly
+GASKOS,,,,,Food & Drink,Groceries,Gaskos,External,weekly
+GASCOS,,,,,Food & Drink,Groceries,Gaskos,External,weekly
+COLES EXPRESS,,,,,Transport,Fuel,Coles Express,External,
+MCARE BENEFITS,,,,,Health & Beauty,Medicare Rebate,Medicare,External,
+PARENTALLEAVEPAY,,,,,Salary,Wages,PARENTALLEAVEPAY,External,fortnightly
+QBE MANAGEMENT,,,,,Salary,Wages,QBE,External,fortnightly
+DEPARTMENT OF ED 09412323,,,,,Salary,Wages,Department of Education,External,fortnightly
+ARCH UNDERWRITIN AD104280,,,,,Salary,Wages,Arch Underwriting,External,fortnightly
+ATO,,,,,Tax,Australian Tax Office,ATO,External,
+VANGUARD,,,,,Investments,Shares,Vanguard,External,
+SELFWEALTH,,,,,Investments,Shares,SelfWealth,External,
+SELF WEALTH,,,,,Investments,Shares,SelfWealth,External,
+AMAZON,,,,,Shopping,Online Retail,Amazon,External,
+AMZN,,,,,Shopping,Online Retail,Amazon,External,
+mortgage,,,,,Bank Transaction,Internal Transfer,mortgage,External,
+Internal Transfer - Internal Transfer - Receipt,,,,,Bank Transaction,Internal Transfer,Internal,Internal,
+Internal Transfer - Receipt,,,,,Bank Transaction,Internal Transfer,Internal,Internal,
+philswalkingroundmo - Receipt,,,,Countdown,Bank Transaction,Internal Transfer,Internal,Internal,
+DIRECT CREDIT Philip Patterson,,,,Offset,Bank Transaction,Internal Transfer,Internal,Internal,
+Transfer to Stephanie Patterson,,,,,Person-to-Person,External Transfer,Stephanie Patterson,External,
+Transfer to S Patterson,,,,,Person-to-Person,External Transfer,Stephanie Patterson,External,
+Stephanie Patterson,,,,,Person-to-Person,External Transfer,Stephanie Patterson,External,
+S Patterson,,,,,Person-to-Person,External Transfer,Stephanie Patterson,External,
+Mrs Stephanie Louise,,,,,Person-to-Person,External Transfer,Stephanie Patterson,External,
+WENDY VAN DEN HOFF,,,,,Person-to-Person,External Transfer,Wendy Van Den Hoff,External,
+TRANSFER 00538977991401,,,,homeloan,Bank Transaction,Internal Transfer,Internal,Internal,
+TRANSFER 00538977996701,,,,offset,Bank Transaction,Internal Transfer,Internal,Internal,
+TRANSFER TO 00538977996701,,,,offset,Bank Transaction,Internal Transfer,Internal,Internal,
+STANDING ORDER AUTOPAY                   - 0042279679YX01,,,,offset,Bank Transaction,Internal Transfer,Internal,Internal,
+INTERNET TRANSFER DEBIT                  - 0042279679YX01       1518447088 Refil countdown,,,,offset,Bank Transaction,Internal Transfer,Internal,Internal,
+INTEREST,,,,homeloan,Mortgage,Interest,Mortgage,External,monthly
+DEBIT INTEREST,,,,homeloan,Mortgage,Interest,Mortgage,External,monthly
+MONTHLY SERVICE FEE,,,,homeloan,Mortgage,Fees,Mortgage,External,monthly
+MONTHLY ADMINISTRATION FEE,,,,homeloan,Mortgage,Fees,Mortgage,External,monthly
+offset,,,,,Bank Transaction,Internal Transfer,offset,External,
+Transfer to S Van Den Hoff,,,,,Bank Transaction,Internal Transfer,Transfer,External,
+THE AUSTRALIAN C SP Pay from ACHPER,,,,,Salary,Wages,Achper,External,fortnightly
+save plus health insurance,,,,,Bank Transaction,Internal Transfer,save,External,
+MCARE BENEFITS   010190106 CYWQ,,,,,Health & Beauty,Medicare Rebate,Medicare,External,
+A AND S WHOLESALE FR,,,,,Food & Drink,Groceries,MarketPlace Fresh Highpoint,External,weekly
+save for pps garage,,,,,Bank Transaction,Internal Transfer,save,External,
+SQ *TP COFFEE HOUSE,,,,,Food & Drink,Coffee,TP Coffee,External,
+PUBLIC TRANSPORT VICT,,,,,Transport,Public Transport,PTV,External,
+MCARE BENEFITS   020041372 CYWQ,,,,,Health & Beauty,Medicare Rebate,MCARE,External,
+GOURMET DELI HOUSE,,,,,Food & Drink,Groceries,GOURMET,External,weekly
+Reversal,,,,,Bank Transaction,reversal,Reversal,External,
+International Transaction Fee,,,,,Bank Transaction,international trans fee,International,External,
+International Transaction Fee Rebate,,,,,Bank Transaction,international trans fee,International,External,
+KMART,,,,,Shopping,Retail,KMART,External,
+THE WESTERN MEDICAL,,,,,Health & Beauty,GP,Western Medical,External,
+A.E.U. VICTORIAN,,,,,Salary,Membership Fees,A.E.U.,External,monthly
+TIAN TRADINGS PTY LT,,,,,Food & Drink,Groceries,TIAN,External,weekly
+The Other Brother,,,,,Food & Drink,Coffee,Other Brother,External,
+MARKETPLACE FRESH,,,,,Food & Drink,Groceries,MARKETPLACE,External,weekly
+PRIMUS TELECOMS,,,,,Household & Services,Utilities,iPrimus,External,monthly
+APPLE.COM/BILL,,,,,Household & Services,mobile,APPLE.COM/BILL,External,monthly
+YMCA CP FOOTSCRAY,,,,,Household & Services,Gym,YMCA,External,monthly
+Telstra Services,,,,,Household & Services,Mobile,Telstra,External,monthly
+THE WESTERN MEDICAL CE,,,,,Health & Beauty,GP,Western Medical,External,
+PARENTALLEAVEPAY TP1J1155304023246L,,,,,Salary,Wages,PARENTALLEAVEPAY,External,fortnightly
+RAINBOW MEATS,,,,,Food & Drink,Groceries,RAINBOW,External,weekly
+534 BARKLY ST DTL P/L,,,,,Health & Beauty,Dentist,534 BARKLY ST,External,
+GOODSTART EARLY LEARNING,,,,,Family & Kids,Childcare & Early Education,Goodstart,External,monthly
+YMCA EARLY LEARNING,,,,,Family & Kids,Childcare & Early Education,YMCA Early Learning,External,monthly
+CHILDCARE FEES,,,,,Family & Kids,Childcare & Early Education,Childcare Fees,External,monthly
+DAYCARE FEES,,,,,Family & Kids,Childcare & Early Education,Daycare Fees,External,monthly
+PRESCHOOL FEES,,,,,Family & Kids,Childcare & Early Education,Preschool Fees,External,monthly
+KINDERGARTEN FEES,,,,,Family & Kids,Childcare & Early Education,Kindergarten Fees,External,monthly
+OSHC FEES,,,,,Family & Kids,Childcare & Early Education,OSHC,External,monthly
+AFTER SCHOOL CARE,,,,,Family & Kids,Childcare & Early Education,After School Care,External,monthly
+BABYSITTING,,,,,Family & Kids,Childcare & Early Education,Babysitting,External,monthly
