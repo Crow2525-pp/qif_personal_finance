@@ -90,7 +90,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT budget_year_month AS \"Latest Month\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year_month DESC\nLIMIT 1",
           "refId": "A"
@@ -154,7 +154,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT TO_CHAR(MAX(report_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Pipeline Run\"\nFROM reporting.rpt_monthly_budget_summary",
           "refId": "A"
@@ -235,7 +235,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT net_cash_flow AS \"Net Cash Flow\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year_month DESC\nLIMIT 1",
           "refId": "A"
@@ -309,7 +309,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT savings_rate_percent AS \"Savings Rate\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\nORDER BY budget_year_month DESC\nLIMIT 1",
           "refId": "A"
@@ -382,7 +382,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT months_total_expenses_covered AS \"Emergency Fund Months\"\nFROM reporting.rpt_emergency_fund_coverage\nORDER BY budget_year_month DESC\nLIMIT 1",
           "refId": "A"
@@ -466,7 +466,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT COUNT(*)::int AS \"Failed Checks\"\nFROM reporting.rpt_financials_reconciliation_tests\nWHERE pass = false",
           "refId": "A"
@@ -695,7 +695,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
           "rawSql": "SELECT\n  period_date,\n  domain,\n  test_name,\n  delta,\n  notes\nFROM reporting.rpt_financials_reconciliation_tests\nWHERE pass = false\nORDER BY domain, test_name, period_date DESC\nLIMIT 100",
           "refId": "A"
