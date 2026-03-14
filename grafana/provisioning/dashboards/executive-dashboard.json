@@ -125,7 +125,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT $__timeTo()::date AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nwindow_range AS (\n  SELECT\n    $__timeFrom()::date AS start_date,\n    $__timeTo()::date AS end_date\n),\nexec_view AS (\n  SELECT dashboard_generated_at\n  FROM reporting.rpt_executive_dashboard\n  WHERE dashboard_month = (SELECT month_key FROM selected_key)\n)\nSELECT\n  to_char($__timeFrom()::date, 'Mon YYYY') || ' – ' || to_char($__timeTo()::date, 'Mon YYYY') AS \"Time Window\",\n  to_char($__timeFrom()::date, 'Mon YYYY') || ' – ' || to_char($__timeTo()::date, 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(exec_view.dashboard_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM exec_view;",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT $__timeTo()::date AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nwindow_range AS (\n  SELECT\n    $__timeFrom()::date AS start_date,\n    $__timeTo()::date AS end_date\n),\nexec_view AS (\n  SELECT dashboard_generated_at\n  FROM reporting.rpt_executive_dashboard\n  WHERE dashboard_month = (SELECT month_key FROM selected_key)\n)\nSELECT\n  to_char($__timeFrom()::date, 'Mon YYYY') || ' \u2013 ' || to_char($__timeTo()::date, 'Mon YYYY') AS \"Time Window\",\n  to_char($__timeFrom()::date, 'Mon YYYY') || ' \u2013 ' || to_char($__timeTo()::date, 'Mon YYYY') AS \"Data Through\",\n  to_char(MAX(exec_view.dashboard_generated_at), 'YYYY-MM-DD HH24:MI') AS \"Last Refresh\"\nFROM exec_view;",
           "refId": "A"
         }
       ],
@@ -191,7 +191,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT $__timeTo()::date AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nwindow_range AS (\n  SELECT\n    $__timeFrom()::date AS start_date,\n    $__timeTo()::date AS end_date\n),\nwindow_budget AS (\n  SELECT COALESCE(SUM(net_cash_flow), 0) AS total_net_cash_flow\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD')\n        BETWEEN (SELECT start_date FROM window_range)\n        AND     (SELECT end_date   FROM window_range)\n),\ndriver_counts AS (\n  SELECT COALESCE(COUNT(*) FILTER (WHERE sort_order < 4 AND ABS(COALESCE(delta_amount, 0)) > 0.01), 0) AS surfaced_driver_count\n  FROM reporting.rpt_mom_cash_flow_waterfall\n  WHERE budget_year_month = (SELECT month_key FROM selected_key)\n),\nsummary AS (\n  SELECT\n    to_char((SELECT month_date FROM latest_period), 'Mon YYYY') AS latest_closed_month,\n    to_char($__timeFrom()::date, 'Mon YYYY') || ' – ' || to_char($__timeTo()::date, 'Mon YYYY') AS period_label,\n    CASE\n      WHEN wb.total_net_cash_flow > 0 THEN 'Positive'\n      WHEN wb.total_net_cash_flow < 0 THEN 'Negative'\n      ELSE 'Flat'\n    END AS net_cash_flow_direction,\n    COALESCE(dc.surfaced_driver_count, 0) AS surfaced_driver_count\n  FROM window_budget wb\n  LEFT JOIN driver_counts dc ON TRUE\n)\nSELECT CONCAT(\n  'Latest closed month: ', summary.latest_closed_month,\n  ' | Cadence: Monthly close + quarterly deep-dive',\n  ' | Net cash flow direction (', summary.period_label, '): ', summary.net_cash_flow_direction,\n  ' | Cash-flow drivers surfaced: ', summary.surfaced_driver_count::text\n) AS summary\nFROM summary;",
+          "rawSql": "WITH available_months AS (\n  SELECT budget_year_month,\n         to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')\n),\nlatest_period AS (\n  SELECT MAX(month_date) AS month_date\n  FROM available_months\n),\nselected_period AS (\n  SELECT $__timeTo()::date AS month_date\n),\nselected_key AS (\n  SELECT to_char(month_date, 'YYYY-MM') AS month_key\n  FROM selected_period\n),\nwindow_range AS (\n  SELECT\n    $__timeFrom()::date AS start_date,\n    $__timeTo()::date AS end_date\n),\nwindow_budget AS (\n  SELECT COALESCE(SUM(net_cash_flow), 0) AS total_net_cash_flow\n  FROM reporting.rpt_monthly_budget_summary\n  WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD')\n        BETWEEN (SELECT start_date FROM window_range)\n        AND     (SELECT end_date   FROM window_range)\n),\ndriver_counts AS (\n  SELECT COALESCE(COUNT(*) FILTER (WHERE sort_order < 4 AND ABS(COALESCE(delta_amount, 0)) > 0.01), 0) AS surfaced_driver_count\n  FROM reporting.rpt_mom_cash_flow_waterfall\n  WHERE budget_year_month = (SELECT month_key FROM selected_key)\n),\nsummary AS (\n  SELECT\n    to_char((SELECT month_date FROM latest_period), 'Mon YYYY') AS latest_closed_month,\n    to_char($__timeFrom()::date, 'Mon YYYY') || ' \u2013 ' || to_char($__timeTo()::date, 'Mon YYYY') AS period_label,\n    CASE\n      WHEN wb.total_net_cash_flow > 0 THEN 'Positive'\n      WHEN wb.total_net_cash_flow < 0 THEN 'Negative'\n      ELSE 'Flat'\n    END AS net_cash_flow_direction,\n    COALESCE(dc.surfaced_driver_count, 0) AS surfaced_driver_count\n  FROM window_budget wb\n  LEFT JOIN driver_counts dc ON TRUE\n)\nSELECT CONCAT(\n  'Latest closed month: ', summary.latest_closed_month,\n  ' | Cadence: Monthly close + quarterly deep-dive',\n  ' | Net cash flow direction (', summary.period_label, '): ', summary.net_cash_flow_direction,\n  ' | Cash-flow drivers surfaced: ', summary.surfaced_driver_count::text\n) AS summary\nFROM summary;",
           "refId": "A"
         }
       ],
@@ -203,7 +203,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Overall financial health scoreboard. Each bar reflects raw ratios from the selected month: savings performance is net cash flow Ã· income, cash-flow status comes from the cash-flow analysis state machine, and net-worth progress tracks the wealth milestone. The composite score weights net worth 30%, savings 30%, and cash flow 40%.",
+      "description": "Overall financial health scoreboard. Each bar reflects raw ratios from the selected month: savings performance is net cash flow \u00c3\u00b7 income, cash-flow status comes from the cash-flow analysis state machine, and net-worth progress tracks the wealth milestone. The composite score weights net worth 30%, savings 30%, and cash flow 40%.",
       "fieldConfig": {
         "defaults": {
           "min": 0,
@@ -436,7 +436,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Î” ($)"
+                "value": "\u00ce\u201d ($)"
               },
               {
                 "id": "unit",
@@ -452,7 +452,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Î” Ratio"
+                "value": "\u00ce\u201d Ratio"
               },
               {
                 "id": "unit",
@@ -489,7 +489,7 @@
           "refId": "A"
         }
       ],
-      "description": "Cash-oriented KPIs with raw values; Î” Ratio shows change vs the previous month."
+      "description": "Cash-oriented KPIs with raw values; \u00ce\u201d Ratio shows change vs the previous month."
     },
     {
       "datasource": {
@@ -779,7 +779,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Î”"
+                "value": "\u00ce\u201d"
               },
               {
                 "id": "unit",
@@ -795,7 +795,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Î” Ratio"
+                "value": "\u00ce\u201d Ratio"
               },
               {
                 "id": "unit",
@@ -805,14 +805,14 @@
           }
         ]
       },
-      "description": "Score and risk KPIs expressed as raw values; Î” Ratio captures relative change where applicable."
+      "description": "Score and risk KPIs expressed as raw values; \u00ce\u201d Ratio captures relative change where applicable."
     },
     {
       "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Expense Control Score translates your outflow-to-inflow ratio into a 0-100 scale. Scores above 80 mean expenses are â‰¤90% of income (strong control). 55â€“70 means youâ€™re spending roughly 100â€“110% of income (monitor closely). A 10 indicates expenses exceed 150% of incomeâ€”an immediate signal that cash burn is unsustainable.",
+      "description": "Expense Control Score translates your outflow-to-inflow ratio into a 0-100 scale. Scores above 80 mean expenses are \u00e2\u2030\u00a490% of income (strong control). 55\u00e2\u20ac\u201c70 means you\u00e2\u20ac\u2122re spending roughly 100\u00e2\u20ac\u201c110% of income (monitor closely). A 10 indicates expenses exceed 150% of income\u00e2\u20ac\u201dan immediate signal that cash burn is unsustainable.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1832,7 +1832,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Î”"
+                "value": "\u00ce\u201d"
               },
               {
                 "id": "unit",
@@ -1848,7 +1848,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Δ Ratio"
+                "value": "\u0394 Ratio"
               },
               {
                 "id": "unit",
@@ -2007,7 +2007,7 @@
         "x": 0,
         "y": 48,
         "w": 24,
-        "h": 5
+        "h": 8
       },
       "id": 100,
       "options": {
@@ -2016,6 +2016,7 @@
       },
       "pluginVersion": "10.0.0",
       "title": "How to Read This Dashboard",
+      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
       "type": "text"
     },
     {
@@ -2122,7 +2123,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 53,
+        "y": 56,
         "w": 12,
         "h": 6
       },
@@ -2222,7 +2223,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 53,
+        "y": 56,
         "w": 12,
         "h": 6
       },
@@ -2274,7 +2275,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 59,
+        "y": 62,
         "w": 6,
         "h": 4
       },
@@ -2336,7 +2337,7 @@
       },
       "gridPos": {
         "x": 6,
-        "y": 59,
+        "y": 62,
         "w": 6,
         "h": 4
       },
@@ -2412,7 +2413,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 59,
+        "y": 62,
         "w": 6,
         "h": 4
       },
@@ -2581,7 +2582,7 @@
       },
       "gridPos": {
         "x": 18,
-        "y": 59,
+        "y": 62,
         "w": 6,
         "h": 4
       },
@@ -2758,7 +2759,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 63,
+        "y": 66,
         "w": 24,
         "h": 8
       },
@@ -2801,12 +2802,12 @@
       "id": 1005,
       "type": "text",
       "title": "KPI Definitions",
-      "description": "Formula lineage quick reference for headline metrics. See KPI_DICTIONARY.md for full definitions and source lineage.",
+      "description": "Formula lineage quick reference for headline metrics. See KPI_DICTIONARY.md for full definitions and source lineage. overflow-policy:allow-scroll",
       "gridPos": {
         "x": 0,
-        "y": 71,
+        "y": 74,
         "w": 24,
-        "h": 8
+        "h": 11
       },
       "options": {
         "mode": "markdown",

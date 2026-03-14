@@ -40,6 +40,7 @@
       },
       "pluginVersion": "10.0.0",
       "title": "Dashboard Instructions",
+      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
       "type": "text"
     },
     {
@@ -253,7 +254,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Savings rate and expense ratio for last complete month (scaled 0â€“100%, negatives allowed)",
+      "description": "Savings rate and expense ratio for last complete month (scaled 0\u00e2\u20ac\u201c100%, negatives allowed)",
       "fieldConfig": {
         "defaults": {
           "color": {

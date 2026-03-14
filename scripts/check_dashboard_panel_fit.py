@@ -172,6 +172,16 @@ def _panel_avail_height_px(h: int) -> int:
 # Per-panel-type fit checks
 # ---------------------------------------------------------------------------
 
+def _table_row_height_px(panel: Dict) -> int:
+    """Return the data-row height in pixels based on the panel's cellHeight option.
+
+    Grafana supports three densities (Grafana 10+):
+      sm  → 26 px   md (default) → 32 px   lg → 42 px
+    """
+    cell_height = (panel.get("options") or {}).get("cellHeight", "md")
+    return {"sm": 26, "md": 32, "lg": 42}.get(cell_height, 32)
+
+
 def _check_table(panel: Dict, grid: Dict) -> List[Dict]:
     """Check table panel: columns fit width, rows fit height."""
     issues: List[Dict] = []
@@ -212,14 +222,15 @@ def _check_table(panel: Dict, grid: Dict) -> List[Dict]:
             })
 
     # --- Height check: room for header + at least 1 data row? ---
+    row_px = _table_row_height_px(panel)  # respects cellHeight: sm/md/lg
     header_h = TABLE_HEADER_ROW_PX if show_header else 0
-    min_content_h = header_h + TABLE_DATA_ROW_PX
+    min_content_h = header_h + row_px
     if min_content_h > avail_h:
         issues.append({
             "rule": "table-rows-overflow-height",
             "detail": (
                 f"Table needs ~{min_content_h}px (header={header_h}px + "
-                f"1 row={TABLE_DATA_ROW_PX}px) but panel (h={h}) "
+                f"1 row={row_px}px) but panel (h={h}) "
                 f"provides ~{avail_h}px"
             ),
         })
@@ -228,37 +239,30 @@ def _check_table(panel: Dict, grid: Dict) -> List[Dict]:
 
 
 def _check_text(panel: Dict, grid: Dict) -> List[Dict]:
-    """Check text/markdown panel: content fits the area."""
+    """Check text/markdown panel: panel is large enough to show at least one line.
+
+    Grafana text panels render with a scrollbar when content overflows, so the
+    full content is always accessible regardless of panel height.  The only
+    meaningful failure mode is a panel so small that *nothing* is visible —
+    flagged when available height is less than one rendered line (~20 px).
+    """
     issues: List[Dict] = []
-    w = grid.get("w", 24)
     h = grid.get("h", 6)
 
     content = (panel.get("options") or {}).get("content", "")
     if not isinstance(content, str) or not content.strip():
         return issues
 
-    avail_w = _panel_avail_width_px(w)
     avail_h = _panel_avail_height_px(h)
-
-    # Estimate lines of content.
-    chars_per_line = max(1, int(avail_w / CHAR_WIDTH_PX))
-    # Count explicit newlines + wrapped lines.
-    lines = content.split("\n")
-    est_lines = 0
-    for line in lines:
-        if not line.strip():
-            est_lines += 1  # blank line
-        else:
-            est_lines += max(1, (len(line) + chars_per_line - 1) // chars_per_line)
-
     line_height_px = 20  # approximate rendered line height for markdown
-    est_height = est_lines * line_height_px
-    if est_height > avail_h:
+
+    if avail_h < line_height_px:
         issues.append({
-            "rule": "text-content-overflow-height",
+            "rule": "text-panel-too-small",
             "detail": (
-                f"~{est_lines} lines of text need ~{est_height}px but "
-                f"panel (h={h}) provides ~{avail_h}px"
+                f"Panel (h={h}) has only ~{avail_h}px of content area — not "
+                f"enough to display even one line (~{line_height_px}px). "
+                f"Increase panel height so at least one line is visible."
             ),
         })
 

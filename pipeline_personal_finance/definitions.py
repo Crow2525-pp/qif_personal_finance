@@ -10,6 +10,7 @@ from .dashboard_policy_gate import (
     post_dbt_reporting_ready,
     dashboard_json_lint_gate,
     dashboard_panel_fit_gate,
+    dashboard_visual_overflow_gate,
     dashboard_time_control_policy_gate,
 )
 from .assets_dashboard_qa import dashboard_quality_gate
@@ -27,6 +28,7 @@ qif_pipeline_job = define_asset_job(
         post_dbt_reporting_ready,
         dashboard_json_lint_gate,
         dashboard_panel_fit_gate,
+        dashboard_visual_overflow_gate,
         dashboard_time_control_policy_gate,
         dashboard_quality_gate,
     ],
@@ -99,6 +101,7 @@ defs = Definitions(
         post_dbt_reporting_ready,
         dashboard_json_lint_gate,
         dashboard_panel_fit_gate,
+        dashboard_visual_overflow_gate,
         dashboard_time_control_policy_gate,
         dashboard_quality_gate,
     ],

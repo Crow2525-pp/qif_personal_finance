@@ -28,18 +28,19 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 8,
+        "h": 63,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# 💸 Outflows Insights Dashboard - Spending Analysis\n\n**What This Dashboard Shows:** Deep analysis of spending patterns with categorization and trend detection for optimization opportunities.\n\n**Key Metrics Explained:**\n• **Monthly Outflow Trends:** Track spending with month-over-month and year-over-year changes\n• **Category Analysis:** Detailed breakdown across all spending areas\n• **Large Transactions:** Identify unusual high-value purchases\n• **Uncategorized Items:** Should be <10% for accurate reporting - these distort analysis\n\n**How to Use:** Focus on largest categories first. Investigate unexpected increases. Categorize unknown transactions for better insights.",
+        "content": "# \ud83d\udcb8 Outflows Insights Dashboard - Spending Analysis\n\n**What This Dashboard Shows:** Deep analysis of spending patterns with categorization and trend detection for optimization opportunities.\n\n**Key Metrics Explained:**\n\u2022 **Monthly Outflow Trends:** Track spending with month-over-month and year-over-year changes\n\u2022 **Category Analysis:** Detailed breakdown across all spending areas\n\u2022 **Large Transactions:** Identify unusual high-value purchases\n\u2022 **Uncategorized Items:** Should be <10% for accurate reporting - these distort analysis\n\n**How to Use:** Focus on largest categories first. Investigate unexpected increases. Categorize unknown transactions for better insights.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
       "title": "Dashboard Instructions",
+      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
       "type": "text"
     },
     {
@@ -97,7 +98,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 8
+        "y": 63
       },
       "id": 1,
       "options": {
@@ -187,7 +188,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 12
+        "y": 67
       },
       "id": 2,
       "options": {
@@ -253,7 +254,7 @@
         "h": 8,
         "w": 6,
         "x": 12,
-        "y": 12
+        "y": 67
       },
       "id": 3,
       "options": {
@@ -320,7 +321,7 @@
         "h": 8,
         "w": 6,
         "x": 18,
-        "y": 12
+        "y": 67
       },
       "id": 4,
       "options": {
@@ -377,7 +378,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 20
+        "y": 75
       },
       "id": 5,
       "options": {
@@ -477,7 +478,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 20
+        "y": 75
       },
       "id": 6,
       "options": {
@@ -566,7 +567,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 83
       },
       "id": 7,
       "options": {
@@ -692,7 +693,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 91
       },
       "id": 8,
       "options": {
@@ -759,7 +760,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 44
+        "y": 99
       },
       "id": 9,
       "options": {
@@ -849,7 +850,7 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 44
+        "y": 99
       },
       "id": 10,
       "options": {
@@ -1019,7 +1020,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 52
+        "y": 107
       },
       "id": 11,
       "options": {
@@ -1202,7 +1203,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 60
+        "y": 115
       },
       "id": 12,
       "options": {
@@ -1274,7 +1275,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 68,
+        "y": 123,
         "w": 12,
         "h": 6
       },
@@ -1340,7 +1341,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 68,
+        "y": 123,
         "w": 12,
         "h": 6
       },
@@ -1461,7 +1462,7 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 74
+        "y": 129
       },
       "id": 13,
       "options": {
@@ -1565,7 +1566,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 74
+        "y": 129
       },
       "id": 14,
       "options": {
@@ -1693,7 +1694,7 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 84
+        "y": 139
       },
       "id": 15,
       "options": {
@@ -1797,7 +1798,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 84
+        "y": 139
       },
       "id": 16,
       "options": {

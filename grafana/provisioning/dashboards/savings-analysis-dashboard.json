@@ -56,18 +56,19 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 8,
+        "h": 14,
         "w": 18,
         "x": 6,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# 💎 Savings Analysis Dashboard - Wealth Building Progress\n\n**What This Dashboard Shows:** Net cash savings vs. contribution-driven savings, with trend and goal tracking.\n\n**Key Metrics**\n• **Savings Health Score (1-100):** Assess net cash flow vs. contribution consistency.\n• **Net vs Traditional Savings Rate:** Net cash retained after expenses vs. targeted contributions (cash/invest).\n• **Contribution Mix:** Track cash savings, offset top-ups, and investment contributions separately.\n• **Rolling Averages:** Smooth the net rate to spot sustained improvement.\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- YTD panels reflect year-to-date totals.\n- Trend charts cover the trailing 12 months.\n- Rolling averages use the last 3 complete months.\n\n**How to Use:** Net savings shows what actually stayed in your accounts. Traditional savings highlights how much you purposely set aside (cash/invest). Align both with your goals.",
+        "content": "# \ud83d\udc8e Savings Analysis Dashboard - Wealth Building Progress\n\n**What This Dashboard Shows:** Net cash savings vs. contribution-driven savings, with trend and goal tracking.\n\n**Key Metrics**\n\u2022 **Savings Health Score (1-100):** Assess net cash flow vs. contribution consistency.\n\u2022 **Net vs Traditional Savings Rate:** Net cash retained after expenses vs. targeted contributions (cash/invest).\n\u2022 **Contribution Mix:** Track cash savings, offset top-ups, and investment contributions separately.\n\u2022 **Rolling Averages:** Smooth the net rate to spot sustained improvement.\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- YTD panels reflect year-to-date totals.\n- Trend charts cover the trailing 12 months.\n- Rolling averages use the last 3 complete months.\n\n**How to Use:** Net savings shows what actually stayed in your accounts. Traditional savings highlights how much you purposely set aside (cash/invest). Align both with your goals.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
       "title": "Dashboard Instructions",
+      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
       "type": "text"
     },
     {
@@ -173,7 +174,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 8
+        "y": 14
       },
       "id": 1,
       "options": {
@@ -244,7 +245,7 @@
         "h": 8,
         "w": 6,
         "x": 6,
-        "y": 8
+        "y": 14
       },
       "id": 2,
       "options": {
@@ -311,7 +312,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 14
       },
       "id": 3,
       "options": {
@@ -340,7 +341,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Monthly savings rate trends.\n• Total Savings Rate = (Cash + Offset + Investments + Mortgage Principal) / Income.\n• Traditional Savings Rate = (Cash + Offset + Investments) / Income (excludes mortgage principal as forced savings).\n• 3‑Month Average smooths the Total rate to reduce volatility.",
+      "description": "Monthly savings rate trends.\n\u2022 Total Savings Rate = (Cash + Offset + Investments + Mortgage Principal) / Income.\n\u2022 Traditional Savings Rate = (Cash + Offset + Investments) / Income (excludes mortgage principal as forced savings).\n\u2022 3\u2011Month Average smooths the Total rate to reduce volatility.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -464,7 +465,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 22
       },
       "id": 4,
       "options": {
@@ -624,7 +625,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 22
       },
       "id": 5,
       "options": {
@@ -761,7 +762,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 24
+        "y": 30
       },
       "id": 6,
       "options": {
@@ -917,7 +918,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 24
+        "y": 30
       },
       "id": 7,
       "options": {
@@ -1049,7 +1050,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 30
+        "y": 36
       },
       "id": 8,
       "options": {
@@ -1163,7 +1164,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 30
+        "y": 36
       },
       "id": 9,
       "options": {
@@ -1323,7 +1324,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 42
       },
       "id": 10,
       "options": {
@@ -1394,7 +1395,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 42
+        "y": 48
       },
       "id": 11,
       "options": {
@@ -1465,7 +1466,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 42
+        "y": 48
       },
       "id": 12,
       "options": {
@@ -1532,7 +1533,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 42
+        "y": 48
       },
       "id": 13,
       "options": {
@@ -1629,7 +1630,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 48
+        "y": 54
       },
       "id": 14,
       "options": {
@@ -1688,7 +1689,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 48
+        "y": 54
       },
       "id": 15,
       "options": {
@@ -1719,9 +1720,9 @@
       "description": "Formula lineage for the savings KPIs on this dashboard. Full detail is in KPI_DICTIONARY.md.",
       "gridPos": {
         "x": 0,
-        "y": 54,
+        "y": 60,
         "w": 24,
-        "h": 8
+        "h": 14
       },
       "options": {
         "mode": "markdown",

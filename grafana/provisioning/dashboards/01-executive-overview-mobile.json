@@ -24,17 +24,18 @@
         "uid": "PCC52D03280B7034C"
       },
       "gridPos": {
-        "h": 4,
+        "h": 15,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# 📱 Executive Overview\n\nKey financial metrics and health indicators at a glance. Optimized for mobile viewing.",
+        "content": "# \ud83d\udcf1 Executive Overview\n\nKey financial metrics and health indicators at a glance. Optimized for mobile viewing.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
+      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
       "type": "text"
     },
     {
@@ -243,7 +244,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 8
+        "y": 19
       },
       "id": 3,
       "options": {
@@ -310,7 +311,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 27
       },
       "id": 4,
       "options": {
@@ -377,7 +378,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 27
       },
       "id": 5,
       "options": {
@@ -415,14 +416,14 @@
         "uid": "PCC52D03280B7034C"
       },
       "gridPos": {
-        "h": 4,
+        "h": 15,
         "w": 24,
         "x": 0,
-        "y": 24
+        "y": 35
       },
       "id": 102,
       "options": {
-        "content": "## 🔍 Data Quality & Reconciliation\n\nFinancial data validation and reconciliation status across all reporting domains.",
+        "content": "## \ud83d\udd0d Data Quality & Reconciliation\n\nFinancial data validation and reconciliation status across all reporting domains.",
         "mode": "markdown"
       },
       "title": "Reconciliation Status",
@@ -460,7 +461,7 @@
         "h": 4,
         "w": 8,
         "x": 0,
-        "y": 26
+        "y": 37
       },
       "id": 6,
       "options": {
@@ -509,7 +510,7 @@
                 "ALL_PASS": {
                   "color": "green",
                   "index": 0,
-                  "text": "✅ ALL PASS"
+                  "text": "\u2705 ALL PASS"
                 }
               },
               "type": "value"
@@ -519,7 +520,7 @@
                 "SOME_FAIL": {
                   "color": "red",
                   "index": 1,
-                  "text": "❌ SOME FAIL"
+                  "text": "\u274c SOME FAIL"
                 }
               },
               "type": "value"
@@ -541,7 +542,7 @@
         "h": 4,
         "w": 8,
         "x": 8,
-        "y": 26
+        "y": 37
       },
       "id": 7,
       "options": {
@@ -640,7 +641,7 @@
         "h": 4,
         "w": 8,
         "x": 16,
-        "y": 26
+        "y": 37
       },
       "id": 8,
       "options": {
@@ -741,7 +742,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 30
+        "y": 52
       },
       "id": 9,
       "description": "Tap any value in Uncategorized Count to review items in Transaction Analysis.",
@@ -810,7 +811,7 @@
     ]
   },
   "timezone": "",
-  "title": "📱 Executive Overview",
+  "title": "\ud83d\udcf1 Executive Overview",
   "uid": "exec-mobile-overview",
   "version": 1,
   "weekStart": ""

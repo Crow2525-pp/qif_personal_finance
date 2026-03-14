@@ -65,18 +65,19 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 5,
+        "h": 12,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# 📋 Transaction Analysis Dashboard\n\n**Purpose**: Identify spending patterns, recurring merchants, and transactions that need categorisation.\n\n**Workflow**\n1. Check the KPI row to understand overall activity for the last 12 closed months.\n2. Use the inflow/outflow trend to confirm monthly cash movement.\n3. Review top spending categories and drill into large uncategorised items.\n4. Inspect recurring merchants for unexpected subscriptions or fees.\n5. Use the account summary to see where activity concentrates.\n\n_All panels exclude internal transfers and the current, incomplete month._",
+        "content": "# \ud83d\udccb Transaction Analysis Dashboard\n\n**Purpose**: Identify spending patterns, recurring merchants, and transactions that need categorisation.\n\n**Workflow**\n1. Check the KPI row to understand overall activity for the last 12 closed months.\n2. Use the inflow/outflow trend to confirm monthly cash movement.\n3. Review top spending categories and drill into large uncategorised items.\n4. Inspect recurring merchants for unexpected subscriptions or fees.\n5. Use the account summary to see where activity concentrates.\n\n_All panels exclude internal transfers and the current, incomplete month._",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
       "title": "Dashboard Instructions",
+      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
       "type": "text"
     },
     {
@@ -88,7 +89,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 5
+        "y": 12
       },
       "id": 1,
       "title": "Transactions Overview (Last 12 Closed Months)",
@@ -237,7 +238,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 10
+        "y": 17
       },
       "id": 2,
       "title": "Monthly Inflows vs Outflows",
@@ -352,7 +353,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 10
+        "y": 17
       },
       "id": 3,
       "title": "Top Spending Categories",
@@ -444,7 +445,7 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 18
+        "y": 25
       },
       "id": 4,
       "title": "High Value Needs Review",
@@ -544,7 +545,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 18
+        "y": 25
       },
       "id": 5,
       "title": "Recurring Merchants (6 Months)",
@@ -644,7 +645,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 35
       },
       "id": 6,
       "title": "Transactions by Account",
@@ -791,7 +792,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 36,
+        "y": 43,
         "w": 12,
         "h": 6
       },
@@ -857,7 +858,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 36,
+        "y": 43,
         "w": 12,
         "h": 6
       },
@@ -891,7 +892,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 42
+        "y": 49
       },
       "id": 7,
       "title": "Transaction Anomalies (Baseline Comparison)",
@@ -1011,7 +1012,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 52
+        "y": 59
       },
       "id": 8,
       "title": "Transactions Needing Review",

@@ -28,17 +28,18 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 4,
+        "h": 9,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# 💳 Spending & Categories\n\nAnalyze spending patterns, categories, and transaction insights in mobile-friendly format.",
+        "content": "# \ud83d\udcb3 Spending & Categories\n\nAnalyze spending patterns, categories, and transaction insights in mobile-friendly format.",
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
+      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
       "type": "text"
     },
     {
@@ -177,7 +178,7 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 12
+        "y": 17
       },
       "id": 2,
       "options": {
@@ -276,7 +277,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 12
+        "y": 17
       },
       "id": 3,
       "options": {
@@ -365,7 +366,7 @@
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 22
+        "y": 27
       },
       "id": 4,
       "options": {
@@ -431,7 +432,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 34
+        "y": 39
       },
       "id": 5,
       "options": {
@@ -498,7 +499,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 42
+        "y": 47
       },
       "id": 10,
       "options": {
@@ -565,7 +566,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 42
+        "y": 47
       },
       "id": 6,
       "options": {
@@ -603,14 +604,14 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 4,
+        "h": 9,
         "w": 24,
         "x": 0,
-        "y": 50
+        "y": 55
       },
       "id": 101,
       "options": {
-        "content": "## 🛒 Grocery Spending Analysis\n\nDetailed breakdown of grocery spending across major retailers (Coles, Woolworths, Gaskos, ALDI).",
+        "content": "## \ud83d\uded2 Grocery Spending Analysis\n\nDetailed breakdown of grocery spending across major retailers (Coles, Woolworths, Gaskos, ALDI).",
         "mode": "markdown"
       },
       "title": "Grocery Analysis",
@@ -647,7 +648,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 52
+        "y": 57
       },
       "id": 7,
       "options": {
@@ -709,7 +710,7 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 58
+        "y": 68
       },
       "id": 8,
       "options": {
@@ -807,7 +808,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 58
+        "y": 68
       },
       "id": 9,
       "options": {
@@ -874,7 +875,7 @@
     ]
   },
   "timezone": "",
-  "title": "💳 Spending & Categories",
+  "title": "\ud83d\udcb3 Spending & Categories",
   "uid": "spending-categories-mobile",
   "version": 1,
   "weekStart": ""

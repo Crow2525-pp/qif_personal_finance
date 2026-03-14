@@ -28,18 +28,19 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 8,
+        "h": 12,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "id": 100,
       "options": {
-        "content": "# 📈 Year-over-Year Comparison Dashboard - Annual Progress Tracking\n\n**What This Dashboard Shows:** Annual financial performance assessment with multi-year trends and comprehensive benchmarking.\n\n**Key Metrics Explained:**\n• **Annual Progress Score:** Financial improvement measurement year-over-year\n• **YoY Changes:** Income, expenses, net worth, and savings rate annual comparisons\n• **Performance Classification:** Tier-based assessment of financial trajectory\n• **Trend Analysis:** Multi-year patterns showing long-term financial health\n\n**How to Use:** Annual trends show long-term financial trajectory. Focus on areas with declining year-over-year performance for improvement.",
+        "content": "# \ud83d\udcc8 Year-over-Year Comparison Dashboard - Annual Progress Tracking\n\n**What This Dashboard Shows:** Annual financial performance assessment with multi-year trends and comprehensive benchmarking.\n\n**Key Metrics Explained:**\n\u2022 **Annual Progress Score:** Financial improvement measurement year-over-year\n\u2022 **YoY Changes:** Income, expenses, net worth, and savings rate annual comparisons\n\u2022 **Performance Classification:** Tier-based assessment of financial trajectory\n\u2022 **Trend Analysis:** Multi-year patterns showing long-term financial health\n\n**How to Use:** Annual trends show long-term financial trajectory. Focus on areas with declining year-over-year performance for improvement.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
       "title": "Dashboard Instructions",
+      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
       "type": "text"
     },
     {
@@ -81,7 +82,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 8
+        "y": 12
       },
       "id": 1,
       "options": {
@@ -145,10 +146,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 1,
+        "h": 4,
         "w": 16,
         "x": 8,
-        "y": 8
+        "y": 12
       },
       "id": 2,
       "options": {
@@ -334,7 +335,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 20
       },
       "id": 3,
       "options": {
@@ -478,7 +479,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 20
       },
       "id": 4,
       "options": {
@@ -645,7 +646,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 24
+        "y": 28
       },
       "id": 5,
       "options": {
@@ -778,7 +779,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 24
+        "y": 28
       },
       "id": 6,
       "options": {
@@ -913,7 +914,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 32
+        "y": 36
       },
       "id": 7,
       "options": {
@@ -1079,7 +1080,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 32
+        "y": 36
       },
       "id": 8,
       "options": {
@@ -1196,7 +1197,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 38
+        "y": 42
       },
       "id": 9,
       "options": {
@@ -1363,7 +1364,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 38
+        "y": 42
       },
       "id": 10,
       "options": {
@@ -1492,7 +1493,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 46
+        "y": 50
       },
       "id": 12,
       "options": {
@@ -1558,7 +1559,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 46
+        "y": 50
       },
       "id": 13,
       "options": {
@@ -1588,10 +1589,10 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 4,
+        "h": 10,
         "w": 24,
         "x": 0,
-        "y": 54
+        "y": 58
       },
       "id": 14,
       "options": {
@@ -1637,7 +1638,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 58
+        "y": 68
       },
       "id": 15,
       "options": {
@@ -1732,7 +1733,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 64
+        "y": 74
       },
       "id": 11,
       "options": {

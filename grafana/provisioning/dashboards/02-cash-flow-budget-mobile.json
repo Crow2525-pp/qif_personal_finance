@@ -39,6 +39,7 @@
         "mode": "markdown"
       },
       "title": "Dashboard Guide",
+      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
       "type": "text"
     },
     {

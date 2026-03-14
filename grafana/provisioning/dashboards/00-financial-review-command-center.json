@@ -489,7 +489,7 @@
     },
     {
       "gridPos": {
-        "h": 14,
+        "h": 52,
         "w": 12,
         "x": 0,
         "y": 12
@@ -501,7 +501,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "## Monthly Review Checklist\n\nWork through these steps in order each month after the pipeline runs.\n\n---\n\n### Step 1 — Validate the Data\n**[01 - Executive Financial Overview](/d/executive_dashboard/01-executive-financial-overview)**\n- [ ] Confirm Data Freshness shows the correct closed month\n- [ ] Check Financial Health Scores are reasonable\n- [ ] Review Net Cash Flow and Savings Rate values\n\n### Step 2 — Review Cash Flow\n**[02 - Cash Flow Analysis](/d/cash_flow_analysis/02-cash-flow-analysis)**\n- [ ] Identify income sources and any anomalies\n- [ ] Review expense total vs prior month\n- [ ] Note any large one-off items\n\n### Step 3 — Assess Savings Performance\n**[05 - Savings Analysis](/d/savings_analysis/05-savings-analysis)**\n- [ ] Review savings rate trend\n- [ ] Check emergency fund adequacy\n- [ ] Confirm offset account contributions\n\n### Step 4 — Drill Into Spending Categories\n**[06 - Category Spending Analysis](/d/category-spending-v2/06-category-spending-analysis)**\n- [ ] Identify categories over budget\n- [ ] Flag any uncategorized high-value transactions\n- [ ] Review top merchants\n\n### Step 5 — Check Reconciliation\n**[10 - Financial Reconciliation](/d/outflows_reconciliation/10-financial-reconciliation)**\n- [ ] Resolve any FAIL items shown in Action Items below\n- [ ] Verify account balances match statements\n\n### Step 6 — Review Transactions\n**[09 - Transaction Analysis](/d/transaction_analysis_dashboard/09-transaction-analysis)**\n- [ ] Spot-check unusual or large transactions\n- [ ] Confirm all accounts have data for the period\n\n---\n*After completing all steps, update `activity.md` with findings.*",
+        "content": "## Monthly Review Checklist\n\nWork through these steps in order each month after the pipeline runs.\n\n---\n\n### Step 1 \u2014 Validate the Data\n**[01 - Executive Financial Overview](/d/executive_dashboard/01-executive-financial-overview)**\n- [ ] Confirm Data Freshness shows the correct closed month\n- [ ] Check Financial Health Scores are reasonable\n- [ ] Review Net Cash Flow and Savings Rate values\n\n### Step 2 \u2014 Review Cash Flow\n**[02 - Cash Flow Analysis](/d/cash_flow_analysis/02-cash-flow-analysis)**\n- [ ] Identify income sources and any anomalies\n- [ ] Review expense total vs prior month\n- [ ] Note any large one-off items\n\n### Step 3 \u2014 Assess Savings Performance\n**[05 - Savings Analysis](/d/savings_analysis/05-savings-analysis)**\n- [ ] Review savings rate trend\n- [ ] Check emergency fund adequacy\n- [ ] Confirm offset account contributions\n\n### Step 4 \u2014 Drill Into Spending Categories\n**[06 - Category Spending Analysis](/d/category-spending-v2/06-category-spending-analysis)**\n- [ ] Identify categories over budget\n- [ ] Flag any uncategorized high-value transactions\n- [ ] Review top merchants\n\n### Step 5 \u2014 Check Reconciliation\n**[10 - Financial Reconciliation](/d/outflows_reconciliation/10-financial-reconciliation)**\n- [ ] Resolve any FAIL items shown in Action Items below\n- [ ] Verify account balances match statements\n\n### Step 6 \u2014 Review Transactions\n**[09 - Transaction Analysis](/d/transaction_analysis_dashboard/09-transaction-analysis)**\n- [ ] Spot-check unusual or large transactions\n- [ ] Confirm all accounts have data for the period\n\n---\n*After completing all steps, update `activity.md` with findings.*",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -510,7 +510,7 @@
     },
     {
       "gridPos": {
-        "h": 14,
+        "h": 52,
         "w": 12,
         "x": 12,
         "y": 12
@@ -522,7 +522,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "## Quick Navigation\n\nJump to any dashboard by category.\n\n---\n\n### Core Review (run monthly)\n- [01 - Executive Financial Overview](/d/executive_dashboard/01-executive-financial-overview)\n- [02 - Cash Flow Analysis](/d/cash_flow_analysis/02-cash-flow-analysis)\n- [03 - Monthly Budget Summary](/d/monthly_budget_summary/03-monthly-budget-summary)\n- [05 - Savings Analysis](/d/savings_analysis/05-savings-analysis)\n- [06 - Category Spending Analysis](/d/category-spending-v2/06-category-spending-analysis)\n- [10 - Financial Reconciliation](/d/outflows_reconciliation/10-financial-reconciliation)\n\n### Deep Dive — Spending\n- [07 - Expense Performance Analysis](/d/expense_performance/07-expense-performance-analysis)\n- [08 - Outflows Insights](/d/outflows_insights/08-outflows-insights)\n- [09 - Transaction Analysis](/d/transaction_analysis_dashboard/09-transaction-analysis)\n- [16 - Grocery Spending Analysis](/d/grocery_spending_analysis/16-grocery-spending-analysis)\n- [17 - Amazon Spending Analysis](/d/amazon-spending/17-amazon-spending-analysis)\n\n### Wealth & Net Worth\n- [04 - Household Net Worth Analysis](/d/household_net_worth/04-household-net-worth-analysis)\n- [11 - Account Performance](/d/account_performance_dashboard/11-account-performance)\n- [15 - Mortgage Payoff](/d/mortgage-payoff/15-mortgage-payoff)\n\n### Trends & Projections\n- [12 - Financial Projections](/d/financial_projections/12-financial-projections)\n- [13 - Year-over-Year Comparison](/d/year_over_year_comparison/13-year-over-year-comparison)\n- [14 - Four-Year Financial Comparison](/d/four_year_financial_comparison/14-four-year-financial-comparison)\n\n### Mobile Views\n- [18 - Executive Overview (Mobile)](/d/exec-mobile-overview/18-executive-overview-mobile)\n- [19 - Spending & Categories (Mobile)](/d/spending-categories-mobile/19-spending-and-categories-mobile)\n- [20 - Cash Flow & Budget (Mobile)](/d/cashflow-budget-mobile/20-cash-flow-and-budget-mobile)\n- [21 - Savings & Performance (Mobile)](/d/savings-performance-mobile/21-savings-and-performance-mobile)\n- [22 - Assets & Net Worth (Mobile)](/d/assets-networth-mobile/22-assets-and-net-worth-mobile)\n- [23 - Projections & Analysis (Mobile)](/d/projections-analysis-mobile/23-projections-and-analysis-mobile)",
+        "content": "## Quick Navigation\n\nJump to any dashboard by category.\n\n---\n\n### Core Review (run monthly)\n- [01 - Executive Financial Overview](/d/executive_dashboard/01-executive-financial-overview)\n- [02 - Cash Flow Analysis](/d/cash_flow_analysis/02-cash-flow-analysis)\n- [03 - Monthly Budget Summary](/d/monthly_budget_summary/03-monthly-budget-summary)\n- [05 - Savings Analysis](/d/savings_analysis/05-savings-analysis)\n- [06 - Category Spending Analysis](/d/category-spending-v2/06-category-spending-analysis)\n- [10 - Financial Reconciliation](/d/outflows_reconciliation/10-financial-reconciliation)\n\n### Deep Dive \u2014 Spending\n- [07 - Expense Performance Analysis](/d/expense_performance/07-expense-performance-analysis)\n- [08 - Outflows Insights](/d/outflows_insights/08-outflows-insights)\n- [09 - Transaction Analysis](/d/transaction_analysis_dashboard/09-transaction-analysis)\n- [16 - Grocery Spending Analysis](/d/grocery_spending_analysis/16-grocery-spending-analysis)\n- [17 - Amazon Spending Analysis](/d/amazon-spending/17-amazon-spending-analysis)\n\n### Wealth & Net Worth\n- [04 - Household Net Worth Analysis](/d/household_net_worth/04-household-net-worth-analysis)\n- [11 - Account Performance](/d/account_performance_dashboard/11-account-performance)\n- [15 - Mortgage Payoff](/d/mortgage-payoff/15-mortgage-payoff)\n\n### Trends & Projections\n- [12 - Financial Projections](/d/financial_projections/12-financial-projections)\n- [13 - Year-over-Year Comparison](/d/year_over_year_comparison/13-year-over-year-comparison)\n- [14 - Four-Year Financial Comparison](/d/four_year_financial_comparison/14-four-year-financial-comparison)\n\n### Mobile Views\n- [18 - Executive Overview (Mobile)](/d/exec-mobile-overview/18-executive-overview-mobile)\n- [19 - Spending & Categories (Mobile)](/d/spending-categories-mobile/19-spending-and-categories-mobile)\n- [20 - Cash Flow & Budget (Mobile)](/d/cashflow-budget-mobile/20-cash-flow-and-budget-mobile)\n- [21 - Savings & Performance (Mobile)](/d/savings-performance-mobile/21-savings-and-performance-mobile)\n- [22 - Assets & Net Worth (Mobile)](/d/assets-networth-mobile/22-assets-and-net-worth-mobile)\n- [23 - Projections & Analysis (Mobile)](/d/projections-analysis-mobile/23-projections-and-analysis-mobile)",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -535,7 +535,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 26
+        "y": 66
       },
       "id": 30,
       "title": "Action Items",
@@ -666,7 +666,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 27
+        "y": 67
       },
       "id": 31,
       "options": {
@@ -701,7 +701,7 @@
           "refId": "A"
         }
       ],
-      "title": "Failed Reconciliation Checks — Action Required",
+      "title": "Failed Reconciliation Checks \u2014 Action Required",
       "type": "table"
     }
   ],
