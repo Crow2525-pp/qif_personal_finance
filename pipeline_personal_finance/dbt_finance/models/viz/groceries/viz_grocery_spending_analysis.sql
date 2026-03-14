@@ -5,6 +5,7 @@ WITH grocery_transactions AS (
         ft.transaction_date,
         ft.transaction_amount,
         ft.transaction_memo,
+        ft.transaction_description,
         dc.category,
         dc.subcategory,
         dc.store,
@@ -15,24 +16,14 @@ WITH grocery_transactions AS (
     LEFT JOIN {{ ref('dim_accounts') }} da ON ft.account_key = da.account_key
     WHERE
         ft.transaction_amount < 0  -- Only expenses (negative amounts)
-        AND (
-            LOWER(ft.transaction_memo) LIKE '%coles%'
-            OR LOWER(ft.transaction_memo) LIKE '%woolworths%'
-            OR LOWER(ft.transaction_memo) LIKE '%woolies%'
-            OR LOWER(ft.transaction_memo) LIKE '%gaskos%'
-            OR LOWER(ft.transaction_memo) LIKE '%gascos%'
-        )
+        AND dc.subcategory = 'Groceries'
+        AND dc.store IN ('Coles', 'Woolworths', 'Gaskos')
 ),
 
 grocery_store_mapping AS (
     SELECT
         *,
-        CASE
-            WHEN LOWER(transaction_memo) LIKE '%coles%' THEN 'Coles'
-            WHEN LOWER(transaction_memo) LIKE '%woolworths%' OR LOWER(transaction_memo) LIKE '%woolies%' THEN 'Woolworths'
-            WHEN LOWER(transaction_memo) LIKE '%gaskos%' OR LOWER(transaction_memo) LIKE '%gascos%' THEN 'Gaskos'
-            ELSE 'Other'
-        END AS grocery_store
+        store AS grocery_store
     FROM grocery_transactions
 ),
 

@@ -66,9 +66,7 @@ seeds:
       - name: sender
         description: Indicates the recipient or destination account of the transaction. If null then wildcard.
       - name: account_name
-        description: Identifies the account from which the transaction originated.
-        tests:
-          - not_null
+        description: Identifies the account from which the transaction originated. If null then wildcard across accounts/banks.
       - name: category
         description: General classification of the transaction, such as rent, salary, utilities, etc.
       - name: subcategory

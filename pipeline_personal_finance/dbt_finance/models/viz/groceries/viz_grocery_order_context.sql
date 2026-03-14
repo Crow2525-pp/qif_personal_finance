@@ -5,31 +5,23 @@ WITH grocery_transactions AS (
         ft.transaction_date,
         CASE WHEN ft.transaction_amount < 0 THEN -ft.transaction_amount ELSE ft.transaction_amount END AS abs_amount,
         ft.transaction_memo,
-        CASE
-            WHEN LOWER(ft.transaction_memo) LIKE '%coles%' THEN 'Coles'
-            WHEN LOWER(ft.transaction_memo) LIKE '%woolworths%' OR LOWER(ft.transaction_memo) LIKE '%woolies%' THEN 'Woolworths'
-            WHEN LOWER(ft.transaction_memo) LIKE '%gaskos%' OR LOWER(ft.transaction_memo) LIKE '%gascos%' THEN 'Gaskos'
-            ELSE 'Other'
-        END AS grocery_store,
+        ft.transaction_description,
+        dc.store AS grocery_store,
         -- Grocery subscription/recurring detection (e.g., home delivery subscriptions)
         CASE
-            WHEN LOWER(ft.transaction_memo) LIKE '%subscription%'
-                OR LOWER(ft.transaction_memo) LIKE '%recurring%'
-                OR LOWER(ft.transaction_memo) LIKE '%delivery%'
+            WHEN LOWER(COALESCE(ft.transaction_description, '') || ' ' || COALESCE(ft.transaction_memo, '')) LIKE '%subscription%'
+                OR LOWER(COALESCE(ft.transaction_description, '') || ' ' || COALESCE(ft.transaction_memo, '')) LIKE '%recurring%'
+                OR LOWER(COALESCE(ft.transaction_description, '') || ' ' || COALESCE(ft.transaction_memo, '')) LIKE '%delivery%'
             THEN 'Subscription/Recurring'
             ELSE 'One-Off Purchase'
         END AS purchase_type,
         DATE_TRUNC('month', ft.transaction_date) AS year_month
     FROM {{ ref('fct_transactions') }} ft
+    LEFT JOIN {{ ref('dim_categories') }} dc ON ft.category_key = dc.category_key
     WHERE
         ft.transaction_amount < 0  -- Only expenses (negative amounts)
-        AND (
-            LOWER(ft.transaction_memo) LIKE '%coles%'
-            OR LOWER(ft.transaction_memo) LIKE '%woolworths%'
-            OR LOWER(ft.transaction_memo) LIKE '%woolies%'
-            OR LOWER(ft.transaction_memo) LIKE '%gaskos%'
-            OR LOWER(ft.transaction_memo) LIKE '%gascos%'
-        )
+        AND dc.subcategory = 'Groceries'
+        AND dc.store IN ('Coles', 'Woolworths', 'Gaskos')
 ),
 
 grocery_orders AS (
