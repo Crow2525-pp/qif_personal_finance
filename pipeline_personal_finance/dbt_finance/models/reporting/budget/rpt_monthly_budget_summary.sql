@@ -188,8 +188,14 @@ SELECT
   ytd_net_cash_flow,
   
   -- Metadata
-  report_generated_at
-  
+  report_generated_at,
+
+  -- Completeness flag: a month is "complete" if it has meaningful income and enough transactions
+  CASE
+    WHEN total_income > 0 AND total_transactions >= 10 THEN TRUE
+    ELSE FALSE
+  END AS is_complete_month
+
 FROM final_metrics
 WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') < date_trunc('month', CURRENT_DATE)
 ORDER BY budget_year DESC, budget_month DESC

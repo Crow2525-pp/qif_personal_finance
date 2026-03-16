@@ -42,7 +42,8 @@ WITH base_monthly_account_balances AS (
     da.is_mortgage
 ),
 
-monthly_account_balances AS (
+-- Combine transaction-based balances with property assets
+base_with_property AS (
   SELECT * FROM base_monthly_account_balances
   UNION ALL
   SELECT
@@ -60,6 +61,84 @@ monthly_account_balances AS (
     month_start_date,
     month_end_date
   FROM {{ ref('int_property_assets_monthly') }}
+),
+
+-- Generate all account x month combinations for LOCF (last observation carried forward)
+-- This ensures accounts with no transactions in a given month still appear with their last known balance
+all_months AS (
+  SELECT DISTINCT budget_year_month, transaction_year, transaction_month
+  FROM base_with_property
+),
+
+all_accounts AS (
+  SELECT DISTINCT account_name, bank_name, account_type, account_category,
+         is_liability, is_liquid_asset, is_mortgage
+  FROM base_with_property
+),
+
+all_account_months AS (
+  SELECT
+    m.budget_year_month,
+    m.transaction_year,
+    m.transaction_month,
+    a.account_name,
+    a.bank_name,
+    a.account_type,
+    a.account_category,
+    a.is_liability,
+    a.is_liquid_asset,
+    a.is_mortgage
+  FROM all_months m
+  CROSS JOIN all_accounts a
+),
+
+-- Fill forward balances using PostgreSQL-compatible LOCF pattern
+monthly_account_balances AS (
+  SELECT
+    aam.budget_year_month,
+    aam.transaction_year,
+    aam.transaction_month,
+    aam.account_name,
+    aam.bank_name,
+    aam.account_type,
+    aam.account_category,
+    aam.is_liability,
+    aam.is_liquid_asset,
+    aam.is_mortgage,
+    COALESCE(
+      b.end_of_month_balance,
+      (SELECT b2.end_of_month_balance
+       FROM base_with_property b2
+       WHERE b2.account_name = aam.account_name
+         AND b2.budget_year_month < aam.budget_year_month
+       ORDER BY b2.budget_year_month DESC LIMIT 1)
+    ) AS end_of_month_balance,
+    COALESCE(
+      b.month_start_date,
+      (SELECT b2.month_start_date
+       FROM base_with_property b2
+       WHERE b2.account_name = aam.account_name
+         AND b2.budget_year_month < aam.budget_year_month
+       ORDER BY b2.budget_year_month DESC LIMIT 1)
+    ) AS month_start_date,
+    COALESCE(
+      b.month_end_date,
+      (SELECT b2.month_end_date
+       FROM base_with_property b2
+       WHERE b2.account_name = aam.account_name
+         AND b2.budget_year_month < aam.budget_year_month
+       ORDER BY b2.budget_year_month DESC LIMIT 1)
+    ) AS month_end_date
+  FROM all_account_months aam
+  LEFT JOIN base_with_property b
+    ON aam.budget_year_month = b.budget_year_month
+    AND aam.account_name = b.account_name
+  -- Only include rows where account has been seen at or before this month (no future projection)
+  WHERE aam.budget_year_month >= (
+    SELECT MIN(b3.budget_year_month)
+    FROM base_with_property b3
+    WHERE b3.account_name = aam.account_name
+  )
 ),
 
 monthly_net_worth_calculation AS (

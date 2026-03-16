@@ -16,9 +16,12 @@ WITH available_months AS (
          to_date(budget_year_month || '-01', 'YYYY-MM-DD') AS month_date
   FROM {{ ref('rpt_monthly_budget_summary') }}
   WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+    AND total_income > 0
+    AND total_transactions >= 10
 ),
 
 -- Get current month data from both budget summary and cash flow analysis
+-- Only include complete months (with income and sufficient transactions)
 current_month AS (
   SELECT
     bs.budget_year_month,
@@ -30,6 +33,7 @@ current_month AS (
   FROM {{ ref('rpt_monthly_budget_summary') }} bs
   LEFT JOIN {{ ref('rpt_cash_flow_analysis') }} cf
     ON bs.budget_year_month = cf.budget_year_month
+  WHERE bs.budget_year_month IN (SELECT budget_year_month FROM available_months)
 ),
 
 -- Get previous month data

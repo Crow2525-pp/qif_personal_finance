@@ -11,6 +11,8 @@ WITH latest_period AS (
   SELECT MAX(budget_year_month) AS latest_month
   FROM {{ ref('rpt_monthly_budget_summary') }}
   WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+    AND total_income > 0
+    AND total_transactions >= 10
 ),
 
 current_month_summary AS (
