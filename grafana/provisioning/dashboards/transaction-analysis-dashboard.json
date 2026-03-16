@@ -72,7 +72,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# 📋 Transaction Analysis Dashboard\n\n**Purpose**: Identify spending patterns, recurring merchants, and transactions that need categorisation.\n\n**Workflow**\n1. Check the KPI row to understand overall activity for the last 12 closed months.\n2. Use the inflow/outflow trend to confirm monthly cash movement.\n3. Review top spending categories and drill into large uncategorised items.\n4. Inspect recurring merchants for unexpected subscriptions or fees.\n5. Use the account summary to see where activity concentrates.\n\n_All panels exclude internal transfers and the current, incomplete month._",
+        "content": "# 09 - Transaction Analysis\n\n**Purpose**: Identify spending patterns, recurring merchants, and transactions that need categorisation.\n\n**Workflow**\n1. Check the KPI row to understand overall activity for the last 12 closed months.\n2. Use the inflow/outflow trend to confirm monthly cash movement.\n3. Review top spending categories and drill into large uncategorised items.\n4. Inspect recurring merchants for unexpected subscriptions or fees.\n5. Use the account summary to see where activity concentrates.\n\n_All panels exclude internal transfers and the current, incomplete month._",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -1154,7 +1154,7 @@
     ]
   },
   "timezone": "",
-  "title": "Transaction Analysis",
+  "title": "09 - Transaction Analysis",
   "uid": "transaction_analysis_dashboard",
   "version": 1,
   "weekStart": ""
