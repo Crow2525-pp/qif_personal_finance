@@ -21,6 +21,10 @@ from typing import Iterable
 ARCHETYPE_PREFIX = "time_control_archetype:"
 REASON_PREFIX = "time_control_reason:"
 
+# Panels whose description contains this marker are intentional "latest snapshot"
+# panels (e.g. "Current Month balance") that legitimately ignore $__timeFrom.
+LATEST_SNAPSHOT_MARKER = "time_control:latest_snapshot"
+
 ALLOWED_ARCHETYPE_TAGS = {
     "time_control_archetype:historical_windowed",
     "time_control_archetype:historical_fixed_period",
@@ -91,32 +95,74 @@ def collect_panel_sql(node: object) -> Iterable[str]:
             yield from collect_panel_sql(item)
 
 
-def collect_panel_sql_with_title(panels: list) -> Iterable[tuple[str, str]]:
-    """Yield (panel_title, rawSql) for every panel target in the dashboard."""
+def collect_panel_sql_with_title(panels: list) -> Iterable[tuple[str, str, str]]:
+    """Yield (panel_title, rawSql, panel_description) for every panel target."""
     for panel in panels:
         if not isinstance(panel, dict):
             continue
         title = panel.get("title", "<untitled>")
+        desc = panel.get("description", "") or ""
         # Check targets in this panel
         for target in panel.get("targets", []):
             if isinstance(target, dict):
                 for key in ("rawSql", "query"):
                     if key in target and isinstance(target[key], str) and target[key].strip():
-                        yield (title, target[key])
+                        yield (title, target[key], desc)
         # Recurse into nested panels (rows/groups)
         for child in panel.get("panels", []):
             if isinstance(child, dict):
                 child_title = child.get("title", title)
+                child_desc = child.get("description", "") or ""
                 for target in child.get("targets", []):
                     if isinstance(target, dict):
                         for key in ("rawSql", "query"):
                             if key in target and isinstance(target[key], str) and target[key].strip():
-                                yield (child_title, target[key])
+                                yield (child_title, target[key], child_desc)
 
 
 def references_time_macros(sql: str) -> bool:
     """Return True if the SQL string references Grafana time macros."""
     return "$__timeFrom" in sql or "$__timeTo" in sql or "$__timeFilter" in sql
+
+
+# Detects the anti-pattern: $__timeTo used as end-anchor with a hardcoded
+# INTERVAL lookback (e.g. "- INTERVAL '18 months'") while $__timeFrom is
+# absent.  This silently ignores the picker's start date.
+_HARDCODED_LOOKBACK_PATTERN = re.compile(
+    r"\$__timeTo.*INTERVAL\s+'\d+\s+\w+'|INTERVAL\s+'\d+\s+\w+'.*\$__timeTo",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def uses_hardcoded_lookback(sql: str) -> bool:
+    """Return True when a query anchors on $__timeTo with a hardcoded interval
+    but never references $__timeFrom — meaning the picker start is ignored."""
+    if "$__timeFrom" in sql:
+        return False
+    return bool(_HARDCODED_LOOKBACK_PATTERN.search(sql))
+
+
+# Detects the anti-pattern: $__timeTo used as the end anchor but the start of
+# the window is implied by ORDER BY <date> DESC LIMIT N (N >= 2) rather than
+# an explicit $__timeFrom bound.  A LIMIT 1 "give me the latest row" is
+# legitimate; LIMIT 2+ used to pick N adjacent periods is the proxy pattern.
+_LIMIT_DATE_PROXY_PATTERN = re.compile(
+    r"ORDER\s+BY\s+\w*(?:month|date|period|year)\w*(?:\s*(?:,\s*\w+)*)\s+DESC\b"
+    r".*?LIMIT\s+([2-9]|\d{2,})",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def uses_limit_as_date_proxy(sql: str) -> bool:
+    """Return True when a query uses ORDER BY <date-col> DESC LIMIT N (N≥2) as
+    a time-window proxy while omitting $__timeFrom — meaning the picker start
+    date is ignored.  Panels that intentionally show a fixed 'latest snapshot'
+    can opt out by adding 'time_control:latest_snapshot' to their description."""
+    if "$__timeFrom" in sql or "$__timeFilter" in sql:
+        return False
+    if "$__timeTo" not in sql:
+        return False
+    return bool(_LIMIT_DATE_PROXY_PATTERN.search(sql))
 
 
 def is_valid_time_expr(value: object) -> bool:
@@ -229,11 +275,26 @@ def check_dashboard(dashboard: dict, file_path: Path) -> list[str]:
         # Every panel SQL must reference time macros (except fixed_period which uses static ranges)
         if archetype not in ("historical_fixed_period",):
             panels = dashboard.get("panels", [])
-            for panel_title, sql in collect_panel_sql_with_title(panels):
+            for panel_title, sql, panel_desc in collect_panel_sql_with_title(panels):
                 if not references_time_macros(sql):
                     violations.append(
                         f"panel \"{panel_title}\" query must reference $__timeFrom, $__timeTo, or $__timeFilter"
                     )
+                elif uses_hardcoded_lookback(sql):
+                    violations.append(
+                        f"panel \"{panel_title}\" query uses $__timeTo with a hardcoded INTERVAL "
+                        f"but omits $__timeFrom — the picker start date is ignored; "
+                        f"replace the hardcoded interval with $__timeFrom"
+                    )
+                elif uses_limit_as_date_proxy(sql):
+                    if LATEST_SNAPSHOT_MARKER not in panel_desc:
+                        violations.append(
+                            f"panel \"{panel_title}\" query uses ORDER BY <date> DESC LIMIT N (N≥2) "
+                            f"as a time-window proxy but omits $__timeFrom — the picker start date "
+                            f"is ignored; either add $__timeFrom as the lower bound or mark the "
+                            f"panel description with '{LATEST_SNAPSHOT_MARKER}' if it intentionally "
+                            f"shows the latest snapshot"
+                        )
 
     return violations
 

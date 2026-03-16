@@ -61,7 +61,9 @@ week_transactions AS (
   SELECT
     SUM(
       CASE 
-        WHEN ft.transaction_amount < 0 AND NOT COALESCE(ft.is_internal_transfer, FALSE)
+        WHEN ft.transaction_amount < 0
+          AND NOT COALESCE(ft.is_internal_transfer, FALSE)
+          AND NOT COALESCE(ft.is_property_transaction, FALSE)
           THEN ABS(ft.transaction_amount)
         ELSE 0
       END
@@ -76,7 +78,9 @@ mtd_transactions AS (
   SELECT
     SUM(
       CASE 
-        WHEN ft.transaction_amount < 0 AND NOT COALESCE(ft.is_internal_transfer, FALSE)
+        WHEN ft.transaction_amount < 0
+          AND NOT COALESCE(ft.is_internal_transfer, FALSE)
+          AND NOT COALESCE(ft.is_property_transaction, FALSE)
           THEN ABS(ft.transaction_amount)
         ELSE 0
       END

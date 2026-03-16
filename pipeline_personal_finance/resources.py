@@ -6,30 +6,36 @@ from dagster import ConfigurableResource, EnvVar
 
 drivername = "postgresql+psycopg2"
 
+
+def _resolve_env(value, *, default=None):
+    if hasattr(value, "get_value"):
+        return value.get_value(default)
+    return value
+
+
 class SqlAlchemyClientResource(ConfigurableResource):
     drivername: str = "postgresql+psycopg2"
     username: str = EnvVar("DAGSTER_POSTGRES_USER")
     password: str = EnvVar("DAGSTER_POSTGRES_PASSWORD")
     host: str = EnvVar("DAGSTER_POSTGRES_HOST")
-    port: int = EnvVar("DAGSTER_POSTGRES_PORT")
+    port: int = EnvVar.int("DAGSTER_POSTGRES_PORT")
     database: str = EnvVar("DAGSTER_POSTGRES_DB")
 
-
     def create_engine(self):
-        connection_string = sqlalchemy.URL.create(                
-                drivername=self.drivername,
-                username=self.username,
-                password=self.password,
-                host=self.host,
-                port=int(self.port),
-                database=self.database
-            )
-        
+        connection_string = sqlalchemy.URL.create(
+            drivername=self.drivername,
+            username=_resolve_env(self.username),
+            password=_resolve_env(self.password),
+            host=_resolve_env(self.host),
+            port=int(_resolve_env(self.port, default="5432")),
+            database=_resolve_env(self.database),
+        )
+
         return sqlalchemy.create_engine(connection_string)
 
     def get_connection(self):
         return self.create_engine().connect()
-    
+
     def check_schema_exists(self, schema: str):
         # Ensure the landing schema exists
         schema = "landing"

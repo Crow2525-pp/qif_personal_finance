@@ -24,12 +24,14 @@ WITH cash_flow_base AS (
     
     ft.is_income_transaction,
     ft.is_internal_transfer,
+    ft.is_property_transaction,
     dc.level_1_category,
     dc.category_type,
     
     -- Classify cash flow direction
     CASE 
       WHEN ft.is_internal_transfer THEN 'Internal Transfer'
+      WHEN ft.is_property_transaction THEN 'Property Transaction'
       WHEN ft.is_income_transaction THEN 'Cash Inflow'
       WHEN ft.transaction_amount < 0 THEN 'Cash Outflow'
       WHEN ft.transaction_amount > 0 AND NOT ft.is_income_transaction THEN 'Other Inflow'
@@ -39,6 +41,7 @@ WITH cash_flow_base AS (
     -- Categorize by operational vs financing vs investing
     CASE 
       WHEN ft.is_internal_transfer THEN 'Financing'
+      WHEN ft.is_property_transaction THEN 'Property'
       WHEN dc.level_1_category IN ('Salary', 'Food & Drink', 'Household & Services', 'Family & Kids') THEN 'Operating'
       WHEN dc.level_1_category IN ('Mortgage') THEN 'Financing'
       WHEN dc.level_1_category LIKE '%Investment%' OR da.account_name LIKE '%invest%' THEN 'Investing'
@@ -60,13 +63,14 @@ monthly_cash_flow AS (
     
     -- Total cash flows (exclude internal transfers)
     SUM(CASE 
-          WHEN NOT is_internal_transfer AND (COALESCE(is_income_transaction, FALSE) OR transaction_amount > 0)
+          WHEN NOT is_internal_transfer AND NOT is_property_transaction
+               AND (COALESCE(is_income_transaction, FALSE) OR transaction_amount > 0)
             THEN ABS(transaction_amount)
           ELSE 0
         END) AS total_inflows,
     
     SUM(CASE 
-          WHEN NOT is_internal_transfer AND transaction_amount < 0
+          WHEN NOT is_internal_transfer AND NOT is_property_transaction AND transaction_amount < 0
             THEN ABS(transaction_amount)
           ELSE 0
         END) AS total_outflows,
@@ -78,41 +82,59 @@ monthly_cash_flow AS (
     
     -- Net cash flow (exclude internal transfers)
     SUM(CASE 
-          WHEN NOT is_internal_transfer THEN transaction_amount
+          WHEN NOT is_internal_transfer AND NOT is_property_transaction THEN transaction_amount
           ELSE 0
         END) AS net_cash_flow,
     
     -- By category (exclude internal transfers)
     SUM(CASE 
-          WHEN NOT is_internal_transfer AND cash_flow_category = 'Operating' AND (COALESCE(is_income_transaction, FALSE) OR transaction_amount > 0)
+          WHEN NOT is_internal_transfer AND NOT is_property_transaction
+               AND cash_flow_category = 'Operating' AND (COALESCE(is_income_transaction, FALSE) OR transaction_amount > 0)
             THEN ABS(transaction_amount) ELSE 0 
         END) AS operating_inflows,
     
     SUM(CASE 
-          WHEN NOT is_internal_transfer AND cash_flow_category = 'Operating' AND transaction_amount < 0
+          WHEN NOT is_internal_transfer AND NOT is_property_transaction
+               AND cash_flow_category = 'Operating' AND transaction_amount < 0
             THEN ABS(transaction_amount) ELSE 0 
         END) AS operating_outflows,
     
     SUM(CASE 
-          WHEN NOT is_internal_transfer AND cash_flow_category = 'Financing'
+          WHEN NOT is_internal_transfer AND NOT is_property_transaction AND cash_flow_category = 'Financing'
             THEN transaction_amount
           ELSE 0 
         END) AS financing_cash_flow,
     
     SUM(CASE 
-          WHEN NOT is_internal_transfer AND cash_flow_category = 'Investing'
+          WHEN NOT is_internal_transfer AND NOT is_property_transaction AND cash_flow_category = 'Investing'
             THEN transaction_amount
           ELSE 0 
         END) AS investing_cash_flow,
+
+    SUM(CASE
+          WHEN is_property_transaction THEN transaction_amount
+          ELSE 0
+        END) AS property_cash_flow,
+
+    SUM(CASE
+          WHEN is_property_transaction AND transaction_amount > 0 THEN ABS(transaction_amount)
+          ELSE 0
+        END) AS property_inflows,
+
+    SUM(CASE
+          WHEN is_property_transaction AND transaction_amount < 0 THEN ABS(transaction_amount)
+          ELSE 0
+        END) AS property_outflows,
     
     -- Transaction counts
-    COUNT(CASE WHEN NOT is_internal_transfer AND (COALESCE(is_income_transaction, FALSE) OR transaction_amount > 0) THEN 1 END) AS inflow_transaction_count,
-    COUNT(CASE WHEN NOT is_internal_transfer AND transaction_amount < 0 THEN 1 END) AS outflow_transaction_count,
+    COUNT(CASE WHEN NOT is_internal_transfer AND NOT is_property_transaction AND (COALESCE(is_income_transaction, FALSE) OR transaction_amount > 0) THEN 1 END) AS inflow_transaction_count,
+    COUNT(CASE WHEN NOT is_internal_transfer AND NOT is_property_transaction AND transaction_amount < 0 THEN 1 END) AS outflow_transaction_count,
     COUNT(CASE WHEN is_internal_transfer THEN 1 END) AS internal_transfer_count,
+    COUNT(CASE WHEN is_property_transaction THEN 1 END) AS property_transaction_count,
     
     -- Average transaction sizes
-    AVG(CASE WHEN NOT is_internal_transfer AND (COALESCE(is_income_transaction, FALSE) OR transaction_amount > 0) THEN ABS(transaction_amount) END) AS avg_inflow_amount,
-    AVG(CASE WHEN NOT is_internal_transfer AND transaction_amount < 0 THEN ABS(transaction_amount) END) AS avg_outflow_amount
+    AVG(CASE WHEN NOT is_internal_transfer AND NOT is_property_transaction AND (COALESCE(is_income_transaction, FALSE) OR transaction_amount > 0) THEN ABS(transaction_amount) END) AS avg_inflow_amount,
+    AVG(CASE WHEN NOT is_internal_transfer AND NOT is_property_transaction AND transaction_amount < 0 THEN ABS(transaction_amount) END) AS avg_outflow_amount
     
   FROM cash_flow_base
   GROUP BY budget_year_month, transaction_year, transaction_month

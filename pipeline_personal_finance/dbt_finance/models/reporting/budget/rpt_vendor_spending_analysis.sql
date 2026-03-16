@@ -35,6 +35,7 @@ WITH transaction_vendors AS (
     ON ft.account_key = da.account_key
   WHERE ft.transaction_amount < 0  -- Only expenses
     AND NOT COALESCE(ft.is_internal_transfer, FALSE)
+    AND NOT COALESCE(ft.is_property_transaction, FALSE)
     AND NOT COALESCE(ft.is_financial_service, FALSE)
 ),
 

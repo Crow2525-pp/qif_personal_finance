@@ -16,7 +16,8 @@ services:
       - "${DAGSTER_HOME}/workspace.yaml"
     expose:
       - "3000"
-    # Host port binding lives in docker-compose.local.yml to avoid conflicts on dev machines.
+    ports:
+      - "3002:3000"
     environment:
       DAGSTER_POSTGRES_HOST: ${DAGSTER_POSTGRES_HOST}
       DAGSTER_POSTGRES_USER: ${DAGSTER_POSTGRES_USER}
@@ -33,7 +34,7 @@ services:
       dagster_postgres:
         condition: service_healthy
       pipeline_personal_finance:
-        condition: service_started
+        condition: service_healthy
     logging:
       driver: json-file
       options:
@@ -81,7 +82,7 @@ services:
       dagster_postgres:
         condition: service_healthy
       pipeline_personal_finance:
-        condition: service_started
+        condition: service_healthy
     env_file:
       - .env
 
@@ -131,6 +132,14 @@ services:
     depends_on:
       dagster_postgres:
         condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - python -c "import socket; s = socket.create_connection(('127.0.0.1', 4000), 5); s.close()"
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
     # This looks to enable code-server, which is how you can get docker to look for updates.
     # entrypoint: python
     # command:
@@ -165,7 +174,7 @@ services:
       GRAFANA_PASSWORD: ${GRAFANA_PASSWORD}
       PGDATA: /var/lib/postgresql/data/personal_finance/
     # Host port is not needed for container-to-container comms.
-    # Add to docker-compose.local.yml if you need direct host access.
+    # Bind one explicitly if you need direct host access for debugging.
     volumes:
       - postgres-data:/var/lib/postgresql/data/
     networks:
@@ -173,18 +182,28 @@ services:
     env_file:
       - .env
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_ADMIN_USER} -d ${DAGSTER_POSTGRES_DB}"]
+      test:
+        - CMD-SHELL
+        - >
+          PGPASSWORD="$$POSTGRES_PASSWORD" psql -h 127.0.0.1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" -tAc
+          "SELECT CASE WHEN
+          EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'tablefunc')
+          AND EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '$$DAGSTER_POSTGRES_USER')
+          AND EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '$$GRAFANA_USER')
+          THEN 1 ELSE 0 END" | grep -q 1
       interval: 5s
       timeout: 5s
       retries: 20
       start_period: 10s
 
   grafana:
-    image: grafana/grafana:latest
+    # Ubuntu image is required for the DuckDB datasource plugin.
+    image: grafana/grafana:12.2.0-ubuntu
     restart: unless-stopped
     ports:
       - "0.0.0.0:3001:3000"
     environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
       - GRAFANA_PASSWORD=${GRAFANA_PASSWORD}
       - GF_PLUGINS_PREINSTALL=motherduck-duckdb-datasource@https://github.com/motherduckdb/grafana-duckdb-datasource/releases/download/v0.4.0/motherduck-duckdb-datasource-0.4.0.zip

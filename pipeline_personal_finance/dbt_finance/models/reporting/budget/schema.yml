@@ -369,7 +369,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['Monthly', 'Quarterly', 'Semi-Annual', 'Annual', 'Irregular Recurring']
+              arguments:
+                values: ['Monthly', 'Quarterly', 'Semi-Annual', 'Annual', 'Irregular Recurring']
 
       - name: transaction_count
         description: Total number of transactions for this merchant pattern
@@ -539,14 +540,16 @@ models:
         data_type: text
         tests:
           - accepted_values:
-              values: ['Debt Increasing', 'No Change', 'Below Average Progress', 'On Track or Better', 'Unknown']
+              arguments:
+                values: ['Debt Increasing', 'No Change', 'Below Average Progress', 'On Track or Better', 'Unknown']
 
       - name: payment_efficiency_rating
         description: Qualitative rating of payment efficiency
         data_type: text
         tests:
           - accepted_values:
-              values: ['Excellent (>80% to principal)', 'Good (60-80% to principal)', 'Fair (40-60% to principal)', 'Poor (<40% to principal)']
+              arguments:
+                values: ['Excellent (>80% to principal)', 'Good (60-80% to principal)', 'Fair (40-60% to principal)', 'Poor (<40% to principal)']
 
   - name: rpt_vendor_spending_analysis
     description: |
@@ -569,14 +572,16 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['Top 5% (Major Vendor)', 'Top 10%', 'Top 25%', 'Above Average', 'Below Average']
+              arguments:
+                values: ['Top 5% (Major Vendor)', 'Top 10%', 'Top 25%', 'Above Average', 'Below Average']
 
       - name: transaction_frequency_tier
         description: Classification of transaction frequency
         data_type: text
         tests:
           - accepted_values:
-              values: ['Very Frequent (4+/month)', 'Frequent (1-4/month)', 'Regular (Quarterly)', 'Occasional (Annual)', 'Rare']
+              arguments:
+                values: ['Very Frequent (4+/month)', 'Frequent (1-4/month)', 'Regular (Quarterly)', 'Occasional (Annual)', 'Rare']
 
       - name: vendor_relationship_status
         description: Current status of vendor relationship based on recency
@@ -584,7 +589,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['Active (Last 30 days)', 'Recent (Last 90 days)', 'Inactive (<6 months)', 'Dormant (<1 year)', 'Historical (>1 year ago)']
+              arguments:
+                values: ['Active (Last 30 days)', 'Recent (Last 90 days)', 'Inactive (<6 months)', 'Dormant (<1 year)', 'Historical (>1 year ago)']
 
       - name: is_high_value_vendor
         description: Flag for vendors in top 20% of spending with frequent transactions
@@ -666,7 +672,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['Income', 'Expenses', 'Transfers', 'Net Change']
+              arguments:
+                values: ['Income', 'Expenses', 'Transfers', 'Net Change']
       - name: delta_amount
         description: "Dollar change from previous month (positive = improvement to net cash flow)"
         tests:
@@ -759,7 +766,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['Excellent', 'Very Good', 'Good', 'Fair', 'Needs Improvement', 'Poor']
+              arguments:
+                values: ['Excellent', 'Very Good', 'Good', 'Fair', 'Needs Improvement', 'Poor']
 
       - name: monthly_income
         description: Total income for the assessment month (AUD)
@@ -849,7 +857,8 @@ models:
         data_type: text
         tests:
           - accepted_values:
-              values: ['achieved', 'in_progress', 'pending', 'abandoned']
+              arguments:
+                values: ['achieved', 'in_progress', 'pending', 'abandoned']
 
       - name: notes
         description: "Freeform notes on the outcome or reasoning"

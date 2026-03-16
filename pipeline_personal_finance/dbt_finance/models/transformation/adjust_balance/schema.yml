@@ -44,7 +44,8 @@ models:
         data_type: numeric
         tests:
           - accepted_values:
-              values: [ -564089.65 ]
+              arguments:
+                values: [ -564089.65 ]
               config:
                 where: "transaction_date = '2023-06-24' and account_name = 'Adelaide_Homeloan'"
 
@@ -91,7 +92,8 @@ models:
         data_type: numeric
         tests:
           - accepted_values:
-              values: [ 106130.73 ]
+              arguments:
+                values: [ 106130.73 ]
               config:
                 where: "transaction_date = '2023-06-19' and account_name = 'Adelaide_Offset'"
 
@@ -138,7 +140,8 @@ models:
         data_type: numeric
         tests:
           - accepted_values:
-              values: [ 0 ]
+              arguments:
+                values: [ 0 ]
               config:
                 where: "transaction_date = '2024-03-15' and account_name = 'Bendigo_Bank_Homeloan'"
 
@@ -185,7 +188,8 @@ models:
         data_type: numeric
         tests:
           - accepted_values:
-              values: [ 0 ]
+              arguments:
+                values: [ 0 ]
               config:
                 where: "transaction_date = '2024-01-04' and account_name = 'Bendigo_Bank_Offset'"
 
@@ -232,6 +236,7 @@ models:
         data_type: numeric
         tests:
           - accepted_values:
-              values: [ 1071.94 ]
+              arguments:
+                values: [ 1071.94 ]
               config:
                 where: "transaction_date = '2023-10-21' and account_name = 'ING_billsbillsbills'"

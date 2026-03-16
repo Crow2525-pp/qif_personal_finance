@@ -229,20 +229,16 @@ Template variable substitutions applied during the run:
 
 ### DuckDB Grafana (optional, for DuckDB-path UI testing only)
 
-Grafana can connect to the DuckDB file via the MotherDuck community plugin. This
-requires the local compose override and produces a Grafana instance that uses
-DuckDB-specific SQL — it is **not** the same as `http://localhost:3001`:
+The main Grafana container can also connect to the DuckDB file via the MotherDuck
+community plugin. This uses the same Grafana instance at `http://localhost:3001`
+and is only for DuckDB-path UI testing:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.local.yml up grafana -d
+docker compose up grafana -d
 ```
 
-Datasource config: `grafana/provisioning_local/datasources/duckdb.yml`
+Datasource config: `grafana/provisioning/datasources/duckdb.yml`
 Database path inside container: `/var/lib/grafana/duckdb/personal_finance.duckdb`
-
-> Because DuckDB Grafana uses the same datasource UID (`PCC52D03280B7034C`) as the
-> production PostgreSQL datasource, do not run both compose stacks simultaneously or
-> one will overwrite the other's datasource registration in Grafana's internal DB.
 
 ---
 

@@ -82,7 +82,7 @@ def add_incremental_row_number(
 
     df["is_earliest_month"] = df["month"] == df["earliest_month"]
 
-    df["date_int"] = df[date_col].view("int64")
+    df["date_int"] = df[date_col].astype("int64")
 
     # This section inverts the date to make the dadtum point the end of the month
     # for the earliest month because the dataset will be cropped at the tail

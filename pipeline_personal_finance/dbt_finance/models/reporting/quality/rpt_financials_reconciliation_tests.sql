@@ -180,7 +180,10 @@ ft_monthly AS (
   SELECT 
     DATE_TRUNC('month', ft.transaction_date)::date AS period_date,
     SUM(CASE WHEN ft.is_income_transaction THEN ABS(ft.transaction_amount) ELSE 0 END)::numeric AS ft_income,
-    SUM(CASE WHEN ft.transaction_amount < 0 AND NOT COALESCE(ft.is_internal_transfer, FALSE) AND NOT COALESCE(ft.is_financial_service, FALSE)
+    SUM(CASE WHEN ft.transaction_amount < 0
+              AND NOT COALESCE(ft.is_internal_transfer, FALSE)
+              AND NOT COALESCE(ft.is_property_transaction, FALSE)
+              AND NOT COALESCE(ft.is_financial_service, FALSE)
              THEN ABS(ft.transaction_amount) ELSE 0 END)::numeric AS ft_expenses
   FROM {{ ref('fct_transactions') }} ft
   GROUP BY 1

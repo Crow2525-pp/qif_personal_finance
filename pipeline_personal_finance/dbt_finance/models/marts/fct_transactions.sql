@@ -66,6 +66,7 @@ fact_base AS (
     -- Categorization flags
     COALESCE(dc.is_income, FALSE) AS is_income_transaction,
     COALESCE(dc.is_internal_transfer, FALSE) AS is_internal_transfer,
+    COALESCE(dc.is_property_transaction, FALSE) AS is_property_transaction,
     COALESCE(dc.is_financial_service, FALSE) AS is_financial_service,
 
     -- Transaction details

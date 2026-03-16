@@ -21,6 +21,7 @@ from dagster import Failure, MetadataValue, asset
 from .dashboard_policy_gate import (
     dashboard_json_lint_gate,
     dashboard_time_control_policy_gate,
+    dashboard_visual_overflow_gate,
 )
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -54,7 +55,7 @@ _DASHBOARD_QUALITY_WARN_ONLY = os.environ.get("DASHBOARD_QUALITY_WARN_ONLY", "")
 
 
 @asset(
-    deps=[dashboard_json_lint_gate, dashboard_time_control_policy_gate],
+    deps=[dashboard_json_lint_gate, dashboard_time_control_policy_gate, dashboard_visual_overflow_gate],
     group_name="post_dbt_qa",
     tags={"dagster/kind/grafana": "", "dagster/kind/python": ""},
     description=(

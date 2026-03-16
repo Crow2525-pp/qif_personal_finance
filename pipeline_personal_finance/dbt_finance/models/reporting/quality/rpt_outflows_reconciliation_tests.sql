@@ -54,6 +54,7 @@ fact_monthly_outflows AS (
     FROM {{ ref('fct_transactions') }} ft
     WHERE ft.transaction_amount < 0
       AND NOT COALESCE(ft.is_internal_transfer, FALSE)
+      AND NOT COALESCE(ft.is_property_transaction, FALSE)
     GROUP BY 1
 ),
 
@@ -66,6 +67,7 @@ fact_uncategorized AS (
       ON ft.category_key = dc.category_key
     WHERE ft.transaction_amount < 0
       AND NOT COALESCE(ft.is_internal_transfer, FALSE)
+      AND NOT COALESCE(ft.is_property_transaction, FALSE)
       AND dc.level_1_category = 'Uncategorized'
     GROUP BY 1
 ),

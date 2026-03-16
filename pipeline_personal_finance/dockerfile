@@ -29,6 +29,10 @@ COPY grafana grafana
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --package pipeline_personal_finance
 
+# Install Playwright Chromium and its system dependencies.
+# playwright install --with-deps handles apt-get internally.
+RUN playwright install --with-deps chromium
+
 # Set the working directory to dbt dir to build the script
 WORKDIR ${DAGSTER_APP}/pipeline_personal_finance/dbt_finance
 

@@ -92,7 +92,7 @@ models:
       - type: primary_key
         columns: [category_key]
       - type: check
-        expression: "category_type IN ('Income', 'Expense', 'Internal Transfer', 'Financial Services', 'Uncategorized')"
+        expression: "category_type IN ('Income', 'Expense', 'Internal Transfer', 'Financial Services', 'Capital Transaction', 'Uncategorized')"
         name: chk_category_type_valid
       - type: check
         expression: "category_priority >= 1"
@@ -122,6 +122,9 @@ models:
       - name: internal_indicator
         data_type: text
         description: "Whether this is an internal or external transaction"
+      - name: payment_frequency
+        data_type: text
+        description: "Expected payment frequency from banking_categories seed (daily, weekly, fortnightly, monthly, annually)"
       - name: category_type
         data_type: text
         description: "Type of category (Income, Expense, etc.)"
@@ -131,6 +134,9 @@ models:
       - name: is_income
         data_type: boolean
         description: "Whether this represents income"
+      - name: is_property_transaction
+        data_type: boolean
+        description: "Whether this represents a property purchase or sale settlement transaction"
       - name: is_financial_service
         data_type: boolean
         description: "Whether this represents a financial service"
@@ -221,6 +227,9 @@ models:
       - name: is_internal_transfer
         data_type: boolean
         description: "Whether this is an internal transfer"
+      - name: is_property_transaction
+        data_type: boolean
+        description: "Whether this is a property purchase or sale settlement transaction"
       - name: is_financial_service
         data_type: boolean
         description: "Whether this is a financial service transaction"

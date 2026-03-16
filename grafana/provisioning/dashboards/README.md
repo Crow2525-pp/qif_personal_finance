@@ -2,8 +2,8 @@
 
 This folder is mounted into Grafana so dashboards auto-load from versioned JSON, not from manual UI exports.
 
-- **Prod compose** mounts `./grafana/provisioning` to `/etc/grafana/provisioning` (see `docker-compose.yml`).
-- **Local compose** mounts `./grafana/provisioning/dashboards` and `./grafana/provisioning_local/datasources` (see `docker-compose.local.yml`).
+- `docker-compose.yml` mounts `./grafana/provisioning` to `/etc/grafana/provisioning`.
+- That provisioning includes the default PostgreSQL datasource plus the optional DuckDB datasource used for local UI checks.
 - Grafana provider (`dashboards.yml`) scans all `*.json` here every ~10 seconds; placing a file makes it available without additional config.
 
 ## Workflow
@@ -19,6 +19,17 @@ This folder is mounted into Grafana so dashboards auto-load from versioned JSON,
 ## Dashboard QA Harness
 
 Use the quality gate script to run lint, live Grafana API checks, and optional Playwright screenshots in one command.
+
+## Visual Overflow Policy
+
+Text panels that are intentionally scrollable reference/docs panels must declare
+`overflow-policy:allow-scroll` in the panel `description` metadata. The
+Playwright overflow checker reports those panels as approved scrollable
+overflows and does not fail the gate on them.
+
+Use this only for documentation/reference panels such as `Dashboard
+Instructions`, `Dashboard Guide`, `How to Read This Dashboard`, and `KPI
+Definitions`. Do not use it to hide operational panels that should be resized.
 
 ### Local usage
 

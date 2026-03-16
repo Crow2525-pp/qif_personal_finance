@@ -137,6 +137,7 @@ merchant_monthly_trends AS (
     ON ft.category_key = dc.category_key
   WHERE ft.transaction_amount < 0
     AND NOT COALESCE(ft.is_internal_transfer, FALSE)
+    AND NOT COALESCE(ft.is_property_transaction, FALSE)
     AND NOT COALESCE(ft.is_financial_service, FALSE)
     AND ft.transaction_date >= (SELECT current_period - INTERVAL '3 months' FROM latest_period)
 ),

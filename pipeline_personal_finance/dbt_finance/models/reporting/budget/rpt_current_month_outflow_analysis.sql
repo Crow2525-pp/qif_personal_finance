@@ -25,6 +25,7 @@ current_month_outflows AS (
   WHERE DATE_TRUNC('month', t.transaction_date) = cmb.analysis_month
     AND t.transaction_amount < 0
     AND c.is_internal_transfer = false
+    AND NOT COALESCE(c.is_property_transaction, FALSE)
   GROUP BY c.category, c.subcategory
 ),
 
@@ -41,6 +42,7 @@ historical_averages AS (
     AND DATE_TRUNC('month', t.transaction_date) >= cmb.analysis_month - INTERVAL '6 months'
     AND t.transaction_amount < 0
     AND c.is_internal_transfer = false
+    AND NOT COALESCE(c.is_property_transaction, FALSE)
   GROUP BY c.category, c.subcategory
   HAVING COUNT(DISTINCT DATE_TRUNC('month', t.transaction_date)) >= 2
 ),

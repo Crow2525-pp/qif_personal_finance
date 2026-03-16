@@ -13,12 +13,15 @@ WITH base AS (
     SELECT 
         TO_CHAR(ft.transaction_date, 'YYYY-MM') AS year_month,
         CASE 
-          WHEN COALESCE(ft.is_income_transaction, FALSE) OR (ft.transaction_amount > 0 AND NOT COALESCE(ft.is_internal_transfer, FALSE))
+          WHEN NOT COALESCE(ft.is_property_transaction, FALSE)
+            AND (COALESCE(ft.is_income_transaction, FALSE) OR (ft.transaction_amount > 0 AND NOT COALESCE(ft.is_internal_transfer, FALSE)))
             THEN ft.transaction_amount
           ELSE 0
         END AS income_amount,
         CASE 
-          WHEN ft.transaction_amount < 0 AND NOT COALESCE(ft.is_internal_transfer, FALSE)
+          WHEN ft.transaction_amount < 0
+            AND NOT COALESCE(ft.is_internal_transfer, FALSE)
+            AND NOT COALESCE(ft.is_property_transaction, FALSE)
             THEN ABS(ft.transaction_amount)
           ELSE 0
         END AS expense_amount

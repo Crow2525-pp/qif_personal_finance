@@ -35,11 +35,12 @@
       },
       "id": 100,
       "options": {
-        "content": "# 📊 Four-Year Financial Comparison Dashboard - Prior Year vs Previous 3 Years\n\n**Dashboard Overview:** Compare the most recent completed year against the previous 3 years to identify trends, improvements, and areas of concern.\n\n**Key Analysis Areas:**\n• **Financial Performance:** Income, expenses, and net cash flow across 4 years\n• **Wealth Accumulation:** Net worth progression and annual changes\n• **Savings Efficiency:** Savings rates and total savings comparisons\n• **Expense Management:** Category-wise spending patterns and control\n\n**How to Interpret:** Focus on consistent trends across years and significant deviations. Use the 4-year view to distinguish between anomalies and genuine trends.",
+        "content": "# \ud83d\udcca Four-Year Financial Comparison Dashboard - Prior Year vs Previous 3 Years\n\n**Dashboard Overview:** Compare the most recent completed year against the previous 3 years to identify trends, improvements, and areas of concern.\n\n**Key Analysis Areas:**\n\u2022 **Financial Performance:** Income, expenses, and net cash flow across 4 years\n\u2022 **Wealth Accumulation:** Net worth progression and annual changes\n\u2022 **Savings Efficiency:** Savings rates and total savings comparisons\n\u2022 **Expense Management:** Category-wise spending patterns and control\n\n**How to Interpret:** Focus on consistent trends across years and significant deviations. Use the 4-year view to distinguish between anomalies and genuine trends.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
       "title": "Dashboard Guide",
+      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
       "type": "text"
     },
     {
@@ -173,7 +174,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
           "rawSql": "WITH latest_year AS (\n  SELECT MAX(comparison_year) as max_year\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n)\nSELECT \n  annual_income,\n  annual_expenses,\n  annual_net_cash_flow,\n  year_end_net_worth\nFROM reporting.rpt_year_over_year_comparison, latest_year\nWHERE comparison_year = latest_year.max_year;",
           "refId": "A"
@@ -287,7 +288,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
           "rawSql": "WITH latest_year AS (\n  SELECT MAX(comparison_year) as max_year\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n),\nprevious_3_years AS (\n  SELECT *\n  FROM reporting.rpt_year_over_year_comparison, latest_year\n  WHERE comparison_year < latest_year.max_year\n  AND comparison_year >= (latest_year.max_year - 3)\n  ORDER BY comparison_year DESC\n  LIMIT 3\n)\nSELECT \n  ROUND(AVG(annual_income), 0) as avg_annual_income,\n  ROUND(AVG(annual_expenses), 0) as avg_annual_expenses,\n  ROUND(AVG(annual_net_cash_flow), 0) as avg_net_cash_flow,\n  ROUND(AVG(annual_net_worth_change), 0) as avg_net_worth_growth\nFROM previous_3_years;",
           "refId": "A"
@@ -485,7 +486,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
           "rawSql": "WITH latest_year AS (\n  SELECT MAX(comparison_year) as max_year\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n),\nlatest_data AS (\n  SELECT *\n  FROM reporting.rpt_year_over_year_comparison, latest_year\n  WHERE comparison_year = latest_year.max_year\n),\nprevious_3_years AS (\n  SELECT *\n  FROM reporting.rpt_year_over_year_comparison, latest_year\n  WHERE comparison_year < latest_year.max_year\n  AND comparison_year >= (latest_year.max_year - 3)\n  ORDER BY comparison_year DESC\n  LIMIT 3\n),\navg_3_years AS (\n  SELECT \n    AVG(annual_income) as avg_income,\n    AVG(annual_expenses) as avg_expenses,\n    AVG(annual_net_cash_flow) as avg_net_cash_flow,\n    AVG(avg_annual_savings_rate) as avg_savings_rate\n  FROM previous_3_years\n)\nSELECT \n  (latest_data.annual_income - avg_3_years.avg_income) / NULLIF(avg_3_years.avg_income, 0) as income_vs_3yr_avg,\n  (latest_data.annual_expenses - avg_3_years.avg_expenses) / NULLIF(avg_3_years.avg_expenses, 0) as expenses_vs_3yr_avg,\n  (latest_data.annual_net_cash_flow - avg_3_years.avg_net_cash_flow) / NULLIF(ABS(avg_3_years.avg_net_cash_flow), 0) as net_cash_flow_vs_3yr_avg,\n  (latest_data.avg_annual_savings_rate - avg_3_years.avg_savings_rate) as savings_rate_vs_3yr_avg\nFROM latest_data, avg_3_years;",
           "refId": "A"
@@ -633,7 +634,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
           "rawSql": "WITH latest_year AS (\n  SELECT MAX(comparison_year) as max_year\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n)\nSELECT \n  (comparison_year || '-01-01')::date as time,\n  annual_income,\n  annual_expenses,\n  annual_net_cash_flow\nFROM reporting.rpt_year_over_year_comparison, latest_year\nWHERE comparison_year >= (latest_year.max_year - 3)\nORDER BY comparison_year;",
           "refId": "A"
@@ -766,7 +767,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
           "rawSql": "WITH latest_year AS (\n  SELECT MAX(comparison_year) as max_year\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n)\nSELECT \n  (comparison_year || '-01-01')::date as time,\n  year_end_net_worth,\n  annual_net_worth_change\nFROM reporting.rpt_year_over_year_comparison, latest_year\nWHERE comparison_year >= (latest_year.max_year - 3)\nORDER BY comparison_year;",
           "refId": "A"
@@ -878,7 +879,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
           "rawSql": "WITH latest_year AS (\n  SELECT MAX(comparison_year) as max_year\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n)\nSELECT \n  (comparison_year || '-01-01')::date as time,\n  avg_annual_savings_rate\nFROM reporting.rpt_year_over_year_comparison, latest_year\nWHERE comparison_year >= (latest_year.max_year - 3)\nORDER BY comparison_year;",
           "refId": "A"
@@ -1045,7 +1046,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
           "rawSql": "WITH latest_year AS (\n  SELECT MAX(comparison_year) as max_year\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n)\nSELECT \n  (comparison_year || '-01-01')::date as time,\n  annual_mortgage_expenses,\n  annual_household_expenses,\n  annual_food_expenses,\n  annual_family_expenses\nFROM reporting.rpt_year_over_year_comparison, latest_year\nWHERE comparison_year >= (latest_year.max_year - 3)\nORDER BY comparison_year;",
           "refId": "A"
@@ -1174,7 +1175,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
           "rawSql": "WITH latest_year AS (\n  SELECT MAX(comparison_year) as max_year\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n)\nSELECT \n  (comparison_year || '-01-01')::date as time,\n  inflation_adjusted_annual_income,\n  inflation_adjusted_annual_expenses\nFROM reporting.rpt_year_over_year_comparison, latest_year\nWHERE comparison_year >= (latest_year.max_year - 3)\nORDER BY comparison_year;",
           "refId": "A"
@@ -1241,7 +1242,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
           "rawSql": "WITH latest_year AS (\n  SELECT MAX(comparison_year) as max_year\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n)\nSELECT \n  comparison_year as \"Year\",\n  top_expense_driver_1 as \"Top Expense\",\n  top_expense_driver_2 as \"2nd Expense\",\n  top_net_worth_driver_1 as \"Net Worth Driver\"\nFROM reporting.rpt_year_over_year_comparison, latest_year\nWHERE comparison_year >= (latest_year.max_year - 3)\nORDER BY comparison_year DESC;",
           "refId": "A"
@@ -1320,7 +1321,7 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
           "rawSql": "WITH latest_year AS (\n  SELECT MAX(comparison_year) as max_year\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n)\nSELECT \n  narrative_summary as \"Summary\"\nFROM reporting.rpt_year_over_year_comparison, latest_year\nWHERE comparison_year = latest_year.max_year;",
           "refId": "A"
@@ -1520,9 +1521,9 @@
             "uid": "PCC52D03280B7034C"
           },
           "editorMode": "code",
-          "format": 1,
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH latest_year AS (\n  SELECT MAX(comparison_year) as max_year\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n)\nSELECT \n  comparison_year as \"Year\",\n  annual_income as \"Income\",\n  annual_expenses as \"Expenses\",\n  annual_net_cash_flow as \"Net Cash Flow\",\n  year_end_net_worth as \"Year-End Net Worth\",\n  ROUND(avg_annual_savings_rate * 100, 1) as \"Savings Rate %\",\n  annual_total_savings as \"Total Savings\",\n  months_positive_cash_flow as \"Positive Months\",\n  CASE \n    WHEN comparison_year = latest_year.max_year THEN '← Latest'\n    ELSE ''\n  END as \"Note\"\nFROM reporting.rpt_year_over_year_comparison, latest_year\nWHERE comparison_year >= (latest_year.max_year - 3)\nORDER BY comparison_year DESC;",
+          "rawSql": "WITH latest_year AS (\n  SELECT MAX(comparison_year) as max_year\n  FROM reporting.rpt_year_over_year_comparison\n  WHERE comparison_year < EXTRACT(YEAR FROM CURRENT_DATE)\n)\nSELECT \n  comparison_year as \"Year\",\n  annual_income as \"Income\",\n  annual_expenses as \"Expenses\",\n  annual_net_cash_flow as \"Net Cash Flow\",\n  year_end_net_worth as \"Year-End Net Worth\",\n  ROUND(avg_annual_savings_rate * 100, 1) as \"Savings Rate %\",\n  annual_total_savings as \"Total Savings\",\n  months_positive_cash_flow as \"Positive Months\",\n  CASE \n    WHEN comparison_year = latest_year.max_year THEN '\u2190 Latest'\n    ELSE ''\n  END as \"Note\"\nFROM reporting.rpt_year_over_year_comparison, latest_year\nWHERE comparison_year >= (latest_year.max_year - 3)\nORDER BY comparison_year DESC;",
           "refId": "A"
         }
       ],

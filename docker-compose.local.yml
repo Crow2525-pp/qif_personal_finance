@@ -1,7 +1,7 @@
 services:
   grafana:
-    # Ubuntu-based image required for DuckDB plugin (glibc 2.35+ needed)
-    image: grafana/grafana:latest-ubuntu
+    # Match the main compose Grafana image/version when running the local override.
+    image: grafana/grafana:12.2.0-ubuntu
     environment:
       # Install DuckDB plugin from external URL (GF_INSTALL_PLUGINS supports url;plugin-id format)
       - GF_INSTALL_PLUGINS=https://github.com/motherduckdb/grafana-duckdb-datasource/releases/download/v0.4.0/motherduck-duckdb-datasource-0.4.0.zip;motherduck-duckdb-datasource
@@ -9,12 +9,12 @@ services:
       - GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=motherduck-duckdb-datasource
     volumes:
       - ./pipeline_personal_finance/dbt_finance/duckdb:/var/lib/grafana/duckdb
-      - ./grafana/provisioning_local/datasources:/etc/grafana/provisioning/datasources
-      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/provisioning:/etc/grafana/provisioning
 
   pipeline_personal_finance:
     volumes:
       - ./scripts:${DAGSTER_APP}/scripts:ro
+      - ./dagster_core/dagster.yaml:/docker/appdata/dagster/dagster_home/dagster.yaml:ro
 
   dagster_webserver:
     # Expose on 3002 to avoid conflict with any service already on 3000

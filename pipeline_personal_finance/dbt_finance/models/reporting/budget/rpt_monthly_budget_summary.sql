@@ -17,13 +17,16 @@ WITH monthly_transactions AS (
     dc.level_1_category,
     -- Treat income as positive cash in, excluding internal transfers
     CASE 
-      WHEN COALESCE(ft.is_income_transaction, FALSE) OR (ft.transaction_amount > 0 AND NOT COALESCE(ft.is_internal_transfer, FALSE))
+      WHEN NOT COALESCE(ft.is_property_transaction, FALSE)
+        AND (COALESCE(ft.is_income_transaction, FALSE) OR (ft.transaction_amount > 0 AND NOT COALESCE(ft.is_internal_transfer, FALSE)))
         THEN ft.transaction_amount
       ELSE 0
     END AS income_amount,
     -- Treat expenses as positive cash out, excluding internal transfers
     CASE 
-      WHEN ft.transaction_amount < 0 AND NOT COALESCE(ft.is_internal_transfer, FALSE)
+      WHEN ft.transaction_amount < 0
+        AND NOT COALESCE(ft.is_internal_transfer, FALSE)
+        AND NOT COALESCE(ft.is_property_transaction, FALSE)
         THEN ABS(ft.transaction_amount)
       ELSE 0
     END AS expense_amount

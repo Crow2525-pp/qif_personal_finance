@@ -32,6 +32,7 @@ WITH transaction_baseline AS (
     -- Flags
     ft.is_income_transaction,
     ft.is_internal_transfer,
+    ft.is_property_transaction,
     ft.is_financial_service,
 
     -- Compute 12-month rolling statistics for same merchant (time-based window)
@@ -67,6 +68,7 @@ WITH transaction_baseline AS (
 
   WHERE ft.transaction_amount < 0  -- Only expenses
     AND NOT COALESCE(ft.is_internal_transfer, FALSE)  -- Exclude internal transfers
+    AND NOT COALESCE(ft.is_property_transaction, FALSE)  -- Exclude property settlements
     AND NOT COALESCE(ft.is_financial_service, FALSE)  -- Exclude financial services
     AND NOT COALESCE(ft.is_income_transaction, FALSE)  -- Exclude income
 ),
