@@ -197,6 +197,8 @@ Do **not** add `time_window` or `dashboard_period` template variables to any das
 
 All cross-dashboard links propagate the current time range using Grafana's `${__url_time_range}` variable. This resolves to `from=<epoch_ms>&to=<epoch_ms>` at render time.
 
+Every provisioned dashboard except `00 - Financial Review Command Center` must include `View in 00 - Financial Control` as the first top-level link so users can always return to the review starting point.
+
 **URL pattern:**
 ```
 /d/<uid>?orgId=1&${__url_time_range}
@@ -208,12 +210,22 @@ Do **not** pass `var-time_window` or `var-dashboard_period` in links — these v
 
 | Source dashboard | Destination dashboard | Variables passed |
 |---|---|---|
-| `executive-dashboard` | `cash_flow_analysis`, `savings_analysis`, `category-spending-v2`, `transaction_analysis_dashboard`, `outflows_reconciliation` | `${__url_time_range}` |
-| `cash-flow-analysis-dashboard` | `executive_dashboard`, `category-spending-v2`, `transaction_analysis_dashboard`, `outflows_reconciliation` | `${__url_time_range}` |
-| `savings-analysis-dashboard` | `executive_dashboard`, `household_net_worth`, `category-spending-v2` | `${__url_time_range}` |
-| `outflows-reconciliation-dashboard` | `executive_dashboard`, `transaction_analysis_dashboard` | `${__url_time_range}` |
-| `outflows-insights-dashboard` | `outflows_reconciliation` | `${__url_time_range}` |
-| `transaction-analysis-dashboard` | `executive_dashboard`, `category-spending-v2`, `outflows_insights`, `outflows_reconciliation` | `${__url_time_range}` |
-| `category-spending-dashboard` | `transaction_analysis_dashboard` | `${__url_time_range}` |
+| `executive-dashboard` | `financial-review-command-center`, `cash_flow_analysis`, `savings_analysis`, `category-spending-v2`, `transaction_analysis_dashboard`, `outflows_reconciliation` | `${__url_time_range}` |
+| `cash-flow-analysis-dashboard` | `financial-review-command-center`, `executive_dashboard`, `category-spending-v2`, `transaction_analysis_dashboard`, `outflows_reconciliation` | `${__url_time_range}` |
+| `monthly-budget-summary-dashboard` | `financial-review-command-center` | `${__url_time_range}` |
+| `household-net-worth-dashboard` | `financial-review-command-center` | `${__url_time_range}` |
+| `savings-analysis-dashboard` | `financial-review-command-center`, `executive_dashboard`, `household_net_worth`, `category-spending-v2` | `${__url_time_range}` |
+| `account-performance-dashboard` | `financial-review-command-center` | `${__url_time_range}` |
+| `expense-performance-dashboard` | `financial-review-command-center` | `${__url_time_range}` |
+| `outflows-reconciliation-dashboard` | `financial-review-command-center`, `executive_dashboard`, `transaction_analysis_dashboard` | `${__url_time_range}` |
+| `outflows-insights-dashboard` | `financial-review-command-center`, `outflows_reconciliation` | `${__url_time_range}` |
+| `transaction-analysis-dashboard` | `financial-review-command-center`, `executive_dashboard`, `category-spending-v2`, `outflows_insights`, `outflows_reconciliation` | `${__url_time_range}` |
+| `category-spending-dashboard` | `financial-review-command-center`, `transaction_analysis_dashboard` | `${__url_time_range}` |
+| `financial-projections-dashboard` | `financial-review-command-center` | `${__url_time_range}` |
+| `year-over-year-comparison-dashboard` | `financial-review-command-center` | `${__url_time_range}` |
+| `four-year-financial-comparison-dashboard` | `financial-review-command-center` | `${__url_time_range}` |
+| `mortgage-payoff-dashboard` | `financial-review-command-center` | `${__url_time_range}` |
+| `grocery-spending-dashboard` | `financial-review-command-center` | `${__url_time_range}` |
+| `amazon-spending-dashboard` | `financial-review-command-center` | `${__url_time_range}` |
 
 When adding a new cross-dashboard link, always include `?orgId=1&${__url_time_range}` as a minimum.
