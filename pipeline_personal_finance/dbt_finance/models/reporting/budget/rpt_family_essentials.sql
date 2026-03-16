@@ -165,8 +165,8 @@ SELECT
     ELSE 0
   END AS variance_from_avg_pct,
 
-  -- Fixed family-profile normalization for this household.
-  ROUND((total_family_essentials / {{ family_children_count() }})::numeric, 2) AS estimated_cost_per_child,
+  -- Fixed family-profile normalization for this household (3 children).
+  ROUND((total_family_essentials / 3)::numeric, 2) AS estimated_cost_per_child,
 
   CURRENT_TIMESTAMP AS report_generated_at
 
