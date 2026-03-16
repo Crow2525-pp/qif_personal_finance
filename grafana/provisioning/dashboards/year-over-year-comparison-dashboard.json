@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udcc8 Year-over-Year Comparison Dashboard - Annual Progress Tracking\n\n**What This Dashboard Shows:** Annual financial performance assessment with multi-year trends and comprehensive benchmarking.\n\n**Key Metrics Explained:**\n\u2022 **Annual Progress Score:** Financial improvement measurement year-over-year\n\u2022 **YoY Changes:** Income, expenses, net worth, and savings rate annual comparisons\n\u2022 **Performance Classification:** Tier-based assessment of financial trajectory\n\u2022 **Trend Analysis:** Multi-year patterns showing long-term financial health\n\n**How to Use:** Annual trends show long-term financial trajectory. Focus on areas with declining year-over-year performance for improvement.",
+        "content": "# 13 - Year-over-Year Comparison\n\n**What This Dashboard Shows:** Annual financial performance assessment with multi-year trends and comprehensive benchmarking.\n\n**Key Metrics Explained:**\n\u2022 **Annual Progress Score:** Financial improvement measurement year-over-year\n\u2022 **YoY Changes:** Income, expenses, net worth, and savings rate annual comparisons\n\u2022 **Performance Classification:** Tier-based assessment of financial trajectory\n\u2022 **Trend Analysis:** Multi-year patterns showing long-term financial health\n\n**How to Use:** Annual trends show long-term financial trajectory. Focus on areas with declining year-over-year performance for improvement.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -1801,7 +1801,7 @@
     ]
   },
   "timezone": "",
-  "title": "Year-over-Year Financial Comparison",
+  "title": "13 - Year-over-Year Comparison",
   "uid": "year_over_year_comparison",
   "version": 1,
   "weekStart": ""
