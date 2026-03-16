@@ -35,7 +35,7 @@
       },
       "id": 100,
       "options": {
-        "content": "# \ud83d\udcca Four-Year Financial Comparison Dashboard - Prior Year vs Previous 3 Years\n\n**Dashboard Overview:** Compare the most recent completed year against the previous 3 years to identify trends, improvements, and areas of concern.\n\n**Key Analysis Areas:**\n\u2022 **Financial Performance:** Income, expenses, and net cash flow across 4 years\n\u2022 **Wealth Accumulation:** Net worth progression and annual changes\n\u2022 **Savings Efficiency:** Savings rates and total savings comparisons\n\u2022 **Expense Management:** Category-wise spending patterns and control\n\n**How to Interpret:** Focus on consistent trends across years and significant deviations. Use the 4-year view to distinguish between anomalies and genuine trends.",
+        "content": "# 14 - Four-Year Financial Comparison\n\n**Dashboard Overview:** Compare the most recent completed year against the previous 3 years to identify trends, improvements, and areas of concern.\n\n**Key Analysis Areas:**\n\u2022 **Financial Performance:** Income, expenses, and net cash flow across 4 years\n\u2022 **Wealth Accumulation:** Net worth progression and annual changes\n\u2022 **Savings Efficiency:** Savings rates and total savings comparisons\n\u2022 **Expense Management:** Category-wise spending patterns and control\n\n**How to Interpret:** Focus on consistent trends across years and significant deviations. Use the 4-year view to distinguish between anomalies and genuine trends.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
@@ -1565,7 +1565,7 @@
     ]
   },
   "timezone": "",
-  "title": "Four-Year Financial Comparison - Prior Year vs Previous 3",
+  "title": "14 - Four-Year Financial Comparison",
   "uid": "four_year_financial_comparison",
   "version": 1,
   "weekStart": ""
