@@ -41,6 +41,7 @@ viz_monthly AS (
         vdob.insurance,
         vdob.investments,
         vdob.taxes,
+        vdob.other_outflows,
         vdob.uncategorized
     FROM {{ ref('viz_detailed_outflows_breakdown') }} vdob
     WHERE vdob.period_date IN (SELECT period_date FROM periods)
@@ -89,6 +90,7 @@ category_sum AS (
             COALESCE(insurance, 0) +
             COALESCE(investments, 0) +
             COALESCE(taxes, 0) +
+            COALESCE(other_outflows, 0) +
             COALESCE(uncategorized, 0)
         )::numeric AS total_outflows_from_categories
     FROM viz_monthly
@@ -121,7 +123,7 @@ tests AS (
           ELSE 0 END
         ) <= (SELECT tolerance_pct FROM params) OR 
         ABS(v.total_outflows - cs.total_outflows_from_categories) <= (SELECT tolerance FROM params) AS pass,
-        'category sum covers total within tolerance_pct'::text AS notes
+        'category sum including other_outflows covers total within tolerance_pct'::text AS notes
     FROM viz_monthly v
     LEFT JOIN category_sum cs USING (period_date)
 

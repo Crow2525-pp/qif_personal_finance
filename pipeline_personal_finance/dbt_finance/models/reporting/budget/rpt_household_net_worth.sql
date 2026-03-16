@@ -311,5 +311,6 @@ final_insights AS (
 )
 
 SELECT * FROM final_insights
-WHERE period_end_date < date_trunc('month', CURRENT_DATE)
+-- Align net worth reporting with the latest fully loaded transaction month.
+WHERE budget_year_month <= {{ latest_complete_reporting_month() }}
 ORDER BY transaction_year DESC, transaction_month DESC

@@ -191,5 +191,6 @@ SELECT
   report_generated_at
   
 FROM final_metrics
-WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') < date_trunc('month', CURRENT_DATE)
+-- Only expose months that are fully loaded in the source transactions.
+WHERE budget_year_month <= {{ latest_complete_reporting_month() }}
 ORDER BY budget_year DESC, budget_month DESC

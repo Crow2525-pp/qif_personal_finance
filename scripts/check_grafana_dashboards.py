@@ -31,6 +31,7 @@ import json as _json_mod
 import os
 import re
 import sys
+from numbers import Number
 from typing import Dict, Iterable, List, Set, Tuple
 
 import requests
@@ -258,12 +259,120 @@ def extract_row_count(result: Dict) -> int:
     return total
 
 
-def result_has_values(result: Dict, min_rows: int) -> Tuple[bool, str]:
+_FALLBACK_ONLY_TEXT_VALUES: frozenset[str] = frozenset(
+    {
+        "none",
+        "n/a",
+        "no data",
+        "no account",
+        "no account activity",
+        "no transactions need review",
+        "no active review queue items",
+    }
+)
+
+
+def extract_rows(result: Dict) -> List[Tuple]:
+    """Return row tuples from Grafana query result frames/series."""
+    rows: List[Tuple] = []
+
+    for frame in result.get("frames") or []:
+        values = frame.get("data", {}).get("values") or []
+        if not values:
+            continue
+        rows.extend(tuple(row) for row in zip(*values))
+
+    if rows:
+        return rows
+
+    for series in result.get("series", []) or []:
+        points = series.get("points", []) or []
+        rows.extend(
+            tuple(point) if isinstance(point, (list, tuple)) else (point,)
+            for point in points
+        )
+
+    return rows
+
+
+def _sql_has_fallback_only_branch(raw_sql: str | None) -> bool:
+    if not raw_sql:
+        return False
+    sql_upper = raw_sql.upper()
+    return "UNION ALL" in sql_upper and "WHERE NOT EXISTS" in sql_upper
+
+
+def _looks_like_zero_text(value: str) -> bool:
+    return bool(re.fullmatch(r"0+(?:\.0+)?", value))
+
+
+def _looks_like_dateish_text(value: str) -> bool:
+    return bool(
+        re.fullmatch(
+            r"\d{4}-\d{2}-\d{2}(?:[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?)?(?:Z)?",
+            value,
+        )
+    )
+
+
+def _row_looks_like_fallback_only(row: Tuple) -> bool:
+    """
+    Heuristic for synthetic placeholder rows appended with `WHERE NOT EXISTS`.
+
+    We treat a row as fallback-only when:
+      - it contains at least one explicit placeholder string, and
+      - every numeric / boolean field is neutral (0 / False), and
+      - all remaining strings are neutral placeholders, blank, zero-like, or date-like.
+    """
+    saw_placeholder_text = False
+
+    for value in row:
+        if value is None:
+            continue
+
+        if isinstance(value, bool):
+            if value:
+                return False
+            continue
+
+        if isinstance(value, Number):
+            if value != 0:
+                return False
+            continue
+
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            if not normalized:
+                continue
+            if normalized in _FALLBACK_ONLY_TEXT_VALUES:
+                saw_placeholder_text = True
+                continue
+            if _looks_like_zero_text(normalized) or _looks_like_dateish_text(normalized):
+                continue
+            return False
+
+        return False
+
+    return saw_placeholder_text
+
+
+def result_has_values(
+    result: Dict,
+    min_rows: int,
+    raw_sql: str | None = None,
+) -> Tuple[bool, str]:
     if "error" in result and result["error"]:
         return False, str(result["error"])
 
     rows = extract_row_count(result)
     if rows >= min_rows:
+        extracted_rows = extract_rows(result)
+        if (
+            _sql_has_fallback_only_branch(raw_sql)
+            and extracted_rows
+            and all(_row_looks_like_fallback_only(row) for row in extracted_rows)
+        ):
+            return False, f"fallback-only ({rows} rows)"
         return True, f"{rows} rows"
 
     return False, f"empty ({rows} rows)"
@@ -461,7 +570,7 @@ def check_dashboard(
                     format_hint=format_hint,
                 )
                 result = query_response.get("results", {}).get(ref_id, {})
-                has_data, msg = result_has_values(result, min_rows)
+                has_data, msg = result_has_values(result, min_rows, raw_sql=raw_sql)
                 messages.append(f"{ref_id}: {msg}")
             except requests.HTTPError as exc:  # pragma: no cover - diagnostic path
                 detail = exc.response.text if exc.response is not None else str(exc)
@@ -506,6 +615,9 @@ def check_dashboard_across_time_windows(
     by_window: List[Dict] = []
     total_ok = 0
     total_fail = 0
+    panel_failures_by_window: Dict[Tuple[int | None, str | None], List[Dict]] = {}
+    panel_ok_windows: Dict[Tuple[int | None, str | None], Set[str]] = {}
+    panel_metadata: Dict[Tuple[int | None, str | None], Dict] = {}
 
     for label, time_from, time_to in time_windows:
         ok_panels, failing_panels = check_dashboard(
@@ -517,8 +629,34 @@ def check_dashboard_across_time_windows(
             min_rows=min_rows,
             dashboard_data=dashboard_data,
         )
+        for panel in ok_panels:
+            key = (panel.get("panel_id"), panel.get("panel_title"))
+            panel_metadata.setdefault(
+                key,
+                {
+                    "dashboard": panel.get("dashboard"),
+                    "panel_id": panel.get("panel_id"),
+                    "panel_title": panel.get("panel_title"),
+                },
+            )
+            panel_ok_windows.setdefault(key, set()).add(label)
         for panel in failing_panels:
             panel["time_window"] = label
+            key = (panel.get("panel_id"), panel.get("panel_title"))
+            panel_metadata.setdefault(
+                key,
+                {
+                    "dashboard": panel.get("dashboard"),
+                    "panel_id": panel.get("panel_id"),
+                    "panel_title": panel.get("panel_title"),
+                },
+            )
+            panel_failures_by_window.setdefault(key, []).append(
+                {
+                    "time_window": label,
+                    "messages": panel.get("messages", ""),
+                }
+            )
         by_window.append(
             {
                 "time_window": label,
@@ -529,10 +667,36 @@ def check_dashboard_across_time_windows(
         total_ok += len(ok_panels)
         total_fail += len(failing_panels)
 
+    panels_failing_all_windows: List[Dict] = []
+    for key, failures in panel_failures_by_window.items():
+        if panel_ok_windows.get(key):
+            continue
+        meta = panel_metadata.get(
+            key,
+            {
+                "dashboard": dashboard_meta.get("title"),
+                "panel_id": key[0],
+                "panel_title": key[1],
+            },
+        )
+        combined_messages = "; ".join(
+            f"[{failure['time_window']}] {failure['messages']}" for failure in failures
+        )
+        panels_failing_all_windows.append(
+            {
+                **meta,
+                "messages": combined_messages,
+                "failed_time_windows": [failure["time_window"] for failure in failures],
+            }
+        )
+
     return {
-        "ok_panels": total_ok,
-        "failing_panels": total_fail,
+        "ok_panels": len(panel_ok_windows),
+        "failing_panels": len(panels_failing_all_windows),
+        "ok_panel_checks": total_ok,
+        "failing_panel_checks": total_fail,
         "by_time_window": by_window,
+        "panels_failing_all_windows": panels_failing_all_windows,
     }
 
 
@@ -1085,11 +1249,7 @@ def main() -> int:
             dashboard_data=dash_data,
         )
         ok_panels = time_window_result["ok_panels"]
-        failing_panels = [
-            panel
-            for window in time_window_result["by_time_window"]
-            for panel in window["failing_panels"]
-        ]
+        failing_panels = time_window_result["panels_failing_all_windows"]
 
         layout_issues: List[Dict] = []
         static_warnings: List[Dict] = []
@@ -1120,6 +1280,8 @@ def main() -> int:
                     "uid": dash.get("uid"),
                     "ok_panels": ok_panels,
                     "failing_panels": failing_panels,
+                    "ok_panel_checks": time_window_result["ok_panel_checks"],
+                    "failing_panel_checks": time_window_result["failing_panel_checks"],
                     "time_window_source": time_window_source,
                     "checks_by_time_window": time_window_result["by_time_window"],
                     "layout_lint": layout_issues,
