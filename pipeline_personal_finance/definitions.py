@@ -13,6 +13,7 @@ from .dashboard_policy_gate import (
     dashboard_panel_fit_gate,
     dashboard_visual_overflow_gate,
     dashboard_time_control_policy_gate,
+    reporting_data_quality_gate,
 )
 from .assets_dashboard_qa import dashboard_quality_gate
 from .postgres_readiness_gate import postgres_role_readiness_gate
@@ -27,6 +28,7 @@ qif_pipeline_job = define_asset_job(
         upload_dataframe_to_database,
         finance_dbt_assets,
         post_dbt_reporting_ready,
+        reporting_data_quality_gate,
         dashboard_json_lint_gate,
         dashboard_encoding_gate,
         dashboard_panel_fit_gate,
@@ -101,6 +103,7 @@ defs = Definitions(
         finance_dbt_assets,
         upload_dataframe_to_database,
         post_dbt_reporting_ready,
+        reporting_data_quality_gate,
         dashboard_json_lint_gate,
         dashboard_encoding_gate,
         dashboard_panel_fit_gate,

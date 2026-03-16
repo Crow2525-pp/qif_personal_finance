@@ -182,3 +182,60 @@ def dashboard_time_control_policy_gate(
         )
 
     return Output({"exit_code": result.returncode, "warn_only": warn_only}, metadata=metadata)
+
+
+@asset(
+    deps=[post_dbt_reporting_ready],
+    group_name="post_dbt_qa",
+    tags={"dagster/kind/postgres": "", "dagster/kind/python": ""},
+    description=(
+        "Validates that reporting tables contain meaningful (non-zero, non-null) "
+        "data for every Grafana dashboard panel. Catches $0 income, missing "
+        "liabilities, blank charts, and other 'looks empty' problems that the "
+        "existing panel-has-rows check cannot detect."
+    ),
+)
+def reporting_data_quality_gate(context) -> Output[dict]:
+    warn_only = _warn_only_enabled()
+    result = _run_script("check_reporting_data_quality.py", ["--json"])
+    metadata = _metadata_from_result(result)
+    metadata["warn_only"] = warn_only
+
+    # Parse the JSON output for richer Dagster metadata
+    try:
+        parsed = json.loads(result.stdout) if result.stdout.strip() else {}
+    except json.JSONDecodeError:
+        parsed = {}
+
+    if parsed:
+        failed_checks = [c for c in parsed.get("checks", []) if not c["passed"]]
+        if failed_checks:
+            rows = "\n".join(
+                f"| {c['check_id']} | {c['name']} | {c['detail'][:80]} |"
+                for c in failed_checks
+            )
+            metadata["failing_checks"] = MetadataValue.md(
+                f"| ID | Check | Detail |\n|---|---|---|\n{rows}"
+            )
+        metadata["total_checks"] = parsed.get("total", 0)
+        metadata["passed_checks"] = parsed.get("passed", 0)
+        metadata["failed_checks"] = parsed.get("failed", 0)
+
+    if result.returncode == 2:
+        raise Failure("reporting_data_quality_gate runtime failure", metadata=metadata)
+    if result.returncode != 0 and not warn_only:
+        raise Failure(
+            f"reporting_data_quality_gate: {parsed.get('failed', '?')} of "
+            f"{parsed.get('total', '?')} data quality checks failed",
+            metadata=metadata,
+        )
+    if result.returncode != 0 and warn_only:
+        context.log.warning(
+            "reporting_data_quality_gate failures found but continuing "
+            "due to DASHBOARD_POLICY_GATE_WARN_ONLY=true"
+        )
+
+    return Output(
+        {"exit_code": result.returncode, "warn_only": warn_only, "summary": parsed},
+        metadata=metadata,
+    )
