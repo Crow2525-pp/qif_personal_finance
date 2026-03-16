@@ -348,7 +348,13 @@ def _connect():
 
 
 def run_checks() -> List[CheckResult]:
-    conn = _connect()
+    """Run all registered checks.
+
+    Raises on connection/runtime errors (caller should map to exit 2).
+    Individual check query errors (e.g. missing table) are caught and
+    recorded as failures so remaining checks still run.
+    """
+    conn = _connect()  # Raises on connection failure — intentionally uncaught
     conn.autocommit = False
     results: List[CheckResult] = []
     try:
@@ -375,11 +381,33 @@ def run_checks() -> List[CheckResult]:
 
 
 def main():
+    """Exit codes: 0 = all passed, 1 = check failures, 2 = runtime error."""
     parser = argparse.ArgumentParser(description="Reporting data-quality checks")
     parser.add_argument("--json", action="store_true", help="JSON output for CI")
     args = parser.parse_args()
 
-    results = run_checks()
+    try:
+        results = run_checks()
+    except Exception as exc:
+        # Runtime error — DB unreachable, import failure, etc.
+        # Exit 2 so the Dagster gate treats this as a hard failure that
+        # cannot be bypassed by DASHBOARD_POLICY_GATE_WARN_ONLY.
+        if args.json:
+            print(json.dumps({"total": 0, "passed": 0, "failed": 0,
+                              "runtime_error": str(exc), "checks": []}))
+        else:
+            print(f"RUNTIME ERROR: {exc}", file=sys.stderr)
+        sys.exit(2)
+
+    if not results:
+        # No checks ran at all — treat as runtime error
+        if args.json:
+            print(json.dumps({"total": 0, "passed": 0, "failed": 0,
+                              "runtime_error": "no checks executed", "checks": []}))
+        else:
+            print("RUNTIME ERROR: no checks executed", file=sys.stderr)
+        sys.exit(2)
+
     failures = [r for r in results if not r.passed]
 
     if args.json:
