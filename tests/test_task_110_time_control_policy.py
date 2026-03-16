@@ -48,6 +48,13 @@ EXCEPTION_TAGS = {
     "time_control:hybrid_future_component_exception",
 }
 
+HOME_DASHBOARD = "00-financial-review-command-center.json"
+
+HOME_LINK = {
+    "title": "View in 00 - Financial Control",
+    "url": "/d/financial-review-command-center?orgId=1&${__url_time_range}",
+}
+
 
 def _get_archetype(dashboard: dict) -> str | None:
     for tag in dashboard.get("tags", []):
@@ -107,6 +114,22 @@ def test_no_links_contain_var_dashboard_period():
             assert "var-dashboard_period" not in url, (
                 f"{filename} has link with var-dashboard_period: {url}"
             )
+
+
+def test_non_home_dashboards_include_home_link_first():
+    """Every non-home dashboard must keep the 00 home link first."""
+    for filename, dashboard in _all_dashboards():
+        if filename == HOME_DASHBOARD:
+            continue
+        links = dashboard.get("links", [])
+        assert links, f"{filename} should define top-level dashboard links"
+        first_link = links[0]
+        assert first_link.get("title") == HOME_LINK["title"], (
+            f"{filename} first top-level link must be {HOME_LINK['title']}"
+        )
+        assert first_link.get("url") == HOME_LINK["url"], (
+            f"{filename} first top-level link must target the financial control dashboard"
+        )
 
 
 def test_historical_windowed_dashboards_have_quick_ranges():
