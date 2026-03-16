@@ -25,3 +25,28 @@
 
     {{ return('select 1') }}
 {% endmacro %}
+
+{% macro family_children_count() %}
+    {{ return(3) }}
+{% endmacro %}
+
+{% macro latest_complete_reporting_month() -%}
+(
+  SELECT
+    CASE
+      WHEN MAX(transaction_date) IS NULL THEN NULL
+      WHEN MAX(transaction_date)
+           = (
+             DATE_TRUNC('month', MAX(transaction_date))
+             + INTERVAL '1 month'
+             - INTERVAL '1 day'
+           )::date
+        THEN TO_CHAR(DATE_TRUNC('month', MAX(transaction_date)), 'YYYY-MM')
+      ELSE TO_CHAR(
+        DATE_TRUNC('month', MAX(transaction_date)) - INTERVAL '1 month',
+        'YYYY-MM'
+      )
+    END
+  FROM {{ ref('fct_transactions') }}
+)
+{%- endmacro %}

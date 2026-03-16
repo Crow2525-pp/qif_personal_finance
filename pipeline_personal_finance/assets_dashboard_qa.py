@@ -135,21 +135,19 @@ def dashboard_quality_gate(context) -> None:
                 }
             )
             continue
-        for by_window in check_result.get("by_time_window", []):
-            time_window = by_window.get("time_window", "unknown")
-            for panel in by_window.get("failing_panels", []):
-                msg = panel.get("messages", "")
-                context.log.warning(
-                    f"NO DATA: '{dash.get('title')}' / '{panel.get('panel_title')}' / "
-                    f"[{time_window}]: {msg[:200]}"
-                )
-                all_failures.append(
-                    {
-                        "dashboard": dash.get("title", ""),
-                        "panel": panel.get("panel_title", ""),
-                        "error": f"[{time_window}] {msg}",
-                    }
-                )
+        for panel in check_result.get("panels_failing_all_windows", []):
+            msg = panel.get("messages", "")
+            context.log.warning(
+                f"NO DATA: '{dash.get('title')}' / '{panel.get('panel_title')}' / "
+                f"{msg[:200]}"
+            )
+            all_failures.append(
+                {
+                    "dashboard": dash.get("title", ""),
+                    "panel": panel.get("panel_title", ""),
+                    "error": msg,
+                }
+            )
 
     _emit_metadata(
         context,

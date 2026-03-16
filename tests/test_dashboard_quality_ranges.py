@@ -100,6 +100,22 @@ class _FakeClient:
         }
 
 
+class _WindowedFakeClient(_FakeClient):
+    """Fake client that can vary query results by requested time window."""
+
+    def query(self, datasource, raw_sql, **kwargs):
+        ref_id = kwargs.get("ref_id", "A")
+        key = (
+            datasource["uid"],
+            ref_id,
+            kwargs.get("time_from"),
+            kwargs.get("time_to"),
+        )
+        if key in self._query_results:
+            return self._query_results[key]
+        return super().query(datasource, raw_sql, **kwargs)
+
+
 def _make_dashboard(panels):
     return {"title": "test", "panels": panels, "templating": {"list": []}}
 
@@ -213,3 +229,208 @@ def test_check_dashboard_missing_ds_does_not_block_other_targets():
         dashboard_data=dashboard,
     )
     assert len(ok) == 1, "panel should pass — target A succeeded"
+
+
+def test_result_has_values_rejects_fallback_only_placeholder_row():
+    result = {
+        "frames": [
+            {
+                "data": {
+                    "values": [
+                        ["None"],
+                        [0],
+                        [0],
+                        [None],
+                        ["N/A"],
+                    ]
+                }
+            }
+        ]
+    }
+
+    has_data, message = checker.result_has_values(
+        result,
+        min_rows=1,
+        raw_sql=(
+            "SELECT * FROM ranked "
+            "UNION ALL SELECT 'None', 0, 0, NULL::date, 'N/A' "
+            "WHERE NOT EXISTS (SELECT 1 FROM ranked)"
+        ),
+    )
+
+    assert has_data is False
+    assert message == "fallback-only (1 rows)"
+
+
+def test_result_has_values_allows_single_real_row_even_with_fallback_clause():
+    result = {
+        "frames": [
+            {
+                "data": {
+                    "values": [
+                        ["ALDI STORES"],
+                        [142],
+                        [7856.67],
+                        ["2026-01-17"],
+                        ["HIGH"],
+                    ]
+                }
+            }
+        ]
+    }
+
+    has_data, message = checker.result_has_values(
+        result,
+        min_rows=1,
+        raw_sql=(
+            "SELECT * FROM ranked "
+            "UNION ALL SELECT 'None', 0, 0, NULL::date, 'N/A' "
+            "WHERE NOT EXISTS (SELECT 1 FROM ranked)"
+        ),
+    )
+
+    assert has_data is True
+    assert message == "1 rows"
+
+
+def test_check_dashboard_panel_fails_when_target_returns_fallback_only_row():
+    ds = {"pg": {"uid": "pg", "type": "postgres", "id": 1}}
+    results = {
+        ("pg", "A"): {
+            "results": {
+                "A": {
+                    "frames": [
+                        {
+                            "data": {
+                                "values": [
+                                    ["None"],
+                                    [0],
+                                    [0],
+                                    [None],
+                                    ["N/A"],
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    }
+    client = _FakeClient(ds, results)
+    dashboard = _make_dashboard([
+        {
+            "id": 902,
+            "title": "Top Uncategorized Merchants",
+            "datasource": {"uid": "pg"},
+            "targets": [
+                {
+                    "refId": "A",
+                    "rawSql": (
+                        "SELECT * FROM ranked "
+                        "UNION ALL SELECT 'None', 0, 0, NULL::date, 'N/A' "
+                        "WHERE NOT EXISTS (SELECT 1 FROM ranked)"
+                    ),
+                }
+            ],
+        }
+    ])
+
+    ok, fail = checker.check_dashboard(
+        client,
+        {"uid": "x"},
+        ds,
+        time_from="now-1d",
+        time_to="now",
+        min_rows=1,
+        dashboard_data=dashboard,
+    )
+
+    assert len(ok) == 0
+    assert len(fail) == 1
+    assert "fallback-only" in fail[0]["messages"]
+
+
+def test_check_dashboard_across_time_windows_only_fails_panels_empty_in_all_windows():
+    ds = {"pg": {"uid": "pg", "type": "postgres", "id": 1}}
+    client = _WindowedFakeClient(
+        ds,
+        {
+            ("pg", "A", "now-1M/M", "now/M"): {
+                "results": {"A": {"frames": [{"data": {"values": [[]]}}]}}
+            },
+            ("pg", "A", "now/y", "now"): {
+                "results": {"A": {"frames": [{"data": {"values": [["value"]]}}]}}
+            },
+        },
+    )
+    dashboard = _make_dashboard([
+        {
+            "id": 42,
+            "title": "Annual Total Spending (Complete Years Only)",
+            "datasource": {"uid": "pg"},
+            "targets": [{"refId": "A", "rawSql": "SELECT 1"}],
+        }
+    ])
+
+    result = checker.check_dashboard_across_time_windows(
+        client,
+        {"uid": "x"},
+        ds,
+        time_windows=[
+            ("last_complete_month", "now-1M/M", "now/M"),
+            ("year_to_date", "now/y", "now"),
+        ],
+        min_rows=1,
+        dashboard_data=dashboard,
+    )
+
+    assert result["ok_panels"] == 1
+    assert result["failing_panels"] == 0
+    assert result["ok_panel_checks"] == 1
+    assert result["failing_panel_checks"] == 1
+    assert result["panels_failing_all_windows"] == []
+    assert len(result["by_time_window"][0]["failing_panels"]) == 1
+    assert len(result["by_time_window"][1]["failing_panels"]) == 0
+
+
+def test_check_dashboard_across_time_windows_fails_panel_when_all_windows_empty():
+    ds = {"pg": {"uid": "pg", "type": "postgres", "id": 1}}
+    client = _WindowedFakeClient(
+        ds,
+        {
+            ("pg", "A", "now-1M/M", "now/M"): {
+                "results": {"A": {"frames": [{"data": {"values": [[]]}}]}}
+            },
+            ("pg", "A", "now/y", "now"): {
+                "results": {"A": {"frames": [{"data": {"values": [[]]}}]}}
+            },
+        },
+    )
+    dashboard = _make_dashboard([
+        {
+            "id": 99,
+            "title": "Recurring Merchants",
+            "datasource": {"uid": "pg"},
+            "targets": [{"refId": "A", "rawSql": "SELECT 1"}],
+        }
+    ])
+
+    result = checker.check_dashboard_across_time_windows(
+        client,
+        {"uid": "x"},
+        ds,
+        time_windows=[
+            ("last_complete_month", "now-1M/M", "now/M"),
+            ("year_to_date", "now/y", "now"),
+        ],
+        min_rows=1,
+        dashboard_data=dashboard,
+    )
+
+    assert result["ok_panels"] == 0
+    assert result["failing_panels"] == 1
+    assert result["ok_panel_checks"] == 0
+    assert result["failing_panel_checks"] == 2
+    assert len(result["panels_failing_all_windows"]) == 1
+    assert "last_complete_month" in result["panels_failing_all_windows"][0]["messages"]
+    assert "year_to_date" in result["panels_failing_all_windows"][0]["messages"]

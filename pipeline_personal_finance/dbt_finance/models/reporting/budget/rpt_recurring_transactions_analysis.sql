@@ -148,11 +148,15 @@ final_analysis AS (
     (last_transaction_date >= CURRENT_DATE - INTERVAL '60 days') AS is_currently_active,
 
     -- Risk flags
+    -- Keep cancellation detection outside the active window so downstream
+    -- projections do not drop merchants that are still considered current.
     CASE
       WHEN recurrence_type = 'Monthly'
-           AND days_since_last_transaction > 45 THEN TRUE
+           AND days_since_last_transaction > 60 THEN TRUE
       WHEN recurrence_type = 'Quarterly'
            AND days_since_last_transaction > 120 THEN TRUE
+      WHEN recurrence_type = 'Semi-Annual'
+           AND days_since_last_transaction > 240 THEN TRUE
       WHEN recurrence_type = 'Annual'
            AND days_since_last_transaction > 400 THEN TRUE
       ELSE FALSE

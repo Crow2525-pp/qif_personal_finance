@@ -43,5 +43,6 @@ SELECT
     income,
     expense
 FROM income_expense
-WHERE TO_DATE(year_month || '-01', 'YYYY-MM-DD') < DATE_TRUNC('month', CURRENT_DATE)
+-- Keep the viz aligned with the completed-month reporting cutoff.
+WHERE year_month <= {{ latest_complete_reporting_month() }}
 ORDER BY period_date

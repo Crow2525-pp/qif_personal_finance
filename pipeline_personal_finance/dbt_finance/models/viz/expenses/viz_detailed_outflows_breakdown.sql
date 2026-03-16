@@ -80,7 +80,7 @@ WITH outflows_base AS (
   WHERE ft.transaction_amount < 0  -- Only outflows
     AND NOT COALESCE(ft.is_internal_transfer, FALSE)  -- Exclude internal transfers
     AND NOT COALESCE(ft.is_property_transaction, FALSE)  -- Exclude property settlements
-    AND ft.transaction_date >= CURRENT_DATE - INTERVAL '24 months'  -- Last 2 years
+    AND ft.transaction_date >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '24 months')  -- Last 24 complete/partial months from month start
 ),
 
 monthly_summary AS (
@@ -108,6 +108,28 @@ monthly_summary AS (
     SUM(CASE WHEN expense_group = 'Insurance' THEN outflow_amount ELSE 0 END) AS insurance,
     SUM(CASE WHEN expense_group = 'Investments' THEN outflow_amount ELSE 0 END) AS investments,
     SUM(CASE WHEN expense_group = 'Taxes' THEN outflow_amount ELSE 0 END) AS taxes,
+    SUM(
+      CASE
+        WHEN expense_group NOT IN (
+          'Food & Dining',
+          'Household & Utilities',
+          'Housing & Mortgage',
+          'Transportation',
+          'Shopping & Retail',
+          'Family & Kids',
+          'Health & Wellness',
+          'Entertainment',
+          'Travel',
+          'Gifts & Charity',
+          'Insurance',
+          'Investments',
+          'Taxes',
+          'Uncategorized'
+        )
+        THEN outflow_amount
+        ELSE 0
+      END
+    ) AS other_outflows,
     SUM(CASE WHEN expense_group = 'Uncategorized' THEN outflow_amount ELSE 0 END) AS uncategorized,
     
     -- Transaction size analysis
