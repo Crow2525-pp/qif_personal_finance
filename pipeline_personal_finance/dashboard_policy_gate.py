@@ -85,6 +85,32 @@ def dashboard_json_lint_gate(context) -> Output[dict]:
 @asset(
     deps=[dashboard_json_lint_gate],
     group_name="post_dbt_qa",
+    description=(
+        "Detects non-ASCII characters (smart quotes, en/em dashes, bullets, "
+        "Greek letters) that render as mojibake when encoding is mishandled."
+    ),
+)
+def dashboard_encoding_gate(context) -> Output[dict]:
+    warn_only = _warn_only_enabled()
+    result = _run_script("check_dashboard_encoding.py", ["--json"])
+    metadata = _metadata_from_result(result)
+    metadata["warn_only"] = warn_only
+
+    if result.returncode == 2:
+        raise Failure("dashboard_encoding_gate runtime failure", metadata=metadata)
+    if result.returncode != 0 and not warn_only:
+        raise Failure("dashboard_encoding_gate failed", metadata=metadata)
+    if result.returncode != 0 and warn_only:
+        context.log.warning(
+            "dashboard_encoding_gate violations found but continuing due to DASHBOARD_POLICY_GATE_WARN_ONLY=true"
+        )
+
+    return Output({"exit_code": result.returncode, "warn_only": warn_only}, metadata=metadata)
+
+
+@asset(
+    deps=[dashboard_encoding_gate],
+    group_name="post_dbt_qa",
     description="Checks that panel content (tables, text, stats) fits within its gridPos bounding box.",
 )
 def dashboard_panel_fit_gate(context) -> Output[dict]:
