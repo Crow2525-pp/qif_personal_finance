@@ -14,6 +14,7 @@ WITH latest_periods AS (
   SELECT MAX(budget_year_month) AS latest_month
   FROM {{ ref('rpt_monthly_budget_summary') }}
   WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+    AND is_complete_month = TRUE
 ),
 
 monthly_budget AS (

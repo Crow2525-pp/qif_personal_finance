@@ -86,11 +86,13 @@ monthly_totals AS (
   GROUP BY budget_year_month, transaction_year, transaction_month
 ),
 
--- Anchor to the freshest fully-loaded month (exclude the in-progress calendar month)
+-- Anchor to the freshest fully-loaded month (exclude in-progress and incomplete months)
 latest_month AS (
   SELECT MAX(to_date(budget_year_month || '-01', 'YYYY-MM-DD')) AS max_month
   FROM monthly_totals
   WHERE to_date(budget_year_month || '-01', 'YYYY-MM-DD') < date_trunc('month', CURRENT_DATE)
+    AND total_family_essentials > 0
+    AND total_transactions >= 5
 ),
 
 with_trends AS (

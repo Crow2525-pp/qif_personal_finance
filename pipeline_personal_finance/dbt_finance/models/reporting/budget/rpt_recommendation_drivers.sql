@@ -9,9 +9,12 @@
 
 WITH latest_month_data AS (
   SELECT
-    MAX(budget_year_month) AS latest_month
-  FROM {{ ref('rpt_cash_flow_analysis') }}
-  WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+    MAX(cf.budget_year_month) AS latest_month
+  FROM {{ ref('rpt_cash_flow_analysis') }} cf
+  INNER JOIN {{ ref('rpt_monthly_budget_summary') }} mbs
+    ON cf.budget_year_month = mbs.budget_year_month
+  WHERE cf.budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+    AND mbs.is_complete_month = TRUE
 ),
 
 cash_flow_base AS (

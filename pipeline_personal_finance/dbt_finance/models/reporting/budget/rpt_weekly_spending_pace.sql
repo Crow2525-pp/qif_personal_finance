@@ -13,9 +13,10 @@
 */
 
 WITH latest_available_month AS (
-  -- Get the most recent month with data (fallback if current month doesn't exist)
+  -- Get the most recent complete month with data (fallback if current month doesn't exist)
   SELECT MAX(budget_year_month) AS latest_month
   FROM {{ ref('rpt_monthly_budget_summary') }}
+  WHERE is_complete_month = TRUE
 ),
 
 current_month_budget AS (

@@ -28,8 +28,12 @@ WITH cash_flow_months AS (
     mom_outflow_change_percent
   FROM {{ ref('rpt_cash_flow_analysis') }}
   WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+    AND budget_year_month IN (
+      SELECT budget_year_month FROM {{ ref('rpt_monthly_budget_summary') }}
+      WHERE is_complete_month = TRUE
+    )
   ORDER BY transaction_year DESC, transaction_month DESC
-  LIMIT 2  -- Get latest two months
+  LIMIT 2  -- Get latest two complete months
 ),
 
 latest_two_months AS (

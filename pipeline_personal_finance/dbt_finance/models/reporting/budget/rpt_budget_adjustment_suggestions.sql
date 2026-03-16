@@ -10,39 +10,42 @@
 
 WITH latest_month_variance AS (
   SELECT
-    budget_year_month,
-    budget_year,
-    budget_month,
+    bvs.budget_year_month,
+    bvs.budget_year,
+    bvs.budget_month,
 
     -- Get the most recent complete month
-    ROW_NUMBER() OVER (ORDER BY budget_year DESC, budget_month DESC) AS recency_rank,
+    ROW_NUMBER() OVER (ORDER BY bvs.budget_year DESC, bvs.budget_month DESC) AS recency_rank,
 
-    mortgage_variance_pct,
-    mortgage_variance_delta,
-    mortgage_expenses,
-    target_mortgage,
+    bvs.mortgage_variance_pct,
+    bvs.mortgage_variance_delta,
+    bvs.mortgage_expenses,
+    bvs.target_mortgage,
 
-    household_variance_pct,
-    household_variance_delta,
-    household_expenses,
-    target_household,
+    bvs.household_variance_pct,
+    bvs.household_variance_delta,
+    bvs.household_expenses,
+    bvs.target_household,
 
-    food_variance_pct,
-    food_variance_delta,
-    food_expenses,
-    target_food,
+    bvs.food_variance_pct,
+    bvs.food_variance_delta,
+    bvs.food_expenses,
+    bvs.target_food,
 
-    family_variance_pct,
-    family_variance_delta,
-    family_expenses,
-    target_family,
+    bvs.family_variance_pct,
+    bvs.family_variance_delta,
+    bvs.family_expenses,
+    bvs.target_family,
 
-    net_cash_flow,
-    savings_rate_percent,
-    total_expenses,
-    target_expenses
+    bvs.net_cash_flow,
+    bvs.savings_rate_percent,
+    bvs.total_expenses,
+    bvs.target_expenses
 
-  FROM {{ ref('rpt_budget_variance_summary') }}
+  FROM {{ ref('rpt_budget_variance_summary') }} bvs
+  INNER JOIN {{ ref('rpt_monthly_budget_summary') }} mbs
+    ON bvs.budget_year_month = mbs.budget_year_month
+  WHERE mbs.is_complete_month = TRUE
 ),
 
 variance_ranked AS (
