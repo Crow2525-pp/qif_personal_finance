@@ -64,10 +64,74 @@
         "type": "text",
         "uid": "-- Text --"
       },
+      "description": "The most recent fully closed month available across the shared reporting layer.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "string"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "id": 909,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/Last Completed Month/",
+          "values": false
+        },
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "text",
+            "uid": "-- Text --"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT TO_CHAR(MAX(TO_DATE(budget_year_month || '-01', 'YYYY-MM-DD')), 'Mon YYYY') AS \"Last Completed Month\"\nFROM reporting.rpt_monthly_budget_summary\nWHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM');",
+          "refId": "A"
+        }
+      ],
+      "title": "Last Completed Month",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "text",
+        "uid": "-- Text --"
+      },
       "gridPos": {
         "h": 12,
-        "w": 24,
-        "x": 0,
+        "w": 18,
+        "x": 6,
         "y": 0
       },
       "id": 100,
