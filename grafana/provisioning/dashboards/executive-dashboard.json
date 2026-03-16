@@ -203,7 +203,7 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Overall financial health scoreboard. Each bar reflects raw ratios from the selected month: savings performance is net cash flow Ã· income, cash-flow status comes from the cash-flow analysis state machine, and net-worth progress tracks the wealth milestone. The composite score weights net worth 30%, savings 30%, and cash flow 40%.",
+      "description": "Overall financial health scoreboard. Each bar reflects raw ratios from the selected month: savings performance is net cash flow / income, cash-flow status comes from the cash-flow analysis state machine, and net-worth progress tracks the wealth milestone. The composite score weights net worth 30%, savings 30%, and cash flow 40%.",
       "fieldConfig": {
         "defaults": {
           "min": 0,
@@ -436,7 +436,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Î” ($)"
+                "value": "Delta ($)"
               },
               {
                 "id": "unit",
@@ -452,7 +452,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Î” Ratio"
+                "value": "Delta Ratio"
               },
               {
                 "id": "unit",
@@ -489,7 +489,7 @@
           "refId": "A"
         }
       ],
-      "description": "Cash-oriented KPIs with raw values; Î” Ratio shows change vs the previous month."
+      "description": "Cash-oriented KPIs with raw values; Delta Ratio shows change vs the previous month."
     },
     {
       "datasource": {
@@ -779,7 +779,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Î”"
+                "value": "Delta"
               },
               {
                 "id": "unit",
@@ -795,7 +795,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Î” Ratio"
+                "value": "Delta Ratio"
               },
               {
                 "id": "unit",
@@ -805,14 +805,14 @@
           }
         ]
       },
-      "description": "Score and risk KPIs expressed as raw values; Î” Ratio captures relative change where applicable."
+      "description": "Score and risk KPIs expressed as raw values; Delta Ratio captures relative change where applicable."
     },
     {
       "datasource": {
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Expense Control Score translates your outflow-to-inflow ratio into a 0-100 scale. Scores above 80 mean expenses are â‰¤90% of income (strong control). 55â€“70 means youâ€™re spending roughly 100â€“110% of income (monitor closely). A 10 indicates expenses exceed 150% of incomeâ€”an immediate signal that cash burn is unsustainable.",
+      "description": "Expense Control Score translates your outflow-to-inflow ratio into a 0-100 scale. Scores above 80 mean expenses are <=90% of income (strong control). 55-70 means you're spending roughly 100-110% of income (monitor closely). A 10 indicates expenses exceed 150% of income--an immediate signal that cash burn is unsustainable.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1832,7 +1832,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Î”"
+                "value": "Delta"
               },
               {
                 "id": "unit",
