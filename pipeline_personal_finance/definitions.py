@@ -18,6 +18,7 @@ from .dashboard_policy_gate import (
 from .assets_dashboard_qa import dashboard_quality_gate
 from .postgres_readiness_gate import postgres_role_readiness_gate
 from .constants import DBT_PROJECT_DIR, QIF_FILES
+from .run_timeout import find_stale_runs, parse_timeout_hours
 
 load_dotenv()
 
@@ -95,6 +96,60 @@ def qif_file_sensor(context):
         }
     )
 
+
+def _terminate_run(instance, run_id: str) -> None:
+    if hasattr(instance, "terminate_run"):
+        instance.terminate_run(run_id)
+        return
+    run_launcher = getattr(instance, "run_launcher", None)
+    if run_launcher is not None and hasattr(run_launcher, "terminate"):
+        run_launcher.terminate(run_id)
+        return
+    raise RuntimeError("Dagster instance does not expose a run termination API")
+
+
+@sensor(job=qif_pipeline_job, minimum_interval_seconds=300)
+def stuck_run_timeout_sensor(context):
+    """
+    Detect long-running qif_pipeline_job runs and request termination.
+    """
+    timeout_hours = parse_timeout_hours(os.getenv("QIF_DAGSTER_RUN_TIMEOUT_HOURS", "2"))
+    runs_getter = getattr(context.instance, "get_runs", None)
+    if runs_getter is None:
+        return SkipReason("Dagster instance does not expose get_runs")
+
+    stale_runs = find_stale_runs(
+        runs_getter(),
+        job_name=qif_pipeline_job.name,
+        timeout_hours=timeout_hours,
+    )
+
+    if not stale_runs:
+        return SkipReason(f"No qif_pipeline_job runs exceeded {timeout_hours:g} hours")
+
+    terminated_runs: list[str] = []
+    for run_id, started_at in stale_runs:
+        try:
+            _terminate_run(context.instance, run_id)
+            terminated_runs.append(run_id)
+            context.log.warning(
+                f"Requested termination for stale run {run_id} started at {started_at.isoformat()}"
+            )
+        except Exception as exc:
+            context.log.warning(
+                f"Failed to terminate stale run {run_id}: {exc}"
+            )
+
+    if terminated_runs:
+        run_list = ", ".join(terminated_runs)
+        return SkipReason(
+            f"Requested termination for {len(terminated_runs)} stale run(s) older than {timeout_hours:g} hours: {run_list}"
+        )
+
+    return SkipReason(
+        f"Identified {len(stale_runs)} stale run(s) older than {timeout_hours:g} hours but termination failed"
+    )
+
 deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "prod")
 
 defs = Definitions(
@@ -113,6 +168,6 @@ defs = Definitions(
     ],
     resources=resources[deployment_name],
     jobs=[qif_pipeline_job],
-    sensors=[qif_file_sensor],
+    sensors=[qif_file_sensor, stuck_run_timeout_sensor],
 )
 

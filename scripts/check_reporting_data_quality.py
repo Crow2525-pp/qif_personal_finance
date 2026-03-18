@@ -24,6 +24,7 @@ Usage
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import json
 import os
 import sys
@@ -64,6 +65,15 @@ def _register(check_id: str, name: str, description: str):
         _CHECKS.append({"id": check_id, "name": name, "description": description, "fn": fn})
         return fn
     return decorator
+
+
+def _to_float(value: Any) -> float:
+    if value is None:
+        return 0.0
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return 0.0
 
 
 @_register(
@@ -329,6 +339,387 @@ def _check_executive_dashboard(cur) -> CheckResult:
             "monthly_income": income,
             "monthly_expenses": expenses,
             "health_score": float(row["overall_financial_health_score"] or 0),
+        },
+    )
+
+
+@_register(
+    "DQ010",
+    "Total assets include property",
+    "rpt_household_net_worth latest closed month must show total_assets > liquid_assets "
+    "and non-zero property_assets. Failure means property holdings are missing from total assets.",
+)
+def _check_property_assets(cur) -> CheckResult:
+    cur.execute("""
+        SELECT budget_year_month, total_assets, liquid_assets, property_assets, net_worth
+        FROM reporting.rpt_household_net_worth
+        WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+        ORDER BY budget_year_month DESC
+        LIMIT 1
+    """)
+    row = cur.fetchone()
+    if not row:
+        return CheckResult("DQ010", "Total assets include property", "", False,
+                           "No rows in rpt_household_net_worth")
+
+    total_assets = _to_float(row["total_assets"])
+    liquid_assets = _to_float(row["liquid_assets"])
+    property_assets = _to_float(row["property_assets"])
+    net_worth = _to_float(row["net_worth"])
+    passed = total_assets > liquid_assets and property_assets > 0
+    return CheckResult(
+        "DQ010",
+        "Total assets include property",
+        "",
+        passed,
+        (
+            f"month={row['budget_year_month']} total_assets={total_assets} "
+            f"liquid_assets={liquid_assets} property_assets={property_assets} "
+            f"net_worth={net_worth}"
+        ),
+        query_result={
+            "month": row["budget_year_month"],
+            "total_assets": total_assets,
+            "liquid_assets": liquid_assets,
+            "property_assets": property_assets,
+            "net_worth": net_worth,
+        },
+    )
+
+
+@_register(
+    "DQ011",
+    "Cash Flow Analysis populated",
+    "rpt_cash_flow_analysis must have the last 3 closed months populated with positive inflows "
+    "and outflows. Failure means the Cash Flow dashboard has no meaningful monthly series.",
+)
+def _check_cash_flow_analysis(cur) -> CheckResult:
+    # Fetch recent closed months, skipping incomplete ones (inflows=0 means
+    # QIF files haven't been imported yet for that month).
+    cur.execute("""
+        SELECT budget_year_month, total_inflows, total_outflows, net_cash_flow
+        FROM reporting.rpt_cash_flow_analysis
+        WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+          AND total_inflows > 0
+        ORDER BY budget_year_month DESC
+        LIMIT 3
+    """)
+    rows = cur.fetchall()
+    if len(rows) < 3:
+        return CheckResult(
+            "DQ011",
+            "Cash Flow Analysis populated",
+            "",
+            False,
+            f"Only {len(rows)} complete closed month(s) found in rpt_cash_flow_analysis",
+        )
+
+    details = []
+    passed = True
+    for row in rows:
+        inflows = _to_float(row["total_inflows"])
+        outflows = _to_float(row["total_outflows"])
+        net_cash_flow = row["net_cash_flow"]
+        details.append(
+            f"{row['budget_year_month']}: inflows={inflows} outflows={outflows} net_cash_flow={_to_float(net_cash_flow)}"
+        )
+        if outflows <= 0 or net_cash_flow is None:
+            passed = False
+
+    return CheckResult(
+        "DQ011",
+        "Cash Flow Analysis populated",
+        "",
+        passed,
+        " | ".join(details),
+        query_result={"months": details},
+    )
+
+
+@_register(
+    "DQ012",
+    "Account Performance non-empty",
+    "rpt_account_performance latest closed month must have rows with meaningful account_name "
+    "values and bank_name not equal to 'Unknown'. Failure means the Account Performance dashboard is blank.",
+)
+def _check_account_performance(cur) -> CheckResult:
+    cur.execute("""
+        SELECT budget_year_month, COUNT(*) AS total_rows,
+               COUNT(*) FILTER (
+                   WHERE account_name IS NOT NULL
+                     AND TRIM(account_name) <> ''
+                     AND bank_name IS NOT NULL
+                     AND TRIM(bank_name) <> ''
+                     AND LOWER(TRIM(bank_name)) <> 'unknown'
+               ) AS valid_rows,
+               COUNT(*) FILTER (
+                   WHERE bank_name IS NOT NULL
+                     AND LOWER(TRIM(bank_name)) = 'unknown'
+               ) AS unknown_bank_rows
+        FROM reporting.rpt_account_performance
+        WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+        GROUP BY budget_year_month
+        ORDER BY budget_year_month DESC
+        LIMIT 1
+    """)
+    row = cur.fetchone()
+    if not row:
+        return CheckResult("DQ012", "Account Performance non-empty", "", False,
+                           "No closed-month rows in rpt_account_performance")
+
+    total_rows = int(row["total_rows"] or 0)
+    valid_rows = int(row["valid_rows"] or 0)
+    unknown_bank_rows = int(row["unknown_bank_rows"] or 0)
+    passed = total_rows > 0 and valid_rows > 0 and valid_rows > unknown_bank_rows
+    return CheckResult(
+        "DQ012",
+        "Account Performance non-empty",
+        "",
+        passed,
+        (
+            f"month={row['budget_year_month']} total_rows={total_rows} "
+            f"valid_rows={valid_rows} unknown_bank_rows={unknown_bank_rows}"
+        ),
+        query_result={
+            "month": row["budget_year_month"],
+            "total_rows": total_rows,
+            "valid_rows": valid_rows,
+            "unknown_bank_rows": unknown_bank_rows,
+        },
+    )
+
+
+@_register(
+    "DQ013",
+    "Executive dashboard last refresh populated",
+    "rpt_executive_dashboard.latest dashboard_generated_at must be present and recent. "
+    "Failure means the Last Refresh indicator is blank or stale.",
+)
+def _check_executive_dashboard_refresh(cur) -> CheckResult:
+    cur.execute("""
+        SELECT dashboard_month, dashboard_generated_at
+        FROM reporting.rpt_executive_dashboard
+        ORDER BY dashboard_month DESC
+        LIMIT 1
+    """)
+    row = cur.fetchone()
+    if not row:
+        return CheckResult("DQ013", "Executive dashboard last refresh populated", "", False,
+                           "No rows in rpt_executive_dashboard")
+
+    refreshed_at = row["dashboard_generated_at"]
+    passed = refreshed_at is not None
+    if passed:
+        try:
+            if refreshed_at.tzinfo is None:
+                refreshed_at = refreshed_at.replace(tzinfo=dt.timezone.utc)
+            passed = (dt.datetime.now(dt.timezone.utc) - refreshed_at) <= dt.timedelta(days=30)
+        except TypeError:
+            passed = False
+
+    return CheckResult(
+        "DQ013",
+        "Executive dashboard last refresh populated",
+        "",
+        passed,
+        f"month={row['dashboard_month']} dashboard_generated_at={refreshed_at}",
+        query_result={
+            "month": row["dashboard_month"],
+            "dashboard_generated_at": refreshed_at,
+        },
+    )
+
+
+@_register(
+    "DQ014",
+    "Monthly Financial Snapshot complete",
+    "The latest closed month must have a complete monthly budget summary plus matching executive "
+    "dashboard and net worth snapshot fields populated. Failure means the monthly snapshot renders partially.",
+)
+def _check_monthly_snapshot_complete(cur) -> CheckResult:
+    cur.execute("""
+        SELECT budget_year_month, total_income, total_expenses, net_cash_flow,
+               savings_rate_percent, expense_ratio_percent
+        FROM reporting.rpt_monthly_budget_summary
+        WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+        ORDER BY budget_year_month DESC
+        LIMIT 1
+    """)
+    summary_row = cur.fetchone()
+    if not summary_row:
+        return CheckResult("DQ014", "Monthly Financial Snapshot complete", "", False,
+                           "No rows in rpt_monthly_budget_summary")
+
+    month = summary_row["budget_year_month"]
+    cur.execute("""
+        SELECT dashboard_month, current_net_worth, liquid_assets, total_assets, total_liabilities
+        FROM reporting.rpt_executive_dashboard
+        WHERE dashboard_month = %s
+        LIMIT 1
+    """, (month,))
+    dashboard_row = cur.fetchone()
+
+    cur.execute("""
+        SELECT budget_year_month, total_assets, total_liabilities, net_worth, liquid_assets
+        FROM reporting.rpt_household_net_worth
+        WHERE budget_year_month = %s
+        LIMIT 1
+    """, (month,))
+    net_worth_row = cur.fetchone()
+
+    summary_fields = ["total_income", "total_expenses", "net_cash_flow", "savings_rate_percent", "expense_ratio_percent"]
+    summary_missing = [field for field in summary_fields if summary_row[field] is None]
+    dashboard_missing = []
+    if not dashboard_row:
+        dashboard_missing = ["dashboard_row_missing"]
+    else:
+        for field in ["current_net_worth", "liquid_assets", "total_assets", "total_liabilities"]:
+            if dashboard_row[field] is None:
+                dashboard_missing.append(field)
+
+    net_worth_missing = []
+    if not net_worth_row:
+        net_worth_missing = ["net_worth_row_missing"]
+    else:
+        for field in ["total_assets", "total_liabilities", "net_worth", "liquid_assets"]:
+            if net_worth_row[field] is None:
+                net_worth_missing.append(field)
+
+    passed = not summary_missing and not dashboard_missing and not net_worth_missing
+    detail = (
+        f"month={month} summary_missing={summary_missing or '[]'} "
+        f"dashboard_missing={dashboard_missing or '[]'} "
+        f"net_worth_missing={net_worth_missing or '[]'}"
+    )
+    return CheckResult(
+        "DQ014",
+        "Monthly Financial Snapshot complete",
+        "",
+        passed,
+        detail,
+        query_result={
+            "month": month,
+            "summary_missing": summary_missing,
+            "dashboard_missing": dashboard_missing,
+            "net_worth_missing": net_worth_missing,
+        },
+    )
+
+
+@_register(
+    "DQ015",
+    "Cash Flow Trend has history",
+    "rpt_cash_flow_analysis must contain at least 6 distinct closed months. Failure means the cash flow trend chart cannot render a meaningful history.",
+)
+def _check_cash_flow_trend_history(cur) -> CheckResult:
+    cur.execute("""
+        SELECT budget_year_month
+        FROM reporting.rpt_cash_flow_analysis
+        WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+        ORDER BY budget_year_month DESC
+        LIMIT 12
+    """)
+    rows = cur.fetchall()
+    months = [row["budget_year_month"] for row in rows]
+    distinct_months = list(dict.fromkeys(months))
+    passed = len(distinct_months) >= 6
+    return CheckResult(
+        "DQ015",
+        "Cash Flow Trend has history",
+        "",
+        passed,
+        f"distinct_closed_months={len(distinct_months)} months={distinct_months}",
+        query_result={"distinct_closed_months": len(distinct_months), "months": distinct_months},
+    )
+
+
+@_register(
+    "DQ016",
+    "Savings Analysis populated",
+    "rpt_savings_analysis must contain recent closed months with non-zero savings values. "
+    "Failure means the Savings dashboard is blank or all zeroes.",
+)
+def _check_savings_analysis(cur) -> CheckResult:
+    cur.execute("""
+        SELECT budget_year_month, total_savings, total_savings_rate_percent,
+               traditional_savings_rate_percent, liquid_savings_rate_percent,
+               investment_rate_percent
+        FROM reporting.rpt_savings_analysis
+        WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+        ORDER BY budget_year_month DESC
+        LIMIT 3
+    """)
+    rows = cur.fetchall()
+    if len(rows) < 3:
+        return CheckResult(
+            "DQ016",
+            "Savings Analysis populated",
+            "",
+            False,
+            f"Only {len(rows)} closed month(s) found in rpt_savings_analysis",
+        )
+
+    detail_rows = []
+    passed = True
+    for row in rows:
+        month = row["budget_year_month"]
+        numeric_values = [
+            _to_float(row["total_savings"]),
+            _to_float(row["total_savings_rate_percent"]),
+            _to_float(row["traditional_savings_rate_percent"]),
+            _to_float(row["liquid_savings_rate_percent"]),
+            _to_float(row["investment_rate_percent"]),
+        ]
+        has_non_zero = any(value != 0 for value in numeric_values)
+        detail_rows.append(f"{month}: values={numeric_values} non_zero={has_non_zero}")
+        if not has_non_zero:
+            passed = False
+
+    return CheckResult(
+        "DQ016",
+        "Savings Analysis populated",
+        "",
+        passed,
+        " | ".join(detail_rows),
+        query_result={"months": detail_rows},
+    )
+
+
+@_register(
+    "DQ017",
+    "Net Worth trend non-empty",
+    "rpt_household_net_worth must contain multiple closed months with positive net_worth. "
+    "Failure means the Net Worth trend panel is blank or collapsed to a single point.",
+)
+def _check_net_worth_trend(cur) -> CheckResult:
+    cur.execute("""
+        SELECT budget_year_month, net_worth
+        FROM reporting.rpt_household_net_worth
+        WHERE budget_year_month < TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+        ORDER BY budget_year_month DESC
+        LIMIT 12
+    """)
+    rows = cur.fetchall()
+    if not rows:
+        return CheckResult("DQ017", "Net Worth trend non-empty", "", False,
+                           "No closed-month rows in rpt_household_net_worth")
+
+    positive_months = [
+        row["budget_year_month"]
+        for row in rows
+        if _to_float(row["net_worth"]) > 0
+    ]
+    distinct_positive_months = list(dict.fromkeys(positive_months))
+    passed = len(distinct_positive_months) >= 3
+    return CheckResult(
+        "DQ017",
+        "Net Worth trend non-empty",
+        "",
+        passed,
+        f"positive_months={len(distinct_positive_months)} months={distinct_positive_months}",
+        query_result={
+            "positive_months": len(distinct_positive_months),
+            "months": distinct_positive_months,
         },
     )
 
