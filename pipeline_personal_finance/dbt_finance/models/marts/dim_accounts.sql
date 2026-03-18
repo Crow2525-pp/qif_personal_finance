@@ -17,6 +17,8 @@ WITH account_metadata AS (
       WHEN LOWER(account_name) LIKE '%adelaide%' THEN 'Adelaide Bank'
       WHEN LOWER(account_name) LIKE '%bendigo%' THEN 'Bendigo Bank'
       WHEN LOWER(account_name) LIKE '%ing%' THEN 'ING Australia'
+      WHEN LOWER(account_name) IN ('countdown', 'billsbillsbills') THEN 'ING Australia'
+      WHEN LOWER(account_name) IN ('homeloan', 'offset') THEN 'Bendigo Bank'
       ELSE 'Unknown'
     END AS bank_name,
 
