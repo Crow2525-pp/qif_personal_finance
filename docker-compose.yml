@@ -17,7 +17,7 @@ services:
     expose:
       - "3000"
     ports:
-      - "3002:3000"
+      - "${DAGSTER_UI_BIND_HOST:-127.0.0.1}:${DAGSTER_UI_PORT:-3002}:3000"
     environment:
       DAGSTER_POSTGRES_HOST: ${DAGSTER_POSTGRES_HOST}
       DAGSTER_POSTGRES_USER: ${DAGSTER_POSTGRES_USER}
@@ -201,7 +201,7 @@ services:
     image: grafana/grafana:12.2.0-ubuntu
     restart: unless-stopped
     ports:
-      - "0.0.0.0:3001:3000"
+      - "${GRAFANA_BIND_HOST:-127.0.0.1}:${GRAFANA_HOST_PORT:-3001}:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
@@ -225,5 +225,4 @@ volumes:
 
 networks:
   dagster_network:
-    name: qif_personal_finance_dagster_network
     driver: bridge
