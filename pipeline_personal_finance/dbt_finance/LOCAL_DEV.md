@@ -219,6 +219,10 @@ by default, or `QIF_SHARED_SEED_DIR` if set. On first run in an existing checkou
 it imports your current local CSVs into that shared store. On later runs in new
 worktrees, it recreates the worktree copies from the shared store automatically.
 
+The same bootstrap command also mirrors local QIF inputs from
+`pipeline_personal_finance/qif_files` using `~/.qif_personal_finance/shared_qif_files`
+by default, or `QIF_SHARED_QIF_DIR` if set.
+
 If you want both the Compose port overrides and the private seed files set up in one
 step, run:
 

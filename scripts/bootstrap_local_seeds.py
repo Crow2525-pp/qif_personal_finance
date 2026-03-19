@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bootstrap private dbt seed files for this worktree from a shared local store."""
+"""Bootstrap private local data for this worktree from shared local stores."""
 
 from __future__ import annotations
 
@@ -18,6 +18,8 @@ SEED_FILES = [
     "pipeline_personal_finance/dbt_finance/seeds/recommendation_outcomes.csv",
 ]
 
+QIF_RELATIVE_DIR = "pipeline_personal_finance/qif_files"
+
 
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -30,6 +32,13 @@ def resolve_shared_dir(cli_value: str | None) -> Path:
     if env_value:
         return Path(env_value).expanduser().resolve()
     return (Path.home() / ".qif_personal_finance" / "shared_seeds").resolve()
+
+
+def resolve_shared_qif_dir() -> Path:
+    env_value = os.getenv("QIF_SHARED_QIF_DIR")
+    if env_value:
+        return Path(env_value).expanduser().resolve()
+    return (Path.home() / ".qif_personal_finance" / "shared_qif_files").resolve()
 
 
 def ensure_parent(path: Path) -> None:
@@ -64,7 +73,7 @@ def materialize(shared_path: Path, target_path: Path, mode: str) -> str:
     return "created-copy"
 
 
-def bootstrap(repo_root: Path, shared_dir: Path, mode: str) -> list[str]:
+def bootstrap_seed_files(repo_root: Path, shared_dir: Path, mode: str) -> list[str]:
     messages: list[str] = []
     shared_dir.mkdir(parents=True, exist_ok=True)
 
@@ -90,6 +99,27 @@ def bootstrap(repo_root: Path, shared_dir: Path, mode: str) -> list[str]:
     return messages
 
 
+def bootstrap_qif_files(repo_root: Path, shared_dir: Path, mode: str) -> list[str]:
+    messages: list[str] = []
+    shared_dir.mkdir(parents=True, exist_ok=True)
+    target_dir = repo_root / QIF_RELATIVE_DIR
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    for target_path in sorted(target_dir.glob("*.qif")):
+        shared_path = shared_dir / target_path.name
+        if copy_if_missing(target_path, shared_path):
+            messages.append(f"Imported existing local QIF into shared store: {shared_path}")
+
+    for shared_path in sorted(shared_dir.glob("*.qif")):
+        action = materialize(shared_path, target_dir / shared_path.name, mode)
+        messages.append(f"{action}: {target_dir / shared_path.name}")
+
+    if not list(shared_dir.glob("*.qif")):
+        messages.append(f"No shared QIF files found in {shared_dir}")
+
+    return messages
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -106,8 +136,12 @@ def main() -> int:
 
     repo_root = Path.cwd()
     shared_dir = resolve_shared_dir(args.shared_dir)
+    shared_qif_dir = resolve_shared_qif_dir()
     print(f"Using shared seed directory: {shared_dir}")
-    for message in bootstrap(repo_root, shared_dir, args.mode):
+    for message in bootstrap_seed_files(repo_root, shared_dir, args.mode):
+        print(message)
+    print(f"Using shared QIF directory: {shared_qif_dir}")
+    for message in bootstrap_qif_files(repo_root, shared_qif_dir, args.mode):
         print(message)
     return 0
 

@@ -17,8 +17,8 @@ bootstrap-worktree: compose-env bootstrap-local-seeds
 help:
 	@echo "Available commands:"
 	@echo "  setup       - Copy .env.template to .env for configuration"
-	@echo "  bootstrap-local-seeds - Sync private seed CSVs from the shared local seed store"
-	@echo "  bootstrap-worktree - Generate worktree env and private seed files"
+	@echo "  bootstrap-local-seeds - Sync private seed CSVs and QIF files from shared local stores"
+	@echo "  bootstrap-worktree - Generate worktree env and private local data"
 	@echo "  up          - Start all services with docker-compose"
 	@echo "  down        - Stop all services"
 	@echo "  logs        - Show logs from all services"
