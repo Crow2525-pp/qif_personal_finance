@@ -6,7 +6,7 @@ COMPOSE_PROJECT_NAME := $(shell $(PYTHON) scripts/write_worktree_compose_env.py 
 COMPOSE = docker compose --project-name $(COMPOSE_PROJECT_NAME) --env-file .env --env-file $(WORKTREE_ENV_FILE) -f docker-compose.yml
 
 compose-env:
-	@$(PYTHON) scripts/write_worktree_compose_env.py --output $(WORKTREE_ENV_FILE) >/dev/null
+	@$(PYTHON) scripts/write_worktree_compose_env.py --output $(WORKTREE_ENV_FILE)
 
 # Default target
 help:
@@ -131,7 +131,7 @@ status:
 	$(COMPOSE) ps
 
 ports: compose-env
-	@cat $(WORKTREE_ENV_FILE)
+	@$(PYTHON) -c "from pathlib import Path; print(Path('$(WORKTREE_ENV_FILE)').read_text())"
 
 # dbt helpers (run from finance dbt dir)
 dbt-deps:
