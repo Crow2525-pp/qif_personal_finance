@@ -1,4 +1,4 @@
-.PHONY: help setup up down logs clean restart rebuild lint lint-fix test dagster-ui grafana-ui status dagster-run dbt-deps dbt-compile dbt-build dbt-test
+.PHONY: help setup up down logs clean restart rebuild lint lint-fix test dagster-ui grafana-ui status dagster-run dbt-deps dbt-compile dbt-build dbt-test bootstrap-local-seeds bootstrap-worktree
 
 WORKTREE_ENV_FILE = .env.worktree.auto
 PYTHON ?= python
@@ -8,10 +8,17 @@ COMPOSE = docker compose --project-name $(COMPOSE_PROJECT_NAME) --env-file .env 
 compose-env:
 	@$(PYTHON) scripts/write_worktree_compose_env.py --output $(WORKTREE_ENV_FILE)
 
+bootstrap-local-seeds:
+	@$(PYTHON) scripts/bootstrap_local_seeds.py
+
+bootstrap-worktree: compose-env bootstrap-local-seeds
+
 # Default target
 help:
 	@echo "Available commands:"
 	@echo "  setup       - Copy .env.template to .env for configuration"
+	@echo "  bootstrap-local-seeds - Sync private seed CSVs from the shared local seed store"
+	@echo "  bootstrap-worktree - Generate worktree env and private seed files"
 	@echo "  up          - Start all services with docker-compose"
 	@echo "  down        - Stop all services"
 	@echo "  logs        - Show logs from all services"
