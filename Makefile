@@ -1,6 +1,12 @@
 .PHONY: help setup up down logs clean restart rebuild lint lint-fix test dagster-ui grafana-ui status dagster-run dbt-deps dbt-compile dbt-build dbt-test
 
-COMPOSE = docker compose -f docker-compose.yml
+WORKTREE_ENV_FILE = .env.worktree.auto
+PYTHON ?= python
+COMPOSE_PROJECT_NAME := $(shell $(PYTHON) scripts/write_worktree_compose_env.py --print-project-name)
+COMPOSE = docker compose --project-name $(COMPOSE_PROJECT_NAME) --env-file .env --env-file $(WORKTREE_ENV_FILE) -f docker-compose.yml
+
+compose-env:
+	@$(PYTHON) scripts/write_worktree_compose_env.py --output $(WORKTREE_ENV_FILE) >/dev/null
 
 # Default target
 help:
@@ -18,6 +24,7 @@ help:
 	@echo "  dagster-run - Run full Dagster pipeline job (preferred deploy path)"
 	@echo "  grafana-ui  - Open Grafana UI in browser"
 	@echo "  status      - Show status of all services"
+	@echo "  ports       - Show the derived host ports for this worktree"
 	@echo "  dbt-deps    - Install dbt packages"
 	@echo "  dbt-compile - Compile dbt project (syntax check)"
 	@echo "  dbt-build   - Break-glass: build dbt directly (requires ALLOW_DIRECT_DBT=1)"
@@ -34,13 +41,13 @@ setup:
 	fi
 
 # Start services
-up:
+up: compose-env
 	@if [ ! -f .env ]; then \
 		cp .env.template .env; \
 		echo "WARNING: .env not found — created from .env.template with placeholder values."; \
 		echo "         Edit .env and replace CHANGE_ME_* values before services can start correctly."; \
 	else \
-		python3 -c "\
+		$(PYTHON) -c "\
 import re, sys; \
 t = open('.env.template').read(); env = open('.env').read(); \
 keys = set(re.findall(r'^([A-Z][A-Z0-9_]*)=', env, re.M)); \
@@ -56,28 +63,31 @@ print('\n'.join(missing)) if missing else None" > /tmp/_env_missing.txt; \
 	fi
 	$(COMPOSE) up -d
 	@echo "Services starting..."
-	@echo "Dagster UI will be available at http://localhost:3002"
-	@echo "Grafana UI will be available at http://localhost:3001"
+	@$(PYTHON) -c "from pathlib import Path; data = dict(line.split('=', 1) for line in Path('$(WORKTREE_ENV_FILE)').read_text().splitlines() if line and not line.startswith('#')); print(f\"Dagster UI will be available at http://localhost:{data['DAGSTER_UI_PORT']}\"); print(f\"Grafana UI will be available at http://localhost:{data['GRAFANA_HOST_PORT']}\")"
 
 # Stop services
 down:
+	@$(MAKE) compose-env
 	$(COMPOSE) down
 
 # Show logs
 logs:
+	@$(MAKE) compose-env
 	$(COMPOSE) logs -f
 
 # Clean up
 clean:
+	@$(MAKE) compose-env
 	$(COMPOSE) down -v --remove-orphans
 	docker system prune -f
 
 # Restart services
 restart:
+	@$(MAKE) compose-env
 	$(COMPOSE) restart
 
 # Rebuild and restart
-rebuild:
+rebuild: compose-env
 	$(COMPOSE) down
 	$(COMPOSE) build --no-cache
 	$(COMPOSE) up -d
@@ -92,23 +102,36 @@ lint-fix:
 
 # Open Dagster UI (works on macOS and Linux)
 dagster-ui:
-	@which open >/dev/null 2>&1 && open http://localhost:3002 || \
-	 which xdg-open >/dev/null 2>&1 && xdg-open http://localhost:3002 || \
-	 echo "Please open http://localhost:3002 in your browser"
+	@$(MAKE) compose-env
+	@$(PYTHON) -c "from pathlib import Path; data = dict(line.split('=', 1) for line in Path('$(WORKTREE_ENV_FILE)').read_text().splitlines() if line and not line.startswith('#')); print(f\"http://localhost:{data['DAGSTER_UI_PORT']}\")" > /tmp/_dagster_url.txt
+	@URL=$$(cat /tmp/_dagster_url.txt); \
+	 which open >/dev/null 2>&1 && open $$URL || \
+	 which xdg-open >/dev/null 2>&1 && xdg-open $$URL || \
+	 echo "Please open $$URL in your browser"
+	@rm -f /tmp/_dagster_url.txt
 
 # Open Grafana UI (works on macOS and Linux)
 grafana-ui:
-	@which open >/dev/null 2>&1 && open http://localhost:3001 || \
-	 which xdg-open >/dev/null 2>&1 && xdg-open http://localhost:3001 || \
-	 echo "Please open http://localhost:3001 in your browser"
+	@$(MAKE) compose-env
+	@$(PYTHON) -c "from pathlib import Path; data = dict(line.split('=', 1) for line in Path('$(WORKTREE_ENV_FILE)').read_text().splitlines() if line and not line.startswith('#')); print(f\"http://localhost:{data['GRAFANA_HOST_PORT']}\")" > /tmp/_grafana_url.txt
+	@URL=$$(cat /tmp/_grafana_url.txt); \
+	 which open >/dev/null 2>&1 && open $$URL || \
+	 which xdg-open >/dev/null 2>&1 && xdg-open $$URL || \
+	 echo "Please open $$URL in your browser"
+	@rm -f /tmp/_grafana_url.txt
 
 # Preferred deployment path: run through Dagster so lineage/ordering/checks are preserved
 dagster-run:
+	@$(MAKE) compose-env
 	$(COMPOSE) exec pipeline_personal_finance dagster job execute -m pipeline_personal_finance -j qif_pipeline_job
 
 # Show service status
 status:
+	@$(MAKE) compose-env
 	$(COMPOSE) ps
+
+ports: compose-env
+	@cat $(WORKTREE_ENV_FILE)
 
 # dbt helpers (run from finance dbt dir)
 dbt-deps:

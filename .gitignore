@@ -23,6 +23,7 @@ schedules.db
 *.csv
 *.ods
 .env
+.env.worktree.auto
 !pipeline_personal_finance/dbt_finance/macros
 .venv
 *.log*
