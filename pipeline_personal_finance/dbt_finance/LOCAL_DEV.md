@@ -198,6 +198,38 @@ python pipeline_personal_finance/dbt_finance/scripts/generate_synthetic_data.py 
 Synthetic CSVs land in `pipeline_personal_finance/dbt_finance/seeds/local/` which is
 gitignored.
 
+### Private household seed files across worktrees
+
+The following CSVs are treated as private local data and are not committed:
+
+- `pipeline_personal_finance/dbt_finance/seeds/known_values.csv`
+- `pipeline_personal_finance/dbt_finance/seeds/mortgage_patch_data.csv`
+- `pipeline_personal_finance/dbt_finance/seeds/property_assets.csv`
+- `pipeline_personal_finance/dbt_finance/seeds/property_valuation_overrides.csv`
+- `pipeline_personal_finance/dbt_finance/seeds/recommendation_outcomes.csv`
+
+Bootstrap them into any checkout or worktree with:
+
+```bash
+python scripts/bootstrap_local_seeds.py
+```
+
+The script uses a shared local seed store at `~/.qif_personal_finance/shared_seeds`
+by default, or `QIF_SHARED_SEED_DIR` if set. On first run in an existing checkout,
+it imports your current local CSVs into that shared store. On later runs in new
+worktrees, it recreates the worktree copies from the shared store automatically.
+
+The same bootstrap command also mirrors local QIF inputs from
+`pipeline_personal_finance/qif_files` using `~/.qif_personal_finance/shared_qif_files`
+by default, or `QIF_SHARED_QIF_DIR` if set.
+
+If you want both the Compose port overrides and the private seed files set up in one
+step, run:
+
+```bash
+make bootstrap-worktree
+```
+
 ### Run dbt (DuckDB)
 
 ```bash
