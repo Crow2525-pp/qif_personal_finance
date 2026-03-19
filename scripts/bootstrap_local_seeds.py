@@ -19,6 +19,7 @@ SEED_FILES = [
 ]
 
 QIF_RELATIVE_DIR = "pipeline_personal_finance/qif_files"
+TEMPLATE_RELATIVE_DIR = "pipeline_personal_finance/dbt_finance/seed_templates"
 
 
 def sha256(path: Path) -> str:
@@ -80,7 +81,7 @@ def bootstrap_seed_files(repo_root: Path, shared_dir: Path, mode: str) -> list[s
     for relative_path in SEED_FILES:
         target_path = repo_root / relative_path
         shared_path = shared_dir / Path(relative_path).name
-        template_path = target_path.with_suffix(".template.csv")
+        template_path = repo_root / TEMPLATE_RELATIVE_DIR / f"{target_path.stem}.template.csv"
 
         if target_path.exists() and copy_if_missing(target_path, shared_path):
             messages.append(f"Imported existing local seed into shared store: {shared_path}")
