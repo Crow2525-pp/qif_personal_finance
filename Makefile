@@ -1,12 +1,22 @@
-.PHONY: help setup up down logs clean restart rebuild lint lint-fix test dagster-ui grafana-ui status dagster-run dbt-deps dbt-compile dbt-build dbt-test bootstrap-local-seeds bootstrap-worktree
+.PHONY: help setup up down logs clean restart rebuild lint lint-fix test dagster-ui grafana-ui status dagster-run dbt-deps dbt-compile dbt-build dbt-test bootstrap-local-seeds bootstrap-worktree retire-legacy
 
 WORKTREE_ENV_FILE = .env.worktree.auto
 PYTHON ?= python
 COMPOSE_PROJECT_NAME := $(shell $(PYTHON) scripts/write_worktree_compose_env.py --print-project-name)
 COMPOSE = docker compose --project-name $(COMPOSE_PROJECT_NAME) --env-file .env --env-file $(WORKTREE_ENV_FILE) -f docker-compose.yml
 
+# Legacy project name (underscores) predates worktree port isolation.
+# Stop those containers so they don't hold ports the new project needs.
+LEGACY_PROJECT_NAME = qif_personal_finance
+
 compose-env:
 	@$(PYTHON) scripts/write_worktree_compose_env.py --output $(WORKTREE_ENV_FILE)
+
+retire-legacy:
+	@if docker compose --project-name $(LEGACY_PROJECT_NAME) ps -q 2>/dev/null | grep -q .; then \
+		echo "Stopping legacy containers (project: $(LEGACY_PROJECT_NAME))..."; \
+		docker compose --project-name $(LEGACY_PROJECT_NAME) down; \
+	fi
 
 bootstrap-local-seeds:
 	@$(PYTHON) scripts/bootstrap_local_seeds.py
@@ -48,7 +58,7 @@ setup:
 	fi
 
 # Start services
-up: compose-env
+up: compose-env retire-legacy
 	@if [ ! -f .env ]; then \
 		cp .env.template .env; \
 		echo "WARNING: .env not found — created from .env.template with placeholder values."; \
@@ -83,7 +93,7 @@ logs:
 	$(COMPOSE) logs -f
 
 # Clean up
-clean:
+clean: retire-legacy
 	@$(MAKE) compose-env
 	$(COMPOSE) down -v --remove-orphans
 	docker system prune -f
@@ -94,7 +104,7 @@ restart:
 	$(COMPOSE) restart
 
 # Rebuild and restart
-rebuild: compose-env
+rebuild: compose-env retire-legacy
 	$(COMPOSE) down
 	$(COMPOSE) build --no-cache
 	$(COMPOSE) up -d
