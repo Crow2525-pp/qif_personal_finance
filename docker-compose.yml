@@ -72,6 +72,7 @@ services:
       DASHBOARD_POLICY_GATE_WARN_ONLY: ${DASHBOARD_POLICY_GATE_WARN_ONLY:-false}
       GRAFANA_TOKEN: ${GRAFANA_TOKEN}
       GRAFANA_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      DAGSTER_NETWORK: ${COMPOSE_PROJECT_NAME}_dagster_network
     # no use on windows.
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -92,13 +93,14 @@ services:
       dockerfile: pipeline_personal_finance/dockerfile
       args:
         - DAGSTER_APP=${DAGSTER_APP}
-    image: pipeline_personal_finance
+    image: ${PIPELINE_IMAGE:-pipeline_personal_finance}
     command: ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "pipeline_personal_finance"]
     expose:
       - "4000"
     environment:
       TIMEZONE: Australia/Melbourne
-      DAGSTER_CURRENT_IMAGE: pipeline_personal_finance
+      DAGSTER_CURRENT_IMAGE: ${PIPELINE_IMAGE:-pipeline_personal_finance}
+      DAGSTER_NETWORK: ${COMPOSE_PROJECT_NAME}_dagster_network
       DAGSTER_HOME: ${DAGSTER_HOME}
       DAGSTER_POSTGRES_HOST: ${DAGSTER_POSTGRES_HOST}
       DAGSTER_POSTGRES_USER: ${DAGSTER_POSTGRES_USER}

@@ -20,6 +20,7 @@ run_launcher:
   class: DockerRunLauncher
   config:
     env_vars:
+      - DAGSTER_NETWORK
       - DAGSTER_POSTGRES_DB
       - DAGSTER_POSTGRES_HOST
       - DAGSTER_POSTGRES_PORT
@@ -34,7 +35,8 @@ run_launcher:
       - DBT_EXECUTION_CONTEXT
       - DASHBOARD_POLICY_GATE_WARN_ONLY
       - DASHBOARD_QUALITY_WARN_ONLY
-    network: qif_personal_finance_dagster_network
+    network:
+      env: DAGSTER_NETWORK
     container_kwargs:
       volumes: # Make docker client accessible to any launched containers as well
         - /var/run/docker.sock:/var/run/docker.sock

@@ -17,6 +17,8 @@ DEFAULTS = {
     "DAGSTER_UI_BIND_HOST": "127.0.0.1",
     "GRAFANA_BIND_HOST": "127.0.0.1",
     "POSTGRES_BIND_HOST": "127.0.0.1",
+    # PIPELINE_IMAGE is intentionally absent from DEFAULTS so the main worktree
+    # uses the docker-compose.yml default of "pipeline_personal_finance".
 }
 
 PORT_BASES = {
@@ -56,6 +58,8 @@ def derive_values(repo_root: Path) -> dict[str, str]:
     values["COMPOSE_PROJECT_NAME"] = project_name
     for key, base in PORT_BASES.items():
         values[key] = str(base + offset)
+    # Each worktree gets its own image tag so builds don't overwrite each other.
+    values["PIPELINE_IMAGE"] = f"pipeline_personal_finance-{slugify(worktree_name)}"
     return values
 
 
