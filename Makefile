@@ -1,5 +1,10 @@
 .PHONY: help setup up down logs clean restart rebuild lint lint-fix test dagster-ui grafana-ui status dagster-run dbt-deps dbt-compile dbt-build dbt-test bootstrap-local-seeds bootstrap-worktree retire-legacy
 
+# Force Git's sh on Windows so bash syntax works; no-op on Linux/macOS.
+ifeq ($(OS),Windows_NT)
+  SHELL := C:/Program Files/Git/usr/bin/sh.exe
+endif
+
 WORKTREE_ENV_FILE = .env.worktree.auto
 PYTHON ?= python
 COMPOSE_PROJECT_NAME := $(shell $(PYTHON) scripts/write_worktree_compose_env.py --print-project-name)
