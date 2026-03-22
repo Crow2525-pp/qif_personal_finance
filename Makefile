@@ -1,4 +1,4 @@
-.PHONY: help setup up down logs clean restart rebuild lint lint-fix test dagster-ui grafana-ui status dagster-run dbt-deps dbt-compile dbt-build dbt-test bootstrap-local-seeds bootstrap-worktree retire-legacy
+.PHONY: help setup up down logs clean restart build rebuild rebuild-clean lint lint-fix test dagster-ui grafana-ui status dagster-run dbt-deps dbt-compile dbt-build dbt-test bootstrap-local-seeds bootstrap-worktree retire-legacy
 
 # Force Git's sh on Windows so bash syntax works; no-op on Linux/macOS.
 ifeq ($(OS),Windows_NT)
@@ -30,9 +30,11 @@ help:
 	@echo "  up          - Start all services with docker-compose"
 	@echo "  down        - Stop all services"
 	@echo "  logs        - Show logs from all services"
-	@echo "  clean       - Clean up docker containers and volumes"
-	@echo "  restart     - Restart all services"
-	@echo "  rebuild     - Rebuild and restart all services"
+	@echo "  clean         - Clean up docker containers and volumes"
+	@echo "  restart       - Restart all services"
+	@echo "  build         - Build pipeline image (cached) then start services"
+	@echo "  rebuild       - Rebuild all images (cached) and restart"
+	@echo "  rebuild-clean - Rebuild all images (no cache) and restart"
 	@echo "  lint        - Run SQL linting on dbt models"
 	@echo "  lint-fix    - Run SQL linting with auto-fix"
 	@echo "  dagster-ui  - Open Dagster UI in browser"
@@ -77,8 +79,19 @@ restart:
 	@$(MAKE) compose-env
 	$(COMPOSE) restart
 
-# Rebuild and restart
+# Build only the pipeline image (cached) then bring services up
+build: compose-env retire-legacy
+	$(COMPOSE) build pipeline_personal_finance
+	$(COMPOSE) up -d
+
+# Rebuild all images (cached) and restart
 rebuild: compose-env retire-legacy
+	$(COMPOSE) down
+	$(COMPOSE) build
+	$(COMPOSE) up -d
+
+# Rebuild all images from scratch (no cache) and restart
+rebuild-clean: compose-env retire-legacy
 	$(COMPOSE) down
 	$(COMPOSE) build --no-cache
 	$(COMPOSE) up -d
