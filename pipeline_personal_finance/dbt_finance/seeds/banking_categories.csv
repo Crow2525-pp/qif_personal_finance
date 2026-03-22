@@ -127,6 +127,10 @@ INTEREST,,,,homeloan,Mortgage,Interest,Mortgage,External,monthly
 DEBIT INTEREST,,,,homeloan,Mortgage,Interest,Mortgage,External,monthly
 MONTHLY SERVICE FEE,,,,homeloan,Mortgage,Fees,Mortgage,External,monthly
 MONTHLY ADMINISTRATION FEE,,,,homeloan,Mortgage,Fees,Mortgage,External,monthly
+STANDING ORDER AUTOPAY,,,,offset,Bank Transaction,Internal Transfer,Homeloan,Internal,monthly
+STANDING ORDER AUTOPAY,,,,homeloan,Mortgage,Home Loan,Mortgage,External,monthly
+DRAW DOWN NETT ADVANCE,,,,homeloan,Property,Settlement,PEXA,External,
+ADVANCE                                  - SETTLEMENT,,,,homeloan,Property,Settlement,PEXA,External,
 offset,,,,,Bank Transaction,Internal Transfer,offset,External,
 Transfer to S Van Den Hoff,,,,,Bank Transaction,Internal Transfer,Transfer,External,
 THE AUSTRALIAN C SP Pay from ACHPER,,,,,Salary,Wages,Achper,External,fortnightly
@@ -164,3 +168,115 @@ KINDERGARTEN FEES,,,,,Family & Kids,Childcare & Early Education,Kindergarten Fee
 OSHC FEES,,,,,Family & Kids,Childcare & Early Education,OSHC,External,monthly
 AFTER SCHOOL CARE,,,,,Family & Kids,Childcare & Early Education,After School Care,External,monthly
 BABYSITTING,,,,,Family & Kids,Childcare & Early Education,Babysitting,External,monthly
+Rates Brimbank City,,,,,Household & Services,Rates,Brimbank City Council,External,
+BPAY Rates Brimbank City,,,,,Household & Services,Rates,Brimbank City Council,External,
+GWW,,,,,Household & Services,Utilities,GWW,External,
+R A C V Insurance,,,,,Household & Services,Insurance,RACV,External,annually
+VICROADS,,,,,Transport,Registration,VicRoads,External,annually
+Body Fit Trainin,,,,,Household & Services,Gym,Body Fit Training,External,weekly
+PT MATE,,,,,Household & Services,Gym,PT Mate,External,weekly
+STHE HIVE KINGSVILL,,,,,Household & Services,Gym,The Hive,External,weekly
+The Hive Kingsvi,,,,,Household & Services,Gym,The Hive,External,weekly
+KOGAN MOBILE,,,,,Household & Services,Mobile,Kogan,External,monthly
+GOOGLE YOUTUBE,,,,,Leisure,Entertainment,YouTube,External,monthly
+Flight Centre,,,,,Leisure,Travel,Flight Centre,External,
+SUNSHINE LEISURE,,,,,Household & Services,Gym,Sunshine Leisure,External,
+Stephy pay,,,,offset,Bank Transaction,Internal Transfer,Offset Savings,Internal,
+Steohy pay,,,,offset,Bank Transaction,Internal Transfer,Offset Savings,Internal,
+Funds trns           - PATTERSON S,,,,offset,Bank Transaction,Internal Transfer,Offset Savings,Internal,
+Luke Watson,,,,,Household & Services,Renovations,Luke Watson,External,
+AUST UNITY D/DBT,,,,,Health & Beauty,Private Health Insurance,Australian Unity,External,monthly
+STSolarVic,,,,,Bank Transaction,Solar Loan,SolarVic,External,monthly
+"RACV, MELBOURNE",,,,,Household & Services,Insurance,RACV,External,
+Amberley harris,,,,,Family & Kids,Baby Related,Amberley Harris,External,
+Zagami distribu,,,,,Bank Transaction,Inheritance,Cisca Estate,External,
+WENDY MARREE VAN DEN HOFF,,,,,Bank Transaction,Loan,Wendy Van Den Hoff,External,
+IKEA MARIBYRNONG,,,,,Household & Services,Renovations,IKEA,External,
+IKEA,,,,,Household & Services,Renovations,IKEA,External,
+TAX                  - Philip Patterson,,,,,Tax,Tax Return,ATO,External,
+DIRECT CREDIT                            - Philip Patterson,,,,,Salary,Bonus,Employer,External,
+SAWMAN PTY LTD,,,,,Transport,Car Servicing,Sawman,External,
+DEFT PAYMENTS,,,,,Property,Settlement,Deposit,External,
+ROBERT VAN D,,,,,Property,Settlement,Deposit,External,
+ASTERON LIFE,,,,,Household & Services,Insurance,Asteron,External,
+Flow brothers plumbi,,,,,Household & Services,Renovations,Flow Brothers Plumbing,External,
+Grandma gift,,,,,Bank Transaction,Gift,Grandma,External,
+Funeral plus cisca,,,,,Bank Transaction,Inheritance,Cisca Estate,External,
+KHQ Reimbursement,,,,,Bank Transaction,Inheritance,Cisca Estate,External,
+QANTAS AIR,,,,,Leisure,Travel,Qantas,External,
+eBay O*,,,,,Shopping,Online Retail,eBay,External,
+GLOBIRD ENERGY,,,,,Household & Services,Utilities,Globird,External,
+DRAW DOWN REGISTRATION FEE,,,,homeloan,Mortgage,Fees,Mortgage,External,
+ESTABLISHMENT FEE,,,,homeloan,Mortgage,Fees,Mortgage,External,
+RACV Assistance,,,,,Household & Services,Insurance,RACV,External,
+QP TheHive Kings,,,,,Household & Services,Gym,The Hive,External,monthly
+TICKETEK WEB,,,,,Leisure,Entertainment,Ticketek,External,
+BEACON LIGHTING,,,,,Household & Services,Renovations,Beacon Lighting,External,
+Bonus pp,,,,,Salary,Bonus,Employer,External,
+Pay                  - Philip Patterson,,,,,Salary,Wages,Employer,External,
+Achper               - Philip Patterson,,,,,Salary,Wages,Achper,External,fortnightly
+Zagami reimburseme,,,,,Bank Transaction,Inheritance,Cisca Estate,External,
+TANGALOOMA ISLAND,,,,,Leisure,Travel,Tangalooma,External,
+RAMSAY HEALTH CARE,,,,,Health & Beauty,Medical,Ramsay Health,External,
+STEPH TREMBATH OSTEO,,,,,Health & Beauty,Osteo,Steph Trembath Osteo,External,
+AMBULANCE SERVIC,,,,,Health & Beauty,Insurance,Ambulance Victoria,External,annually
+"RACV                     MELBOURNE",,,,,Household & Services,Insurance,RACV,External,
+Photogenie,,,,,Shopping,Retail,Photo Genie,External,
+ADAIRS,,,,,Shopping,Retail,Adairs,External,
+WESTERN IMAGING FOR,,,,,Health & Beauty,Imaging,Western Imaging,External,
+Bubs2bratz,,,,,Leisure,Travel,Bubs2Bratz,External,
+Home insurance Philip Patterson,,,,,Bank Transaction,Internal Transfer,Home Insurance,Internal,
+MOMTESSORI LIFE,,,,,Family & Kids,Baby Related,Momtessori Life,External,
+Car service Philip Patterson,,,,,Bank Transaction,Internal Transfer,Car Service,Internal,
+S pay and 2k deck,,,,,Bank Transaction,Gift,Family Gift,External,
+The Riversleigh,,,,,Leisure,Travel,The Riversleigh,External,
+Park Hyatt Melbourne,,,,,Leisure,Travel,Park Hyatt Melbourne,External,
+HARVEY NORMAN AV/IT,,,,,Shopping,Retail,Harvey Norman,External,
+ONTHEGO PHONE REP,,,,,Household & Services,Phone Repair,Onthego Phone Repair,External,
+Otto Simone De Leesplank,,,,,Family & Kids,Education,Dutch School,External,
+Sheena Cooke,,,,,Family & Kids,Photography,Sheena Cooke,External,
+ALH VENUES,,,,,Family & Kids,Funeral Catering,ALH Venues,External,
+Cargobike Philip Patterson,,,,,Transport,Cargo Bike Servicing,Cargo Bike,External,
+Dryer Philip Patterson,,,,,Household & Services,Appliances,Dryer,External,
+Share transfer,,,,,Investments,Shares,Vanguard,External,
+Centrekink,,,,,Bank Transaction,Government Benefit,Centerlink,External,
+PAYPAL *CENTRECOMSU,,,,,Shopping,Retail,Centre Com,External,
+Jetstar Airways Pty,,,,,Leisure,Travel,Jetstar,External,
+JETSTARTKKSWC,,,,,Leisure,Travel,Jetstar,External,
+Samsung Electronics AU,,,,,Shopping,Retail,Samsung,External,
+DR SIMON BRADFIELD,,,,,Health & Beauty,Medical,Dr Simon Bradfield,External,
+BPAY TAX OFFICE PAYMENTS,,,,,Tax,Australian Tax Office,ATO,External,
+MOTHER NURTURE,,,,,Family & Kids,Baby Related,Mother Nurture,External,
+MISSIONBEACHHOLIDAYS,,,,,Leisure,Travel,Mission Beach Holidays,External,
+Dr Peter Nottle,,,,,Health & Beauty,Medical,Dr Peter Nottle,External,
+WWW.LAWNADDICTS.COM.AU,,,,,Household & Services,Garden,Lawn Addicts,External,
+534 BARKLY ST DTL P,,,,,Health & Beauty,Dentist,534 BARKLY ST,External,
+Kelly Hazell,,,,,Bank Transaction,Inheritance,Cisca Estate,External,
+"VIT, MELBOURNE",,,,,Salary,Membership Fees,Victorian Institute of Teaching,External,
+BOTANICAL,,,,,Family & Kids,Funeral,Botanical Funerals,External,
+Refil countdown,,,,homeloan,Bank Transaction,Internal Transfer,Countdown,Internal,
+SYDNEY MARATHON,,,,,Leisure,Sport,Sydney Marathon,External,
+Cameron Saddington,,,,,Household & Services,Garden,Cameron Saddington,External,
+lifestylerewards,,,,,Household & Services,Phone Purchase,iPhone,External,
+PAYPAL *NABEEL,,,,,Health & Beauty,Medical,Nabeel Anaesthetist,External,
+ANYPAY,,,,,Bank Transaction,Unclassified,ANYPAY,External,
+Speakers and sub Philip Patterson,,,,,Household & Services,Home Audio,Speakers & Subwoofer,External,
+Solsr double up,,,,,Bank Transaction,Internal Transfer,Solar Payment,Internal,
+Photo genie,,,,,Shopping,Retail,Photo Genie,External,
+Aust Piano ware,,,,,Shopping,Retail,Piano,External,
+Piano parents,,,,,Bank Transaction,Gift,Family Gift,External,
+Stephy oay,,,,offset,Bank Transaction,Internal Transfer,Offset Savings,Internal,
+Keilor Private,,,,,Health & Beauty,Medical,Keilor Private,External,
+Pace advisory group,,,,,Household & Services,Accounting,Pace Advisory Group,External,
+Elwood Dutch playgro,,,,,Family & Kids,Education,Dutch Playground,External,
+Pretty brows Julie Ly,,,,,Health & Beauty,Beauty,Pretty Brows,External,
+Epworth Foundation,,,,,Health & Beauty,Medical,Epworth Foundation,External,
+The Southern Metropoli,,,,,Family & Kids,Funeral,Southern Metropolitan Cemetery,External,
+MAMA SERVICES PTY LTD,,,,,Family & Kids,Midwife,Mama Services,External,
+TREK BICYCLE CORPORATI,,,,,Transport,Bike Servicing,Trek Bicycle,External,
+GOOGLE SPO,,,,,Household & Services,Subscription,Google,External,monthly
+Dr Clare Schofield,,,,,Health & Beauty,Medical,Dr Clare Schofield,External,
+Grandma              - Philip Patterson,,,,,Bank Transaction,Gift,Grandma,External,
+MY SLICE OF LIFE,,,,,Leisure,Course,Pasta Making Course,External,
+WRIGHT, ANNALIESE,,,,,Health & Beauty,Medical,Annaliese Wright,External,
+CUBBI BUDDI,,,,,Family & Kids,Toys,Cubbi Buddi,External,
