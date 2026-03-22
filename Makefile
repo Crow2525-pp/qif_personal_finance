@@ -5,18 +5,11 @@ PYTHON ?= python
 COMPOSE_PROJECT_NAME := $(shell $(PYTHON) scripts/write_worktree_compose_env.py --print-project-name)
 COMPOSE = docker compose --project-name $(COMPOSE_PROJECT_NAME) --env-file .env --env-file $(WORKTREE_ENV_FILE) -f docker-compose.yml
 
-# Legacy project name (underscores) predates worktree port isolation.
-# Stop those containers so they don't hold ports the new project needs.
-LEGACY_PROJECT_NAME = qif_personal_finance
-
 compose-env:
 	@$(PYTHON) scripts/write_worktree_compose_env.py --output $(WORKTREE_ENV_FILE)
 
 retire-legacy:
-	@if docker compose --project-name $(LEGACY_PROJECT_NAME) ps -q 2>/dev/null | grep -q .; then \
-		echo "Stopping legacy containers (project: $(LEGACY_PROJECT_NAME))..."; \
-		docker compose --project-name $(LEGACY_PROJECT_NAME) down; \
-	fi
+	@$(PYTHON) scripts/retire_legacy_project.py
 
 bootstrap-local-seeds:
 	@$(PYTHON) scripts/bootstrap_local_seeds.py
