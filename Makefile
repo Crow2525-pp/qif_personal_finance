@@ -47,35 +47,11 @@ help:
 
 # Setup environment
 setup:
-	@if [ ! -f .env ]; then \
-		cp .env.template .env; \
-		echo "Created .env file from .env.template"; \
-		echo "Please edit .env with your credentials before running 'make up'"; \
-	else \
-		echo ".env file already exists"; \
-	fi
+	@$(PYTHON) scripts/ensure_env.py
 
 # Start services
 up: compose-env retire-legacy
-	@if [ ! -f .env ]; then \
-		cp .env.template .env; \
-		echo "WARNING: .env not found — created from .env.template with placeholder values."; \
-		echo "         Edit .env and replace CHANGE_ME_* values before services can start correctly."; \
-	else \
-		$(PYTHON) -c "\
-import re, sys; \
-t = open('.env.template').read(); env = open('.env').read(); \
-keys = set(re.findall(r'^([A-Z][A-Z0-9_]*)=', env, re.M)); \
-missing = [l for l in t.splitlines() if l and not l.startswith('#') and l.split('=')[0] not in keys]; \
-print('\n'.join(missing)) if missing else None" > /tmp/_env_missing.txt; \
-		if [ -s /tmp/_env_missing.txt ]; then \
-			echo "# Added from .env.template" >> .env; \
-			cat /tmp/_env_missing.txt >> .env; \
-			echo "  INFO: Added missing keys from .env.template — check/update values in .env:"; \
-			sed 's/=.*//' /tmp/_env_missing.txt | xargs -I{} echo "    {}"; \
-		fi; \
-		rm -f /tmp/_env_missing.txt; \
-	fi
+	@$(PYTHON) scripts/ensure_env.py
 	$(COMPOSE) up -d
 	@echo "Services starting..."
 	@$(PYTHON) -c "from pathlib import Path; data = dict(line.split('=', 1) for line in Path('$(WORKTREE_ENV_FILE)').read_text().splitlines() if line and not line.startswith('#')); print(f\"Dagster UI will be available at http://localhost:{data['DAGSTER_UI_PORT']}\"); print(f\"Grafana UI will be available at http://localhost:{data['GRAFANA_HOST_PORT']}\")"
