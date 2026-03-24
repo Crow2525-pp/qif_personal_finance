@@ -9,13 +9,14 @@
 }}
 
 WITH unique_categories AS (
-  SELECT DISTINCT
+  SELECT
     category,
     subcategory,
     store,
     internal_indicator,
-    payment_frequency
+    MAX(NULLIF(payment_frequency, '')) AS payment_frequency
   FROM {{ ref('banking_categories') }}
+  GROUP BY category, subcategory, store, internal_indicator
 ),
 
 category_hierarchy AS (
