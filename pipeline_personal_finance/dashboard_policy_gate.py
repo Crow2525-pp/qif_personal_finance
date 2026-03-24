@@ -211,15 +211,32 @@ def reporting_data_quality_gate(context) -> Output[dict]:
         failed_checks = [c for c in parsed.get("checks", []) if not c["passed"]]
         if failed_checks:
             rows = "\n".join(
-                f"| {c['check_id']} | {c['name']} | {c['detail'][:80]} |"
+                f"| {c['check_id']} | {c.get('dashboard', '')} | {c['name']} | {c.get('severity', 'high')} | {c['detail'][:60]} |"
                 for c in failed_checks
             )
             metadata["failing_checks"] = MetadataValue.md(
-                f"| ID | Check | Detail |\n|---|---|---|\n{rows}"
+                f"| ID | Dashboard | Check | Severity | Detail |\n|---|---|---|---|---|\n{rows}"
             )
         metadata["total_checks"] = parsed.get("total", 0)
         metadata["passed_checks"] = parsed.get("passed", 0)
         metadata["failed_checks"] = parsed.get("failed", 0)
+
+        # Surface per-dashboard summary so operators can see which dashboards are affected
+        by_dashboard = parsed.get("by_dashboard", {})
+        if by_dashboard:
+            failing_dashboards = [
+                dash for dash, summary in by_dashboard.items()
+                if summary.get("status") == "FAIL"
+            ]
+            if failing_dashboards:
+                dash_rows = "\n".join(
+                    f"| {dash} | {by_dashboard[dash]['failed']}/{by_dashboard[dash]['total']} |"
+                    for dash in failing_dashboards
+                )
+                metadata["failing_dashboards"] = MetadataValue.md(
+                    f"| Dashboard | Failed/Total |\n|---|---|\n{dash_rows}"
+                )
+            metadata["dashboards_checked"] = len(by_dashboard)
 
     if result.returncode == 2:
         raise Failure("reporting_data_quality_gate runtime failure", metadata=metadata)

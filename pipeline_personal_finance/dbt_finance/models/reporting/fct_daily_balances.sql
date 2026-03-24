@@ -65,20 +65,29 @@ daily_balances_with_gaps AS (
     AND ds.balance_date = daa.balance_date
 ),
 
--- Fill forward balances for days with no transactions
+balance_segments AS (
+  SELECT
+    *,
+    COUNT(end_of_day_balance) OVER (
+      PARTITION BY account_key
+      ORDER BY balance_date
+      ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    ) AS balance_segment_id
+  FROM daily_balances_with_gaps
+),
+
+-- Fill balances forward across arbitrary no-transaction gaps.
 final_balances_base AS (
   SELECT 
     account_key,
     balance_date,
     
-    -- Use last known balance if no transactions on this day
-    CAST(COALESCE(
-      end_of_day_balance,
-      LAG(end_of_day_balance) OVER (
+    CAST(
+      MAX(end_of_day_balance) OVER (
         PARTITION BY account_key
-        ORDER BY balance_date
-      )
-    ) AS DECIMAL(15,2)) AS daily_balance,
+              , balance_segment_id
+      ) AS DECIMAL(15,2)
+    ) AS daily_balance,
     
     -- Aggregates
     CAST(daily_transaction_count AS BIGINT) AS transaction_count,
@@ -92,7 +101,7 @@ final_balances_base AS (
     -- Metadata
     CAST(CURRENT_TIMESTAMP AS TIMESTAMP) AS created_at
     
-  FROM daily_balances_with_gaps
+  FROM balance_segments
 ),
 
 final_balances AS (
