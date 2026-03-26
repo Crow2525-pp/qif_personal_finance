@@ -36,9 +36,8 @@ class SqlAlchemyClientResource(ConfigurableResource):
     def get_connection(self):
         return self.create_engine().connect()
 
-    def check_schema_exists(self, schema: str):
-        # Ensure the landing schema exists
-        schema = "landing"
+    def check_schema_exists(self, schema: str = "landing"):
+        # Ensure the schema exists
         create_schema_sql = f"CREATE SCHEMA IF NOT EXISTS {schema};"
         verify_schema_sql = f"SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{schema}';"
         check_db_sql = "SELECT current_database();"
