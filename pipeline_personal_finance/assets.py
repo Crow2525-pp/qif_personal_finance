@@ -173,11 +173,15 @@ def verify_database_schema(
 
     with personal_finance_database.get_connection() as conn:
         try:
-            # Check if Schema is in DB Information Schema
+            # Log which database we're connected to
             context.log.debug(f"Executing: {check_db_sql}")
-            result = conn.execute(text(check_db_sql)).fetchone()
-            current_db = result[0] if result else "Unknown"
+            db_result = conn.execute(text(check_db_sql)).fetchone()
+            current_db = db_result[0] if db_result else "Unknown"
             context.log.debug(f"Connected to database: {current_db}")
+
+            # Check if Schema is in DB Information Schema
+            context.log.debug(f"Checking schema with: {verify_schema_sql}")
+            result = conn.execute(text(verify_schema_sql)).fetchone()
             if result:
                 context.log.info(
                     f"Schema '{schema}' already exists. Skipping creation."

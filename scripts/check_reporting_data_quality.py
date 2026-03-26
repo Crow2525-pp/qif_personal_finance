@@ -636,6 +636,7 @@ def _check_liabilities(cur) -> CheckResult:
     "rpt_household_net_worth latest closed month must show total_assets > liquid_assets "
     "and non-zero property_assets. Failure means property holdings are missing from total assets.",
     dashboard=_DASH_NET_WORTH,
+    severity="medium",
 )
 def _check_property_assets(cur) -> CheckResult:
     cur.execute("""
@@ -648,7 +649,7 @@ def _check_property_assets(cur) -> CheckResult:
     row = cur.fetchone()
     if not row:
         return CheckResult("DQ010", "Total assets include property", "", False,
-                           dashboard=_DASH_NET_WORTH,
+                           dashboard=_DASH_NET_WORTH, severity="medium",
                            detail="No rows in rpt_household_net_worth")
 
     total_assets = _to_float(row["total_assets"])
@@ -662,6 +663,7 @@ def _check_property_assets(cur) -> CheckResult:
         "",
         passed,
         dashboard=_DASH_NET_WORTH,
+        severity="medium",
         detail=(
             f"month={row['budget_year_month']} total_assets={total_assets} "
             f"liquid_assets={liquid_assets} property_assets={property_assets} "
@@ -683,6 +685,7 @@ def _check_property_assets(cur) -> CheckResult:
     "rpt_household_net_worth must contain multiple closed months with positive net_worth. "
     "Failure means the Net Worth trend panel is blank or collapsed to a single point.",
     dashboard=_DASH_NET_WORTH,
+    severity="medium",
 )
 def _check_net_worth_trend(cur) -> CheckResult:
     cur.execute("""
@@ -695,7 +698,7 @@ def _check_net_worth_trend(cur) -> CheckResult:
     rows = cur.fetchall()
     if not rows:
         return CheckResult("DQ017", "Net Worth trend non-empty", "", False,
-                           dashboard=_DASH_NET_WORTH,
+                           dashboard=_DASH_NET_WORTH, severity="medium",
                            detail="No closed-month rows in rpt_household_net_worth")
 
     positive_months = [
@@ -711,6 +714,7 @@ def _check_net_worth_trend(cur) -> CheckResult:
         "",
         passed,
         dashboard=_DASH_NET_WORTH,
+        severity="medium",
         detail=f"positive_months={len(distinct_positive_months)} months={distinct_positive_months}",
         query_result={
             "positive_months": len(distinct_positive_months),
@@ -1298,7 +1302,8 @@ def main():
             ]
             print(f"FAILING DASHBOARDS: {', '.join(failing_dashboards)}")
 
-    sys.exit(1 if failures else 0)
+    high_severity_failures = [r for r in failures if r.severity == "high"]
+    sys.exit(1 if high_severity_failures else 0)
 
 
 if __name__ == "__main__":

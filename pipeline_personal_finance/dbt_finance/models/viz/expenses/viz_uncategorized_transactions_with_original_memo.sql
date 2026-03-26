@@ -39,12 +39,58 @@ WITH uncategorized_transactions AS (
 normalized_merchants AS (
   SELECT
     ut.*,
+    TRIM(
+      REGEXP_REPLACE(
+        REGEXP_REPLACE(
+          REGEXP_REPLACE(
+            REGEXP_REPLACE(ut.raw_merchant_text, '\s*-\s*Visa Purchase.*$', '', 'i'),
+            '\s*-\s*Direct Debit.*$',
+            '',
+            'i'
+          ),
+          '\s*-\s*Receipt.*$',
+          '',
+          'i'
+        ),
+        '\s+',
+        ' ',
+        'g'
+      )
+    ) AS merchant_name_source,
     TRIM(REGEXP_REPLACE(ut.raw_merchant_text, '\s+', ' ', 'g')) AS merchant_text_clean,
     COALESCE(
       NULLIF(
         LOWER(
           REGEXP_REPLACE(
-            REGEXP_REPLACE(TRIM(ut.raw_merchant_text), '\d+', '', 'g'),
+            REGEXP_REPLACE(
+              COALESCE(
+                NULLIF(
+                  TRIM(
+                    REGEXP_REPLACE(
+                      REGEXP_REPLACE(
+                        REGEXP_REPLACE(
+                          REGEXP_REPLACE(ut.raw_merchant_text, '\s*-\s*Visa Purchase.*$', '', 'i'),
+                          '\s*-\s*Direct Debit.*$',
+                          '',
+                          'i'
+                        ),
+                        '\s*-\s*Receipt.*$',
+                        '',
+                        'i'
+                      ),
+                      '\s+',
+                      ' ',
+                      'g'
+                    )
+                  ),
+                  ''
+                ),
+                TRIM(ut.raw_merchant_text)
+              ),
+              '\d+',
+              '',
+              'g'
+            ),
             '[^a-zA-Z]+',
             '',
             'g'
@@ -72,7 +118,7 @@ prepared_merchants AS (
     TRIM(
       REGEXP_REPLACE(
         REGEXP_REPLACE(
-          COALESCE(NULLIF(nm.merchant_text_clean, ''), 'Unknown Merchant'),
+          COALESCE(NULLIF(nm.merchant_name_source, ''), NULLIF(nm.merchant_text_clean, ''), 'Unknown Merchant'),
           '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+',
           '[masked-email]',
           'g'
