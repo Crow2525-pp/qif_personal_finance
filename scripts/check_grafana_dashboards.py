@@ -747,6 +747,7 @@ def lint_static_panel(panel: Dict) -> List[Dict]:
     ptype = panel.get("type", "")
     fc = panel.get("fieldConfig") or {}
     defaults = fc.get("defaults") or {}
+    options = panel.get("options") or {}
 
     def add_warning(rule: str, detail: str) -> None:
         key = (rule, pid, detail)
@@ -813,6 +814,63 @@ def lint_static_panel(panel: Dict) -> List[Dict]:
                 f"fieldConfig.defaults.unit is 'percentunit' but "
                 f"{' and '.join(missing)} are not set — add explicit bounds "
                 f"(e.g. min=-1, max=1 if negatives are possible)",
+            )
+
+    # ------------------------------------------------------------------
+    # Rule: chart-tooltip-missing
+    # Comparison/trend charts should declare tooltip behaviour explicitly so
+    # hover detail is predictable instead of relying on plugin defaults.
+    # ------------------------------------------------------------------
+    if ptype in {"timeseries", "barchart", "piechart", "bargauge"}:
+        tooltip = options.get("tooltip")
+        if not isinstance(tooltip, dict) or not tooltip.get("mode"):
+            add_warning(
+                "chart-tooltip-missing",
+                "options.tooltip.mode is not set explicitly",
+            )
+
+    # ------------------------------------------------------------------
+    # Rule: chart-legend-hidden
+    # Timeseries and barchart panels should expose series context in the
+    # legend instead of hiding it completely.
+    # ------------------------------------------------------------------
+    if ptype in {"timeseries", "barchart"}:
+        legend = options.get("legend")
+        if not isinstance(legend, dict):
+            add_warning(
+                "chart-legend-hidden",
+                "options.legend is missing; enable a visible legend for series context",
+            )
+        elif legend.get("showLegend") is False or legend.get("displayMode") == "hidden":
+            add_warning(
+                "chart-legend-hidden",
+                "options.legend hides series values; use a visible legend",
+            )
+
+    # ------------------------------------------------------------------
+    # Rule: piechart-value-labels-missing
+    # Pie charts must show actual values on-slice or in labels, otherwise the
+    # visual encodes share but hides magnitude.
+    # ------------------------------------------------------------------
+    if ptype == "piechart":
+        display_labels = options.get("displayLabels")
+        if not isinstance(display_labels, list) or "value" not in display_labels:
+            add_warning(
+                "piechart-value-labels-missing",
+                "options.displayLabels must include 'value'",
+            )
+
+    # ------------------------------------------------------------------
+    # Rule: bargauge-values-hidden
+    # Bargauges should compute values explicitly so the visual exposes the
+    # underlying number rather than only a relative bar.
+    # ------------------------------------------------------------------
+    if ptype == "bargauge":
+        reduce_options = options.get("reduceOptions")
+        if not isinstance(reduce_options, dict) or reduce_options.get("values") is not True:
+            add_warning(
+                "bargauge-values-hidden",
+                "options.reduceOptions.values must be true",
             )
 
     return warnings

@@ -354,7 +354,11 @@
           "fields": ""
         },
         "showUnfilled": true,
-        "text": {}
+        "text": {},
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "pluginVersion": "10.0.0",
       "targets": [

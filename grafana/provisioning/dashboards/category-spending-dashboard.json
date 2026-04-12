@@ -126,7 +126,11 @@
         "tooltip": {
           "mode": "single",
           "sort": "none"
-        }
+        },
+        "displayLabels": [
+          "name",
+          "value"
+        ]
       },
       "targets": [
         {

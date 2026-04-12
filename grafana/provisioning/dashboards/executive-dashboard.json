@@ -341,7 +341,11 @@
         },
         "showPercentChange": false,
         "textMode": "auto",
-        "wideLayout": true
+        "wideLayout": true,
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "pluginVersion": "10.0.0",
       "targets": [
@@ -646,7 +650,11 @@
         },
         "showThresholdLabels": true,
         "showThresholdMarkers": true,
-        "orientation": "horizontal"
+        "orientation": "horizontal",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "pluginVersion": "10.0.0",
       "targets": [
@@ -898,7 +906,11 @@
         },
         "showThresholdLabels": true,
         "showThresholdMarkers": true,
-        "orientation": "horizontal"
+        "orientation": "horizontal",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "transformations": [
         {
@@ -1556,11 +1568,16 @@
         "orientation": "horizontal",
         "xField": "driver",
         "legend": {
-          "displayMode": "hidden",
-          "placement": "bottom"
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "values": [
+            "value"
+          ]
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         },
         "barWidth": 0.6,
         "groupWidth": 0.7,
