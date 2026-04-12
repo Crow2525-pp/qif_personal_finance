@@ -109,7 +109,7 @@
         "x": 0,
         "y": 0,
         "w": 6,
-        "h": 3
+        "h": 4
       },
       "id": 101,
       "options": {
@@ -175,7 +175,7 @@
         "x": 6,
         "y": 0,
         "w": 18,
-        "h": 3
+        "h": 4
       },
       "id": 20,
       "options": {
@@ -322,9 +322,9 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 3,
+        "y": 4,
         "w": 12,
-        "h": 5
+        "h": 6
       },
       "id": 6,
       "options": {
@@ -371,9 +371,9 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 3,
+        "y": 4,
         "w": 12,
-        "h": 5
+        "h": 6
       },
       "options": {
         "cellHeight": "sm",
@@ -631,7 +631,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 8,
+        "y": 10,
         "w": 12,
         "h": 6
       },
@@ -701,9 +701,9 @@
       "type": "table",
       "gridPos": {
         "x": 12,
-        "y": 8,
+        "y": 10,
         "w": 12,
-        "h": 5
+        "h": 6
       },
       "datasource": {
         "type": "postgres",
@@ -883,8 +883,8 @@
       "title": "Expense Control Score",
       "type": "bargauge",
       "gridPos": {
-        "x": 12,
-        "y": 13,
+        "x": 0,
+        "y": 30,
         "w": 12,
         "h": 5
       },
@@ -1127,7 +1127,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 14,
+        "y": 16,
         "w": 12,
         "h": 7
       },
@@ -1305,8 +1305,8 @@
         ]
       },
       "gridPos": {
-        "x": 12,
-        "y": 18,
+        "x": 0,
+        "y": 23,
         "w": 12,
         "h": 7
       },
@@ -1499,8 +1499,8 @@
         ]
       },
       "gridPos": {
-        "x": 0,
-        "y": 21,
+        "x": 12,
+        "y": 16,
         "w": 12,
         "h": 7
       },
@@ -1548,9 +1548,9 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 25,
+        "y": 23,
         "w": 12,
-        "h": 6
+        "h": 7
       },
       "options": {
         "orientation": "horizontal",
@@ -1705,12 +1705,12 @@
       "description": "Waterfall showing what drove the month-over-month change in net cash flow: income changes, expense changes, and internal transfers."
     },
     {
-      "id": 101,
+      "id": 103,
       "title": "Month-over-Month Rate Changes",
       "type": "table",
       "gridPos": {
         "x": 12,
-        "y": 31,
+        "y": 30,
         "w": 12,
         "h": 5
       },
@@ -1923,8 +1923,8 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 36,
-        "w": 24,
+        "y": 35,
+        "w": 12,
         "h": 6
       },
       "id": 7,
@@ -1976,9 +1976,9 @@
         "overrides": []
       },
       "gridPos": {
-        "x": 0,
-        "y": 42,
-        "w": 24,
+        "x": 12,
+        "y": 35,
+        "w": 12,
         "h": 6
       },
       "id": 10,
@@ -2014,18 +2014,18 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 48,
-        "w": 24,
-        "h": 8
+        "y": 51,
+        "w": 12,
+        "h": 4
       },
       "id": 100,
       "options": {
-        "content": "### How to Read\n- Use the month selector to compare any historical period; \"Latest\" always reflects the newest closed month.\n- Time windows: Latest = most recent complete month; trend panels show trailing 12 months; rolling averages use last 3 complete months.\n- Rate metrics are normalized to a 0-100 percent scale in SQL and displayed with Grafana percent units.\n- Start with low scores or large negative deltas, then drill into linked dashboards for root-cause detail.\n- Forecasts are forward-looking cash expectations; plan around the trajectory, not a single month.",
+        "content": "## Read in order\n\nFreshness and summary first.\nThen scorecards, trends, quality callouts, and recommendations.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
       "title": "How to Read This Dashboard",
-      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
+      "description": "overflow-policy:allow-scroll",
       "type": "text"
     },
     {
@@ -2132,7 +2132,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 56,
+        "y": 41,
         "w": 12,
         "h": 6
       },
@@ -2232,7 +2232,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 56,
+        "y": 41,
         "w": 12,
         "h": 6
       },
@@ -2284,7 +2284,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 62,
+        "y": 47,
         "w": 6,
         "h": 4
       },
@@ -2346,7 +2346,7 @@
       },
       "gridPos": {
         "x": 6,
-        "y": 62,
+        "y": 47,
         "w": 6,
         "h": 4
       },
@@ -2422,7 +2422,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 62,
+        "y": 47,
         "w": 6,
         "h": 4
       },
@@ -2591,7 +2591,7 @@
       },
       "gridPos": {
         "x": 18,
-        "y": 62,
+        "y": 47,
         "w": 6,
         "h": 4
       },
@@ -2768,9 +2768,9 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 66,
+        "y": 55,
         "w": 24,
-        "h": 8
+        "h": 7
       },
       "id": 1004,
       "options": {
@@ -2808,19 +2808,19 @@
       "type": "table"
     },
     {
-      "id": 1005,
+      "id": 1006,
       "type": "text",
       "title": "KPI Definitions",
-      "description": "Formula lineage quick reference for headline metrics. See KPI_DICTIONARY.md for full definitions and source lineage. overflow-policy:allow-scroll",
+      "description": "overflow-policy:allow-scroll",
       "gridPos": {
-        "x": 0,
-        "y": 74,
-        "w": 24,
-        "h": 11
+        "x": 12,
+        "y": 51,
+        "w": 12,
+        "h": 4
       },
       "options": {
         "mode": "markdown",
-        "content": "## KPI Definitions - Quick Reference\n\n- Net Cash Flow = total_inflow - total_outflow for the selected month.\n- Savings Rate = net_cash_flow / total_income (stored as ratio, formatted as percent).\n- Expense Ratio = total_outflow / total_income (stored as ratio, formatted as percent).\n- Emergency Fund Coverage (months) = liquid_assets / avg_monthly_essential_expenses.\n- Financial Health Score = weighted composite of savings, net worth, and cash flow dimensions.\n- Net Worth = total_assets - total_liabilities at month end.\n\nFull formulas, model lineage, and edge-case notes: `grafana/provisioning/dashboards/KPI_DICTIONARY.md`."
+        "content": "## KPI key\n\nNet cash flow = inflow minus outflow.\nSavings rate = net cash flow / income.\nNet worth = assets - liabilities."
       },
       "transparent": false,
       "datasource": null
