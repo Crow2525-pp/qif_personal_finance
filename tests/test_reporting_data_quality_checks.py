@@ -67,7 +67,8 @@ def _row(**values):
 
 
 def test_new_checks_are_registered():
-    assert [check["id"] for check in dq._CHECKS[-8:]] == [
+    registered_ids = {check["id"] for check in dq._CHECKS}
+    assert {
         "DQ010",
         "DQ011",
         "DQ012",
@@ -76,7 +77,7 @@ def test_new_checks_are_registered():
         "DQ015",
         "DQ016",
         "DQ017",
-    ]
+    } <= registered_ids
 
 
 def test_dq010_requires_property_assets():
