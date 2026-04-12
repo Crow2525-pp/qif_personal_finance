@@ -48,7 +48,7 @@ jobs:
         run: uv sync --frozen
 
       - name: Run pytest
-        run: uv run pytest -q tests
+        run: uv run pytest -q
 
   build-containers:
     name: Build Docker Images
