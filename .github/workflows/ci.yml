@@ -35,6 +35,21 @@ jobs:
         run: uv run sqlfluff lint pipeline_personal_finance/dbt_finance/models/ --dialect postgres
         continue-on-error: true  # Don't fail CI on lint warnings initially
 
+  test-python:
+    name: Run Python Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Run pytest
+        run: uv run pytest -q tests
+
   build-containers:
     name: Build Docker Images
     runs-on: ubuntu-latest

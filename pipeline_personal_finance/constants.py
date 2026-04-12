@@ -1,12 +1,12 @@
-# dagster_finance/constants.py
-
+import logging
 import os
 from pathlib import Path
 
-import logging
 from dagster_dbt import DbtCliResource
 
-DBT_PROJECT_DIR = Path(__file__).joinpath("..", "dbt_finance").resolve()
+# Keep dbt resolution pinned to the dbt project directory itself.
+DBT_PROJECT_DIR = Path(__file__).resolve().parent / "dbt_finance"
+DBT_TARGET_DIR = DBT_PROJECT_DIR / "target"
 QIF_FILES = "pipeline_personal_finance/qif_files"
 
 # Log the DBT_PROJECT_DIR when the application starts or when it's used
@@ -19,7 +19,7 @@ dbt = DbtCliResource(project_dir=os.fspath(DBT_PROJECT_DIR))
 dbt_manifest_path = (
     dbt.cli(
         ["--quiet", "parse"],
-        target_path=Path("target"),
+        target_path=DBT_TARGET_DIR,
     )
     .wait()
     .target_path.joinpath("manifest.json")
