@@ -45,21 +45,47 @@ def slugify(value: str) -> str:
     return "".join(chars).strip("-") or "worktree"
 
 
+BIND_HOST_KEYS = {"DAGSTER_UI_BIND_HOST", "GRAFANA_BIND_HOST", "POSTGRES_BIND_HOST"}
+
+
+def _read_env_file(repo_root: Path) -> dict[str, str]:
+    """Read key=value pairs from .env in repo_root, ignoring comments."""
+    env_path = repo_root / ".env"
+    result: dict[str, str] = {}
+    if not env_path.exists():
+        return result
+    for line in env_path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        result[key.strip()] = value.strip()
+    return result
+
+
 def derive_values(repo_root: Path) -> dict[str, str]:
     worktree_name = repo_root.name
+    env_overrides = _read_env_file(repo_root)
+
     if worktree_name in MAIN_NAMES:
-        return DEFAULTS.copy()
+        values = DEFAULTS.copy()
+    else:
+        digest = hashlib.sha1(str(repo_root).encode("utf-8")).hexdigest()
+        offset = int(digest[:8], 16) % PORT_RANGE
+        project_name = f"qif-{slugify(worktree_name)}"
 
-    digest = hashlib.sha1(str(repo_root).encode("utf-8")).hexdigest()
-    offset = int(digest[:8], 16) % PORT_RANGE
-    project_name = f"qif-{slugify(worktree_name)}"
+        values = DEFAULTS.copy()
+        values["COMPOSE_PROJECT_NAME"] = project_name
+        for key, base in PORT_BASES.items():
+            values[key] = str(base + offset)
+        # Each worktree gets its own image tag so builds don't overwrite each other.
+        values["PIPELINE_IMAGE"] = f"pipeline_personal_finance-{slugify(worktree_name)}"
 
-    values = DEFAULTS.copy()
-    values["COMPOSE_PROJECT_NAME"] = project_name
-    for key, base in PORT_BASES.items():
-        values[key] = str(base + offset)
-    # Each worktree gets its own image tag so builds don't overwrite each other.
-    values["PIPELINE_IMAGE"] = f"pipeline_personal_finance-{slugify(worktree_name)}"
+    # Allow .env to override bind hosts (e.g. 0.0.0.0 for LAN access).
+    for key in BIND_HOST_KEYS:
+        if key in env_overrides:
+            values[key] = env_overrides[key]
+
     return values
 
 

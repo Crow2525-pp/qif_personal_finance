@@ -35,6 +35,19 @@ run_launcher:
       - DBT_EXECUTION_CONTEXT
       - DASHBOARD_POLICY_GATE_WARN_ONLY
       - DASHBOARD_QUALITY_WARN_ONLY
+      - COLES_STATE_PATH
+      - KEEP_SYNC_ENABLED
+      - GOOGLE_KEEP_TOKEN_PATH
+      - GOOGLE_KEEP_LIST_NAME
+      - GOOGLE_KEEP_EMAIL
+      - KEEP_AUTO_ADD_MIN_CONFIDENCE
+      - KEEP_DELETE_ON_ADD
+      - ANTHROPIC_API_KEY
+      - USE_NIX_DEVSHELL
+      - PLAYWRIGHT_HEADED
+      - HA_URL
+      - HA_TOKEN
+      - HA_NOTIFY_SERVICE
     network:
       env: DAGSTER_NETWORK
     container_kwargs:
@@ -42,6 +55,9 @@ run_launcher:
         - /var/run/docker.sock:/var/run/docker.sock
         - /tmp/io_manager_storage:/tmp/io_manager_storage
         - /tmp/dagster-data:/opt/dagster/dagster_home/storage
+        # coles-llm-shopper run workers need this volume to read coles_state.json
+        # and keep_token.json at runtime.
+        - coles-llm-shopper_coles_data:/app/data
 
 run_storage:
   module: dagster_postgres.run_storage
