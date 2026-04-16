@@ -4,6 +4,10 @@ load_from:
       host: pipeline_personal_finance
       port: 4000
       location_name: "pipeline_personal_finance"
+  - grpc_server:
+      host: coles-shopper
+      port: 4000
+      location_name: "coles_llm_shopper"
   # - server:
   #     host: pipeline_y
   #     port: 4047
