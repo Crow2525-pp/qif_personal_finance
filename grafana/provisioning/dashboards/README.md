@@ -160,6 +160,8 @@ Show liabilities as **positive magnitudes** in dedicated liability/debt panels. 
 ## Other Conventions
 - Percent data: ratio fields (0-1) use `percentunit`; percentage fields (0-100) use `percent`; name ratio fields without `_pct`, add `_pct` suffix for 0-100 values.
 - Pie/bar/stat panels should display actual values (`displayLabels: ["name","value"]`, `reduceOptions.values: true`).
+- Timeseries, barchart, piechart, and bargauge panels must set `options.tooltip.mode` explicitly.
+- Timeseries and barchart panels should keep a visible legend; do not use `displayMode: "hidden"` for primary analytical charts.
 - Mobile dashboards are prefixed `01-..` to `06-..`; keep numbering contiguous when adding new mobile layouts.
 
 ## Adding dashboards

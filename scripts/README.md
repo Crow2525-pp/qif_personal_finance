@@ -90,6 +90,10 @@ Exit codes: `0` all files parsed and linted cleanly (warnings only),
 | `currency-unit` | `fieldConfig` unit set to `currencyAUD`, `currencyUSD`, `currencyGBP`, or `currencyEUR`. These are broken in Grafana 12 — use `short` instead. Checked in `defaults` and all `overrides`. |
 | `current-date-timepicker` | A `stat`, `gauge`, `table`, `bargauge`, or other non-timeseries panel whose SQL contains `CURRENT_DATE` or `NOW()`. The panel ignores the dashboard time picker, which means the data is always anchored to wall-clock time. |
 | `percentunit-missing-bounds` | `fieldConfig.defaults.unit` is `percentunit` but `min` or `max` are absent. Without bounds, Grafana cannot render a meaningful gauge range and negative values (e.g. negative savings rates) display incorrectly. |
+| `chart-tooltip-missing` | A `timeseries`, `barchart`, `piechart`, or `bargauge` panel does not declare `options.tooltip.mode`. Hover behaviour should be explicit, not left to plugin defaults. |
+| `chart-legend-hidden` | A `timeseries` or `barchart` panel hides its legend completely. Trend/comparison panels should keep series context visible. |
+| `piechart-value-labels-missing` | A `piechart` panel does not include `"value"` in `options.displayLabels`, so magnitude is hidden even when share is visible. |
+| `bargauge-values-hidden` | A `bargauge` panel does not set `options.reduceOptions.values: true`, which hides the explicit value behind the bar. |
 | `parse-error` | Dashboard JSON file is not valid JSON (treated as a hard error). |
 
 ### Layout lint (included in both modes when Grafana is available)

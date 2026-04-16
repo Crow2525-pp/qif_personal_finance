@@ -434,3 +434,66 @@ def test_check_dashboard_across_time_windows_fails_panel_when_all_windows_empty(
     assert len(result["panels_failing_all_windows"]) == 1
     assert "last_complete_month" in result["panels_failing_all_windows"][0]["messages"]
     assert "year_to_date" in result["panels_failing_all_windows"][0]["messages"]
+
+
+def test_lint_static_panel_flags_missing_chart_tooltip():
+    warnings = checker.lint_static_panel(
+        {
+            "id": 1,
+            "title": "Health Scores",
+            "type": "bargauge",
+            "options": {
+                "reduceOptions": {"values": True},
+            },
+        }
+    )
+
+    assert any(w["rule"] == "chart-tooltip-missing" for w in warnings)
+
+
+def test_lint_static_panel_flags_hidden_series_legend():
+    warnings = checker.lint_static_panel(
+        {
+            "id": 2,
+            "title": "Variance Drivers",
+            "type": "barchart",
+            "options": {
+                "tooltip": {"mode": "single"},
+                "legend": {"displayMode": "hidden", "placement": "bottom"},
+            },
+        }
+    )
+
+    assert any(w["rule"] == "chart-legend-hidden" for w in warnings)
+
+
+def test_lint_static_panel_flags_missing_pie_value_labels():
+    warnings = checker.lint_static_panel(
+        {
+            "id": 3,
+            "title": "Share",
+            "type": "piechart",
+            "options": {
+                "tooltip": {"mode": "single"},
+                "displayLabels": ["name"],
+            },
+        }
+    )
+
+    assert any(w["rule"] == "piechart-value-labels-missing" for w in warnings)
+
+
+def test_lint_static_panel_flags_hidden_bargauge_values():
+    warnings = checker.lint_static_panel(
+        {
+            "id": 4,
+            "title": "Savings Health",
+            "type": "bargauge",
+            "options": {
+                "tooltip": {"mode": "single"},
+                "reduceOptions": {"values": False},
+            },
+        }
+    )
+
+    assert any(w["rule"] == "bargauge-values-hidden" for w in warnings)
