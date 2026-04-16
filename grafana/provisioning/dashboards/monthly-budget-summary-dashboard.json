@@ -38,19 +38,19 @@
         "uid": "-- Text --"
       },
       "gridPos": {
-        "h": 8,
-        "w": 18,
         "x": 6,
-        "y": 0
+        "y": 0,
+        "w": 18,
+        "h": 5
       },
       "id": 100,
       "options": {
-        "content": "# 03 - Monthly Budget Summary\n\n**What This Dashboard Shows:** Budget performance with pace tracking, spending classification, and recommended adjustments for the next month.\n\n**Key Metrics Explained:**\n- **Pace Tracker:** Daily spending target vs actual burn rate\n- **Fixed vs Discretionary:** Distinguish flexible vs committed spending\n- **Budget Adjustments:** Recommendations based on recent overruns\n- **Monthly Summary:** Income/expense trends and savings rate tracking\n- **Category Breakdown:** Major expense areas (mortgage, household, food, family)\n\n**Time Windows:**\n- Summary KPIs use the most recent complete month.\n- YTD panels reflect year-to-date totals.\n- Trend charts cover the trailing 12 months.\n\n**How to Use:** Check daily pace tracker to adjust discretionary spending. Review budget adjustments monthly to stay ahead of overrun patterns.",
+        "content": "## Review flow\n\nUse the closed-month summary first, then pace, then adjustment tables.\nThis dashboard should read left to right without jumping sections.",
         "mode": "markdown"
       },
       "pluginVersion": "10.0.0",
       "title": "Dashboard Instructions",
-      "description": "Intentionally scrollable documentation panel. overflow-policy:allow-scroll",
+      "description": "overflow-policy:allow-scroll",
       "type": "text"
     },
     {
@@ -82,10 +82,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 6,
         "x": 0,
-        "y": 0
+        "y": 0,
+        "w": 6,
+        "h": 5
       },
       "id": 101,
       "options": {
@@ -220,10 +220,10 @@
         ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
         "x": 0,
-        "y": 8
+        "y": 5,
+        "w": 12,
+        "h": 8
       },
       "id": 1,
       "options": {
@@ -328,10 +328,10 @@
         ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
         "x": 12,
-        "y": 8
+        "y": 5,
+        "w": 12,
+        "h": 8
       },
       "id": 2,
       "options": {
@@ -516,10 +516,10 @@
         ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 24,
         "x": 0,
-        "y": 16
+        "y": 13,
+        "w": 24,
+        "h": 8
       },
       "id": 3,
       "options": {
@@ -653,10 +653,10 @@
         ]
       },
       "gridPos": {
-        "h": 6,
-        "w": 12,
         "x": 0,
-        "y": 24
+        "y": 29,
+        "w": 12,
+        "h": 6
       },
       "id": 4,
       "options": {
@@ -771,10 +771,10 @@
         ]
       },
       "gridPos": {
-        "h": 6,
-        "w": 12,
         "x": 12,
-        "y": 24
+        "y": 29,
+        "w": 12,
+        "h": 6
       },
       "id": 5,
       "options": {
@@ -913,10 +913,10 @@
         ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
         "x": 0,
-        "y": 30
+        "y": 35,
+        "w": 12,
+        "h": 8
       },
       "id": 6,
       "options": {
@@ -1028,10 +1028,10 @@
         ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
         "x": 12,
-        "y": 30
+        "y": 35,
+        "w": 12,
+        "h": 8
       },
       "id": 7,
       "options": {
@@ -1198,10 +1198,10 @@
         ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 24,
         "x": 0,
-        "y": 38
+        "y": 43,
+        "w": 24,
+        "h": 8
       },
       "id": 9,
       "options": {
@@ -1306,10 +1306,10 @@
         ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
         "x": 0,
-        "y": 46
+        "y": 51,
+        "w": 12,
+        "h": 8
       },
       "id": 10,
       "options": {
@@ -1344,160 +1344,6 @@
       ],
       "title": "Fixed vs Discretionary Spending",
       "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
-      "description": "Budget adjustment recommendations based on recent spending patterns and overruns",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "priority"
-            },
-            "properties": [
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "1": {
-                        "color": "red",
-                        "index": 0,
-                        "text": "Critical"
-                      },
-                      "2": {
-                        "color": "orange",
-                        "index": 1,
-                        "text": "High"
-                      },
-                      "3": {
-                        "color": "yellow",
-                        "index": 2,
-                        "text": "Medium"
-                      },
-                      "4": {
-                        "color": "blue",
-                        "index": 3,
-                        "text": "Low"
-                      }
-                    },
-                    "type": "value"
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "suggested_budget_amount"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Suggested Budget"
-              },
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "historical_average"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Historical Avg"
-              },
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "total_overspend"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Total Overspend"
-              },
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 46
-      },
-      "id": 11,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "WITH data AS (\n  SELECT\n    level_1_category AS \"Category\",\n    months_of_consecutive_overspend AS \"Consecutive Months\",\n    ROUND(suggested_budget_amount, 0) AS \"Suggested Budget\",\n    ROUND(total_overspend, 0) AS \"Total Overspend\",\n    ROUND(reduction_pct, 1) AS \"Reduction %\",\n    adjustment_rationale AS \"Rationale\",\n    priority\n  FROM reporting.rpt_budget_cockpit_adjustment_suggestions\n  ORDER BY priority ASC, total_overspend DESC\n  LIMIT 10\n)\nSELECT * FROM data\nUNION ALL\nSELECT 'No adjustments needed', NULL, NULL, NULL, NULL, 'All categories within budget', NULL\nWHERE NOT EXISTS (SELECT 1 FROM data)\n-- time scope: $__timeTo() (view aggregates all-time data)",
-          "refId": "A"
-        }
-      ],
-      "title": "Budget Adjustments for Next Month",
-      "type": "table"
     },
     {
       "datasource": {
@@ -1567,10 +1413,10 @@
         ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 54
+        "x": 12,
+        "y": 59,
+        "w": 12,
+        "h": 8
       },
       "id": 8,
       "options": {
@@ -1705,12 +1551,12 @@
         ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 24,
         "x": 0,
-        "y": 46
+        "y": 21,
+        "w": 24,
+        "h": 8
       },
-      "id": 9,
+      "id": 12,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1823,12 +1669,12 @@
         ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
         "x": 0,
-        "y": 54
+        "y": 59,
+        "w": 12,
+        "h": 8
       },
-      "id": 10,
+      "id": 11,
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1939,12 +1785,12 @@
         ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
         "x": 12,
-        "y": 54
+        "y": 51,
+        "w": 12,
+        "h": 8
       },
-      "id": 11,
+      "id": 13,
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -2067,10 +1913,10 @@
         ]
       },
       "gridPos": {
-        "h": 10,
-        "w": 12,
         "x": 0,
-        "y": 63
+        "y": 67,
+        "w": 12,
+        "h": 10
       },
       "id": 102,
       "options": {
@@ -2171,10 +2017,10 @@
         ]
       },
       "gridPos": {
-        "h": 10,
-        "w": 12,
         "x": 12,
-        "y": 63
+        "y": 67,
+        "w": 12,
+        "h": 10
       },
       "id": 103,
       "options": {
@@ -2299,10 +2145,10 @@
         ]
       },
       "gridPos": {
-        "h": 10,
-        "w": 12,
         "x": 0,
-        "y": 73
+        "y": 77,
+        "w": 12,
+        "h": 10
       },
       "id": 104,
       "options": {
@@ -2403,10 +2249,10 @@
         ]
       },
       "gridPos": {
-        "h": 10,
-        "w": 12,
         "x": 12,
-        "y": 73
+        "y": 77,
+        "w": 12,
+        "h": 10
       },
       "id": 105,
       "options": {
