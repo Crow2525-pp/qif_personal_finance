@@ -45,6 +45,9 @@ run_launcher:
       - ANTHROPIC_API_KEY
       - USE_NIX_DEVSHELL
       - PLAYWRIGHT_HEADED
+      - HA_URL
+      - HA_TOKEN
+      - HA_NOTIFY_SERVICE
     network:
       env: DAGSTER_NETWORK
     container_kwargs:
