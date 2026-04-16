@@ -19,4 +19,10 @@ def __getattr__(name: str):
     raise AttributeError(name)
 
 
+def __dir__():
+    # Expose lazy attributes so inspect.getmembers() (used by Dagster's
+    # autodiscovery) includes them when enumerating module members.
+    return list(globals().keys()) + ["defs", "dbt_manifest_path"]
+
+
 __all__ = ["defs", "dbt_manifest_path"]
