@@ -44,6 +44,7 @@ GRAFANA_URL = os.environ.get("GRAFANA_URL", "http://grafana:3000").rstrip("/")
 GRAFANA_TOKEN = os.environ.get("GRAFANA_TOKEN", "")
 GRAFANA_USER = os.environ.get("GRAFANA_ADMIN_USER", "admin")
 GRAFANA_PASSWORD = os.environ.get("GRAFANA_ADMIN_PASSWORD", "")
+USE_BASIC_AUTH = bool(GRAFANA_USER and GRAFANA_PASSWORD)
 
 # Viewport width matches the 1920px width assumed by the pixel-budget constants.
 # Height is set very tall so ALL panels are within the initial viewport and
@@ -70,10 +71,10 @@ OVERFLOW_POLICY_ALLOW_SCROLL_MARKER = "overflow-policy:allow-scroll"
 def _api_headers() -> dict[str, str]:
     """Return auth headers for Grafana API calls.
 
-    Token auth is preferred; falls back to HTTP Basic auth so that API
-    requests succeed even before any browser session cookie is established.
+    Prefer local admin credentials when present so a stale token in the
+    environment does not break compose-based validation.
     """
-    if GRAFANA_TOKEN:
+    if GRAFANA_TOKEN and not USE_BASIC_AUTH:
         return {"Authorization": f"Bearer {GRAFANA_TOKEN}"}
     import base64
     creds = base64.b64encode(f"{GRAFANA_USER}:{GRAFANA_PASSWORD}".encode()).decode()
@@ -91,6 +92,10 @@ def _api_get(page, path: str) -> Any:
 def _login(page) -> None:
     """Form-based login when no API token is configured."""
     page.goto(f"{GRAFANA_URL}/login", wait_until="networkidle")
+    try:
+        page.locator('input[name="user"]').wait_for(timeout=5_000)
+    except Exception:
+        return
     page.fill('input[name="user"]', GRAFANA_USER)
     page.fill('input[name="password"]', GRAFANA_PASSWORD)
     page.click('button[type="submit"]')
@@ -254,7 +259,7 @@ def main() -> int:
         )
 
     # -- Credential check ---------------------------------------------------
-    if not GRAFANA_TOKEN and not (GRAFANA_USER and GRAFANA_PASSWORD):
+    if not GRAFANA_TOKEN and not USE_BASIC_AUTH:
         return _err(
             "No Grafana credentials configured. "
             "Set GRAFANA_TOKEN or both GRAFANA_ADMIN_USER and GRAFANA_ADMIN_PASSWORD."
@@ -270,11 +275,11 @@ def main() -> int:
             browser = pw.chromium.launch(headless=True)
             ctx = browser.new_context(
                 viewport={"width": VIEWPORT_WIDTH, "height": VIEWPORT_HEIGHT},
-                extra_http_headers=_api_headers() if GRAFANA_TOKEN else {},
+                extra_http_headers=_api_headers(),
             )
             page = ctx.new_page()
 
-            if not GRAFANA_TOKEN:
+            if USE_BASIC_AUTH:
                 _login(page)
 
             search = _api_get(page, "/api/search?type=dash-db&limit=500")

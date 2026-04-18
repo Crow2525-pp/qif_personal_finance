@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 from pathlib import Path
 
 from dagster_dbt import DbtCliResource
@@ -8,9 +9,31 @@ from dagster_dbt import DbtCliResource
 DBT_PROJECT_DIR = Path(__file__).resolve().parent / "dbt_finance"
 DBT_TARGET_DIR = DBT_PROJECT_DIR / "target"
 QIF_FILES = "pipeline_personal_finance/qif_files"
+SEED_DIR = DBT_PROJECT_DIR / "seeds"
+SEED_TEMPLATE_DIR = DBT_PROJECT_DIR / "seed_templates"
+PRIVATE_SEED_NAMES = (
+    "known_values",
+    "mortgage_patch_data",
+    "property_assets",
+    "property_valuation_overrides",
+    "recommendation_outcomes",
+)
 
 # Log the DBT_PROJECT_DIR when the application starts or when it's used
 logging.info(f"DBT_PROJECT_DIR set to: {DBT_PROJECT_DIR}")
+
+
+def ensure_private_seed_stubs() -> None:
+    """Materialize header-only private seed stubs before dbt parses refs."""
+    SEED_DIR.mkdir(parents=True, exist_ok=True)
+    for seed_name in PRIVATE_SEED_NAMES:
+        target = SEED_DIR / f"{seed_name}.csv"
+        template = SEED_TEMPLATE_DIR / f"{seed_name}.template.csv"
+        if not target.exists() and template.exists():
+            shutil.copy2(template, target)
+
+
+ensure_private_seed_stubs()
 
 dbt = DbtCliResource(project_dir=os.fspath(DBT_PROJECT_DIR))
 
