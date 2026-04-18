@@ -45,6 +45,7 @@ _GRAFANA_TOKEN = os.environ.get("GRAFANA_TOKEN")
 # This is distinct from GRAFANA_USER which is the PostgreSQL datasource reader account.
 _GRAFANA_USER = os.environ.get("GRAFANA_ADMIN_USER", "admin")
 _GRAFANA_PASSWORD = os.environ.get("GRAFANA_ADMIN_PASSWORD")
+_USE_GRAFANA_BASIC_AUTH = bool(_GRAFANA_USER and _GRAFANA_PASSWORD)
 _DASHBOARD_TIME_PICKER_RANGES = os.environ.get("DASHBOARD_TIME_PICKER_RANGES", "7,30,90,365")
 _DASHBOARD_QUALITY_WARN_ONLY = os.environ.get("DASHBOARD_QUALITY_WARN_ONLY", "").strip().lower() in {
     "1",
@@ -77,7 +78,7 @@ def dashboard_quality_gate(context) -> None:
     # ------------------------------------------------------------------
     total_lint_warnings = 0
     total_parse_errors = 0
-    has_credentials = bool(_GRAFANA_TOKEN or (_GRAFANA_USER and _GRAFANA_PASSWORD))
+    has_credentials = bool(_GRAFANA_TOKEN or _USE_GRAFANA_BASIC_AUTH)
 
     if not has_credentials:
         raise Failure(
@@ -89,9 +90,9 @@ def dashboard_quality_gate(context) -> None:
     try:
         client = _checker.GrafanaClient(
             base_url=_GRAFANA_URL,
-            token=_GRAFANA_TOKEN,
-            user=_GRAFANA_USER if not _GRAFANA_TOKEN else None,
-            password=_GRAFANA_PASSWORD if not _GRAFANA_TOKEN else None,
+            token=None if _USE_GRAFANA_BASIC_AUTH else _GRAFANA_TOKEN,
+            user=_GRAFANA_USER if _USE_GRAFANA_BASIC_AUTH else None,
+            password=_GRAFANA_PASSWORD if _USE_GRAFANA_BASIC_AUTH else None,
         )
         datasources = client.datasources()
         dashboards = client.search_dashboards()
