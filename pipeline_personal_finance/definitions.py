@@ -1,3 +1,4 @@
+import hashlib
 import os
 
 from dagster import Definitions, EnvVar, define_asset_job, sensor, RunRequest, SkipReason
@@ -21,6 +22,17 @@ from .constants import DBT_PROJECT_DIR, QIF_FILES
 from .run_timeout import find_stale_runs, parse_timeout_hours
 
 load_dotenv()
+
+
+def _qif_run_key(qif_directory: str, qif_files: list[str]) -> str:
+    digest = hashlib.sha256()
+    for filename in sorted(qif_files):
+        path = os.path.join(qif_directory, filename)
+        digest.update(filename.encode())
+        with open(path, "rb") as file_obj:
+            for chunk in iter(lambda: file_obj.read(1024 * 1024), b""):
+                digest.update(chunk)
+    return f"qif_files_{digest.hexdigest()}"
 
 qif_pipeline_job = define_asset_job(
     name="qif_pipeline_job",
@@ -82,9 +94,8 @@ def qif_file_sensor(context):
     if not qif_files:
         return SkipReason("No QIF files found in directory")
     
-    # Create a run request with all current QIF files as the run key
-    # This ensures the pipeline runs when new files are added
-    run_key = f"qif_files_{'_'.join(sorted(qif_files))}"
+    # Include file contents so replacing an existing QIF file triggers a new run.
+    run_key = _qif_run_key(qif_directory, qif_files)
     
     context.log.info(f"Found {len(qif_files)} QIF files: {qif_files}")
     
@@ -151,6 +162,12 @@ def stuck_run_timeout_sensor(context):
     )
 
 deployment_name = os.getenv("DAGSTER_DEPLOYMENT", "prod")
+if deployment_name not in resources:
+    valid_deployments = ", ".join(sorted(resources))
+    raise ValueError(
+        f"Unsupported DAGSTER_DEPLOYMENT={deployment_name!r}. "
+        f"Expected one of: {valid_deployments}."
+    )
 
 defs = Definitions(
     assets=[
@@ -170,4 +187,3 @@ defs = Definitions(
     jobs=[qif_pipeline_job],
     sensors=[qif_file_sensor, stuck_run_timeout_sensor],
 )
-

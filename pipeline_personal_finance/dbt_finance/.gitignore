@@ -1,6 +1,11 @@
 target
 macros
 seeds
+!seeds/
+!seeds/.gitkeep
+!seeds/*.yml
+!seeds/banking_categories.csv
+!seeds/categories_allowed.csv
 analys
 test
 dbt_packages
