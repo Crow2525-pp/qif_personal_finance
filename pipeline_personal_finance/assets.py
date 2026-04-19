@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import hashlib
+import json
 import pandas as pd
 import numpy as np
 import re
@@ -59,14 +60,37 @@ def finance_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
 
 
 def hash_concat_row_wise(df: pd.DataFrame) -> pd.Series:
-    # Define a function to hash concatenated values of a row
+    hash_columns = [
+        "BankName",
+        "AccountName",
+        "date",
+        "amount",
+        "memo",
+        "transaction_description",
+        "transaction_type",
+        "sender",
+        "recipient",
+        "month_order",
+    ]
+
+    def normalize_value(value: Any) -> Any:
+        if pd.isna(value):
+            return None
+        if isinstance(value, pd.Timestamp):
+            return value.isoformat()
+        return str(value).strip()
+
     def hash_row(row):
-        concatenated_values = f"{row['year']}-{row['month']}-{row['month_order']}"
-        hash_obj = hashlib.md5(concatenated_values.encode())
+        payload = {
+            column: normalize_value(row[column])
+            for column in hash_columns
+            if column in row.index
+        }
+        concatenated_values = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+        hash_obj = hashlib.sha256(concatenated_values.encode())
         hash_hex = hash_obj.hexdigest()
         return hash_hex
 
-    # Apply this function across rows
     return df.apply(hash_row, axis=1)
 
 
@@ -235,11 +259,10 @@ def upload_dataframe_to_database(
         df = qif.to_dataframe()
         df_indexed = add_incremental_row_number(df, "date", "line_number")
 
-        df_indexed["primary_key"] = hash_concat_row_wise(df_indexed)
-
         df_filename = add_filename_data_to_dataframe(
             filename=file.name, dataframe=df_indexed
         )
+        df_filename["primary_key"] = hash_concat_row_wise(df_filename)
 
         bank_name = df_filename["BankName"].iloc[0]
         account_name = df_filename["AccountName"].iloc[0]

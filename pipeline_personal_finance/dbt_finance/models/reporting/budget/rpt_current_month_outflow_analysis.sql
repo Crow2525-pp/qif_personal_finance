@@ -4,46 +4,59 @@
   )
 }}
 
-WITH current_month_base AS (
+WITH eligible_outflows AS (
   SELECT
-    DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month') as analysis_month
+    t.transaction_date,
+    t.transaction_amount,
+    t.transaction_memo,
+    c.category,
+    c.subcategory
+  FROM {{ ref('fct_transactions') }} t
+  JOIN {{ ref('dim_categories') }} c ON t.category_key = c.category_key
+  WHERE t.transaction_amount < 0
+    AND c.is_internal_transfer = false
+    AND NOT COALESCE(c.is_property_transaction, FALSE)
+),
+
+current_month_base AS (
+  SELECT
+    COALESCE(
+      MAX(DATE_TRUNC('month', transaction_date)) FILTER (
+        WHERE DATE_TRUNC('month', transaction_date) < DATE_TRUNC('month', CURRENT_DATE)
+      ),
+      MAX(DATE_TRUNC('month', transaction_date)),
+      DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month')
+    ) as analysis_month
+  FROM eligible_outflows
 ),
 
 current_month_outflows AS (
   SELECT
-    c.category,
-    c.subcategory,
+    t.category,
+    t.subcategory,
     SUM(ABS(t.transaction_amount)) as total_outflows,
     COUNT(*) as transaction_count,
     AVG(ABS(t.transaction_amount)) as avg_transaction_size,
     MAX(ABS(t.transaction_amount)) as largest_transaction,
     -- Get the memo of the largest transaction
     (ARRAY_AGG(t.transaction_memo ORDER BY ABS(t.transaction_amount) DESC))[1] as largest_transaction_memo
-  FROM {{ ref('fct_transactions') }} t
-  JOIN {{ ref('dim_categories') }} c ON t.category_key = c.category_key
+  FROM eligible_outflows t
   CROSS JOIN current_month_base cmb
   WHERE DATE_TRUNC('month', t.transaction_date) = cmb.analysis_month
-    AND t.transaction_amount < 0
-    AND c.is_internal_transfer = false
-    AND NOT COALESCE(c.is_property_transaction, FALSE)
-  GROUP BY c.category, c.subcategory
+  GROUP BY t.category, t.subcategory
 ),
 
 historical_averages AS (
   SELECT
-    c.category,
-    c.subcategory,
+    t.category,
+    t.subcategory,
     AVG(ABS(t.transaction_amount)) as historical_avg_monthly,
     COUNT(DISTINCT DATE_TRUNC('month', t.transaction_date)) as months_of_data
-  FROM {{ ref('fct_transactions') }} t
-  JOIN {{ ref('dim_categories') }} c ON t.category_key = c.category_key
+  FROM eligible_outflows t
   CROSS JOIN current_month_base cmb
   WHERE DATE_TRUNC('month', t.transaction_date) < cmb.analysis_month
     AND DATE_TRUNC('month', t.transaction_date) >= cmb.analysis_month - INTERVAL '6 months'
-    AND t.transaction_amount < 0
-    AND c.is_internal_transfer = false
-    AND NOT COALESCE(c.is_property_transaction, FALSE)
-  GROUP BY c.category, c.subcategory
+  GROUP BY t.category, t.subcategory
   HAVING COUNT(DISTINCT DATE_TRUNC('month', t.transaction_date)) >= 2
 ),
 

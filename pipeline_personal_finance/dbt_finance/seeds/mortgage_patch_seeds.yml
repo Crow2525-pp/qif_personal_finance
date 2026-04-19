@@ -1,0 +1,44 @@
+# Configuration for mortgage patch data seed
+
+version: 2
+
+seeds:
+  - name: mortgage_patch_data
+    description: "Patch data for missing mortgage transactions that need to be applied to maintain consistent financial metrics."
+    docs:
+      show: true
+      node_color: "#ef4444" # red to indicate it's patch/correction data
+    config:
+      column_types:
+        date: date
+        amount: numeric
+        line_number: integer
+        memo: text
+        bank_name: text
+        account_name: text
+    columns:
+      - name: date
+        description: "Transaction date"
+        tests:
+          - not_null
+      - name: amount
+        description: "Transaction amount (negative for outflows, positive for inflows)"
+        tests:
+          - not_null
+      - name: memo
+        description: "Transaction memo/description"
+        tests:
+          - not_null
+      - name: line_number
+        description: "Unique line number for the transaction"
+        tests:
+          - not_null
+          - unique
+      - name: bank_name
+        description: "Bank name"
+        tests:
+          - not_null
+      - name: account_name
+        description: "Account name"
+        tests:
+          - not_null

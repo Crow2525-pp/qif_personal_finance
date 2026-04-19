@@ -1085,12 +1085,13 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--user",
-        default=os.environ.get("GRAFANA_USER", "admin"),
+        default=os.environ.get("GRAFANA_ADMIN_USER")
+        or ("admin" if os.environ.get("GRAFANA_ADMIN_PASSWORD") else os.environ.get("GRAFANA_USER", "admin")),
         help="Grafana user (used when token is not provided).",
     )
     parser.add_argument(
         "--password",
-        default=os.environ.get("GRAFANA_PASSWORD"),
+        default=os.environ.get("GRAFANA_ADMIN_PASSWORD") or os.environ.get("GRAFANA_PASSWORD"),
         help="Grafana password (used when token is not provided).",
     )
     parser.add_argument(
@@ -1252,11 +1253,12 @@ def main() -> int:
 
     fallback_time_windows = build_time_windows(fallback_range_days)
 
+    use_basic_auth = bool(args.user and args.password)
     client = GrafanaClient(
         base_url=args.base_url,
-        token=args.token,
-        user=args.user,
-        password=args.password,
+        token=None if use_basic_auth else args.token,
+        user=args.user if use_basic_auth else None,
+        password=args.password if use_basic_auth else None,
     )
 
     datasources = client.datasources()
