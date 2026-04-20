@@ -11,9 +11,14 @@ def parse_timeout_hours(raw_value: str | None, default: float = 2.0) -> float:
     if not value:
         return default
     try:
-        return max(float(value), 0.0)
+        parsed = float(value)
     except ValueError:
         return default
+    # A non-positive timeout would mark every in-flight run as stale on the
+    # next sensor tick, so fall back to the default instead of returning 0.
+    if parsed <= 0:
+        return default
+    return parsed
 
 
 def run_status_name(run) -> str:

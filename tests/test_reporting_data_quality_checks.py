@@ -289,3 +289,8 @@ def test_timeout_helpers_identify_stale_runs():
     assert stale[0][0] == "stale"
     assert run_timeout.parse_timeout_hours("  ") == 2.0
     assert run_timeout.parse_timeout_hours("4.5") == 4.5
+    # Non-positive timeouts must fall back to the default to avoid
+    # terminating every in-flight run on the next sensor tick.
+    assert run_timeout.parse_timeout_hours("0") == 2.0
+    assert run_timeout.parse_timeout_hours("-3") == 2.0
+    assert run_timeout.parse_timeout_hours("0", default=1.5) == 1.5
