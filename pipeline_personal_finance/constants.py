@@ -5,6 +5,8 @@ from pathlib import Path
 
 from dagster_dbt import DbtCliResource
 
+_logger = logging.getLogger(__name__)
+
 # Keep dbt resolution pinned to the dbt project directory itself.
 DBT_PROJECT_DIR = Path(__file__).resolve().parent / "dbt_finance"
 DBT_TARGET_DIR = DBT_PROJECT_DIR / "target"
@@ -19,12 +21,10 @@ PRIVATE_SEED_NAMES = (
     "recommendation_outcomes",
 )
 
-# Log the DBT_PROJECT_DIR when the application starts or when it's used
-logging.info(f"DBT_PROJECT_DIR set to: {DBT_PROJECT_DIR}")
-
 
 def ensure_private_seed_stubs() -> None:
     """Materialize header-only private seed stubs before dbt parses refs."""
+    _logger.debug("DBT_PROJECT_DIR set to: %s", DBT_PROJECT_DIR)
     SEED_DIR.mkdir(parents=True, exist_ok=True)
     for seed_name in PRIVATE_SEED_NAMES:
         target = SEED_DIR / f"{seed_name}.csv"
