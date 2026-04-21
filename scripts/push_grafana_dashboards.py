@@ -27,10 +27,19 @@ def load_dashboard(path: Path) -> dict:
         return json.load(f)
 
 
-def push_dashboard(base_url: str, auth: tuple[str, str] | None, data: dict) -> None:
+def push_dashboard(base_url: str, session: requests.Session, data: dict) -> None:
     payload = {"dashboard": data, "overwrite": True}
-    resp = requests.post(f"{base_url.rstrip('/')}/api/dashboards/db", json=payload, auth=auth)
+    resp = session.post(f"{base_url.rstrip('/')}/api/dashboards/db", json=payload)
     resp.raise_for_status()
+
+
+def _build_session(user: str, password: str | None, token: str | None) -> requests.Session:
+    session = requests.Session()
+    if token:
+        session.headers["Authorization"] = f"Bearer {token}"
+    else:
+        session.auth = (user, password)  # type: ignore[assignment]
+    return session
 
 
 def main(argv: List[str]) -> int:
@@ -39,15 +48,11 @@ def main(argv: List[str]) -> int:
     password = os.environ.get("GRAFANA_PASSWORD")
     token = os.environ.get("GRAFANA_TOKEN")
 
-    if token:
-        auth = None
-        headers = {"Authorization": f"Bearer {token}"}
-        requests.defaults.headers.update(headers)  # type: ignore[attr-defined]
-    else:
-        if not password:
-            print("Set GRAFANA_PASSWORD or GRAFANA_TOKEN", file=sys.stderr)
-            return 1
-        auth = (user, password)
+    if not token and not password:
+        print("Set GRAFANA_PASSWORD or GRAFANA_TOKEN", file=sys.stderr)
+        return 1
+
+    session = _build_session(user, password, token)
 
     targets = argv or glob.glob("grafana/provisioning/dashboards/*.json")
     if not targets:
@@ -60,7 +65,7 @@ def main(argv: List[str]) -> int:
             print(f"Skipping missing file: {path}", file=sys.stderr)
             continue
         data = load_dashboard(path)
-        push_dashboard(base_url, auth, data)
+        push_dashboard(base_url, session, data)
         print(f"Pushed {path.name} (uid={data.get('uid')})")
 
     return 0
