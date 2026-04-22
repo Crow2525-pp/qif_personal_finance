@@ -1,0 +1,117 @@
+from __future__ import annotations
+
+import datetime as dt
+import re
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Iterable
+
+import pandas as pd
+
+
+_QIF_FILENAME_PATTERN = re.compile(
+    r"^(?P<bank_name>[^_]+)_(?P<account_name>.+)_Transactions_(?P<extract_date>\d{8})$"
+)
+
+
+@dataclass(frozen=True, slots=True)
+class QifFilenameParts:
+    bank_name: str
+    account_name: str
+    extract_date: str
+
+
+def validate_date_format(date_str: str) -> bool:
+    try:
+        parsed = dt.datetime.strptime(date_str, "%Y%m%d")
+    except ValueError:
+        return False
+    return parsed.strftime("%Y%m%d") == date_str
+
+
+def parse_qif_filename(filename: str | Path) -> QifFilenameParts:
+    stem = Path(filename).stem
+    match = _QIF_FILENAME_PATTERN.fullmatch(stem)
+    if not match:
+        raise ValueError(
+            "Filename format must be 'BankName_AccountName_Transactions_YYYYMMDD.qif'"
+        )
+
+    extract_date = match.group("extract_date")
+    if not validate_date_format(extract_date):
+        raise ValueError(
+            f"Invalid date format in filename: {extract_date}. Must be a real YYYYMMDD date"
+        )
+
+    return QifFilenameParts(
+        bank_name=match.group("bank_name"),
+        account_name=match.group("account_name"),
+        extract_date=extract_date,
+    )
+
+
+def add_filename_data_to_dataframe(filename: str, dataframe: pd.DataFrame) -> pd.DataFrame:
+    parts = parse_qif_filename(filename)
+    dataframe["BankName"] = parts.bank_name
+    dataframe["AccountName"] = parts.account_name
+    dataframe["Extract_Date"] = parts.extract_date
+    return dataframe
+
+
+def sort_qif_files(files: Iterable[Path]) -> list[Path]:
+    return sorted(
+        files,
+        key=lambda file_path: (
+            parse_qif_filename(file_path.name).extract_date,
+            file_path.name.lower(),
+        ),
+    )
+
+
+def union_unique(
+    df1: pd.DataFrame,
+    df2: pd.DataFrame,
+    unique_column: str,
+    *,
+    order_column: str = "Extract_Date",
+) -> pd.DataFrame:
+    combined = pd.concat([df1, df2], ignore_index=True)
+
+    if order_column in combined.columns:
+        combined = combined.sort_values(by=[order_column], kind="stable")
+        return combined.drop_duplicates(subset=unique_column, keep="last")
+
+    return combined.drop_duplicates(subset=unique_column)
+
+
+def duplicate_key_summary(
+    dataframe: pd.DataFrame,
+    unique_column: str,
+    *,
+    limit: int = 5,
+) -> str:
+    duplicates = dataframe[dataframe.duplicated(subset=unique_column, keep=False)]
+    if duplicates.empty:
+        return ""
+
+    sample_keys = duplicates[unique_column].drop_duplicates().head(limit).tolist()
+    key_list = ", ".join(str(key) for key in sample_keys)
+    return (
+        f"{len(duplicates)} duplicate rows across "
+        f"{duplicates[unique_column].nunique()} duplicate keys"
+        f"; sample keys: {key_list}"
+    )
+
+
+def assert_unique_primary_keys(
+    dataframe: pd.DataFrame,
+    unique_column: str,
+    *,
+    bank_name: str,
+    account_name: str,
+) -> None:
+    summary = duplicate_key_summary(dataframe, unique_column)
+    if summary:
+        raise ValueError(
+            f"Duplicate primary keys detected for {bank_name}/{account_name}: {summary}"
+        )

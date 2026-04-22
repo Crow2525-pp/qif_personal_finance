@@ -13,6 +13,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "pandas>=2.2.0",
     "pytest>=9.0.2",
     "sqlfluff>=3.3.0",
     "sqlfluff-templater-dbt>=3.3.0",

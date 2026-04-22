@@ -4,7 +4,6 @@ import hashlib
 import json
 import pandas as pd
 import numpy as np
-import re
 from quiffen import Qif
 from dagster import (
     AssetDep,
@@ -18,6 +17,12 @@ from dagster_dbt import DagsterDbtTranslator, DbtCliResource, dbt_assets
 from sqlalchemy import text, JSON
 from typing import Any, Mapping, Optional
 from .constants import dbt_manifest_path, QIF_FILES
+from .qif_ingestion import (
+    add_filename_data_to_dataframe,
+    assert_unique_primary_keys,
+    sort_qif_files,
+    union_unique,
+)
 from .resources import SqlAlchemyClientResource
 
 # TODO: Incremental Refresh
@@ -146,46 +151,6 @@ def add_incremental_row_number(
     return df
 
 
-def validate_date_format(date_str: str) -> bool:
-    return bool(re.match(r"^\d{4}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])$", date_str))
-
-
-def add_filename_data_to_dataframe(
-    filename: str, dataframe: pd.DataFrame
-) -> pd.DataFrame:
-    base_name = filename.rsplit(".", 1)[0]
-
-    parts = base_name.split("_")
-
-    if len(parts) != 4 or parts[2] != "Transactions":
-        raise ValueError(
-            "Filename format must be 'BankName_AccountName_Transactions_YYYYMMDD"
-        )
-
-    bank_name, account_name, _, dates = parts
-
-    if not validate_date_format(dates):
-        raise ValueError(
-            f"Invalid date format in filename: {dates}. Must be in YYYYMMDD format"
-        )
-
-    dataframe["BankName"] = bank_name
-    dataframe["AccountName"] = account_name
-    dataframe["Extract_Date"] = dates
-
-    return dataframe
-
-
-def union_unique(
-    df1: pd.DataFrame, df2: pd.DataFrame, unique_column: str
-) -> Optional[pd.DataFrame]:
-    combined = pd.concat([df1, df2], ignore_index=True)
-
-    unique_combined = combined.drop_duplicates(subset=unique_column)
-
-    return unique_combined
-
-
 def verify_database_schema(
     context: AssetExecutionContext,
     personal_finance_database: SqlAlchemyClientResource,
@@ -250,7 +215,7 @@ def upload_dataframe_to_database(
     context: AssetExecutionContext, personal_finance_database: SqlAlchemyClientResource
 ):
     qif_filepath = Path(QIF_FILES)
-    qif_files = qif_filepath.glob("*.qif")
+    qif_files = sort_qif_files(qif_filepath.glob("*.qif"))
 
     grouped_dataframes = {}
 
@@ -270,33 +235,31 @@ def upload_dataframe_to_database(
         key = (bank_name, account_name)
 
         if key in grouped_dataframes:
-            print(
-                f"Combining data for bank: {bank_name}, account: {account_name}, for extract date: {extract_date}"
-            )
-            context.log.debug(
-                f"BankName: {bank_name}; AccountName: {account_name}; Extract_Date: {extract_date}"
+            context.log.info(
+                f"Combining data for bank={bank_name} account={account_name} "
+                f"extract_date={extract_date}"
             )
             grouped_dataframes[key] = union_unique(
-                grouped_dataframes[key], df_filename, unique_column="primary_key"
+                grouped_dataframes[key],
+                df_filename,
+                unique_column="primary_key",
             )
         else:
             grouped_dataframes[key] = df_filename
 
     for (bank, account), dataframe in grouped_dataframes.items():
-        if dataframe["primary_key"].is_unique:
-            print("no duplicates found")
-        else:
-            duplicates = dataframe[
-                dataframe.duplicated(subset="primary_key", keep=False)
-            ]
-            print(f"Duplicate rows: \n{duplicates}")
-            context.log.error(f"{bank}; {account}, duplicate rows: \n{duplicates}")
-            # raise ValueError("The primary key contains duplicate values")
+        assert_unique_primary_keys(
+            dataframe,
+            "primary_key",
+            bank_name=bank,
+            account_name=account,
+        )
 
-        print(f"Final dataframe for bank: {bank}, account: {account}")
-        print(dataframe.head())
-        unique_extract_dates = dataframe["Extract_Date"].unique()
-        print(f"Unique dates: {unique_extract_dates}")
+        unique_extract_dates = dataframe["Extract_Date"].unique().tolist()
+        context.log.info(
+            f"Prepared {len(dataframe)} rows for bank={bank} account={account} "
+            f"across extract dates={unique_extract_dates}"
+        )
 
         table_name = bank + "_" + account + "_Transactions"
 
