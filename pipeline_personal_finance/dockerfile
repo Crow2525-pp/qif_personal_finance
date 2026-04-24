@@ -39,6 +39,7 @@ WORKDIR ${DAGSTER_APP}/pipeline_personal_finance/dbt_finance
 RUN uv pip list
 
 RUN dbt deps
+RUN dbt parse
 
 # Expose the port that Dagster gRPC server uses
 EXPOSE 4000

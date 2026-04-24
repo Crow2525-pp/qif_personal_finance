@@ -44,7 +44,7 @@ def test_resolve_dbt_manifest_path_uses_existing_manifest_without_parsing(
     resource_factory.assert_not_called()
 
 
-def test_resolve_dbt_manifest_path_defers_to_dagster_when_parse_on_load_enabled(
+def test_resolve_dbt_manifest_path_defers_to_dagster_when_parse_on_load_disabled(
     tmp_path: Path,
 ):
     project_dir = tmp_path / "dbt_project"
@@ -57,7 +57,7 @@ def test_resolve_dbt_manifest_path_defers_to_dagster_when_parse_on_load_enabled(
     resolved = resolve_dbt_manifest_path(
         project_dir=project_dir,
         target_dir=target_dir,
-        parse_on_load=True,
+        parse_on_load=False,
         resource_factory=resource_factory,
         ensure_seed_stubs=ensure_seed_stubs,
     )
@@ -67,7 +67,7 @@ def test_resolve_dbt_manifest_path_defers_to_dagster_when_parse_on_load_enabled(
     resource_factory.assert_not_called()
 
 
-def test_resolve_dbt_manifest_path_regenerates_manifest_only_when_missing(
+def test_resolve_dbt_manifest_path_regenerates_manifest_when_enabled_and_missing(
     tmp_path: Path,
 ):
     project_dir = tmp_path / "dbt_project"
@@ -85,7 +85,7 @@ def test_resolve_dbt_manifest_path_regenerates_manifest_only_when_missing(
     resolved = resolve_dbt_manifest_path(
         project_dir=project_dir,
         target_dir=target_dir,
-        parse_on_load=False,
+        parse_on_load=True,
         resource_factory=resource_factory,
         ensure_seed_stubs=ensure_seed_stubs,
     )
@@ -114,10 +114,10 @@ def test_resolve_dbt_manifest_path_raises_helpful_error_when_dbt_cli_missing(
         resolve_dbt_manifest_path(
             project_dir=project_dir,
             target_dir=target_dir,
-            parse_on_load=False,
+            parse_on_load=True,
             resource_factory=resource_factory,
             ensure_seed_stubs=ensure_seed_stubs,
         )
 
-    assert "DAGSTER_DBT_PARSE_PROJECT_ON_LOAD" in str(exc.value)
+    assert "dbt deps" in str(exc.value)
     ensure_seed_stubs.assert_called_once_with()

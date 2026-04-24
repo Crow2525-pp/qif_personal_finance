@@ -59,13 +59,13 @@ def resolve_dbt_manifest_path(
     resource_factory: Callable[[Path], DbtCliResource] = build_dbt_resource,
     ensure_seed_stubs: Callable[[], None] = ensure_private_seed_stubs,
 ) -> Path:
-    """Return the dbt manifest path, regenerating it only when required."""
+    """Return the dbt manifest path, parsing only when explicitly requested."""
     manifest_path = target_dir / "manifest.json"
     should_parse_on_load = (
         parse_project_on_load_enabled() if parse_on_load is None else parse_on_load
     )
 
-    if manifest_path.exists() or should_parse_on_load:
+    if manifest_path.exists() or not should_parse_on_load:
         return manifest_path
 
     ensure_seed_stubs()
@@ -80,7 +80,7 @@ def resolve_dbt_manifest_path(
         raise RuntimeError(
             "dbt manifest not found at "
             f"{manifest_path} and dbt CLI is unavailable to regenerate it. "
-            "Restore target/manifest.json, enable DAGSTER_DBT_PARSE_PROJECT_ON_LOAD, "
+            "Restore target/manifest.json, run `dbt deps`, "
             "or run `uv run dbt parse --project-dir pipeline_personal_finance/dbt_finance`."
         ) from exc
     except Exception as exc:
