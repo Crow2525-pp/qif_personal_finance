@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const DASH_DIR = 'grafana/provisioning/dashboards';
+const DASH_DIR = 'platform/grafana/provisioning/dashboards';
 
 function readDash(name) {
   return JSON.parse(fs.readFileSync(path.join(DASH_DIR, name), 'utf8'));

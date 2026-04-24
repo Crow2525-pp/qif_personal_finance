@@ -8,23 +8,23 @@ services:
       # Allow unsigned plugin to load
       - GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=motherduck-duckdb-datasource
     volumes:
-      - ./pipeline_personal_finance/dbt_finance/duckdb:/var/lib/grafana/duckdb
-      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/duckdb:/var/lib/grafana/duckdb
+      - ./platform/grafana/provisioning:/etc/grafana/provisioning
 
   pipeline_personal_finance:
     volumes:
       - ./scripts:${DAGSTER_APP}/scripts:ro
-      - ./dagster_core/dagster.yaml:/docker/appdata/dagster/dagster_home/dagster.yaml:ro
+      - ./platform/dagster_core/dagster.yaml:/docker/appdata/dagster/dagster_home/dagster.yaml:ro
 
   dagster_webserver:
     ports:
       - "${DAGSTER_UI_BIND_HOST:-127.0.0.1}:${DAGSTER_UI_PORT:-3002}:3000"
     volumes:
-      - ./dagster_core/dagster.yaml:/docker/appdata/dagster/dagster_home/dagster.yaml:ro
+      - ./platform/dagster_core/dagster.yaml:/docker/appdata/dagster/dagster_home/dagster.yaml:ro
 
   dagster_daemon:
     volumes:
-      - ./dagster_core/dagster.yaml:/docker/appdata/dagster/dagster_home/dagster.yaml:ro
+      - ./platform/dagster_core/dagster.yaml:/docker/appdata/dagster/dagster_home/dagster.yaml:ro
 
   dagster_postgres:
     # Expose postgres to the host for debugging. Worktree env decides the host port.

@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const dashDir = 'grafana/provisioning/dashboards';
+const dashDir = 'platform/grafana/provisioning/dashboards';
 
 const files = [
   '01-executive-overview-mobile.json',

@@ -9,7 +9,7 @@ Fix account dashboard failures caused by missing columns and relations, and alig
 ## Required Reference Material
 - .claude/references/dashboard-llm-reference.md
 - scripts/check_grafana_dashboards.py
-- grafana/provisioning/dashboards/*.json
+- platform/grafana/provisioning/dashboards/*.json
 
 ## Evidence From Current State
 - Errors include missing bendigo_offset and bendigo_offset_MoM.

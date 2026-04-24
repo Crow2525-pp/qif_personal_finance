@@ -9,7 +9,7 @@ Resolve stale column references and formalize when KPI panels may display zero v
 ## Required Reference Material
 - .claude/references/dashboard-llm-reference.md
 - scripts/check_grafana_dashboards.py
-- grafana/provisioning/dashboards/*.json
+- platform/grafana/provisioning/dashboards/*.json
 
 ## Evidence From Current State
 - Error observed: column inflow_excl_transfers does not exist.

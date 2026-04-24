@@ -9,7 +9,7 @@ Audit chart-type choices and convert mismatched visuals to better encodings for 
 ## Required Reference Material
 - .claude/references/dashboard-llm-reference.md
 - scripts/check_grafana_dashboards.py
-- grafana/provisioning/dashboards/*.json
+- platform/grafana/provisioning/dashboards/*.json
 
 ## Evidence From Current State
 - Pie charts and other visuals are used in places where comparison/trend reading is harder.

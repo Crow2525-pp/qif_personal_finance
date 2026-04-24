@@ -536,7 +536,14 @@ def main():
     parser = argparse.ArgumentParser(description="Generate synthetic seed data.")
     parser.add_argument(
         "--output-dir",
-        default=os.path.join("pipeline_personal_finance", "dbt_finance", "seeds", "local"),
+        default=os.path.join(
+            "data_projects",
+            "qif_personal_finance",
+            "pipeline_personal_finance",
+            "dbt_finance",
+            "seeds",
+            "local",
+        ),
         help="Output directory for generated CSVs.",
     )
     parser.add_argument("--months", type=int, default=24, help="Number of months to generate.")

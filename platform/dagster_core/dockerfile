@@ -28,7 +28,7 @@ WORKDIR ${DAGSTER_APP}
 COPY uv.lock uv.lock
 # not sure if I need both pyproject.toml files or just core.
 COPY pyproject.toml pyproject.toml
-COPY dagster_core/pyproject.toml dagster_core/pyproject.toml
+COPY platform/dagster_core/pyproject.toml platform/dagster_core/pyproject.toml
 
 # Creates and syncs env; frozen ensures that no updates happen
 # Package sorts out just the sub-project's deps.
@@ -37,7 +37,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 RUN mkdir -p ${DAGSTER_HOME}
 
-COPY dagster_core/workspace.yaml dagster_core/dagster.yaml  ${DAGSTER_HOME}
+COPY platform/dagster_core/workspace.yaml platform/dagster_core/dagster.yaml  ${DAGSTER_HOME}
 
 RUN chmod -R +x ${DAGSTER_HOME}/
 RUN chmod -R +x ${DAGSTER_APP}/

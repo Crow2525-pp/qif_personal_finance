@@ -57,7 +57,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--dashboard-dir",
-        default="grafana/provisioning/dashboards",
+        default="platform/grafana/provisioning/dashboards",
         help="Directory containing dashboard JSON files.",
     )
     parser.add_argument(

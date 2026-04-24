@@ -9,7 +9,7 @@ Create the missing recommendation outcomes reporting dataset and wire it into ex
 ## Required Reference Material
 - .claude/references/dashboard-llm-reference.md
 - scripts/check_grafana_dashboards.py
-- grafana/provisioning/dashboards/*.json
+- platform/grafana/provisioning/dashboards/*.json
 
 ## Evidence From Current State
 - Error observed: relation reporting.rpt_recommendation_outcomes does not exist.

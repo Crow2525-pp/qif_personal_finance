@@ -5,9 +5,12 @@
 !.venv
 !uv.lock
 !pyproject.toml
-!pipeline_personal_finance/**
+!data_projects/
+!data_projects/qif_personal_finance/
+!data_projects/qif_personal_finance/pipeline_personal_finance/**
 # Exclude stale dbt partial_parse cache — causes KeyError at container startup
-pipeline_personal_finance/**/target/
-!dagster_core/**
+data_projects/qif_personal_finance/pipeline_personal_finance/**/target/
+!platform/
+!platform/dagster_core/**
 !scripts/**
-!grafana/**
+!platform/grafana/**

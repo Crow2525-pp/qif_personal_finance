@@ -20,4 +20,7 @@ dev = [
 ]
 
 [tool.uv.workspace]
-members = ["dagster_core", "pipeline_personal_finance"]
+members = [
+    "platform/dagster_core",
+    "data_projects/qif_personal_finance/pipeline_personal_finance",
+]

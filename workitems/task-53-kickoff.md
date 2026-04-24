@@ -7,7 +7,7 @@ Branch: feat/task-53-drillthrough-breadcrumb-standards
 Standardize where users go next from each KPI and how they return without losing context.
 
 ## Scope
-grafana/provisioning/dashboards/*.json; grafana/provisioning/dashboards/README.md
+platform/grafana/provisioning/dashboards/*.json; platform/grafana/provisioning/dashboards/README.md
 
 ## PR-Sized Deliverables
 1. Implement the core change set for this task only (no cross-task coupling).

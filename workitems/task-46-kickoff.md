@@ -7,7 +7,7 @@ Branch: feat/task-46-mortgage-source-model-contract
 Rebuild or retarget missing mortgage payoff source relations and validate every panel resolves with no missing relation errors.
 
 ## Scope
-grafana/provisioning/dashboards/15-mortgage-payoff.json; pipeline_personal_finance/dbt_finance/models/reporting/mortgage/*.sql; pipeline_personal_finance/dbt_finance/models/reporting/schema.yml
+platform/grafana/provisioning/dashboards/15-mortgage-payoff.json; data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/reporting/mortgage/*.sql; data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/reporting/schema.yml
 
 ## PR-Sized Deliverables
 1. Implement the core change set for this task only (no cross-task coupling).

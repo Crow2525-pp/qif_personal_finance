@@ -5,9 +5,9 @@ Push dashboard JSON files into Grafana via API (overwrite).
 Usage:
   GRAFANA_URL=http://localhost:3001 \
   GRAFANA_USER=admin GRAFANA_PASSWORD=... \
-  python scripts/push_grafana_dashboards.py grafana/provisioning/dashboards/01-executive-overview-mobile.json
+  python scripts/push_grafana_dashboards.py platform/grafana/provisioning/dashboards/01-executive-overview-mobile.json
 
-If no paths are provided, all *.json files under grafana/provisioning/dashboards are uploaded.
+If no paths are provided, all *.json files under platform/grafana/provisioning/dashboards are uploaded.
 """
 
 from __future__ import annotations
@@ -54,7 +54,7 @@ def main(argv: List[str]) -> int:
 
     session = _build_session(user, password, token)
 
-    targets = argv or glob.glob("grafana/provisioning/dashboards/*.json")
+    targets = argv or glob.glob("platform/grafana/provisioning/dashboards/*.json")
     if not targets:
         print("No dashboard JSON files found.", file=sys.stderr)
         return 1

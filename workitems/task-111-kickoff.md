@@ -9,7 +9,7 @@ Implement explicit ordered desktop-first navigation (01, 02, ...) and enforce li
 ## Required Reference Material
 - .claude/references/dashboard-llm-reference.md
 - scripts/check_grafana_dashboards.py
-- grafana/provisioning/dashboards/*.json
+- platform/grafana/provisioning/dashboards/*.json
 
 ## Evidence From Current State
 - Current naming/order is mixed and harder to scan quickly.
@@ -27,7 +27,7 @@ Implement explicit ordered desktop-first navigation (01, 02, ...) and enforce li
 4. Validate end-to-end navigation in Playwright.
 
 ## Validation
-1. Run link checker over grafana/provisioning/dashboards
+1. Run link checker over platform/grafana/provisioning/dashboards
 2. python scripts/check_grafana_dashboards.py --lint-only
 3. Playwright click-through of ordered dashboard flow
 
