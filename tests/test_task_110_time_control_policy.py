@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-DASHBOARD_DIR = REPO_ROOT / "grafana" / "provisioning" / "dashboards"
+DASHBOARD_DIR = REPO_ROOT / "platform" / "grafana" / "provisioning" / "dashboards"
 _DATEMATH_RELATIVE_PATTERN = re.compile(r"^now(?:[+-]\d+[smhdwMy])?(?:/[smhdwMy])?$")
 _DATE_ABSOLUTE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}")
 

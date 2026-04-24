@@ -9,7 +9,7 @@ Apply structured desktop-first layout alignment to core dashboards and reduce mo
 ## Required Reference Material
 - .claude/references/dashboard-llm-reference.md
 - scripts/check_grafana_dashboards.py
-- grafana/provisioning/dashboards/*.json
+- platform/grafana/provisioning/dashboards/*.json
 
 ## Evidence From Current State
 - User preference is structured aligned desktop dashboards and ordered review flow.

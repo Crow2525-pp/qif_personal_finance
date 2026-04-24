@@ -9,7 +9,7 @@ Correct type issues in net-worth driver queries and ensure panels return meaning
 ## Required Reference Material
 - .claude/references/dashboard-llm-reference.md
 - scripts/check_grafana_dashboards.py
-- grafana/provisioning/dashboards/*.json
+- platform/grafana/provisioning/dashboards/*.json
 
 ## Evidence From Current State
 - Error observed: function make_date(bigint, bigint, integer) does not exist.

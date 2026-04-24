@@ -1149,7 +1149,7 @@ def parse_args() -> argparse.Namespace:
         ),
         help=(
             "Directory containing dashboard JSON files for static lint. "
-            "Defaults to grafana/provisioning/dashboards/ relative to the repo root."
+            "Defaults to platform/grafana/provisioning/dashboards/ relative to the repo root."
         ),
     )
     parser.add_argument(

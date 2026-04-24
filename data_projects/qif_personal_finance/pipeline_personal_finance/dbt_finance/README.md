@@ -7,7 +7,7 @@ Try running the following commands:
 - dbt test
 
 ### Local development
-- See `pipeline_personal_finance/dbt_finance/LOCAL_DEV.md` for DuckDB + Grafana local workflows.
+- See `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/LOCAL_DEV.md` for DuckDB + Grafana local workflows.
 
 
 ### Resources:

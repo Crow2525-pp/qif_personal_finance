@@ -2,7 +2,7 @@ services:
   dagster_webserver:
     build:
       context: .
-      dockerfile: dagster_core/dockerfile
+      dockerfile: platform/dagster_core/dockerfile
       args:
         - DAGSTER_APP=${DAGSTER_APP}
         - DAGSTER_HOME=${DAGSTER_HOME}
@@ -46,7 +46,7 @@ services:
   dagster_daemon:
     build:
       context: .
-      dockerfile: dagster_core/dockerfile
+      dockerfile: platform/dagster_core/dockerfile
       args:
         DAGSTER_APP: ${DAGSTER_APP}
         DAGSTER_HOME: ${DAGSTER_HOME}
@@ -90,7 +90,7 @@ services:
   pipeline_personal_finance:
     build:
       context: .
-      dockerfile: pipeline_personal_finance/dockerfile
+      dockerfile: data_projects/qif_personal_finance/pipeline_personal_finance/dockerfile
       args:
         - DAGSTER_APP=${DAGSTER_APP}
     image: ${PIPELINE_IMAGE:-pipeline_personal_finance}
@@ -119,12 +119,12 @@ services:
       GRAFANA_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
       POSTGRES_ADMIN_USER: ${POSTGRES_ADMIN_USER}
       POSTGRES_ADMIN_PASSWORD: ${POSTGRES_ADMIN_PASSWORD}
-      DASHBOARD_DIR: ${DAGSTER_APP}/grafana/provisioning/dashboards
+      DASHBOARD_DIR: ${DAGSTER_APP}/platform/grafana/provisioning/dashboards
       DBT_EXECUTION_CONTEXT: dagster
     volumes:
       - /tmp/dagster-data:/tmp/dagster-data
-      - ./pipeline_personal_finance/qif_files:${DAGSTER_APP}/pipeline_personal_finance/qif_files
-      - ./grafana/provisioning/dashboards:${DAGSTER_APP}/grafana/provisioning/dashboards:ro
+      - ./data_projects/qif_personal_finance/pipeline_personal_finance/qif_files:${DAGSTER_APP}/data_projects/qif_personal_finance/pipeline_personal_finance/qif_files
+      - ./platform/grafana/provisioning/dashboards:${DAGSTER_APP}/platform/grafana/provisioning/dashboards:ro
     networks:
       - dagster_network
     # ports:
@@ -162,7 +162,7 @@ services:
 
   dagster_postgres:
     build:
-      context: ./postgres
+      context: ./platform/postgres
       dockerfile: dockerfile
     shm_size: 128mb
     restart: on-failure
@@ -211,8 +211,8 @@ services:
       - GF_PLUGINS_PREINSTALL=motherduck-duckdb-datasource@https://github.com/motherduckdb/grafana-duckdb-datasource/releases/download/v0.4.0/motherduck-duckdb-datasource-0.4.0.zip
     volumes:
       - grafana-storage:/var/lib/grafana
-      - ./pipeline_personal_finance/dbt_finance/duckdb:/var/lib/grafana/duckdb
-      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/duckdb:/var/lib/grafana/duckdb
+      - ./platform/grafana/provisioning:/etc/grafana/provisioning
     networks:
       - dagster_network
     depends_on:

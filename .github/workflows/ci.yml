@@ -32,7 +32,7 @@ jobs:
         run: uv sync --frozen
 
       - name: Run sqlfluff lint
-        run: uv run sqlfluff lint pipeline_personal_finance/dbt_finance/models/ --dialect postgres
+        run: uv run sqlfluff lint data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/ --dialect postgres
         continue-on-error: true  # Don't fail CI on lint warnings initially
 
   test-python:

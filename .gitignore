@@ -1,8 +1,9 @@
-pipeline_personal_finance/dbt_finance/logs
-pipeline_personal_finance/dbt_finance/dbt_packages
-pipeline_personal_finance/dbt_finance/target
-pipeline_personal_finance/qif_files
-postgres
+data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/logs
+data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/dbt_packages
+data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/target
+data_projects/qif_personal_finance/pipeline_personal_finance/qif_files
+platform/postgres/personal_finance
+coles-llm-shopper/
 __pycache__
 tmp
 /tmp*
@@ -27,24 +28,24 @@ schedules.db
 !.env.template
 .env.worktree.auto
 .env.worktree.auto.*
-!pipeline_personal_finance/dbt_finance/macros
+!data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/macros
 .venv
 *.log*
 *.log.1
 # Allow minimal seed stubs while keeping other CSVs ignored
-!pipeline_personal_finance/dbt_finance/seeds/known_values.csv
-!pipeline_personal_finance/dbt_finance/seeds/banking_categories.csv
-!pipeline_personal_finance/dbt_finance/seeds/categories_allowed.csv
-!pipeline_personal_finance/dbt_finance/seeds/property_assets.csv
-!pipeline_personal_finance/dbt_finance/seeds/property_valuation_overrides.csv
-!pipeline_personal_finance/dbt_finance/seeds/mortgage_patch_data.csv
-!pipeline_personal_finance/dbt_finance/seeds/recommendation_outcomes.csv
-pipeline_personal_finance/dbt_finance/seeds/known_values.csv
-pipeline_personal_finance/dbt_finance/seeds/mortgage_patch_data.csv
-pipeline_personal_finance/dbt_finance/seeds/property_assets.csv
-pipeline_personal_finance/dbt_finance/seeds/property_valuation_overrides.csv
-pipeline_personal_finance/dbt_finance/seeds/recommendation_outcomes.csv
-!pipeline_personal_finance/dbt_finance/seeds/*.template.csv
+!data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/known_values.csv
+!data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/banking_categories.csv
+!data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/categories_allowed.csv
+!data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/property_assets.csv
+!data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/property_valuation_overrides.csv
+!data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/mortgage_patch_data.csv
+!data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/recommendation_outcomes.csv
+data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/known_values.csv
+data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/mortgage_patch_data.csv
+data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/property_assets.csv
+data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/property_valuation_overrides.csv
+data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/recommendation_outcomes.csv
+!data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/*.template.csv
 
 # Local development artifacts (not source of truth)
 artifacts/

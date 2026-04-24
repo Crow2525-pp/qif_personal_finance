@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const dashDir = 'grafana/provisioning/dashboards';
+const dashDir = 'platform/grafana/provisioning/dashboards';
 const BSLASH_N = '\x5Cn';
 
 const files = fs.readdirSync(dashDir).filter(f => f.endsWith('.json'));

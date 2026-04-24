@@ -7,7 +7,7 @@ Branch: feat/task-50-postgres-duckdb-drift
 Define and implement one reliable local verification path that mirrors production intent despite SQL dialect differences.
 
 ## Scope
-grafana/provisioning/dashboards/*.json; grafana/provisioning_local/datasources/duckdb.yml; pipeline_personal_finance/dbt_finance/LOCAL_DEV.md
+platform/grafana/provisioning/dashboards/*.json; platform/grafana/provisioning_local/datasources/duckdb.yml; data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/LOCAL_DEV.md
 
 ## PR-Sized Deliverables
 1. Implement the core change set for this task only (no cross-task coupling).

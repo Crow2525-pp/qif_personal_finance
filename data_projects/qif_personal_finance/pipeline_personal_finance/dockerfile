@@ -22,9 +22,9 @@ WORKDIR ${DAGSTER_APP}
 
 COPY uv.lock uv.lock
 COPY pyproject.toml pyproject.toml
-COPY pipeline_personal_finance pipeline_personal_finance
+COPY data_projects/qif_personal_finance/pipeline_personal_finance data_projects/qif_personal_finance/pipeline_personal_finance
 COPY scripts scripts
-COPY grafana grafana
+COPY platform/grafana platform/grafana
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --package pipeline_personal_finance
@@ -34,7 +34,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 RUN playwright install --with-deps chromium
 
 # Set the working directory to dbt dir to build the script
-WORKDIR ${DAGSTER_APP}/pipeline_personal_finance/dbt_finance
+WORKDIR ${DAGSTER_APP}/data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance
 
 RUN uv pip list
 
@@ -50,7 +50,7 @@ WORKDIR ${DAGSTER_APP}
 
 RUN chmod -R +x ${DAGSTER_APP}
 
-ENTRYPOINT ["./pipeline_personal_finance/docker-entrypoint.sh"]
+ENTRYPOINT ["./data_projects/qif_personal_finance/pipeline_personal_finance/docker-entrypoint.sh"]
 
 # Command to run the Dagster gRPC server
 CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "pipeline_personal_finance"]

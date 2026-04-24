@@ -98,11 +98,11 @@ rebuild-clean: compose-env retire-legacy
 
 # SQL linting
 lint:
-	uv run sqlfluff lint pipeline_personal_finance/dbt_finance/models/
+	uv run sqlfluff lint data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/
 
 # SQL linting with auto-fix
 lint-fix:
-	uv run sqlfluff fix pipeline_personal_finance/dbt_finance/models/
+	uv run sqlfluff fix data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/
 
 # Open Dagster UI (works on macOS and Linux)
 dagster-ui:
@@ -139,10 +139,10 @@ ports: compose-env
 
 # dbt helpers (run from finance dbt dir)
 dbt-deps:
-	cd pipeline_personal_finance/dbt_finance && DBT_PROFILES_DIR=. dbt deps
+	cd data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance && DBT_PROFILES_DIR=. dbt deps
 
 dbt-compile:
-	cd pipeline_personal_finance/dbt_finance && DBT_PROFILES_DIR=. dbt compile
+	cd data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance && DBT_PROFILES_DIR=. dbt compile
 
 dbt-build:
 	@if [ "$(ALLOW_DIRECT_DBT)" != "1" ]; then \
@@ -151,7 +151,7 @@ dbt-build:
 		echo "Break-glass only: ALLOW_DIRECT_DBT=1 make dbt-build"; \
 		exit 1; \
 	fi
-	cd pipeline_personal_finance/dbt_finance && DBT_PROFILES_DIR=. dbt build
+	cd data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance && DBT_PROFILES_DIR=. dbt build
 
 dbt-test:
 	@if [ "$(ALLOW_DIRECT_DBT)" != "1" ]; then \
@@ -160,4 +160,4 @@ dbt-test:
 		echo "Break-glass only: ALLOW_DIRECT_DBT=1 make dbt-test"; \
 		exit 1; \
 	fi
-	cd pipeline_personal_finance/dbt_finance && DBT_PROFILES_DIR=. dbt test
+	cd data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance && DBT_PROFILES_DIR=. dbt test

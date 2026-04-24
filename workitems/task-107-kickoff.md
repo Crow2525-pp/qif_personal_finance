@@ -9,7 +9,7 @@ Refactor category spending panel logic so expected-use windows do not collapse t
 ## Required Reference Material
 - .claude/references/dashboard-llm-reference.md
 - scripts/check_grafana_dashboards.py
-- grafana/provisioning/dashboards/*.json
+- platform/grafana/provisioning/dashboards/*.json
 
 ## Evidence From Current State
 - Most category panels return HTTP 200 but zero rows.

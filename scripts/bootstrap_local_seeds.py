@@ -11,15 +11,15 @@ from pathlib import Path
 
 
 SEED_FILES = [
-    "pipeline_personal_finance/dbt_finance/seeds/known_values.csv",
-    "pipeline_personal_finance/dbt_finance/seeds/mortgage_patch_data.csv",
-    "pipeline_personal_finance/dbt_finance/seeds/property_assets.csv",
-    "pipeline_personal_finance/dbt_finance/seeds/property_valuation_overrides.csv",
-    "pipeline_personal_finance/dbt_finance/seeds/recommendation_outcomes.csv",
+    "data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/known_values.csv",
+    "data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/mortgage_patch_data.csv",
+    "data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/property_assets.csv",
+    "data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/property_valuation_overrides.csv",
+    "data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/recommendation_outcomes.csv",
 ]
 
-QIF_RELATIVE_DIR = "pipeline_personal_finance/qif_files"
-TEMPLATE_RELATIVE_DIR = "pipeline_personal_finance/dbt_finance/seed_templates"
+QIF_RELATIVE_DIR = "data_projects/qif_personal_finance/pipeline_personal_finance/qif_files"
+TEMPLATE_RELATIVE_DIR = "data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seed_templates"
 
 
 def sha256(path: Path) -> str:

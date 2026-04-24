@@ -53,7 +53,7 @@ This file logs what the agent accomplishes during each iteration:
 
 **Recommendation**: Check the Grafana datasource configuration and verify:
 1. PostgreSQL service is running
-2. Datasource credentials are correct in `grafana/provisioning/datasources/postgres.yml`
+2. Datasource credentials are correct in `platform/grafana/provisioning/datasources/postgres.yml`
 3. Database `personal_finance` exists with the required schemas (landing, staging, transformation, reporting)
 
 ---
@@ -91,8 +91,8 @@ This file logs what the agent accomplishes during each iteration:
    - Note: Grafana DuckDB plugin installation has compatibility issues with Grafana v12
 
 **Files modified**:
-- `pipeline_personal_finance/dbt_finance/models/marts/dim_accounts.sql`
-- `grafana/provisioning/datasources/postgres.yml`
+- `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/marts/dim_accounts.sql`
+- `platform/grafana/provisioning/datasources/postgres.yml`
 - `docker-compose.local.yml`
 
 **Screenshot**: `screenshots/grafana-datasource-fix-pending.png`
@@ -217,11 +217,11 @@ This file logs what the agent accomplishes during each iteration:
   - Statistical baseline metrics (12m avg, stddev, max, count)
 
 **Files verified**:
-- `/pipeline_personal_finance/dbt_finance/models/viz/transactions/viz_transaction_anomalies.sql`
-- `/pipeline_personal_finance/dbt_finance/models/viz/transactions/viz_transactions_needs_review_queue.sql`
-- `/pipeline_personal_finance/dbt_finance/models/viz/transactions/viz_transaction_filter_options.sql`
-- `/pipeline_personal_finance/dbt_finance/models/viz/transactions/schema.yml`
-- `/grafana/provisioning/dashboards/transaction-analysis-dashboard.json`
+- `/data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/viz/transactions/viz_transaction_anomalies.sql`
+- `/data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/viz/transactions/viz_transactions_needs_review_queue.sql`
+- `/data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/viz/transactions/viz_transaction_filter_options.sql`
+- `/data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/viz/transactions/schema.yml`
+- `/platform/grafana/provisioning/dashboards/transaction-analysis-dashboard.json`
 
 **Commit**: `d864a17` - "Implement transaction anomaly detection and review workflows"
 
@@ -268,10 +268,10 @@ This file logs what the agent accomplishes during each iteration:
 ✓ Add basket-size trend to spot price inflation or volume changes
 
 **Files Created/Modified**:
-- `pipeline_personal_finance/dbt_finance/models/viz/expenses/viz_amazon_order_context.sql` (84 lines)
-- `pipeline_personal_finance/dbt_finance/models/viz/groceries/viz_grocery_order_context.sql` (96 lines)
-- `grafana/provisioning/dashboards/amazon-spending-dashboard.json` (added 3 panels)
-- `grafana/provisioning/dashboards/grocery-spending-dashboard.json` (added 3 panels)
+- `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/viz/expenses/viz_amazon_order_context.sql` (84 lines)
+- `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/viz/groceries/viz_grocery_order_context.sql` (96 lines)
+- `platform/grafana/provisioning/dashboards/amazon-spending-dashboard.json` (added 3 panels)
+- `platform/grafana/provisioning/dashboards/grocery-spending-dashboard.json` (added 3 panels)
 
 **Commit**: `70b0ca8` - "Add order-level context to Amazon and Grocery dashboards"
 
@@ -316,18 +316,18 @@ This file logs what the agent accomplishes during each iteration:
    - Added schema documentation to schema.yml
 
 **Files Modified**:
-- `pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_emergency_fund_coverage.sql`
-- `pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_family_essentials.sql`
-- `pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_household_net_worth.sql`
-- `pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_monthly_budget_summary.sql`
-- `pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_outflows_insights_dashboard.sql`
-- `pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_weekly_spending_pace.sql`
-- `pipeline_personal_finance/dbt_finance/models/reporting/budget/schema.yml`
-- `pipeline_personal_finance/dbt_finance/models/viz/expenses/viz_uncategorized_transactions_with_original_memo.sql`
-- `grafana/provisioning/dashboards/executive-dashboard.json`
+- `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_emergency_fund_coverage.sql`
+- `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_family_essentials.sql`
+- `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_household_net_worth.sql`
+- `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_monthly_budget_summary.sql`
+- `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_outflows_insights_dashboard.sql`
+- `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_weekly_spending_pace.sql`
+- `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/reporting/budget/schema.yml`
+- `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/viz/expenses/viz_uncategorized_transactions_with_original_memo.sql`
+- `platform/grafana/provisioning/dashboards/executive-dashboard.json`
 
 **Files Created**:
-- `pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_mom_cash_flow_waterfall.sql`
+- `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/reporting/budget/rpt_mom_cash_flow_waterfall.sql`
 
 **Commit**: `6a4646c` - "feat: Complete dashboard fixes for tasks 21-30"
 

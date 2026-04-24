@@ -30,7 +30,7 @@ preferred over sophistication.
 
 All four dashboards listed below are part of the standard quarterly
 review. They are provisioned from JSON in
-`grafana/provisioning/dashboards/`.
+`platform/grafana/provisioning/dashboards/`.
 
 | Dashboard | What it surfaces |
 |---|---|

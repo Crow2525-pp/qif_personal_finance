@@ -36,7 +36,11 @@ import check_reporting_data_quality as dq  # noqa: E402
 
 _RUN_TIMEOUT_SPEC = importlib.util.spec_from_file_location(
     "run_timeout",
-    REPO_ROOT / "pipeline_personal_finance" / "run_timeout.py",
+    REPO_ROOT
+    / "data_projects"
+    / "qif_personal_finance"
+    / "pipeline_personal_finance"
+    / "run_timeout.py",
 )
 run_timeout = importlib.util.module_from_spec(_RUN_TIMEOUT_SPEC)
 assert _RUN_TIMEOUT_SPEC.loader is not None

@@ -9,7 +9,7 @@ Re-establish the reporting contract needed by executive-related dashboards by re
 ## Required Reference Material
 - .claude/references/dashboard-llm-reference.md
 - scripts/check_grafana_dashboards.py
-- grafana/provisioning/dashboards/*.json
+- platform/grafana/provisioning/dashboards/*.json
 
 ## Evidence From Current State
 - Panel errors include relation reporting.rpt_executive_dashboard does not exist.

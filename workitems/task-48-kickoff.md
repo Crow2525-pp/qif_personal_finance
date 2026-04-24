@@ -7,7 +7,7 @@ Branch: feat/task-48-unit-sign-standardization
 Define and enforce consistent currency/percent/sign contracts across desktop and mobile dashboards.
 
 ## Scope
-grafana/provisioning/dashboards/*.json; grafana/provisioning/dashboards/README.md
+platform/grafana/provisioning/dashboards/*.json; platform/grafana/provisioning/dashboards/README.md
 
 ## PR-Sized Deliverables
 1. Implement the core change set for this task only (no cross-task coupling).
