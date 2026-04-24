@@ -8,10 +8,12 @@ from dagster_dbt import DbtCliResource
 
 _logger = logging.getLogger(__name__)
 
+PACKAGE_ROOT = Path(__file__).resolve().parent
+REPO_ROOT = PACKAGE_ROOT.parent
 # Keep dbt resolution pinned to the dbt project directory itself.
-DBT_PROJECT_DIR = Path(__file__).resolve().parent / "dbt_finance"
+DBT_PROJECT_DIR = PACKAGE_ROOT / "dbt_finance"
 DBT_TARGET_DIR = DBT_PROJECT_DIR / "target"
-QIF_FILES = "data_projects/qif_personal_finance/pipeline_personal_finance/qif_files"
+QIF_FILES = PACKAGE_ROOT / "qif_files"
 SEED_DIR = DBT_PROJECT_DIR / "seeds"
 SEED_TEMPLATE_DIR = DBT_PROJECT_DIR / "seed_templates"
 PRIVATE_SEED_NAMES = (

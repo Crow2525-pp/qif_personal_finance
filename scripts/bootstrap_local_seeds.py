@@ -54,6 +54,15 @@ def copy_if_missing(source: Path, destination: Path) -> bool:
     return True
 
 
+def iter_qif_files(directory: Path) -> list[Path]:
+    if not directory.exists():
+        return []
+
+    return sorted(
+        path for path in directory.iterdir() if path.is_file() and path.suffix.lower() == ".qif"
+    )
+
+
 def materialize(shared_path: Path, target_path: Path, mode: str) -> str:
     ensure_parent(target_path)
     if target_path.exists():
@@ -106,16 +115,17 @@ def bootstrap_qif_files(repo_root: Path, shared_dir: Path, mode: str) -> list[st
     target_dir = repo_root / QIF_RELATIVE_DIR
     target_dir.mkdir(parents=True, exist_ok=True)
 
-    for target_path in sorted(target_dir.glob("*.qif")):
+    for target_path in iter_qif_files(target_dir):
         shared_path = shared_dir / target_path.name
         if copy_if_missing(target_path, shared_path):
             messages.append(f"Imported existing local QIF into shared store: {shared_path}")
 
-    for shared_path in sorted(shared_dir.glob("*.qif")):
+    shared_qif_files = iter_qif_files(shared_dir)
+    for shared_path in shared_qif_files:
         action = materialize(shared_path, target_dir / shared_path.name, mode)
         messages.append(f"{action}: {target_dir / shared_path.name}")
 
-    if not list(shared_dir.glob("*.qif")):
+    if not shared_qif_files:
         messages.append(f"No shared QIF files found in {shared_dir}")
 
     return messages

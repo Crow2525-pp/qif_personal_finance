@@ -20,7 +20,7 @@ from .constants import dbt_manifest_path, QIF_FILES
 from .qif_ingestion import (
     add_filename_data_to_dataframe,
     assert_unique_primary_keys,
-    sort_qif_files,
+    discover_qif_files,
     union_unique,
 )
 from .resources import SqlAlchemyClientResource
@@ -215,7 +215,7 @@ def upload_dataframe_to_database(
     context: AssetExecutionContext, personal_finance_database: SqlAlchemyClientResource
 ):
     qif_filepath = Path(QIF_FILES)
-    qif_files = sort_qif_files(qif_filepath.glob("*.qif"))
+    qif_files = discover_qif_files(qif_filepath)
 
     grouped_dataframes = {}
 

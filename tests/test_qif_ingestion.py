@@ -8,6 +8,7 @@ import pytest
 from pipeline_personal_finance.qif_ingestion import (
     add_filename_data_to_dataframe,
     assert_unique_primary_keys,
+    discover_qif_files,
     parse_qif_filename,
     sort_qif_files,
     union_unique,
@@ -70,6 +71,36 @@ def test_sort_qif_files_orders_by_extract_date_then_name():
         "Adelaide_Homeloan_Transactions_20260419.qif",
         "Adelaide_Offset_Transactions_20260419.qif",
         "ING_Countdown_Transactions_20260422.qif",
+    ]
+
+
+def test_discover_qif_files_includes_mixed_case_extensions(tmp_path: Path):
+    for name in [
+        "ING_Countdown_Transactions_20260422.QIF",
+        "Adelaide_Homeloan_Transactions_20260419.qIf",
+        "notes.txt",
+    ]:
+        (tmp_path / name).write_text("test", encoding="utf-8")
+
+    discovered = discover_qif_files(tmp_path)
+
+    assert [path.name for path in discovered] == [
+        "Adelaide_Homeloan_Transactions_20260419.qIf",
+        "ING_Countdown_Transactions_20260422.QIF",
+    ]
+
+def test_discover_qif_files_skips_non_parseable_qif_names(tmp_path: Path):
+    for name in [
+        "ING_Countdown_Transactions_20260422.QIF",
+        "README.QIF",
+        "draft.qif",
+    ]:
+        (tmp_path / name).write_text("test", encoding="utf-8")
+
+    discovered = discover_qif_files(tmp_path)
+
+    assert [path.name for path in discovered] == [
+        "ING_Countdown_Transactions_20260422.QIF",
     ]
 
 

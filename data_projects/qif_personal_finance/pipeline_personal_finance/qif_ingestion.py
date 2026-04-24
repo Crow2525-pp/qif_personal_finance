@@ -58,6 +58,10 @@ def add_filename_data_to_dataframe(filename: str, dataframe: pd.DataFrame) -> pd
     return dataframe
 
 
+def is_qif_file(path: str | Path) -> bool:
+    return Path(path).suffix.lower() == ".qif"
+
+
 def sort_qif_files(files: Iterable[Path]) -> list[Path]:
     return sorted(
         files,
@@ -66,6 +70,23 @@ def sort_qif_files(files: Iterable[Path]) -> list[Path]:
             file_path.name.lower(),
         ),
     )
+
+
+def discover_qif_files(directory: Path) -> list[Path]:
+    if not directory.exists():
+        return []
+
+    candidates: list[Path] = []
+    for path in directory.iterdir():
+        if not path.is_file() or not is_qif_file(path):
+            continue
+        try:
+            parse_qif_filename(path.name)
+        except ValueError:
+            continue
+        candidates.append(path)
+
+    return sort_qif_files(candidates)
 
 
 def union_unique(

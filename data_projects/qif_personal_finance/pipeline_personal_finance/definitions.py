@@ -1,5 +1,6 @@
 import hashlib
 import os
+from pathlib import Path
 
 from dagster import Definitions, EnvVar, define_asset_job, sensor, RunRequest, SkipReason
 from dotenv import load_dotenv
@@ -19,16 +20,17 @@ from .assets_dashboard_qa import dashboard_quality_gate
 from .postgres_readiness_gate import postgres_role_readiness_gate
 from .constants import QIF_FILES, build_dbt_resource
 from .run_timeout import find_stale_runs, parse_timeout_hours
+from .qif_ingestion import discover_qif_files
 
 load_dotenv()
 
 
-def _qif_run_key(qif_directory: str, qif_files: list[str]) -> str:
+def _qif_run_key(qif_directory: Path, qif_files: list[str]) -> str:
     digest = hashlib.sha256()
     for filename in sorted(qif_files):
-        path = os.path.join(qif_directory, filename)
+        path = qif_directory / filename
         digest.update(filename.encode())
-        with open(path, "rb") as file_obj:
+        with path.open("rb") as file_obj:
             for chunk in iter(lambda: file_obj.read(1024 * 1024), b""):
                 digest.update(chunk)
     return f"qif_files_{digest.hexdigest()}"
@@ -82,17 +84,17 @@ def qif_file_sensor(context):
     Sensor that monitors the QIF files directory for new .qif files
     and triggers the pipeline when changes are detected.
     """
-    qif_directory = QIF_FILES
-    
-    if not os.path.exists(qif_directory):
+    qif_directory = Path(QIF_FILES)
+
+    if not qif_directory.exists():
         context.log.warning(f"QIF directory does not exist: {qif_directory}")
         return SkipReason(f"QIF directory does not exist: {qif_directory}")
-    
-    qif_files = [f for f in os.listdir(qif_directory) if f.endswith('.qif')]
-    
+
+    qif_files = [path.name for path in discover_qif_files(qif_directory)]
+
     if not qif_files:
         return SkipReason("No QIF files found in directory")
-    
+
     # Include file contents so replacing an existing QIF file triggers a new run.
     run_key = _qif_run_key(qif_directory, qif_files)
     
