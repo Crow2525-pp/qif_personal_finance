@@ -30,6 +30,7 @@ services:
       - /tmp/io_manager_storage:/tmp/io_manager_storage
     networks:
       - dagster_network
+      - reverse_proxy
     depends_on:
       dagster_postgres:
         condition: service_healthy
@@ -228,3 +229,6 @@ volumes:
 networks:
   dagster_network:
     driver: bridge
+  reverse_proxy:
+    external: true
+    name: reverse_proxy
