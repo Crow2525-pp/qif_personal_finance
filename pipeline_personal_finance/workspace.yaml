@@ -1,0 +1,17 @@
+# Dagster workspace for local development of this code location only.
+#
+# Use from this directory:
+#   uv sync --group dev
+#   uv run dbt deps --project-dir dbt_finance
+#   uv run dbt parse --project-dir dbt_finance
+#   uv run dagster dev
+#
+# Production discovery still happens through the shared Dagster instance in
+# `dagster_core/workspace.yaml`, where this project is loaded as a gRPC code
+# location.
+
+load_from:
+  - python_package:
+      package_name: pipeline_personal_finance
+      attribute: defs
+      working_directory: .

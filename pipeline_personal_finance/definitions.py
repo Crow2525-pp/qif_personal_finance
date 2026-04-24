@@ -2,7 +2,6 @@ import hashlib
 import os
 
 from dagster import Definitions, EnvVar, define_asset_job, sensor, RunRequest, SkipReason
-from dagster_dbt import DbtCliResource
 from dotenv import load_dotenv
 
 from .resources import SqlAlchemyClientResource
@@ -18,7 +17,7 @@ from .dashboard_policy_gate import (
 )
 from .assets_dashboard_qa import dashboard_quality_gate
 from .postgres_readiness_gate import postgres_role_readiness_gate
-from .constants import DBT_PROJECT_DIR, QIF_FILES
+from .constants import QIF_FILES, build_dbt_resource
 from .run_timeout import find_stale_runs, parse_timeout_hours
 
 load_dotenv()
@@ -62,7 +61,7 @@ resources = {
             port=int(os.getenv("DAGSTER_POSTGRES_PORT", "5432")),
             database=EnvVar("DAGSTER_POSTGRES_DB"),
         ),
-        "dbt": DbtCliResource(project_dir=os.fspath(DBT_PROJECT_DIR)),
+        "dbt": build_dbt_resource(),
     },
     "prod": {
         "personal_finance_database": SqlAlchemyClientResource(
@@ -73,7 +72,7 @@ resources = {
             port=int(os.getenv("DAGSTER_POSTGRES_PORT", "5432")),
             database=EnvVar("DAGSTER_POSTGRES_DB"),
         ),
-        "dbt": DbtCliResource(project_dir=os.fspath(DBT_PROJECT_DIR)),
+        "dbt": build_dbt_resource(),
     },
 }
 

@@ -1,7 +1,11 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "pipeline-personal-finance"
 version = "0.1.0"
-description = "Add your description here"
+description = "Dagster code location for personal finance QIF ingestion, dbt transformations, and dashboard QA."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -19,5 +23,29 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "pytest>=9.0.2",
     "sqlfluff>=3.3.0",
+    "sqlfluff-templater-dbt>=3.3.0",
 ]
+
+[tool.setuptools]
+package-dir = { "pipeline_personal_finance" = "." }
+packages = ["pipeline_personal_finance"]
+
+[tool.setuptools.package-data]
+pipeline_personal_finance = [
+    "dbt_finance/**/*.sql",
+    "dbt_finance/**/*.yml",
+    "dbt_finance/**/*.yaml",
+    "dbt_finance/**/*.csv",
+    "dbt_finance/**/*.md",
+    "dbt_finance/packages.yml",
+    "dbt_finance/profiles.yml",
+    "dbt_finance/package-lock.yml",
+    "dbt_finance/.sqlfluff",
+    "dbt_finance/.sqlfluffignore",
+    "docker-entrypoint.sh",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["../tests"]
