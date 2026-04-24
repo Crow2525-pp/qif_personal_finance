@@ -89,6 +89,20 @@ def test_discover_qif_files_includes_mixed_case_extensions(tmp_path: Path):
         "ING_Countdown_Transactions_20260422.QIF",
     ]
 
+def test_discover_qif_files_skips_non_parseable_qif_names(tmp_path: Path):
+    for name in [
+        "ING_Countdown_Transactions_20260422.QIF",
+        "README.QIF",
+        "draft.qif",
+    ]:
+        (tmp_path / name).write_text("test", encoding="utf-8")
+
+    discovered = discover_qif_files(tmp_path)
+
+    assert [path.name for path in discovered] == [
+        "ING_Countdown_Transactions_20260422.QIF",
+    ]
+
 
 def test_union_unique_prefers_latest_extract_for_duplicate_primary_key():
     earlier = pd.DataFrame(

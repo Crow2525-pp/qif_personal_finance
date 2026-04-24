@@ -76,11 +76,17 @@ def discover_qif_files(directory: Path) -> list[Path]:
     if not directory.exists():
         return []
 
-    return sort_qif_files(
-        path
-        for path in directory.iterdir()
-        if path.is_file() and is_qif_file(path)
-    )
+    candidates: list[Path] = []
+    for path in directory.iterdir():
+        if not path.is_file() or not is_qif_file(path):
+            continue
+        try:
+            parse_qif_filename(path.name)
+        except ValueError:
+            continue
+        candidates.append(path)
+
+    return sort_qif_files(candidates)
 
 
 def union_unique(
