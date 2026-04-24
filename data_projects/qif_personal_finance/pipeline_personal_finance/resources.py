@@ -1,4 +1,4 @@
-# pipeline_personal_finance/resources.py
+# data_projects/qif_personal_finance/pipeline_personal_finance/resources.py
 
 import sqlalchemy
 from dagster import ConfigurableResource, EnvVar

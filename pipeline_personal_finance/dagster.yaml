@@ -1,6 +1,0 @@
-# Dagster instance config for local development only.
-#
-# Production uses the shared instance config in `dagster_core/dagster.yaml`.
-
-telemetry:
-  enabled: false

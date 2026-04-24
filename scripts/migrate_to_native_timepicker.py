@@ -11,7 +11,7 @@ import re
 import sys
 from pathlib import Path
 
-DASHBOARD_DIR = Path("grafana/provisioning/dashboards")
+DASHBOARD_DIR = Path("platform/grafana/provisioning/dashboards")
 
 # --- Quick ranges presets by archetype ---
 

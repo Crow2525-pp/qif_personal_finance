@@ -477,7 +477,7 @@ def fix_panel_sql(sql: str, title: str, uid: str) -> tuple[str, str]:
     return add_timeto_comment(sql), "comment_fallback"
 
 
-DASHBOARD_DIR = Path("grafana/provisioning/dashboards")
+DASHBOARD_DIR = Path("platform/grafana/provisioning/dashboards")
 
 
 def process_panel(panel: dict, uid: str, fixed_count: list, prefix: str = "") -> None:

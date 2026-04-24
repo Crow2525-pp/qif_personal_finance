@@ -2,7 +2,7 @@
 
 This folder is mounted into Grafana so dashboards auto-load from versioned JSON, not from manual UI exports.
 
-- `docker-compose.yml` mounts `./grafana/provisioning` to `/etc/grafana/provisioning`.
+- `docker-compose.yml` mounts `./platform/grafana/provisioning` to `/etc/grafana/provisioning`.
 - That provisioning includes the default PostgreSQL datasource plus the optional DuckDB datasource used for local UI checks.
 - Grafana provider (`dashboards.yml`) scans all `*.json` here every ~10 seconds; placing a file makes it available without additional config.
 

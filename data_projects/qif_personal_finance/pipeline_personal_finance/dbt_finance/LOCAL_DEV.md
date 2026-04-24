@@ -13,7 +13,7 @@ production data and all Grafana panels).
 
 The Grafana instance at `http://localhost:3001` is the single authoritative local
 verification target. It connects directly to the production PostgreSQL database at
-`192.168.1.103:5432` (see `grafana/provisioning/datasources/postgres.yml`). This
+`192.168.1.103:5432` (see `platform/grafana/provisioning/datasources/postgres.yml`). This
 means every panel you see locally renders exactly the same SQL that runs in
 production — there is no dialect gap.
 
@@ -73,14 +73,14 @@ The default `profiles.yml` at the repo root targets production PostgreSQL
 
 ```bash
 # Uses profiles.yml --target prod (the default)
-uv run dbt run --project-dir pipeline_personal_finance/dbt_finance
-uv run dbt test --project-dir pipeline_personal_finance/dbt_finance
+uv run dbt run --project-dir data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance
+uv run dbt test --project-dir data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance
 ```
 
 To run a single model:
 ```bash
 uv run dbt run \
-  --project-dir pipeline_personal_finance/dbt_finance \
+  --project-dir data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance \
   --select rpt_executive_dashboard
 ```
 
@@ -181,32 +181,32 @@ python -m pip install dbt-duckdb
 ### Configure the DuckDB profile
 
 ```powershell
-$env:DBT_PROFILES_DIR = "pipeline_personal_finance/dbt_finance/local_profiles"
+$env:DBT_PROFILES_DIR = "data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/local_profiles"
 # Optionally override the database file location:
-$env:DUCKDB_PATH = "pipeline_personal_finance/dbt_finance/duckdb/personal_finance.duckdb"
+$env:DUCKDB_PATH = "data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/duckdb/personal_finance.duckdb"
 ```
 
-The profile is at `pipeline_personal_finance/dbt_finance/local_profiles/profiles.yml`
+The profile is at `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/local_profiles/profiles.yml`
 and targets `local_duckdb`.
 
 ### Generate synthetic seed data
 
 ```bash
-python pipeline_personal_finance/dbt_finance/scripts/generate_synthetic_data.py --months 24
+python data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/scripts/generate_synthetic_data.py --months 24
 ```
 
-Synthetic CSVs land in `pipeline_personal_finance/dbt_finance/seeds/local/` which is
+Synthetic CSVs land in `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/local/` which is
 gitignored.
 
 ### Private household seed files across worktrees
 
 The following CSVs are treated as private local data and are not committed:
 
-- `pipeline_personal_finance/dbt_finance/seeds/known_values.csv`
-- `pipeline_personal_finance/dbt_finance/seeds/mortgage_patch_data.csv`
-- `pipeline_personal_finance/dbt_finance/seeds/property_assets.csv`
-- `pipeline_personal_finance/dbt_finance/seeds/property_valuation_overrides.csv`
-- `pipeline_personal_finance/dbt_finance/seeds/recommendation_outcomes.csv`
+- `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/known_values.csv`
+- `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/mortgage_patch_data.csv`
+- `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/property_assets.csv`
+- `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/property_valuation_overrides.csv`
+- `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/recommendation_outcomes.csv`
 
 Bootstrap them into any checkout or worktree with:
 
@@ -220,7 +220,7 @@ it imports your current local CSVs into that shared store. On later runs in new
 worktrees, it recreates the worktree copies from the shared store automatically.
 
 The same bootstrap command also mirrors local QIF inputs from
-`pipeline_personal_finance/qif_files` using `~/.qif_personal_finance/shared_qif_files`
+`data_projects/qif_personal_finance/pipeline_personal_finance/qif_files` using `~/.qif_personal_finance/shared_qif_files`
 by default, or `QIF_SHARED_QIF_DIR` if set.
 
 If you want both the Compose port overrides and the private seed files set up in one
@@ -233,16 +233,16 @@ make bootstrap-worktree
 ### Run dbt (DuckDB)
 
 ```bash
-python -m dbt deps  --project-dir pipeline_personal_finance/dbt_finance
-python -m dbt seed  --project-dir pipeline_personal_finance/dbt_finance
-python -m dbt run   --project-dir pipeline_personal_finance/dbt_finance
-python -m dbt test  --project-dir pipeline_personal_finance/dbt_finance
+python -m dbt deps  --project-dir data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance
+python -m dbt seed  --project-dir data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance
+python -m dbt run   --project-dir data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance
+python -m dbt test  --project-dir data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance
 ```
 
 Or use the PowerShell helper:
 
 ```powershell
-powershell -File pipeline_personal_finance/dbt_finance/scripts/run_local_validation.ps1
+powershell -File data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/scripts/run_local_validation.ps1
 ```
 
 ### CLI dashboard SQL smoke test (DuckDB only)
@@ -251,8 +251,8 @@ This script executes raw dashboard SQL directly against the DuckDB file. It is a
 dialect-compatibility smoke test only — it does not verify Grafana rendering:
 
 ```bash
-python pipeline_personal_finance/dbt_finance/scripts/validate_grafana_dashboards.py
-python pipeline_personal_finance/dbt_finance/scripts/validate_grafana_dashboards.py --require-nonempty
+python data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/scripts/validate_grafana_dashboards.py
+python data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/scripts/validate_grafana_dashboards.py --require-nonempty
 ```
 
 Template variable substitutions applied during the run:
@@ -269,14 +269,14 @@ and is only for DuckDB-path UI testing:
 docker compose up grafana -d
 ```
 
-Datasource config: `grafana/provisioning/datasources/duckdb.yml`
+Datasource config: `platform/grafana/provisioning/datasources/duckdb.yml`
 Database path inside container: `/var/lib/grafana/duckdb/personal_finance.duckdb`
 
 ---
 
 ## Known Dialect Drift: Dashboard JSON
 
-All dashboard JSON files in `grafana/provisioning/dashboards/` contain pure
+All dashboard JSON files in `platform/grafana/provisioning/dashboards/` contain pure
 PostgreSQL SQL. No DuckDB-specific syntax (`strftime`, `LIST_AGG`, `EPOCH`,
 `list_filter`, `UNNEST(range(...))`) was found in any dashboard JSON as of
 2026-02-21. The dialect guards exist only in the dbt Jinja layer.

@@ -161,8 +161,8 @@ uv run python scripts/categorize_transactions.py
 
 After running the tool:
 
-1. Review changes: `git diff pipeline_personal_finance/dbt_finance/seeds/local/banking_categories.csv`
-2. Run dbt to apply: `cd pipeline_personal_finance/dbt_finance && dbt run`
+1. Review changes: `git diff data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds/local/banking_categories.csv`
+2. Run dbt to apply: `cd data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance && dbt run`
 3. Verify in Grafana dashboards
 
 ### How It Works

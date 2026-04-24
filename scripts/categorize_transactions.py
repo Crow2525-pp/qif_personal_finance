@@ -38,7 +38,15 @@ except ImportError:
     sys.exit(1)
 
 # Paths
-SEEDS_DIR = PROJECT_ROOT / "pipeline_personal_finance" / "dbt_finance" / "seeds" / "local"
+SEEDS_DIR = (
+    PROJECT_ROOT
+    / "data_projects"
+    / "qif_personal_finance"
+    / "pipeline_personal_finance"
+    / "dbt_finance"
+    / "seeds"
+    / "local"
+)
 CATEGORIES_FILE = SEEDS_DIR / "banking_categories.csv"
 ALLOWED_CATEGORIES_FILE = SEEDS_DIR / "categories_allowed.csv"
 
@@ -567,7 +575,7 @@ def main():
             print(f"  {CATEGORIES_FILE}")
             print(f"\n  Next steps:")
             print(f"  1. Review changes: git diff {CATEGORIES_FILE.relative_to(PROJECT_ROOT)}")
-            print(f"  2. Run dbt: cd pipeline_personal_finance/dbt_finance && dbt run")
+            print(f"  2. Run dbt: cd data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance && dbt run")
             print(f"  3. Verify in Grafana dashboards")
     else:
         print("\n  No changes made.")

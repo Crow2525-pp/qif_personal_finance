@@ -6,11 +6,11 @@ Last updated: 2026-02-21
 Make family-finance dashboards easy for parents to understand and act on without technical context.
 
 ## Source Of Truth
-- Dashboard JSON: `grafana/provisioning/dashboards/*.json`
+- Dashboard JSON: `platform/grafana/provisioning/dashboards/*.json`
 - Dashboard linter/checker: `scripts/check_grafana_dashboards.py`
-- Dashboard docs: `grafana/provisioning/dashboards/README.md`
-- dbt reporting models: `pipeline_personal_finance/dbt_finance/models/reporting/**/*.sql`
-- dbt tests: `pipeline_personal_finance/dbt_finance/tests/*.sql`
+- Dashboard docs: `platform/grafana/provisioning/dashboards/README.md`
+- dbt reporting models: `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/models/reporting/**/*.sql`
+- dbt tests: `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/tests/*.sql`
 
 ## Findings From Live Review (Playwright + Grafana API)
 - Runtime review completed on 2026-02-21 against `http://localhost:3001`.
@@ -28,8 +28,8 @@ Make family-finance dashboards easy for parents to understand and act on without
   - missing columns: `bendigo_offset`, `bendigo_offset_MoM`, `inflow_excl_transfers`
   - type issue: `function make_date(bigint, bigint, integer) does not exist`
 - Static lint parse errors:
-  - `grafana/provisioning/dashboards/outflows-insights-dashboard.json`
-  - `grafana/provisioning/dashboards/transaction-analysis-dashboard.json`
+  - `platform/grafana/provisioning/dashboards/outflows-insights-dashboard.json`
+  - `platform/grafana/provisioning/dashboards/transaction-analysis-dashboard.json`
 - Content/UX findings:
   - non-ASCII/emoji dashboard titles exist in mobile suite
   - markdown-heavy instruction panels (headers, bold, file-path references)

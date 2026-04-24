@@ -133,12 +133,12 @@ After fixes were applied, all 6 mobile dashboards report `0 parity warnings`.
 ## Changes Committed
 
 **Files modified:**
-- `grafana/provisioning/dashboards/01-executive-overview-mobile.json` — 5 panels: unit fix
-- `grafana/provisioning/dashboards/02-cash-flow-budget-mobile.json` — 5 panels: unit fix, savings rate threshold alignment
-- `grafana/provisioning/dashboards/03-spending-categories-mobile.json` — 9 panels: unit fix
-- `grafana/provisioning/dashboards/04-assets-networth-mobile.json` — 6 panels: unit fix
-- `grafana/provisioning/dashboards/05-savings-performance-mobile.json` — 5 panels: unit + threshold fixes (savings health score)
-- `grafana/provisioning/dashboards/06-projections-analysis-mobile.json` — 5 panels: unit fix
+- `platform/grafana/provisioning/dashboards/01-executive-overview-mobile.json` — 5 panels: unit fix
+- `platform/grafana/provisioning/dashboards/02-cash-flow-budget-mobile.json` — 5 panels: unit fix, savings rate threshold alignment
+- `platform/grafana/provisioning/dashboards/03-spending-categories-mobile.json` — 9 panels: unit fix
+- `platform/grafana/provisioning/dashboards/04-assets-networth-mobile.json` — 6 panels: unit fix
+- `platform/grafana/provisioning/dashboards/05-savings-performance-mobile.json` — 5 panels: unit + threshold fixes (savings health score)
+- `platform/grafana/provisioning/dashboards/06-projections-analysis-mobile.json` — 5 panels: unit fix
 - `scripts/check_grafana_dashboards.py` — Added `lint_mobile_parity()`, `--no-parity` flag, parity warning output
 
 **All 6 dashboards pushed to Grafana API (localhost:3001) and confirmed accepted (HTTP 200).**

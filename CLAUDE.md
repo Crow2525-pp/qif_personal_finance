@@ -7,17 +7,17 @@ This is the standing operating guide for Claude Code in this repository. Keep it
 - Purpose: monthly personal finance QIF ingestion, dbt transformations, and Grafana dashboards for household spend awareness.
 - Runtime: Docker Compose stack with Dagster, PostgreSQL, dbt, and Grafana.
 - Python/deps: `uv` workspace from the repo root.
-- Orchestration source: `dagster_core/` and `pipeline_personal_finance/`.
-- dbt source: `pipeline_personal_finance/dbt_finance/`.
-- Dashboard source of truth: `grafana/provisioning/dashboards/*.json`.
+- Orchestration source: `platform/dagster_core/` and `data_projects/qif_personal_finance/pipeline_personal_finance/`.
+- dbt source: `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/`.
+- Dashboard source of truth: `platform/grafana/provisioning/dashboards/*.json`.
 - Local/private data: `.env*`, QIF files, generated db/dbt artifacts, screenshots, and most CSVs must not be committed.
 
 ## Context Loading Rules
 
 - Start with this file, `README.md`, and the specific files needed for the task.
 - For pipeline or dashboard behavior, read `.claude/pipeline-context.md`.
-- For dashboard-specific work, read `.claude/references/dashboard-llm-reference.md` and `grafana/provisioning/dashboards/README.md`.
-- For dbt-only work, read `pipeline_personal_finance/dbt_finance/AGENTS.md`.
+- For dashboard-specific work, read `.claude/references/dashboard-llm-reference.md` and `platform/grafana/provisioning/dashboards/README.md`.
+- For dbt-only work, read `data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/AGENTS.md`.
 - For current Dagster, dbt, or Grafana API/docs questions, use Context7 instead of relying on model memory.
 - Do not bulk-read dashboard JSON, dbt models, or generated artifacts. Use `rg`/targeted file reads first.
 - Use subagents for broad grep, impact scans, or independent verification when available; keep the main context for decisions and edits.

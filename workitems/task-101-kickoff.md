@@ -9,7 +9,7 @@ Create a repeatable quality harness that runs lint, Grafana API checks, and Play
 ## Required Reference Material
 - .claude/references/dashboard-llm-reference.md
 - scripts/check_grafana_dashboards.py
-- grafana/provisioning/dashboards/*.json
+- platform/grafana/provisioning/dashboards/*.json
 
 ## Evidence From Current State
 - Dashboard quality checks are fragmented and manual today.
@@ -24,7 +24,7 @@ Create a repeatable quality harness that runs lint, Grafana API checks, and Play
 1. Implement scripts/dashboard_quality_gate.py orchestrating existing checker and Playwright review steps.
 2. Normalize failures by dashboard/panel/rule and write summary report.
 3. Add CLI targeting (--dashboards, --lint-only, --screenshots) and fail thresholds.
-4. Update docs in grafana/provisioning/dashboards/README.md.
+4. Update docs in platform/grafana/provisioning/dashboards/README.md.
 
 ## Validation
 1. python scripts/dashboard_quality_gate.py --help

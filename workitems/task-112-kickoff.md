@@ -9,7 +9,7 @@ Remove markdown artifacts, emojis, and file-path references from dashboard-facin
 ## Required Reference Material
 - .claude/references/dashboard-llm-reference.md
 - scripts/check_grafana_dashboards.py
-- grafana/provisioning/dashboards/*.json
+- platform/grafana/provisioning/dashboards/*.json
 
 ## Evidence From Current State
 - Text panels contain markdown headings/bullets and emoji-rich titles.

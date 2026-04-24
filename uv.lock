@@ -307,7 +307,7 @@ wheels = [
 [[package]]
 name = "dagster-core"
 version = "0.1.0"
-source = { virtual = "dagster_core" }
+source = { virtual = "platform/dagster_core" }
 dependencies = [
     { name = "dagster" },
     { name = "dagster-docker" },
@@ -1654,7 +1654,7 @@ wheels = [
 [[package]]
 name = "pipeline-personal-finance"
 version = "0.1.0"
-source = { editable = "pipeline_personal_finance" }
+source = { editable = "data_projects/qif_personal_finance/pipeline_personal_finance" }
 dependencies = [
     { name = "dagster" },
     { name = "dagster-dbt" },

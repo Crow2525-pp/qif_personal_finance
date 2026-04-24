@@ -6,9 +6,9 @@ if [ -n "${DAGSTER_HOME:-}" ]; then
 fi
 
 if [ -n "${DAGSTER_APP:-}" ]; then
-  SEED_DIR="${DAGSTER_APP}/pipeline_personal_finance/dbt_finance/seeds"
-  TEMPLATE_DIR="${DAGSTER_APP}/pipeline_personal_finance/dbt_finance/seed_templates"
-  QIF_DIR="${DAGSTER_APP}/pipeline_personal_finance/qif_files"
+  SEED_DIR="${DAGSTER_APP}/data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seeds"
+  TEMPLATE_DIR="${DAGSTER_APP}/data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/seed_templates"
+  QIF_DIR="${DAGSTER_APP}/data_projects/qif_personal_finance/pipeline_personal_finance/qif_files"
 
   mkdir -p "$SEED_DIR"
   mkdir -p "$QIF_DIR"

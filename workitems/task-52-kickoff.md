@@ -7,7 +7,7 @@ Branch: feat/task-52-global-filter-context
 Introduce shared template variables and preserve context through cross-dashboard navigation.
 
 ## Scope
-grafana/provisioning/dashboards/01-23; shared templating conventions in grafana/provisioning/dashboards/README.md
+platform/grafana/provisioning/dashboards/01-23; shared templating conventions in platform/grafana/provisioning/dashboards/README.md
 
 ## PR-Sized Deliverables
 1. Implement the core change set for this task only (no cross-task coupling).

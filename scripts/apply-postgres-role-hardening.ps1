@@ -12,7 +12,7 @@ if (-not $DagsterPassword) {
     exit 1
 }
 
-$sqlPath = "postgres/init/02-role-hardening.sql"
+$sqlPath = "platform/postgres/init/02-role-hardening.sql"
 if (-not (Test-Path $sqlPath)) {
     Write-Error "Hardening SQL file not found at $sqlPath"
     exit 1

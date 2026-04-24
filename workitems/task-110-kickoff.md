@@ -9,7 +9,7 @@ Standardize all core dashboards on native Grafana time picker and remove competi
 ## Required Reference Material
 - .claude/references/dashboard-llm-reference.md
 - scripts/check_grafana_dashboards.py
-- grafana/provisioning/dashboards/*.json
+- platform/grafana/provisioning/dashboards/*.json
 
 ## Evidence From Current State
 - Dashboards mix native picker with time_window and dashboard_period variables.

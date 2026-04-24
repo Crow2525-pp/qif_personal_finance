@@ -7,7 +7,7 @@ Branch: feat/task-55-desktop-mobile-kpi-parity
 Guarantee desktop and mobile KPI values/thresholds/labels stay in sync for the same period.
 
 ## Scope
-shared reporting KPI models; grafana/provisioning/dashboards/01-23; dbt parity tests
+shared reporting KPI models; platform/grafana/provisioning/dashboards/01-23; dbt parity tests
 
 ## PR-Sized Deliverables
 1. Implement the core change set for this task only (no cross-task coupling).

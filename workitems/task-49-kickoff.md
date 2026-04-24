@@ -7,7 +7,7 @@ Branch: feat/task-49-validator-ci-signal
 Produce deterministic, non-duplicated, machine-readable validation output suitable for CI gating.
 
 ## Scope
-pipeline_personal_finance/dbt_finance/scripts/validate_grafana_dashboards.py; scripts/check_grafana_dashboards.py; scripts/README.md
+data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/scripts/validate_grafana_dashboards.py; scripts/check_grafana_dashboards.py; scripts/README.md
 
 ## PR-Sized Deliverables
 1. Implement the core change set for this task only (no cross-task coupling).

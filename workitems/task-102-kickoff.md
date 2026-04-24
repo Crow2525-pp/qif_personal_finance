@@ -9,7 +9,7 @@ Repair malformed dashboard JSON files and enforce a guard so Grafana provisionin
 ## Required Reference Material
 - .claude/references/dashboard-llm-reference.md
 - scripts/check_grafana_dashboards.py
-- grafana/provisioning/dashboards/*.json
+- platform/grafana/provisioning/dashboards/*.json
 
 ## Evidence From Current State
 - Parse errors in outflows-insights-dashboard.json and transaction-analysis-dashboard.json.

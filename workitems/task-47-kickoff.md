@@ -7,7 +7,7 @@ Branch: feat/task-47-timepicker-semantics-truthful
 Ensure visible timepicker selection changes panel outputs unless explicitly marked fixed-latest.
 
 ## Scope
-grafana/provisioning/dashboards/*.json; scripts/check_grafana_dashboards.py
+platform/grafana/provisioning/dashboards/*.json; scripts/check_grafana_dashboards.py
 
 ## PR-Sized Deliverables
 1. Implement the core change set for this task only (no cross-task coupling).

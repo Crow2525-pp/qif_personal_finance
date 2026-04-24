@@ -98,6 +98,8 @@ def main() -> None:
     parser.add_argument(
         "--db-path",
         default=os.path.join(
+            "data_projects",
+            "qif_personal_finance",
             "pipeline_personal_finance",
             "dbt_finance",
             "duckdb",
@@ -107,7 +109,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--dashboards-dir",
-        default=os.path.join("grafana", "provisioning", "dashboards"),
+        default=os.path.join("platform", "grafana", "provisioning", "dashboards"),
         help="Grafana dashboards directory.",
     )
     parser.add_argument(

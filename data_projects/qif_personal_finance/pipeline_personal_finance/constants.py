@@ -11,7 +11,7 @@ _logger = logging.getLogger(__name__)
 # Keep dbt resolution pinned to the dbt project directory itself.
 DBT_PROJECT_DIR = Path(__file__).resolve().parent / "dbt_finance"
 DBT_TARGET_DIR = DBT_PROJECT_DIR / "target"
-QIF_FILES = "pipeline_personal_finance/qif_files"
+QIF_FILES = "data_projects/qif_personal_finance/pipeline_personal_finance/qif_files"
 SEED_DIR = DBT_PROJECT_DIR / "seeds"
 SEED_TEMPLATE_DIR = DBT_PROJECT_DIR / "seed_templates"
 PRIVATE_SEED_NAMES = (
@@ -81,7 +81,7 @@ def resolve_dbt_manifest_path(
             "dbt manifest not found at "
             f"{manifest_path} and dbt CLI is unavailable to regenerate it. "
             "Restore target/manifest.json, run `dbt deps`, "
-            "or run `uv run dbt parse --project-dir pipeline_personal_finance/dbt_finance`."
+            "or run `uv run dbt parse --project-dir data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance`."
         ) from exc
     except Exception as exc:
         raise RuntimeError(

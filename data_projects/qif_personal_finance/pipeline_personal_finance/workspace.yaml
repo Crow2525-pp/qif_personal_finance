@@ -7,7 +7,7 @@
 #   uv run dagster dev
 #
 # Production discovery still happens through the shared Dagster instance in
-# `dagster_core/workspace.yaml`, where this project is loaded as a gRPC code
+# `platform/dagster_core/workspace.yaml`, where this project is loaded as a gRPC code
 # location.
 
 load_from:

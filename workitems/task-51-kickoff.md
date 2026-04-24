@@ -7,7 +7,7 @@ Branch: feat/task-51-review-command-center
 Create a top-level dashboard that orchestrates the monthly review flow and links to each specialist dashboard with context.
 
 ## Scope
-new grafana/provisioning/dashboards/00-financial-review-command-center.json; deep-link integration with dashboards 01-23
+new platform/grafana/provisioning/dashboards/00-financial-review-command-center.json; deep-link integration with dashboards 01-23
 
 ## PR-Sized Deliverables
 1. Implement the core change set for this task only (no cross-task coupling).

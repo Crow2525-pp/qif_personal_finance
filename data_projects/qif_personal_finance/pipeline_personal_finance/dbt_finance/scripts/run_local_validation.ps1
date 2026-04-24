@@ -1,6 +1,6 @@
 param(
-    [string]$ProjectDir = "pipeline_personal_finance/dbt_finance",
-    [string]$ProfilesDir = "pipeline_personal_finance/dbt_finance/local_profiles"
+    [string]$ProjectDir = "data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance",
+    [string]$ProfilesDir = "data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/local_profiles"
 )
 
 $ErrorActionPreference = "Stop"

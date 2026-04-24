@@ -1,5 +1,5 @@
 const fs = require('fs');
-const fp = 'grafana/provisioning/dashboards/outflows-insights-dashboard.json';
+const fp = 'platform/grafana/provisioning/dashboards/outflows-insights-dashboard.json';
 
 let d;
 try {
