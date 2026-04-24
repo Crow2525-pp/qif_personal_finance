@@ -7,6 +7,7 @@ from unittest.mock import Mock
 import pytest
 
 from pipeline_personal_finance.constants import (
+    QIF_FILES,
     parse_project_on_load_enabled,
     resolve_dbt_manifest_path,
 )
@@ -17,6 +18,12 @@ def test_parse_project_on_load_enabled_truthy_and_falsey_values():
     assert parse_project_on_load_enabled("On") is True
     assert parse_project_on_load_enabled("0") is False
     assert parse_project_on_load_enabled("") is False
+
+
+def test_qif_files_path_is_absolute_and_repo_anchored():
+    assert QIF_FILES.is_absolute()
+    assert QIF_FILES.name == "qif_files"
+    assert QIF_FILES.parent.name == "pipeline_personal_finance"
 
 
 def test_resolve_dbt_manifest_path_uses_existing_manifest_without_parsing(

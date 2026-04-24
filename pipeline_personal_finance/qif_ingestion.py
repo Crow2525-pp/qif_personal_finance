@@ -58,6 +58,10 @@ def add_filename_data_to_dataframe(filename: str, dataframe: pd.DataFrame) -> pd
     return dataframe
 
 
+def is_qif_file(path: str | Path) -> bool:
+    return Path(path).suffix.lower() == ".qif"
+
+
 def sort_qif_files(files: Iterable[Path]) -> list[Path]:
     return sorted(
         files,
@@ -65,6 +69,17 @@ def sort_qif_files(files: Iterable[Path]) -> list[Path]:
             parse_qif_filename(file_path.name).extract_date,
             file_path.name.lower(),
         ),
+    )
+
+
+def discover_qif_files(directory: Path) -> list[Path]:
+    if not directory.exists():
+        return []
+
+    return sort_qif_files(
+        path
+        for path in directory.iterdir()
+        if path.is_file() and is_qif_file(path)
     )
 
 
