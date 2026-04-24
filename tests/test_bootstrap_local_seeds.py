@@ -5,7 +5,7 @@ from pathlib import Path
 from scripts.bootstrap_local_seeds import bootstrap_qif_files
 
 
-QIF_DIR = Path("pipeline_personal_finance/qif_files")
+QIF_DIR = Path("data_projects/qif_personal_finance/pipeline_personal_finance/qif_files")
 
 
 def test_bootstrap_qif_files_materializes_mixed_case_extensions(tmp_path: Path):
