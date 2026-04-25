@@ -49,8 +49,8 @@ def postgres_role_readiness_gate(context) -> Output[dict]:
 
     roles = set()
     tablefunc_installed = False
+    admin_engine = create_engine(admin_url)
     try:
-        admin_engine = create_engine(admin_url)
         with admin_engine.connect() as conn:
             roles = {
                 row[0]
@@ -70,6 +70,8 @@ def postgres_role_readiness_gate(context) -> Output[dict]:
             )
     except Exception as exc:
         raise Failure(f"Failed admin readiness checks: {exc}") from exc
+    finally:
+        admin_engine.dispose()
 
     missing_roles = []
     if dagster_user not in roles:
@@ -94,14 +96,16 @@ def postgres_role_readiness_gate(context) -> Output[dict]:
             metadata={"database": MetadataValue.text(database)},
         )
 
+    dagster_engine = create_engine(dagster_url)
     try:
-        dagster_engine = create_engine(dagster_url)
         with dagster_engine.connect() as conn:
             conn.execute(text("SELECT 1"))
     except Exception as exc:
         raise Failure(
             f"Dagster service role login failed for user '{dagster_user}': {exc}"
         ) from exc
+    finally:
+        dagster_engine.dispose()
 
     context.log.info("Postgres role readiness checks passed.")
     return Output(
