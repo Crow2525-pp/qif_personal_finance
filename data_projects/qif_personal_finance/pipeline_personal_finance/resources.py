@@ -34,12 +34,31 @@ class SqlAlchemyClientResource(ConfigurableResource):
         return sqlalchemy.create_engine(connection_string)
 
     def get_connection(self):
-        return self.create_engine().connect()
+        """Returns a connection that should be used in a context manager.
+
+        The engine will be disposed when the connection is closed.
+        """
+        engine = self.create_engine()
+        conn = engine.connect()
+        # Dispose engine when connection closes
+        original_close = conn.close
+
+        def close_with_dispose():
+            original_close()
+            engine.dispose()
+
+        conn.close = close_with_dispose
+        return conn
 
     def check_schema_exists(self, schema: str = "landing"):
-        # Ensure the schema exists
+        """Ensure the schema exists. Validates schema name to prevent injection."""
+        # Validate schema name to prevent injection
+        if not schema.replace("_", "").isalnum():
+            raise ValueError(f"Invalid schema name: {schema}")
+
+        # CREATE SCHEMA IF NOT EXISTS doesn't support parameterization, but we validated above
         create_schema_sql = f"CREATE SCHEMA IF NOT EXISTS {schema};"
-        verify_schema_sql = f"SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{schema}';"
+        verify_schema_sql = "SELECT schema_name FROM information_schema.schemata WHERE schema_name = :schema"
         check_db_sql = "SELECT current_database();"
 
         with self.get_connection() as conn:
@@ -50,7 +69,7 @@ class SqlAlchemyClientResource(ConfigurableResource):
             conn.execute(sqlalchemy.text(create_schema_sql))
             conn.commit()  # Commit the schema creation
 
-            result = conn.execute(sqlalchemy.text(verify_schema_sql)).fetchone()
+            result = conn.execute(sqlalchemy.text(verify_schema_sql), {"schema": schema}).fetchone()
             if not result:
                 raise RuntimeError(
                     f"Failed to create or verify the existence of schema '{schema}'."

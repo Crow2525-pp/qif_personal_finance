@@ -156,9 +156,16 @@ def verify_database_schema(
     personal_finance_database: SqlAlchemyClientResource,
     schema: str = "landing",
 ):
-    verify_schema_sql = f"SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{schema}';"
-    create_schema_sql = f"CREATE SCHEMA IF NOT EXISTS {schema};"
+    from sqlalchemy import inspect
+
+    # Validate schema name to prevent injection
+    if not schema.replace("_", "").isalnum():
+        raise ValueError(f"Invalid schema name: {schema}")
+
     check_db_sql = "SELECT current_database();"
+    verify_schema_sql = "SELECT schema_name FROM information_schema.schemata WHERE schema_name = :schema"
+    # CREATE SCHEMA IF NOT EXISTS doesn't support parameterization, but we validated above
+    create_schema_sql = f"CREATE SCHEMA IF NOT EXISTS {schema};"
 
     with personal_finance_database.get_connection() as conn:
         try:
@@ -169,8 +176,8 @@ def verify_database_schema(
             context.log.debug(f"Connected to database: {current_db}")
 
             # Check if Schema is in DB Information Schema
-            context.log.debug(f"Checking schema with: {verify_schema_sql}")
-            result = conn.execute(text(verify_schema_sql)).fetchone()
+            context.log.debug(f"Checking schema: {schema}")
+            result = conn.execute(text(verify_schema_sql), {"schema": schema}).fetchone()
             if result:
                 context.log.info(
                     f"Schema '{schema}' already exists. Skipping creation."
@@ -178,14 +185,14 @@ def verify_database_schema(
                 return
 
             # If not, then try and create it
-            context.log.info(f"Create if not exists schema with: {create_schema_sql}")
+            context.log.info(f"Creating schema if not exists: {schema}")
             conn.execute(text(create_schema_sql))
             conn.commit()
             context.log.debug("Schema creation committed.")
 
             # Check the information_schema to ensure it's there.
-            context.log.debug(f"Verifying schema with: {verify_schema_sql}")
-            result = conn.execute(text(verify_schema_sql)).fetchone()
+            context.log.debug(f"Verifying schema: {schema}")
+            result = conn.execute(text(verify_schema_sql), {"schema": schema}).fetchone()
             if not result:
                 raise RuntimeError(
                     f"Schema '{schema}' was not found in the database after creation."
