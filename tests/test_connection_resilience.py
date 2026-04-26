@@ -1,4 +1,5 @@
 """Tests for database connection resilience configuration."""
+from unittest.mock import patch
 from data_projects.qif_personal_finance.pipeline_personal_finance.resources import (
     SqlAlchemyClientResource,
 )
@@ -13,28 +14,34 @@ def test_engine_created_with_pool_settings():
         port=5432,
         database="test_db",
     )
-    
-    engine = resource.create_engine()
-    
-    # Verify the engine was created successfully
-    assert engine is not None, "Engine should be created"
-    
-    # Verify pool exists and has our settings
-    pool = engine.pool
-    assert pool is not None, "Pool should exist"
-    
-    # These are the settings we configured - verify they're applied
-    # pool_pre_ping is stored as _pre_ping in QueuePool
-    assert hasattr(pool, '_pre_ping'), "Pool should have _pre_ping attribute"
-    assert pool._pre_ping is True, "pool_pre_ping should be True"
-    
-    # Verify pool size settings
-    assert pool.size() == 5, "pool_size should be 5"
-    assert pool._max_overflow == 10, "max_overflow should be 10" 
-    assert pool._recycle == 3600, "pool_recycle should be 3600 seconds"
-    
-    # Clean up
-    engine.dispose()
+
+    # Mock the actual database connection since we just want to verify config
+    with patch('sqlalchemy.create_engine') as mock_create_engine:
+        mock_engine = mock_create_engine.return_value
+
+        # Set up mock pool with expected attributes
+        mock_pool = mock_create_engine.return_value.pool
+        mock_pool._pre_ping = True
+        mock_pool.size.return_value = 5
+        mock_pool._max_overflow = 10
+        mock_pool._recycle = 3600
+
+        engine = resource.create_engine()
+
+        # Verify create_engine was called with correct parameters
+        mock_create_engine.assert_called_once()
+        call_kwargs = mock_create_engine.call_args[1]
+
+        # Verify the connection settings were passed
+        assert call_kwargs['pool_pre_ping'] is True, "pool_pre_ping should be True"
+        assert call_kwargs['pool_size'] == 5, "pool_size should be 5"
+        assert call_kwargs['max_overflow'] == 10, "max_overflow should be 10"
+        assert call_kwargs['pool_recycle'] == 3600, "pool_recycle should be 3600"
+
+        # Verify connect_args has timeout settings
+        connect_args = call_kwargs['connect_args']
+        assert connect_args['connect_timeout'] == 10, "connect_timeout should be 10"
+        assert "-c statement_timeout=300000" in connect_args['options'], "statement_timeout should be set"
 
 
 def test_schema_name_validation():
