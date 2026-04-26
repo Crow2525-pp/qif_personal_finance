@@ -31,7 +31,20 @@ class SqlAlchemyClientResource(ConfigurableResource):
             database=_resolve_env(self.database),
         )
 
-        return sqlalchemy.create_engine(connection_string)
+        return sqlalchemy.create_engine(
+            connection_string,
+            # Enable connection health checks before use to detect stale connections
+            pool_pre_ping=True,
+            # Set connection and command timeouts to prevent indefinite hangs
+            connect_args={
+                "connect_timeout": 10,
+                "options": "-c statement_timeout=300000",  # 5 minutes in milliseconds
+            },
+            # Configure pool to handle transient connection issues gracefully
+            pool_size=5,
+            max_overflow=10,
+            pool_recycle=3600,  # Recycle connections after 1 hour
+        )
 
     def get_connection(self):
         """Returns a connection that should be used in a context manager.

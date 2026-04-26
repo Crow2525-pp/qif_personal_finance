@@ -49,7 +49,7 @@ def postgres_role_readiness_gate(context) -> Output[dict]:
 
     roles = set()
     tablefunc_installed = False
-    admin_engine = create_engine(admin_url)
+    admin_engine = create_engine(admin_url, pool_pre_ping=True, connect_args={"connect_timeout": 10})
     try:
         with admin_engine.connect() as conn:
             roles = {
@@ -96,7 +96,7 @@ def postgres_role_readiness_gate(context) -> Output[dict]:
             metadata={"database": MetadataValue.text(database)},
         )
 
-    dagster_engine = create_engine(dagster_url)
+    dagster_engine = create_engine(dagster_url, pool_pre_ping=True, connect_args={"connect_timeout": 10})
     try:
         with dagster_engine.connect() as conn:
             conn.execute(text("SELECT 1"))
