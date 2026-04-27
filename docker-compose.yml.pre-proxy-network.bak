@@ -1,0 +1,230 @@
+services:
+  dagster_webserver:
+    build:
+      context: .
+      dockerfile: platform/dagster_core/dockerfile
+      args:
+        - DAGSTER_APP=${DAGSTER_APP}
+        - DAGSTER_HOME=${DAGSTER_HOME}
+    entrypoint:
+      - dagster-webserver
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "3000"
+      - --workspace
+      - "${DAGSTER_HOME}/workspace.yaml"
+    expose:
+      - "3000"
+    ports:
+      - "${DAGSTER_UI_BIND_HOST:-127.0.0.1}:${DAGSTER_UI_PORT:-3002}:3000"
+    environment:
+      DAGSTER_POSTGRES_HOST: ${DAGSTER_POSTGRES_HOST}
+      DAGSTER_POSTGRES_USER: ${DAGSTER_POSTGRES_USER}
+      DAGSTER_POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD}
+      DAGSTER_POSTGRES_PORT: ${DAGSTER_POSTGRES_PORT}
+      DAGSTER_POSTGRES_DB: ${DAGSTER_POSTGRES_DB}
+      DBT_EXECUTION_CONTEXT: dagster
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/io_manager_storage:/tmp/io_manager_storage
+    networks:
+      - dagster_network
+    depends_on:
+      dagster_postgres:
+        condition: service_healthy
+      pipeline_personal_finance:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    env_file:
+      - .env
+
+  dagster_daemon:
+    build:
+      context: .
+      dockerfile: platform/dagster_core/dockerfile
+      args:
+        DAGSTER_APP: ${DAGSTER_APP}
+        DAGSTER_HOME: ${DAGSTER_HOME}
+    entrypoint:
+      - dagster-daemon
+      - run
+      - --workspace
+      - "${DAGSTER_HOME}/workspace.yaml"
+    # expose:
+    #   - "4000"
+    # ports:
+    #   - "4000:4000"
+    restart: on-failure
+    environment:
+      DAGSTER_POSTGRES_HOST: ${DAGSTER_POSTGRES_HOST}
+      DAGSTER_POSTGRES_USER: ${DAGSTER_POSTGRES_USER}
+      DAGSTER_POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD}
+      DAGSTER_POSTGRES_PORT: ${DAGSTER_POSTGRES_PORT}
+      DAGSTER_POSTGRES_DB: ${DAGSTER_POSTGRES_DB}
+      DAGSTER_HOME: ${DAGSTER_HOME}
+      DAGSTER_APP: ${DAGSTER_APP}
+      DBT_EXECUTION_CONTEXT: dagster
+      DASHBOARD_POLICY_GATE_WARN_ONLY: ${DASHBOARD_POLICY_GATE_WARN_ONLY:-false}
+      GRAFANA_TOKEN: ${GRAFANA_TOKEN}
+      GRAFANA_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      DAGSTER_NETWORK: ${COMPOSE_PROJECT_NAME}_dagster_network
+    # no use on windows.
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/io_manager_storage:${DAGSTER_HOME}/io_manager_storage
+    networks:
+      - dagster_network
+    depends_on:
+      dagster_postgres:
+        condition: service_healthy
+      pipeline_personal_finance:
+        condition: service_healthy
+    env_file:
+      - .env
+
+  pipeline_personal_finance:
+    build:
+      context: .
+      dockerfile: data_projects/qif_personal_finance/pipeline_personal_finance/dockerfile
+      args:
+        - DAGSTER_APP=${DAGSTER_APP}
+    image: ${PIPELINE_IMAGE:-pipeline_personal_finance}
+    command: ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "pipeline_personal_finance"]
+    expose:
+      - "4000"
+    environment:
+      TIMEZONE: Australia/Melbourne
+      DAGSTER_CURRENT_IMAGE: ${PIPELINE_IMAGE:-pipeline_personal_finance}
+      DAGSTER_NETWORK: ${COMPOSE_PROJECT_NAME}_dagster_network
+      DAGSTER_HOME: ${DAGSTER_HOME}
+      DAGSTER_POSTGRES_HOST: ${DAGSTER_POSTGRES_HOST}
+      DAGSTER_POSTGRES_USER: ${DAGSTER_POSTGRES_USER}
+      DAGSTER_POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD}
+      DAGSTER_POSTGRES_PORT: ${DAGSTER_POSTGRES_PORT}
+      DAGSTER_POSTGRES_DB: ${DAGSTER_POSTGRES_DB}
+      DBT_PROJECT_DIR: ${DBT_PROJECT_DIR}
+      DBT_PROFILES_DIR: ${DBT_PROJECT_DIR}
+      DAGSTER_DEPLOYMENT: ${DAGSTER_DEPLOYMENT}
+      # Dashboard QA — use the internal Docker service URL, not the host-external one.
+      # Override GRAFANA_URL in .env if you rename the service or change the internal port.
+      GRAFANA_URL: ${GRAFANA_URL:-http://grafana:3000}
+      # Optional: API token auth for Grafana. If unset, GRAFANA_USER + GRAFANA_ADMIN_PASSWORD are used instead.
+      GRAFANA_TOKEN: ${GRAFANA_TOKEN}
+      GRAFANA_USER: ${GRAFANA_USER}
+      GRAFANA_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      POSTGRES_ADMIN_USER: ${POSTGRES_ADMIN_USER}
+      POSTGRES_ADMIN_PASSWORD: ${POSTGRES_ADMIN_PASSWORD}
+      DASHBOARD_DIR: ${DAGSTER_APP}/platform/grafana/provisioning/dashboards
+      DBT_EXECUTION_CONTEXT: dagster
+    volumes:
+      - /tmp/dagster-data:/tmp/dagster-data
+      - ./data_projects/qif_personal_finance/pipeline_personal_finance/qif_files:${DAGSTER_APP}/data_projects/qif_personal_finance/pipeline_personal_finance/qif_files
+      - ./platform/grafana/provisioning/dashboards:${DAGSTER_APP}/platform/grafana/provisioning/dashboards:ro
+    networks:
+      - dagster_network
+    # ports:
+    #   - "5678:5678"
+    env_file:
+      - .env
+    depends_on:
+      dagster_postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - python -c "import socket; s = socket.create_connection(('127.0.0.1', 4000), 5); s.close()"
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+    # This looks to enable code-server, which is how you can get docker to look for updates.
+    # entrypoint: python
+    # command:
+    #   - -m
+    #   - debugpy
+    #   - --listen
+    #   - 0.0.0.0:5678
+    #   - -m
+    #   - dagster
+    #   - code-server
+    #   - start
+    #   - -h
+    #   - 0.0.0.0
+    #   - -p
+    #   - "4000"
+    #   - -m
+    #   - defs
+
+  dagster_postgres:
+    build:
+      context: ./platform/postgres
+      dockerfile: dockerfile
+    shm_size: 128mb
+    restart: on-failure
+    environment:
+      POSTGRES_USER: ${POSTGRES_ADMIN_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD}
+      POSTGRES_DB: ${DAGSTER_POSTGRES_DB}
+      DAGSTER_POSTGRES_USER: ${DAGSTER_POSTGRES_USER}
+      DAGSTER_POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD}
+      GRAFANA_USER: ${GRAFANA_USER}
+      GRAFANA_PASSWORD: ${GRAFANA_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/personal_finance/
+    # Host port is not needed for container-to-container comms.
+    # Bind one explicitly if you need direct host access for debugging.
+    volumes:
+      - postgres-data:/var/lib/postgresql/data/
+    networks:
+      - dagster_network
+    env_file:
+      - .env
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >
+          PGPASSWORD="$$POSTGRES_PASSWORD" psql -h 127.0.0.1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" -tAc
+          "SELECT CASE WHEN
+          EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'tablefunc')
+          AND EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '$$DAGSTER_POSTGRES_USER')
+          AND EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '$$GRAFANA_USER')
+          THEN 1 ELSE 0 END" | grep -q 1
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  grafana:
+    # Ubuntu image is required for the DuckDB datasource plugin.
+    image: grafana/grafana:12.2.0-ubuntu
+    restart: unless-stopped
+    ports:
+      - "${GRAFANA_BIND_HOST:-127.0.0.1}:${GRAFANA_HOST_PORT:-3001}:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GRAFANA_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_PLUGINS_PREINSTALL=motherduck-duckdb-datasource@https://github.com/motherduckdb/grafana-duckdb-datasource/releases/download/v0.4.0/motherduck-duckdb-datasource-0.4.0.zip
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./data_projects/qif_personal_finance/pipeline_personal_finance/dbt_finance/duckdb:/var/lib/grafana/duckdb
+      - ./platform/grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - dagster_network
+    depends_on:
+      dagster_postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+
+volumes:
+  grafana-storage:
+  postgres-data:
+
+networks:
+  dagster_network:
+    driver: bridge

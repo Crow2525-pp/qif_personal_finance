@@ -10,7 +10,7 @@ import pandas as pd
 
 
 _QIF_FILENAME_PATTERN = re.compile(
-    r"^(?P<bank_name>[^_]+)_(?P<account_name>.+)_Transactions_(?P<extract_date>\d{8})$"
+    r"^(?P<bank_name>[A-Za-z0-9-]+)_(?P<account_name>[A-Za-z0-9_-]+)_Transactions_(?P<extract_date>\d{8})$"
 )
 
 
@@ -29,6 +29,31 @@ def validate_date_format(date_str: str) -> bool:
     return parsed.strftime("%Y%m%d") == date_str
 
 
+def validate_identifier(value: str, field_name: str) -> None:
+    """Validate that an identifier contains only safe alphanumeric characters.
+
+    This prevents SQL injection by ensuring identifiers used in table names
+    contain only letters, numbers, underscores, and hyphens.
+
+    Args:
+        value: The identifier value to validate
+        field_name: Name of the field for error messages
+
+    Raises:
+        ValueError: If the identifier contains unsafe characters
+    """
+    if not value:
+        raise ValueError(f"{field_name} cannot be empty")
+
+    # Allow alphanumeric, underscores, and hyphens only
+    # Explicitly reject quotes, semicolons, and other SQL special characters
+    if not all(c.isalnum() or c in ('_', '-') for c in value):
+        raise ValueError(
+            f"{field_name} '{value}' contains invalid characters. "
+            "Only letters, numbers, underscores, and hyphens are allowed."
+        )
+
+
 def parse_qif_filename(filename: str | Path) -> QifFilenameParts:
     stem = Path(filename).stem
     match = _QIF_FILENAME_PATTERN.fullmatch(stem)
@@ -37,15 +62,22 @@ def parse_qif_filename(filename: str | Path) -> QifFilenameParts:
             "Filename format must be 'BankName_AccountName_Transactions_YYYYMMDD.qif'"
         )
 
+    bank_name = match.group("bank_name")
+    account_name = match.group("account_name")
     extract_date = match.group("extract_date")
+
+    # Validate identifiers to prevent SQL injection
+    validate_identifier(bank_name, "bank_name")
+    validate_identifier(account_name, "account_name")
+
     if not validate_date_format(extract_date):
         raise ValueError(
             f"Invalid date format in filename: {extract_date}. Must be a real YYYYMMDD date"
         )
 
     return QifFilenameParts(
-        bank_name=match.group("bank_name"),
-        account_name=match.group("account_name"),
+        bank_name=bank_name,
+        account_name=account_name,
         extract_date=extract_date,
     )
 

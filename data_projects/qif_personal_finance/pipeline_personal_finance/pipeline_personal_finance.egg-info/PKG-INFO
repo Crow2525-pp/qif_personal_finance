@@ -1,0 +1,16 @@
+Metadata-Version: 2.4
+Name: pipeline-personal-finance
+Version: 0.1.0
+Summary: Dagster code location for personal finance QIF ingestion, dbt transformations, and dashboard QA.
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: dagster>=1.8.13
+Requires-Dist: dagster-dbt>=0.24.13
+Requires-Dist: dagster-postgres>=0.24.13
+Requires-Dist: dagster-webserver>=1.8.13
+Requires-Dist: dbt-core>=1.8.8
+Requires-Dist: dbt-postgres>=1.9.0
+Requires-Dist: numpy>=2.2.2
+Requires-Dist: pandas>=2.2.0
+Requires-Dist: quiffen>=1.2.4
+Requires-Dist: playwright>=1.58.0

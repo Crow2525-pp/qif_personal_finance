@@ -13,6 +13,7 @@ from pipeline_personal_finance.qif_ingestion import (
     sort_qif_files,
     union_unique,
     validate_date_format,
+    validate_identifier,
 )
 
 
@@ -145,3 +146,48 @@ def test_assert_unique_primary_keys_raises_helpful_error():
         )
 
     assert "sample keys: dup" in str(exc.value)
+
+
+def test_validate_identifier_accepts_safe_characters():
+    """Verify that identifiers with alphanumeric, underscore, and hyphen are accepted."""
+    # Should not raise
+    validate_identifier("ValidBank", "bank_name")
+    validate_identifier("Account-Name", "account_name")
+    validate_identifier("Account_Name", "account_name")
+    validate_identifier("Bank123", "bank_name")
+
+
+def test_validate_identifier_rejects_sql_injection_attempts():
+    """Verify that identifiers with SQL special characters are rejected."""
+    malicious_names = [
+        'Bank"; DROP TABLE users; --',
+        "Bank'; DELETE FROM transactions; --",
+        "Bank/* comment */",
+        "Bank;SELECT * FROM secrets",
+        "Bank\\nDROP",
+        "Bank`echo malicious`",
+        "Bank$(whoami)",
+        "Bank|ls",
+    ]
+
+    for malicious in malicious_names:
+        with pytest.raises(ValueError, match=r"contains invalid characters"):
+            validate_identifier(malicious, "test_field")
+
+
+def test_validate_identifier_rejects_empty_values():
+    """Verify that empty identifiers are rejected."""
+    with pytest.raises(ValueError, match=r"cannot be empty"):
+        validate_identifier("", "bank_name")
+
+
+def test_parse_qif_filename_rejects_sql_injection_in_bank_name():
+    """Verify that SQL injection attempts in bank name are rejected."""
+    with pytest.raises(ValueError, match=r"Filename format must be"):
+        parse_qif_filename('Bank";DROP_Account_Transactions_20260427.qif')
+
+
+def test_parse_qif_filename_rejects_sql_injection_in_account_name():
+    """Verify that SQL injection attempts in account name are rejected."""
+    with pytest.raises(ValueError, match=r"Filename format must be"):
+        parse_qif_filename('Bank_Account";DROP_Transactions_20260427.qif')
